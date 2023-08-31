@@ -93,11 +93,12 @@ LI8100_import <- function(inputfile, date.format = "ymd",
 
     # Create output file: change extension to .Rdata, and
     # add instrument name and "imp" for import to file name
-    outputfile <- paste("LI8100_", sub("\\.81x", "", inputfile), "_imp.Rdata", sep = "")
+    file.name <- gsub(".*/", "", sub("\\.81x", "", inputfile))
+    outputfile <- paste("LI8100_", file.name, "_imp.Rdata", sep = "")
 
     save(data.raw, file = paste(Rdata_folder, outputfile, sep = "/"))
 
-    message(inputfile, " saved as ", outputfile, " in Rdata folder, in working directory", sep = "")
+    message(file.name, " saved as ", outputfile, " in Rdata folder, in working directory", sep = "")
   }
 
   if(save == FALSE){
