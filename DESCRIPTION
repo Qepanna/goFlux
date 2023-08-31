@@ -21,6 +21,4 @@ Collate:
     'LI8100_import.R'
     'LI8200_import.R'
     'import2Rdata.R'
-    'mv.dir.R'
-    'supress_message.R'
 Imports: tidyr, plyr, data.table, rjson, purrr, tibble, msm, minpack.lm, rlist, SimDesign, gridExtra, pbapply, lubridate, dplyr

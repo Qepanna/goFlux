@@ -23,9 +23,6 @@ Imports single raw data files from the LI-COR smart chamber (LI-8200)
 # Examples on how to use:
 file.path <- system.file("extdata", "LI8200/example_LI8200.json", package = "GoFluxYourself")
 
-# 1. If you want to import the data and work with it directly
 LI8200.data <- LI8200_import(inputfile = file.path)
 
-# 2. Or if you want to import the data and save it as Rdata
-LI8200_import(inputfile = file.path, save = TRUE)
 }

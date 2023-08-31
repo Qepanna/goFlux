@@ -22,11 +22,8 @@
 #' # Examples on how to use:
 #' file.path <- system.file("extdata", "LI8100/example_LI8100.81x", package = "GoFluxYourself")
 #'
-#' # 1. If you want to import the data and work with it directly
 #' LI8100.data <- LI8100_import(inputfile = file.path)
 #'
-#' # 2. Or if you want to import the data and save it as Rdata
-#' LI8100_import(inputfile = file.path, save = TRUE)
 #' @export
 #'
 LI8100_import <- function(inputfile, date.format = "ymd",
@@ -90,9 +87,17 @@ LI8100_import <- function(inputfile, date.format = "ymd",
 
   # Save cleaned data file
   if(save == TRUE){
-    save(data.raw, file = paste(sub("\\.81x", "\\.Rdata", inputfile), sep = "/"))
-    message("'data.raw' was saved as ", getwd(), "/",
-            paste(sub("\\.81x", "\\.Rdata", inputfile), sep = "/"), sep = "")
+    # Create Rdata folder in working directory
+    Rdata_folder <- paste(getwd(), "Rdata", sep = "/")
+    if(dir.exists(Rdata_folder) == FALSE){dir.create(Rdata_folder)}
+
+    # Create output file: change extension to .Rdata, and
+    # add instrument name and "imp" for import to file name
+    outputfile <- paste("LI8100_", sub("\\.81x", "", inputfile), "_imp.Rdata", sep = "")
+
+    save(data.raw, file = paste(Rdata_folder, outputfile, sep = "/"))
+
+    message(inputfile, " saved as ", outputfile, " in Rdata folder, in working directory", sep = "")
   }
 
   if(save == FALSE){

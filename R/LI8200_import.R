@@ -14,11 +14,8 @@
 #' # Examples on how to use:
 #' file.path <- system.file("extdata", "LI8200/example_LI8200.json", package = "GoFluxYourself")
 #'
-#' # 1. If you want to import the data and work with it directly
 #' LI8200.data <- LI8200_import(inputfile = file.path)
 #'
-#' # 2. Or if you want to import the data and save it as Rdata
-#' LI8200_import(inputfile = file.path, save = TRUE)
 #' @export
 #'
 LI8200_import <- function(inputfile, save = FALSE){
@@ -104,11 +101,19 @@ LI8200_import <- function(inputfile, save = FALSE){
            Etime = seq(0, length(end.time - start.time)-1, 1)) %>%
     ungroup()
 
-  # Save all raw data
+  # Save cleaned data file
   if(save == TRUE){
-    save(data.raw, file = paste(sub("\\.json", "\\.Rdata", inputfile), sep = "/"))
-    message("'data.raw' was saved as ", getwd(), "/",
-            paste(sub("\\.json", "\\.Rdata", inputfile), sep = "/"), sep = "")
+    # Create Rdata folder in working directory
+    Rdata_folder <- paste(getwd(), "Rdata", sep = "/")
+    if(dir.exists(Rdata_folder) == FALSE){dir.create(Rdata_folder)}
+
+    # Create output file: change extension to .Rdata, and
+    # add instrument name and "imp" for import to file name
+    outputfile <- paste("LI8200_", sub("\\.json", "", inputfile), "_imp.Rdata", sep = "")
+
+    save(data.raw, file = paste(Rdata_folder, outputfile, sep = "/"))
+
+    message(inputfile, " saved as ", outputfile, " in Rdata folder, in working directory", sep = "")
   }
 
   if(save == FALSE){

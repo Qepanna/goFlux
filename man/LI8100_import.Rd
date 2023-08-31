@@ -33,9 +33,6 @@ Imports single raw gas measurement files from the LI-COR 8100
 # Examples on how to use:
 file.path <- system.file("extdata", "LI8100/example_LI8100.81x", package = "GoFluxYourself")
 
-# 1. If you want to import the data and work with it directly
 LI8100.data <- LI8100_import(inputfile = file.path)
 
-# 2. Or if you want to import the data and save it as Rdata
-LI8100_import(inputfile = file.path, save = TRUE)
 }

@@ -69,7 +69,7 @@ LI7820_import <- function(inputfile, date.format = "ymd",
 
     # Create output file: change extension to .Rdata, and
     # add instrument name and "imp" for import to file name
-    outputfile <- paste("LI7820_", sub("\\.dat", "", inputfile), "_imp.Rdata", sep = "")
+    outputfile <- paste("LI7820_", sub("\\.data", "", inputfile), "_imp.Rdata", sep = "")
 
     save(data.raw, file = paste(Rdata_folder, outputfile, sep = "/"))
 
