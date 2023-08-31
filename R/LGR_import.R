@@ -22,11 +22,8 @@
 #' # Examples on how to use:
 #' file.path <- system.file("extdata", "LGR/example_LGR.txt", package = "GoFluxYourself")
 #'
-#' # 1. If you want to import the data and work with it directly
 #' LGR.data <- LGR_import(inputfile = file.path)
 #'
-#' # 2. Or if you want to import the data and save it as Rdata
-#' LGR_import(inputfile = file.path, save = TRUE)
 #' @export
 #'
 LGR_import <- function(inputfile, date.format = "dmy",
@@ -74,10 +71,17 @@ LGR_import <- function(inputfile, date.format = "dmy",
 
   # Save cleaned data file
   if(save == TRUE){
-    save(data.raw, file = paste(sub("\\.txt", "\\.Rdata", inputfile), sep = "/"))
-    message("'data.raw' was saved as ", getwd(), "/",
-            paste(sub("\\.txt", "\\.Rdata", inputfile), sep = "/"), sep = "")
+    # Create Rdata folder in working directory
+    Rdata_folder <- paste(getwd(), "Rdata", sep = "/")
+    if(dir.exists(Rdata_folder) == FALSE){dir.create(Rdata_folder)}
 
+    # Create output file: change extension to .Rdata, and
+    # add instrument name and "imp" for import to file name
+    outputfile <- paste("LGR_", sub("\\.dat", "", inputfile), "_imp.Rdata", sep = "")
+
+    save(data.raw, file = paste(Rdata_folder, outputfile, sep = "/"))
+
+    message(inputfile, " saved as ", outputfile, " in Rdata folder, in working directory", sep = "")
   }
 
   if(save == FALSE){

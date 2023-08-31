@@ -33,9 +33,6 @@ Imports single raw gas measurement files from the LI-COR 7820
 # Examples on how to use:
 file.path <- system.file("extdata", "LI7820/example_LI7820.data", package = "GoFluxYourself")
 
-# 1. If you want to import the data and work with it directly
 LI7820.data <- LI7820_import(inputfile = file.path)
 
-# 2. Or if you want to import the data and save it as Rdata
-LI7820_import(inputfile = file.path, save = TRUE)
 }

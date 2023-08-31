@@ -4,7 +4,7 @@
 \alias{mv.dir}
 \title{Move files in folder to another folder}
 \usage{
-mv.dir(in_path, out_path, pattern = NULL, recursive = TRUE)
+mv.dir(in_path, out_path, pattern = NULL, recursive = FALSE)
 }
 \arguments{
 \item{in_path}{a character vector of full path name. Input folder containing files to move}

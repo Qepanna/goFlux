@@ -22,11 +22,8 @@
 #' # Examples on how to use:
 #' file.path <- system.file("extdata", "LI6400/example_LI6400.txt", package = "GoFluxYourself")
 #'
-#' # 1. If you want to import the data and work with it directly
 #' LI6400.data <- LI6400_import(inputfile = file.path)
 #'
-#' # 2. Or if you want to import the data and save it as Rdata
-#' LI6400_import(inputfile = file.path, save = TRUE)
 #' @export
 #'
 LI6400_import <- function(inputfile, date.format = "mdy",
@@ -98,9 +95,17 @@ LI6400_import <- function(inputfile, date.format = "mdy",
 
   # Save cleaned data file
   if(save == TRUE){
-    save(data.raw, file = paste(sub("\\.txt", "\\.Rdata", inputfile), sep = "/"))
-    message("'data.raw' was saved as ", getwd(), "/",
-            paste(sub("\\.txt", "\\.Rdata", inputfile), sep = "/"), sep = "")
+    # Create Rdata folder in working directory
+    Rdata_folder <- paste(getwd(), "Rdata", sep = "/")
+    if(dir.exists(Rdata_folder) == FALSE){dir.create(Rdata_folder)}
+
+    # Create output file: change extension to .Rdata, and
+    # add instrument name and "imp" for import to file name
+    outputfile <- paste("LI6400_", sub("\\.dat", "", inputfile), "_imp.Rdata", sep = "")
+
+    save(data.raw, file = paste(Rdata_folder, outputfile, sep = "/"))
+
+    message(inputfile, " saved as ", outputfile, " in Rdata folder, in working directory", sep = "")
   }
 
   if(save == FALSE){

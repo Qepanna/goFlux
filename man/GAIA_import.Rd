@@ -34,9 +34,6 @@ ECOFlux (GAIA2TECH) with the extension .csv
 # Examples on how to use:
 file.path <- system.file("extdata", "GAIA/example_GAIA.csv", package = "GoFluxYourself")
 
-# 1. If you want to import the data and work with it directly
 GAIA.data <- GAIA_import(inputfile = file.path)
 
-# 2. Or if you want to import the data and save it as Rdata
-GAIA_import(inputfile = file.path, save = TRUE)
 }

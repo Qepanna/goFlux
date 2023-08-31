@@ -33,9 +33,6 @@ Imports single raw gas measurement files from the LI-COR 6400
 # Examples on how to use:
 file.path <- system.file("extdata", "LI6400/example_LI6400.txt", package = "GoFluxYourself")
 
-# 1. If you want to import the data and work with it directly
 LI6400.data <- LI6400_import(inputfile = file.path)
 
-# 2. Or if you want to import the data and save it as Rdata
-LI6400_import(inputfile = file.path, save = TRUE)
 }

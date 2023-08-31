@@ -28,7 +28,7 @@
 #' unlink("out_path", recursive = TRUE)
 #'
 #' @export
-mv.dir <- function(in_path, out_path, pattern = NULL, recursive = TRUE) {
+mv.dir <- function(in_path, out_path, pattern = NULL, recursive = FALSE) {
   if(dir.exists(out_path) == FALSE){dir.create(out_path)}
 
   in_files <- list.files(in_path, pattern = pattern, recursive = TRUE)
@@ -42,5 +42,4 @@ mv.dir <- function(in_path, out_path, pattern = NULL, recursive = TRUE) {
   if (recursive == TRUE) {
     unlink(paste(in_path, sep = "/"), recursive = TRUE)
   }
-
 }

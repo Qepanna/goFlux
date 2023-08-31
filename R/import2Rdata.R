@@ -56,11 +56,14 @@
 #' import2Rdata(path = "inst/extdata/LI8200", instrument = "LI-8200")
 #' @export
 #'
-import2Rdata <- function(path, instrument, date.format,
-                         timezone = "UTC"){
+import2Rdata <- function(path, instrument, date.format, timezone = "UTC"){
 
   # Progress bar options
   pboptions(char = "=")
+
+  # Catch errors and messages from import function to print after progress bar
+  errs <- character(0)
+  msgs <- character(0)
 
   # Los Gatos Research ####
   if(instrument == "LGR"){
@@ -71,15 +74,21 @@ import2Rdata <- function(path, instrument, date.format,
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
 
-      tryCatch(supress_message(
+      withCallingHandlers(
 
         LGR_import(inputfile = file_list[i],
                    date.format = date.format,
                    timezone = timezone,
-                   save = TRUE)),
+                   save = TRUE),
 
         error = function(e){
-          message(paste("Error occurred in file", file_list[[i]],":\n"), e)})
+          errs <<- c(errs, message(
+            paste("Error occurred in file", file_list[[i]],":\n"), e))
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
     })
   }
 
@@ -92,15 +101,21 @@ import2Rdata <- function(path, instrument, date.format,
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
 
-      tryCatch(supress_message(
+      withCallingHandlers(
 
         GAIA_import(inputfile = file_list[i],
                     date.format = date.format,
                     timezone = timezone,
-                    save = TRUE)),
+                    save = TRUE),
 
         error = function(e){
-          message(paste("Error occurred in file", file_list[[i]],":\n"), e)})
+          errs <<- c(errs, message(
+            paste("Error occurred in file", file_list[[i]],":\n"), e))
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
     })
   }
 
@@ -108,21 +123,26 @@ import2Rdata <- function(path, instrument, date.format,
   if(instrument == "G2508"){
 
     # List all the files contained in the specified path
-    file_list <- list.files(path = path, pattern = "\\.dat", recursive = T,
-                            full.names = TRUE)
+    file_list <- list.files(path = path, pattern = "\\.dat", full.names = TRUE)
 
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
 
-      tryCatch(supress_message(
+      withCallingHandlers(
 
         G2508_import(inputfile = file_list[i],
                      date.format = date.format,
                      timezone = timezone,
-                     save = TRUE)),
+                     save = TRUE),
 
         error = function(e){
-          message(paste("Error occurred in file", file_list[[i]],":\n"), e)})
+          errs <<- c(errs, message(
+            paste("Error occurred in file", file_list[[i]],":\n"), e))
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
     })
   }
 
@@ -135,15 +155,21 @@ import2Rdata <- function(path, instrument, date.format,
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
 
-      tryCatch(supress_message(
+      withCallingHandlers(
 
         LI6400_import(inputfile = file_list[i],
                       date.format = date.format,
                       timezone = timezone,
-                      save = TRUE)),
+                      save = TRUE),
 
         error = function(e){
-          message(paste("Error occurred in file", file_list[[i]],":\n"), e)})
+          errs <<- c(errs, message(
+            paste("Error occurred in file", file_list[[i]],":\n"), e))
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
     })
   }
 
@@ -156,15 +182,21 @@ import2Rdata <- function(path, instrument, date.format,
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
 
-      tryCatch(supress_message(
+      withCallingHandlers(
 
         LI7810_import(inputfile = file_list[i],
                       date.format = date.format,
                       timezone = timezone,
-                      save = TRUE)),
+                      save = TRUE),
 
         error = function(e){
-          message(paste("Error occurred in file", file_list[[i]],":\n"), e)})
+          errs <<- c(errs, message(
+            paste("Error occurred in file", file_list[[i]],":\n"), e))
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
     })
   }
 
@@ -177,15 +209,21 @@ import2Rdata <- function(path, instrument, date.format,
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
 
-      tryCatch(supress_message(
+      withCallingHandlers(
 
         LI7820_import(inputfile = file_list[i],
                       date.format = date.format,
                       timezone = timezone,
-                      save = TRUE)),
+                      save = TRUE),
 
         error = function(e){
-          message(paste("Error occurred in file", file_list[[i]],":\n"), e)})
+          errs <<- c(errs, message(
+            paste("Error occurred in file", file_list[[i]],":\n"), e))
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
     })
   }
 
@@ -198,15 +236,21 @@ import2Rdata <- function(path, instrument, date.format,
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
 
-      tryCatch(supress_message(
+      withCallingHandlers(
 
         LI8100_import(inputfile = file_list[i],
                       date.format = date.format,
                       timezone = timezone,
-                      save = TRUE)),
+                      save = TRUE),
 
         error = function(e){
-          message(paste("Error occurred in file", file_list[[i]],":\n"), e)})
+          errs <<- c(errs, message(
+            paste("Error occurred in file", file_list[[i]],":\n"), e))
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
     })
   }
 
@@ -219,26 +263,21 @@ import2Rdata <- function(path, instrument, date.format,
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
 
-      tryCatch(supress_message(
+      withCallingHandlers(
 
-        LI8200_import(inputfile = file_list[i],
-                      save = TRUE)),
+        LI8200_import(inputfile = file_list[i], save = TRUE),
 
         error = function(e){
-          message(paste("Error occurred in file", file_list[[i]],":\n"), e)})
+          errs <<- c(errs, message(
+            paste("Error occurred in file", file_list[[i]],":\n"), e))
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
     })
   }
-
-  # Move files to Rdata folder
-  Rdata_folder <- paste(path, "Rdata", sep = "/")
-  if(dir.exists(Rdata_folder) == FALSE){dir.create(Rdata_folder)}
-
-  mv.dir(in_path = path,
-         out_path = Rdata_folder,
-         pattern = "\\.Rdata",
-         recursive = FALSE)
-
-  message("All files in specified folder path were saved in the newly created folder ",
-          Rdata_folder, " with the extension '.Rdata'")
-
+  # Print errors and messages after progress bar
+  errs <- trimws(errs); for (e in errs) warning(e, call. = F)
+  msgs <- trimws(msgs); for (m in msgs) message(m)
 }

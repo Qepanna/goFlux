@@ -23,11 +23,8 @@
 #' file.path <- system.file("extdata", "G2508/2022/08/01/example_G2508.dat",
 #'                          package = "GoFluxYourself")
 #'
-#' # 1. If you want to import the data and work with it directly
 #' G2508.data <- G2508_import(inputfile = file.path)
 #'
-#' # 2. Or if you want to import the data and save it as Rdata
-#' G2508_import(inputfile = file.path, save = TRUE)
 #' @export
 #'
 G2508_import <- function(inputfile, date.format = "ymd",
@@ -56,6 +53,7 @@ G2508_import <- function(inputfile, date.format = "ymd",
 
   # Create a new column containing date and time (POSIX format)
   op <- options()
+  # Include miliseconds with digits.secs = 6
   options(digits.secs=6)
   if(date.format == "dmy"){
     data.raw$POSIX.time <- as.POSIXct(
@@ -76,9 +74,17 @@ G2508_import <- function(inputfile, date.format = "ymd",
 
   # Save cleaned data file
   if(save == TRUE){
-    save(data.raw, file = paste(sub("\\.dat", "\\.Rdata", inputfile), sep = "/"))
-    message("'data.raw' was saved as ", getwd(), "/",
-            paste(sub("\\.dat", "\\.Rdata", inputfile), sep = "/"), sep = "")
+    # Create Rdata folder in working directory
+    Rdata_folder <- paste(getwd(), "Rdata", sep = "/")
+    if(dir.exists(Rdata_folder) == FALSE){dir.create(Rdata_folder)}
+
+    # Create output file: change extension to .Rdata, and
+    # add instrument name and "imp" for import to file name
+    outputfile <- paste("G2508_", sub("\\.dat", "", inputfile), "_imp.Rdata", sep = "")
+
+    save(data.raw, file = paste(Rdata_folder, outputfile, sep = "/"))
+
+    message(inputfile, " saved as ", outputfile, " in Rdata folder, in working directory", sep = "")
   }
 
   if(save == FALSE){

@@ -34,9 +34,6 @@ extension .dat (CO2, CH4, N2O, and H2O GHG analyzer)
 file.path <- system.file("extdata", "G2508/2022/08/01/example_G2508.dat",
                          package = "GoFluxYourself")
 
-# 1. If you want to import the data and work with it directly
 G2508.data <- G2508_import(inputfile = file.path)
 
-# 2. Or if you want to import the data and save it as Rdata
-G2508_import(inputfile = file.path, save = TRUE)
 }

@@ -33,9 +33,6 @@ Imports single raw gas measurement files from the ultra-portable GHG analyzers
 # Examples on how to use:
 file.path <- system.file("extdata", "LGR/example_LGR.txt", package = "GoFluxYourself")
 
-# 1. If you want to import the data and work with it directly
 LGR.data <- LGR_import(inputfile = file.path)
 
-# 2. Or if you want to import the data and save it as Rdata
-LGR_import(inputfile = file.path, save = TRUE)
 }

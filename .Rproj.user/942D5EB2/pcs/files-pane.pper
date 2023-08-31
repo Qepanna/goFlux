@@ -1,9 +1,13 @@
 {
     "sortOrder": [
         {
+            "columnIndex": 4,
+            "ascending": false
+        },
+        {
             "columnIndex": 2,
             "ascending": true
         }
     ],
-    "path": "I:/SCIENCE-IGN-ALL-Climaite-metdata/GoFluxYourself (Standardized R scripts)/GoFluxYourself"
+    "path": "I:/SCIENCE-IGN-ALL-Climaite-metdata/GoFluxYourself (Standardized R scripts)/test files/LGR"
 }
