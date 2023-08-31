@@ -123,7 +123,8 @@ import2Rdata <- function(path, instrument, date.format, timezone = "UTC"){
   if(instrument == "G2508"){
 
     # List all the files contained in the specified path
-    file_list <- list.files(path = path, pattern = "\\.dat", full.names = TRUE)
+    file_list <- list.files(path = path, pattern = "\\.dat", recursive = T,
+                            full.names = TRUE)
 
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
