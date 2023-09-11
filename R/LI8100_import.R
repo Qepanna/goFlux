@@ -29,21 +29,26 @@
 LI8100_import <- function(inputfile, date.format = "ymd",
                           timezone = "UTC", save = FALSE) {
 
+  # EXAMPLE
+  file.path <- system.file("extdata", "LI8100/example_LI8100.81x", package = "GoFluxYourself")
+  inputfile = file.path
+  date.format = "ymd"
+  timezone = "UTC"
+
   # Assign NULL to variables without binding
-  Type <- Etime <- Tcham <- Pressure <- H2O <- Cdry <- V1 <- V2 <-
-    V3 <- V4 <- H2O_mmol <- DATE_TIME <- Obs <- . <-
+  Type <- Etime <- Tcham <- Pressure <- H2O <- Cdry <- V1 <- V2 <- V3 <- V4 <-
+    H2O_mmol <- DATE_TIME <- Obs <- . <- cham.close <- cham.open <-
     obs.length <- POSIX.time <- plot.ID <- NULL
 
   # Find how many rows need to be skipped
   skip.rows <- as.numeric(which(read.delim(inputfile) == "Type"))[1]
-  obs.rows <- as.numeric(which(read.delim(inputfile) == "Type"))
 
   # Import raw data file from LI8100 (.81x)
   data.raw <- read.delim(inputfile, skip = skip.rows) %>%
     # Keep only Type == 1, as everything else is metadata
     filter(Type == "1") %>%
     # Select useful columns and standardize column names
-    select(Etime, DATE_TIME = Date, TA_cham = Tcham, pressure_cham = Pressure,
+    select(Etime, DATE_TIME = Date, Tcham, Pcham = Pressure,
            H2O_mmol = H2O, CO2dry_ppm = Cdry, V1, V2, V3, V4) %>%
     # Convert column class automatically
     type.convert(as.is = TRUE) %>%
@@ -73,17 +78,19 @@ LI8100_import <- function(inputfile, date.format = "ymd",
             Area = as.numeric(.[which(.[,1] == "Area:"),2]),
             Vcham = as.numeric(.[which(.[,1] == "Vcham:"),2]),
             offset = as.numeric(.[which(.[,1] == "Offset:"),2]),
+            deadband = as.numeric(ms(.[which(.[,1] == "Dead Band:"),2]), units = "secs"),
             obs.length = as.numeric(ms(.[which(.[,1] == "Observation Length:"),2]), units = "secs"))
 
   # Add metadata to data.raw
   data.raw <- data.raw %>%
     left_join(metadata, by = "Obs") %>% group_by(Obs) %>%
-    # Calculate start.time, end.time and correct negative values of Etime
+    # Calculate cham.close, cham.open, flag and correct negative values of Etime
     mutate(Etime = seq(unique(obs.length) - n(), unique(obs.length) -1, 1),
-           start.time = POSIX.time[which(Etime == 0)],
-           end.time = last(POSIX.time)) %>% ungroup() %>%
+           cham.close = POSIX.time[which(Etime == 0)],
+           cham.open = last(POSIX.time)) %>% ungroup() %>%
     mutate(DATE = substr(POSIX.time, 0, 10)) %>%
-    mutate(chamID = paste(plot.ID, Obs, sep = "_"))
+    mutate(chamID = paste(plot.ID, Obs, sep = "_")) %>%
+    mutate(flag = if_else(between(POSIX.time, cham.close, cham.open), 1, 0))
 
   # Save cleaned data file
   if(save == TRUE){
