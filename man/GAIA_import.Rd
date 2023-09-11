@@ -4,7 +4,15 @@
 \alias{GAIA_import}
 \title{Import function for GAIA synced with multiple chambers and instruments}
 \usage{
-GAIA_import(inputfile, date.format = "ymd", timezone = "UTC", save = FALSE)
+GAIA_import(
+  inputfile,
+  date.format = "ymd",
+  timezone = "UTC",
+  pivot = "long",
+  active = TRUE,
+  flag = c(7, 11),
+  save = FALSE
+)
 }
 \arguments{
 \item{inputfile}{the name of a file with the extension .csv}
@@ -18,9 +26,21 @@ Default is "UTC". Note about time zone: I recommend using
 the time zone "UTC" to avoid any issue related to summer
 time and winter time changes.}
 
-\item{save}{logical. If save = TRUE, save the file as Rdata in the current
-working directory. If save = FALSE, return the file in the Console,
-or load in the Environment if assigned to an object.}
+\item{pivot}{Character string. Either "long" or "wide". If pivot = "long",
+each column containing information about Tsoil, Tcham, SWC, PAR
+and operating status (Op.stat) will be saved in a single column
+per parameter. If pivot = "wide", the default display of one column
+per chamber per parameter will be used.}
+
+\item{active}{Logical. If active = TRUE, preserve data for active chambers only.}
+
+\item{flag}{Numeric vector. Indicates the operating status that should be used
+for the flux calculation. Default is flag = c(7,11), where 7 indicates
+"Chamber Idle Closed Clear" and 11 indicates "Chamber Idle Closed Dark".}
+
+\item{save}{logical. If save = TRUE, save the file as Rdata in a Rdata folder
+in the current working directory. If save = FALSE, return the file
+in the Console, or load in the Environment if assigned to an object.}
 }
 \value{
 a data frame

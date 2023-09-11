@@ -12,9 +12,18 @@
 #'                 Default is "UTC". Note about time zone: I recommend using
 #'                 the time zone "UTC" to avoid any issue related to summer
 #'                 time and winter time changes.
-#' @param save logical. If save = TRUE, save the file as Rdata in the current
-#'             working directory. If save = FALSE, return the file in the Console,
-#'             or load in the Environment if assigned to an object.
+#' @param save logical. If save = TRUE, save the file as Rdata in a Rdata folder
+#'             in the current working directory. If save = FALSE, return the file
+#'             in the Console, or load in the Environment if assigned to an object.
+#' @param pivot Character string. Either "long" or "wide". If pivot = "long",
+#'              each column containing information about Tsoil, Tcham, SWC, PAR
+#'              and operating status (Op.stat) will be saved in a single column
+#'              per parameter. If pivot = "wide", the default display of one column
+#'              per chamber per parameter will be used.
+#' @param active Logical. If active = TRUE, preserve data for active chambers only.
+#' @param flag Numeric vector. Indicates the operating status that should be used
+#'             for the flux calculation. Default is flag = c(7,11), where 7 indicates
+#'             "Chamber Idle Closed Clear" and 11 indicates "Chamber Idle Closed Dark".
 #' @returns a data frame
 #'
 #' @include GoFluxYourself-package.R
@@ -27,12 +36,15 @@
 #'
 #' @export
 #'
-GAIA_import <- function(inputfile, date.format = "ymd",
-                        timezone = "UTC", save = FALSE){
+GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
+                        pivot = "long", active = TRUE, flag = c(7,11),
+                        save = FALSE){
 
   # Assign NULL to variables without binding
-  POSIX.time <- Chamber <- DATE_TIME <- XT3C05_H2O <- XT3C04_N2O <- . <-
-    XT2C06_H2O <- XT2C04_CH4 <- XT2C05_CO2 <- SEQUENCE <- Titles. <- NULL
+  POSIX.time <- activ.cham <- DATE_TIME <- XT3C05_H2O <- XT3C04_N2O <- . <-
+    XT2C06_H2O <- XT2C04_CH4 <- XT2C05_CO2 <- SEQUENCE <- Titles. <- Obs <-
+    cham.probe <- chamID <- CO2dry_ppm <- H2O_ppm_LI7810 <- H2O_ppm_LI7820 <-
+    CH4dry_ppb <- N2Odry_ppb <- rbind.fill <- cham.close <- cham.open <- NULL
 
   # Import raw data file from GAIA (.csv)
   data.raw <- read.delim(inputfile, skip = 1, colClasses = "character") %>%
@@ -45,8 +57,13 @@ GAIA_import <- function(inputfile, date.format = "ymd",
     setNames(gsub("1C08_Soil.Moisture", "_SWC", names(.))) %>%
     setNames(gsub("3C07_Sunlight", "_PAR", names(.))) %>%
     setNames(gsub("0C06_OperatingStatus", "_Op.stat", names(.))) %>%
-    mutate(SEQUENCE = substr(SEQUENCE, 9, 9)) %>%
-    dplyr::rename(DATE_TIME = Titles., Chamber = SEQUENCE) %>%
+    # Extract information about light/dark measurements
+    mutate(cover = if_else(grepl("Opaque", SEQUENCE), "Dark", if_else(
+      grepl("Translucent", SEQUENCE), "Clear", NA))) %>%
+    # Extract information about active chamber
+    mutate(SEQUENCE = substr(SEQUENCE, 9, 9),
+           SEQUENCE = ifelse(SEQUENCE == "", "Background", SEQUENCE)) %>%
+    dplyr::rename(DATE_TIME = Titles., activ.cham = SEQUENCE) %>%
     # Gas measurements from GHG analyzers need to be renamed manually
     dplyr::rename(
       # LI-7810: CO2dry_ppm, CH4dry_ppb, H2O_ppm_LI7810
@@ -56,9 +73,85 @@ GAIA_import <- function(inputfile, date.format = "ymd",
       # LI-7820: N2Odry_ppb, H2O_ppm_LI7820
       N2Odry_ppb = XT3C04_N2O,
       H2O_ppm_LI7820 = XT3C05_H2O) %>%
+    # Detect new observations (Obs) and give a chamber UniqueID (chamID)
+    arrange(DATE_TIME) %>%
+    mutate(Obs = rleid(activ.cham),
+           chamID = ifelse(activ.cham == "Background", paste(activ.cham, "_", Obs, sep = ""),
+                           paste("CH", activ.cham, "_", Obs, sep = ""))) %>%
     # Select only useful columns
-    select(contains(c("DATE_TIME", "Chamber", "Tsoil", "Tcham", "SWC", "PAR",
-                      "Op.stat", "ppm", "ppb")))
+    select(contains(c("DATE_TIME", "ChamID", "activ.cham", "Tsoil", "Tcham", "SWC",
+                      "cover", "PAR", "Op.stat", "ppm", "ppb")))
+
+  # Group together all columns containing information and merge data
+  if (pivot == "long"){ # pivot long: only one column per parameter
+
+    ### Operating Status from each active chamber
+    Op.stat <- data.raw %>% select(DATE_TIME, contains("Op.stat")) %>%
+      pivot_longer(contains("Op.stat"), values_to = "Op.stat", names_to = "cham.probe") %>%
+      mutate(cham.probe = substr(cham.probe, 3, 3))
+
+    ### Soil temperature from each active chamber
+    Tsoil <- data.raw %>% select(DATE_TIME, contains("Tsoil")) %>%
+      pivot_longer(contains("Tsoil"), values_to = "Tsoil", names_to = "cham.probe") %>%
+      mutate(cham.probe = substr(cham.probe, 3, 3))
+
+    ### Air temperature from each active chamber
+    Tcham <- data.raw %>% select(DATE_TIME, contains("Tcham")) %>%
+      pivot_longer(contains("Tcham"), values_to = "Tcham", names_to = "cham.probe") %>%
+      mutate(cham.probe = substr(cham.probe, 3, 3))
+
+    ### Soil water content from each active chamber
+    SWC <- data.raw %>% select(DATE_TIME, contains("SWC")) %>%
+      pivot_longer(contains("SWC"), values_to = "SWC", names_to = "cham.probe") %>%
+      mutate(cham.probe = substr(cham.probe, 3, 3))
+
+    ### PAR from each active chamber
+    PAR <- data.raw %>% select(DATE_TIME, contains("PAR")) %>%
+      pivot_longer(contains("PAR"), values_to = "PAR", names_to = "cham.probe") %>%
+      mutate(cham.probe = substr(cham.probe, 3, 3))
+
+    data.raw <- data.raw %>%
+      # Operating status
+      full_join(Op.stat, by = c("DATE_TIME")) %>%
+      select(!contains("_Op.stat")) %>%
+      # Soil temperature
+      full_join(Tsoil, by = c("DATE_TIME", "cham.probe")) %>%
+      select(!contains("_Tsoil")) %>%
+      # Air temperature
+      full_join(Tcham, by = c("DATE_TIME", "cham.probe")) %>%
+      select(!contains("_Tcham")) %>%
+      # Soil water content
+      full_join(SWC, by = c("DATE_TIME", "cham.probe")) %>%
+      select(!contains("_SWC")) %>%
+      # PAR
+      full_join(PAR, by = c("DATE_TIME", "cham.probe")) %>%
+      select(!contains("_PAR"))
+  }
+
+  # Group together all columns containing information and merge data
+  if (pivot == "wide"){ # keep wide: one column per instrument per parameter
+
+    ### Operating Status from each active chamber
+    Op.stat <- data.raw %>% select(DATE_TIME, contains("Op.stat")) %>%
+      pivot_longer(contains("Op.stat"), values_to = "Op.stat", names_to = "cham.probe") %>%
+      mutate(cham.probe = substr(cham.probe, 3, 3))
+
+    data.raw <- data.raw %>%
+      # Only operating status is pivoted long
+      left_join(Op.stat, by = c("DATE_TIME")) %>%
+      select(!contains("_Op.stat"))
+  }
+
+  # Remove measurements from non-active chambers
+  if (active == TRUE){
+    Background <- data.raw %>% filter(grepl("Background", chamID)) %>%
+      select(DATE_TIME, chamID, activ.cham, CO2dry_ppm, H2O_ppm_LI7810,
+             H2O_ppm_LI7820, CH4dry_ppb, N2Odry_ppb, Op.stat) %>%
+      distinct()
+    data.raw <- data.raw %>% filter(activ.cham == cham.probe) %>%
+      rbind.fill(Background) %>% select(!c(cham.probe))
+
+  }
 
   # Create a new column containing date and time (POSIX format)
   op <- options()
@@ -77,17 +170,30 @@ GAIA_import <- function(inputfile, date.format = "ymd",
   }
   options(op)
 
-  # Group together all columns containing information on
-  # Operating Status from each chamber
-  Op.stat <- data.raw %>% select(DATE_TIME, contains("Op.stat")) %>%
-    pivot_longer(contains("Op.stat"), values_to = "Op.stat", names_to = "Chamber") %>%
-    mutate(Chamber = substr(Chamber, 3, 3))
+  # Add other useful variables (DATE, flag, offset, Vcham, Area, Pcham)
+  data.raw <- data.raw %>%
+    mutate(DATE = substr(POSIX.time, 0, 10),
+           flag = ifelse(grepl(paste(flag, collapse = "|"), Op.stat), 1, 0),
+           offset = NA, Vcham = NA, Area = NA, Pcham = NA)
 
-  # Merge data and op.stat information
-  data.raw <- data.raw %>% left_join(Op.stat, by = c("DATE_TIME", "Chamber")) %>%
-    select(!contains("_Op.stat")) %>%
-    # Add a column for DATE
-    mutate(DATE = substr(POSIX.time, 0, 10))
+  # Calculate chamber closure and chamber opening
+  data.time <- data.raw %>% select(chamID, flag, POSIX.time) %>%
+    filter(flag == 1) %>% group_by(chamID) %>%
+    summarise(cham.close = first(POSIX.time),
+              cham.open = last(POSIX.time)) %>% ungroup()
+
+  # Calculate Etime
+  Etime <- data.raw %>% full_join(data.time, by = "chamID") %>%
+    select(POSIX.time, chamID, cham.close, cham.open) %>%
+    filter(!grepl("Background", chamID)) %>% group_by(chamID) %>%
+    mutate(min = as.numeric(first(POSIX.time) - unique(cham.close), units = "secs"),
+           max = as.numeric(last(POSIX.time) - first(POSIX.time), units = "secs"),
+           Etime = seq(from = unique(min), to = unique(max) + unique(min))) %>%
+    ungroup() %>% select(!c(min, max))
+
+  # Merge data
+  data.raw <- data.raw %>% full_join(Etime, by = c("chamID", "POSIX.time")) %>%
+    mutate(obs.length = as.numeric(cham.open - cham.close, units = "secs"))
 
   # Save cleaned data file
   if(save == TRUE){

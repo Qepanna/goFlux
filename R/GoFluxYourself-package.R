@@ -2,6 +2,7 @@
 #' @importFrom tidyr drop_na
 #' @importFrom tidyr fill
 #' @importFrom plyr tryapply
+#' @importFrom plyr rbind.fill
 #' @importFrom data.table rleid
 #' @importFrom rjson fromJSON
 #' @importFrom purrr map_df
