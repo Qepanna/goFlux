@@ -3,9 +3,13 @@
 #' Imports single raw data files from the LI-COR smart chamber (LI-8200)
 #'
 #' @param inputfile the name of a file with the extension .json
-#' @param save logical. If save = TRUE, save the file as Rdata in the current
-#'             working directory. If save = FALSE, return the file in the Console,
-#'             or load in the Environment if assigned to an object.
+#' @param save logical. If save = TRUE, save the file as Rdata in a Rdata folder
+#'             in the current working directory. If save = FALSE, return the file
+#'             in the Console, or load in the Environment if assigned to an object.
+#' @param timezone a time zone in which to import the data to POSIXct format.
+#'                 Default is "UTC". Note about time zone: I recommend using
+#'                 the time zone "UTC" to avoid any issue related to summer
+#'                 time and winter time changes.
 #' @returns a data frame
 #'
 #' @include GoFluxYourself-package.R
@@ -18,12 +22,12 @@
 #'
 #' @export
 #'
-LI8200_import <- function(inputfile, save = FALSE){
+LI8200_import <- function(inputfile, timezone = "UTC", save = FALSE){
 
   # Assign NULL to variables without binding
-  h2o <- cham.close <- deadband <- POSIX.time <- plot.ID <- n2o <- . <-
+  h2o <- cham.close <- deadband <- POSIX.time <- plot.ID <- n2o <- Etime <-
     ch4 <- co2 <- H2O_ppm <- chamber_t <- chamber_p <- Vcham <- Area <-
-    soilp_m <- soilp_t <- DATE <- end.time <- start.time <- NULL
+    soilp_m <- . <- soilp_t <- DATE <- cham.open <- start.time <- NULL
 
   # Load data file
   data.raw.ls <- fromJSON(file = inputfile)
@@ -35,6 +39,7 @@ LI8200_import <- function(inputfile, save = FALSE){
   deadband.ls <- list()
   Vcham.ls <- list()
   offset.ls <- list()
+  Area.ls <- list()
 
   # Loop through data.raw.ls
   for (i in 1:length(data.raw.ls$datasets)) {
@@ -55,6 +60,8 @@ LI8200_import <- function(inputfile, save = FALSE){
         Vcham.ls[[i]] <- all.reps[[j]]$header$TotalVolume
         # Extract chamber offset (collar height) from "Offset"
         offset.ls[[i]] <- all.reps[[j]]$header$Offset
+        # Extract chamber Area (collar inner Area) from "Area"
+        Area.ls[[i]] <- all.reps[[j]]$header$Area
       }
       # Convert list of data into a dataframe
       df.ls[[i]] <- map_df(rep.ls, ~as.data.frame(.x), .id="rep")
@@ -64,6 +71,7 @@ LI8200_import <- function(inputfile, save = FALSE){
       deadband.ls[[i]] <- NA
       Vcham.ls[[i]] <- NA
       offset.ls[[i]] <- NA
+      Area.ls[[i]] <- NA
     }
   }
 
@@ -74,7 +82,8 @@ LI8200_import <- function(inputfile, save = FALSE){
     cham.close = unlist(cham.close.ls),
     deadband = unlist(deadband.ls),
     Vcham = unlist(Vcham.ls),
-    Area = 324)
+    offset = unlist(offset.ls),
+    Area = unlist(Area.ls))
 
   # Create extra columns for CO2, CH4 or N2O, if missing
   cols <- c(co2 = NA_real_, ch4 = NA_real_, n2o = NA_real_)
@@ -86,20 +95,25 @@ LI8200_import <- function(inputfile, save = FALSE){
     add_column(!!!cols[!names(cols) %in% names(.)]) %>%
     # Convert H2O_mmol/mol into H2O_ppm
     mutate(H2O_ppm = h2o*1000) %>%
-    # Create a column for POSIX time (USE UTC TIME ZONE!)
-    mutate(POSIX.time = as.POSIXct(cham.close, tz = "UTC") + timestamp + deadband,
+    # Create a column for POSIX time
+    mutate(cham.close = as.POSIXct(cham.close, tz = timezone),
+           POSIX.time = cham.close + timestamp,
+           Etime = timestamp - deadband,
            DATE = substr(POSIX.time, 0, 10)) %>%
     # Select and rename useful columns
-    select(POSIX.time, plot.ID, rep,  Etime = timestamp, cham.close, deadband,
+    select(POSIX.time, plot.ID, rep, cham.close, deadband, Etime,
            N2Odry_ppb = n2o, CH4dry_ppb = ch4, CO2dry_ppm = co2, H2O_ppm,
-           TA_cham = chamber_t, pressure_cham = chamber_p, Vcham, Area,
-           SWC_cham = soilp_m, TS_cham = soilp_t, DATE) %>%
-    # Add start.time and end.time (POSIX.time)
+           Tcham = chamber_t, Pcham = chamber_p, Vcham, Area,
+           SWC = soilp_m, Tsoil = soilp_t, DATE) %>%
+    # Add start.time and cham.open (POSIX.time)
     group_by(plot.ID, rep) %>%
-    mutate(start.time = first(POSIX.time),
-           end.time = last(POSIX.time),
-           Etime = seq(0, length(end.time - start.time)-1, 1)) %>%
-    ungroup()
+    mutate(start.time = cham.close + deadband,
+           cham.open = last(POSIX.time),
+           obs.length = as.numeric(cham.open - cham.close, units = "secs")+1) %>%
+    ungroup() %>%
+    # Create chamID and flag
+    mutate(chamID = paste(plot.ID, rep, sep = "_"),
+           flag = if_else(between(POSIX.time, start.time, cham.open), 1, 0))
 
   # Save cleaned data file
   if(save == TRUE){

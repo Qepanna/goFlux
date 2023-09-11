@@ -4,14 +4,19 @@
 \alias{LI8200_import}
 \title{Import function for LI-COR smart chamber (LI-8200)}
 \usage{
-LI8200_import(inputfile, save = FALSE)
+LI8200_import(inputfile, timezone = "UTC", save = FALSE)
 }
 \arguments{
 \item{inputfile}{the name of a file with the extension .json}
 
-\item{save}{logical. If save = TRUE, save the file as Rdata in the current
-working directory. If save = FALSE, return the file in the Console,
-or load in the Environment if assigned to an object.}
+\item{timezone}{a time zone in which to import the data to POSIXct format.
+Default is "UTC". Note about time zone: I recommend using
+the time zone "UTC" to avoid any issue related to summer
+time and winter time changes.}
+
+\item{save}{logical. If save = TRUE, save the file as Rdata in a Rdata folder
+in the current working directory. If save = FALSE, return the file
+in the Console, or load in the Environment if assigned to an object.}
 }
 \value{
 a data frame

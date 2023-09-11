@@ -11,9 +11,9 @@
 #'                 Default is "UTC". Note about time zone: I recommend using
 #'                 the time zone "UTC" to avoid any issue related to summer
 #'                 time and winter time changes.
-#' @param save logical. If save = TRUE, save the file as Rdata in the current
-#'             working directory. If save = FALSE, return the file in the Console,
-#'             or load in the Environment if assigned to an object.
+#' @param save logical. If save = TRUE, save the file as Rdata in a Rdata folder
+#'             in the current working directory. If save = FALSE, return the file
+#'             in the Console, or load in the Environment if assigned to an object.
 #' @returns a data frame
 #'
 #' @include GoFluxYourself-package.R
@@ -29,16 +29,10 @@
 LI8100_import <- function(inputfile, date.format = "ymd",
                           timezone = "UTC", save = FALSE) {
 
-  # EXAMPLE
-  file.path <- system.file("extdata", "LI8100/example_LI8100.81x", package = "GoFluxYourself")
-  inputfile = file.path
-  date.format = "ymd"
-  timezone = "UTC"
-
   # Assign NULL to variables without binding
   Type <- Etime <- Tcham <- Pressure <- H2O <- Cdry <- V1 <- V2 <- V3 <- V4 <-
-    H2O_mmol <- DATE_TIME <- Obs <- . <- cham.close <- cham.open <-
-    obs.length <- POSIX.time <- plot.ID <- NULL
+    H2O_mmol <- DATE_TIME <- Obs <- . <- cham.close <- cham.open <- deadband <-
+    start.time <- obs.length <- POSIX.time <- plot.ID <- NULL
 
   # Find how many rows need to be skipped
   skip.rows <- as.numeric(which(read.delim(inputfile) == "Type"))[1]
@@ -88,9 +82,10 @@ LI8100_import <- function(inputfile, date.format = "ymd",
     mutate(Etime = seq(unique(obs.length) - n(), unique(obs.length) -1, 1),
            cham.close = POSIX.time[which(Etime == 0)],
            cham.open = last(POSIX.time)) %>% ungroup() %>%
-    mutate(DATE = substr(POSIX.time, 0, 10)) %>%
-    mutate(chamID = paste(plot.ID, Obs, sep = "_")) %>%
-    mutate(flag = if_else(between(POSIX.time, cham.close, cham.open), 1, 0))
+    mutate(DATE = substr(POSIX.time, 0, 10),
+           chamID = paste(plot.ID, Obs, sep = "_"),
+           start.time = cham.close + deadband,
+           flag = if_else(between(POSIX.time, start.time, cham.open), 1, 0))
 
   # Save cleaned data file
   if(save == TRUE){
