@@ -11,9 +11,9 @@
 #'                 Default is "UTC". Note about time zone: I recommend using
 #'                 the time zone "UTC" to avoid any issue related to summer
 #'                 time and winter time changes.
-#' @param save logical. If save = TRUE, save the file as Rdata in the current
-#'             working directory. If save = FALSE, return the file in the Console,
-#'             or load in the Environment if assigned to an object.
+#' @param save logical. If save = TRUE, save the file as Rdata in a Rdata folder
+#'             in the current working directory. If save = FALSE, return the file
+#'             in the Console, or load in the Environment if assigned to an object.
 #' @returns a data frame
 #'
 #' @include GoFluxYourself-package.R
