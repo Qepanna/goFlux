@@ -11,9 +11,9 @@
 #'                 Default is "UTC". Note about time zone: I recommend using
 #'                 the time zone "UTC" to avoid any issue related to summer
 #'                 time and winter time changes.
-#' @param save logical. If save = TRUE, save the file as Rdata in the current
-#'             working directory. If save = FALSE, return the file in the Console,
-#'             or load in the Environment if assigned to an object.
+#' @param save logical. If save = TRUE, save the file as Rdata in a Rdata folder
+#'             in the current working directory. If save = FALSE, return the file
+#'             in the Console, or load in the Environment if assigned to an object.
 #' @returns a data frame
 #'
 #' @include GoFluxYourself-package.R
@@ -30,7 +30,7 @@ LI6400_import <- function(inputfile, date.format = "mdy",
                           timezone = "UTC", save = FALSE){
 
   # Assign NULL to variables without binding
-  start.time <- end.time <- POSIX.time <- chamID <- DATE <- TIME <- H2O_mmol <-
+  cham.close <- cham.open <- POSIX.time <- chamID <- DATE <- TIME <- H2O_mmol <-
     Etime <- CO2dry_ppm <- Meas.type <- plot.ID <- H2OS <- Cdry <- Press <-
     Tair <- Mode <- ETime <- HHMMSS <- Meas.type..NEE.ER. <- Plot. <- Obs <-
     V4 <- V1 <- NULL
@@ -61,7 +61,7 @@ LI6400_import <- function(inputfile, date.format = "mdy",
     # Select useful columns and standardize column names
     select(Obs, plot.ID = Plot., Meas.type = Meas.type..NEE.ER.,
            TIME = HHMMSS, Etime = ETime, Mode,
-           TA_cham = Tair, pressure_cham = Press,
+           Tcham = Tair, Pcham = Press,
            CO2dry_ppm = Cdry, H2O_mmol = H2OS) %>%
     # Create a unique chamber ID
     mutate(chamID = paste(plot.ID, Meas.type, sep = "_")) %>%
@@ -87,11 +87,15 @@ LI6400_import <- function(inputfile, date.format = "mdy",
     mutate(Area = as.numeric(metadata[which(metadata[,3] == "Area")[1],4]),
            Vcham = as.numeric(metadata[which(metadata[,3] == "Vtot")[1],4]),
            offset = as.numeric(metadata[which(metadata[,3] == "Offset")[1],4])) %>%
-    # Add start.time and end.time (POSIX.time)
+    # Add cham.close and cham.open (POSIX.time)
     group_by(chamID) %>%
-    mutate(start.time = first(POSIX.time),
-           end.time = last(POSIX.time),
-           Etime = seq(0, length(end.time - start.time)-1, 1)) %>% ungroup()
+    mutate(cham.close = first(POSIX.time),
+           start.time = cham.close,
+           cham.open = last(POSIX.time),
+           Etime = seq(0, length(cham.open - cham.close)-1, 1)) %>%
+    ungroup() %>%
+    mutate(obs.length = as.numeric(cham.open - cham.close, units = "secs"),
+           flag = 1)
 
   # Save cleaned data file
   if(save == TRUE){
