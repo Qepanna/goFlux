@@ -8,19 +8,19 @@
 #' * Picarro: G2508
 #' @md
 #'
-#' @param path A folder path containing all files to be imported. Ideally, the
-#'             folder should only contain the files to be imported.
-#' @param instrument Specify which instrument was used to generate the files
-#'                   contained in the folder path. Chose one of the following:
-#'                   "LGR", "G2508", "GAIA", "LI-6400", "LI-7810", "LI-7820",
-#'                   "LI-8100", or "LI-8200".
+#' @param path Character string. A folder path containing all files to be imported.
+#'             Ideally, the folder should only contain the files to be imported.
+#' @param instrument Character string. Specify which instrument was used to generate
+#'                   the files contained in the folder path. Chose one of the
+#'                   following: "LGR", "G2508", "GAIA", "LI-6400", "LI-7810",
+#'                   "LI-7820", "LI-8100", or "LI-8200".
 #' @param date.format Date format. Chose one of the following: "dmy", "ymd", or "mdy".
 #' @param timezone a time zone in which to import the data to POSIXct format.
 #'                 Default is "UTC". Note about time zone: I recommend using
 #'                 the time zone "UTC" to avoid any issue related to summer
 #'                 time and winter time changes.
 #' @returns a data frame saved as Rdata in a newly created folder, Rdata, into
-#'          the specified folder path: ./path/Rdata/file.Rdata
+#'          your working directory.
 #'
 #' @include GoFluxYourself-package.R
 #' @include G2508_import.R
