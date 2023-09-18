@@ -30,9 +30,10 @@ Imports single raw gas measurement files from the LI-COR 8100
 (CO2 and H2O GHG analyzer)
 }
 \examples{
-# Examples on how to use:
+# Load file from downloaded package
 file.path <- system.file("extdata", "LI8100/example_LI8100.81x", package = "GoFluxYourself")
 
+# Run function
 LI8100.data <- LI8100_import(inputfile = file.path)
 
 }

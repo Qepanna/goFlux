@@ -25,9 +25,10 @@ a data frame
 Imports single raw data files from the LI-COR smart chamber (LI-8200)
 }
 \examples{
-# Examples on how to use:
+# Load file from downloaded package
 file.path <- system.file("extdata", "LI8200/example_LI8200.json", package = "GoFluxYourself")
 
+# Run function
 LI8200.data <- LI8200_import(inputfile = file.path)
 
 }

@@ -30,10 +30,11 @@ Imports single raw gas measurement files from the Picarro G2508 with the
 extension .dat (CO2, CH4, N2O, and H2O GHG analyzer)
 }
 \examples{
-# Examples on how to use:
+# Load file from downloaded package
 file.path <- system.file("extdata", "G2508/2022/08/01/example_G2508.dat",
                          package = "GoFluxYourself")
 
+# Run function
 G2508.data <- G2508_import(inputfile = file.path)
 
 }

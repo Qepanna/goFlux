@@ -33,7 +33,7 @@
 #' @include LI8200_import.R
 #'
 #' @examples
-#' # Example on how to use it with all instruments.
+#' # Examples on how to use it with all instruments.
 #' # The default time zone "UTC" is used in all cases.
 #'
 #' # with Los Gatos Research instruments (e.g. UGGA or m-GGA)

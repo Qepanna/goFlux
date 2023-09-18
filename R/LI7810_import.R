@@ -19,9 +19,10 @@
 #' @include GoFluxYourself-package.R
 #'
 #' @examples
-#' # Examples on how to use:
+#' # Load file from downloaded package
 #' file.path <- system.file("extdata", "LI7810/example_LI7810.data", package = "GoFluxYourself")
 #'
+#' # Run function
 #' LI7810.data <- LI7810_import(inputfile = file.path)
 #'
 #' @export
@@ -67,10 +68,10 @@ LI7810_import <- function(inputfile, date.format = "ymd",
     Rdata_folder <- paste(getwd(), "Rdata", sep = "/")
     if(dir.exists(Rdata_folder) == FALSE){dir.create(Rdata_folder)}
 
-    # Create output file: change extension to .Rdata, and
+    # Create output file: change extension to .RData, and
     # add instrument name and "imp" for import to file name
     file.name <- gsub(".*/", "", sub("\\.data", "", inputfile))
-    outputfile <- paste("LI7810_", file.name, "_imp.Rdata", sep = "")
+    outputfile <- paste("LI7810_", file.name, "_imp.RData", sep = "")
 
     save(data.raw, file = paste(Rdata_folder, outputfile, sep = "/"))
 

@@ -201,10 +201,10 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
     Rdata_folder <- paste(getwd(), "Rdata", sep = "/")
     if(dir.exists(Rdata_folder) == FALSE){dir.create(Rdata_folder)}
 
-    # Create output file: change extension to .Rdata, and
+    # Create output file: change extension to .RData, and
     # add instrument name and "imp" for import to file name
     file.name <- gsub(".*/", "", sub("\\.csv", "", inputfile))
-    outputfile <- paste("GAIA_", file.name, "_imp.Rdata", sep = "")
+    outputfile <- paste("GAIA_", file.name, "_imp.RData", sep = "")
 
     save(data.raw, file = paste(Rdata_folder, outputfile, sep = "/"))
 

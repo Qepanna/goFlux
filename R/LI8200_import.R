@@ -15,9 +15,10 @@
 #' @include GoFluxYourself-package.R
 #'
 #' @examples
-#' # Examples on how to use:
+#' # Load file from downloaded package
 #' file.path <- system.file("extdata", "LI8200/example_LI8200.json", package = "GoFluxYourself")
 #'
+#' # Run function
 #' LI8200.data <- LI8200_import(inputfile = file.path)
 #'
 #' @export
@@ -121,10 +122,10 @@ LI8200_import <- function(inputfile, timezone = "UTC", save = FALSE){
     Rdata_folder <- paste(getwd(), "Rdata", sep = "/")
     if(dir.exists(Rdata_folder) == FALSE){dir.create(Rdata_folder)}
 
-    # Create output file: change extension to .Rdata, and
+    # Create output file: change extension to .RData, and
     # add instrument name and "imp" for import to file name
     file.name <- gsub(".*/", "", sub("\\.json", "", inputfile))
-    outputfile <- paste("LI8200_", file.name, "_imp.Rdata", sep = "")
+    outputfile <- paste("LI8200_", file.name, "_imp.RData", sep = "")
 
     save(data.raw, file = paste(Rdata_folder, outputfile, sep = "/"))
 

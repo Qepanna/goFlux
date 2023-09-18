@@ -7,13 +7,13 @@
 import2Rdata(path, instrument, date.format, timezone = "UTC")
 }
 \arguments{
-\item{path}{A folder path containing all files to be imported. Ideally, the
-folder should only contain the files to be imported.}
+\item{path}{Character string. A folder path containing all files to be imported.
+Ideally, the folder should only contain the files to be imported.}
 
-\item{instrument}{Specify which instrument was used to generate the files
-contained in the folder path. Chose one of the following:
-"LGR", "G2508", "GAIA", "LI-6400", "LI-7810", "LI-7820",
-"LI-8100", or "LI-8200".}
+\item{instrument}{Character string. Specify which instrument was used to generate
+the files contained in the folder path. Chose one of the
+following: "LGR", "G2508", "GAIA", "LI-6400", "LI-7810",
+"LI-7820", "LI-8100", or "LI-8200".}
 
 \item{date.format}{Date format. Chose one of the following: "dmy", "ymd", or "mdy".}
 
@@ -24,7 +24,7 @@ time and winter time changes.}
 }
 \value{
 a data frame saved as Rdata in a newly created folder, Rdata, into
-the specified folder path: ./path/Rdata/file.Rdata
+your working directory.
 }
 \description{
 Imports all raw gas measurement files contained in a folder.
@@ -37,7 +37,7 @@ Adapted to multiple greenhouse gas analyzers:
 }
 }
 \examples{
-# Example on how to use it with all instruments.
+# Examples on how to use it with all instruments.
 # The default time zone "UTC" is used in all cases.
 
 # with Los Gatos Research instruments (e.g. UGGA or m-GGA)

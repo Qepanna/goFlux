@@ -30,9 +30,10 @@ Imports single raw gas measurement files from the LI-COR 7810
 (CO2, CH4 and H2O GHG analyzer)
 }
 \examples{
-# Examples on how to use:
+# Load file from downloaded package
 file.path <- system.file("extdata", "LI7810/example_LI7810.data", package = "GoFluxYourself")
 
+# Run function
 LI7810.data <- LI7810_import(inputfile = file.path)
 
 }

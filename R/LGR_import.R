@@ -75,10 +75,10 @@ LGR_import <- function(inputfile, date.format = "dmy",
     Rdata_folder <- paste(getwd(), "Rdata", sep = "/")
     if(dir.exists(Rdata_folder) == FALSE){dir.create(Rdata_folder)}
 
-    # Create output file: change extension to .Rdata, and
+    # Create output file: change extension to .RData, and
     # add instrument name and "imp" for import to file name
     file.name <- gsub(".*/", "", sub("\\.txt", "", inputfile))
-    outputfile <- paste("LGR_", file.name, "_imp.Rdata", sep = "")
+    outputfile <- paste("LGR_", file.name, "_imp.RData", sep = "")
 
     save(data.raw, file = paste(Rdata_folder, outputfile, sep = "/"))
 

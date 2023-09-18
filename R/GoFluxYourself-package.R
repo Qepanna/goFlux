@@ -9,6 +9,7 @@
 #' @importFrom tibble add_column
 #' @importFrom msm deltamethod
 #' @importFrom minpack.lm nlsLM
+#' @importFrom minpack.lm nls.lm.control
 #' @importFrom rlist list.group
 #' @importFrom SimDesign quiet
 #' @importFrom gridExtra marrangeGrob
@@ -18,6 +19,18 @@
 #' @importFrom utils type.convert
 #' @importFrom pbapply pboptions
 #' @importFrom pbapply pblapply
+#' @importFrom graphics axis.POSIXct
+#' @importFrom graphics identify
+#' @importFrom grDevices dev.new
+#' @importFrom grDevices dev.flush
+#' @importFrom grDevices dev.off
+#' @importFrom stats na.omit
+#' @importFrom stats lm
+#' @importFrom stats as.formula
+#' @importFrom stats coef
+#' @importFrom stats na.exclude
+#' @importFrom stats vcov
+#' @importFrom stats fitted
 #' @import dplyr
 #' @import lubridate
 NULL

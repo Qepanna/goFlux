@@ -30,9 +30,10 @@ Imports single raw gas measurement files from the LI-COR 6400
 (CO2 and H2O GHG analyzer)
 }
 \examples{
-# Examples on how to use:
+# Load file from downloaded package
 file.path <- system.file("extdata", "LI6400/example_LI6400.txt", package = "GoFluxYourself")
 
+# Run function
 LI6400.data <- LI6400_import(inputfile = file.path)
 
 }
