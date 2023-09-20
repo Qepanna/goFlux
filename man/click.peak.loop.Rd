@@ -93,3 +93,8 @@ example_LI6400_manID <- lapply(seq(1,3), click.peak.loop,
   map_df(., ~as.data.frame(.x))
 
 }
+\seealso{
+[click.peak()]
+
+[obs.win()]
+}

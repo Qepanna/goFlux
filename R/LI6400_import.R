@@ -18,6 +18,15 @@
 #'
 #' @include GoFluxYourself-package.R
 #'
+#' @seealso [import2Rdata()]
+#' @seealso [G2508_import()]
+#' @seealso [GAIA_import()]
+#' @seealso [LGR_import()]
+#' @seealso [LI7810_import()]
+#' @seealso [LI7820_import()]
+#' @seealso [LI8100_import()]
+#' @seealso [LI8200_import()]
+#'
 #' @examples
 #' # Load file from downloaded package
 #' file.path <- system.file("extdata", "LI6400/example_LI6400.txt", package = "GoFluxYourself")
@@ -32,7 +41,7 @@ LI6400_import <- function(inputfile, date.format = "mdy",
 
   # Assign NULL to variables without binding
   cham.close <- cham.open <- POSIX.time <- chamID <- DATE <- TIME <- H2O_mmol <-
-    Etime <- CO2dry_ppm <- Meas.type <- plot.ID <- H2OS <- Cdry <- Press <-
+    Etime <- CO2dry_ppm <- Meas.type <- plotID <- H2OS <- Cdry <- Press <-
     Tair <- Mode <- ETime <- HHMMSS <- Meas.type..NEE.ER. <- Plot. <- Obs <-
     V4 <- V1 <- NULL
 
@@ -60,12 +69,12 @@ LI6400_import <- function(inputfile, date.format = "mdy",
   # Import raw data file from LI6400 (.txt)
   data.raw <- read.delim(inputfile, skip = skip.rows) %>%
     # Select useful columns and standardize column names
-    select(Obs, plot.ID = Plot., Meas.type = Meas.type..NEE.ER.,
+    select(Obs, plotID = Plot., Meas.type = Meas.type..NEE.ER.,
            TIME = HHMMSS, Etime = ETime, Mode,
            Tcham = Tair, Pcham = Press,
            CO2dry_ppm = Cdry, H2O_mmol = H2OS) %>%
     # Create a unique chamber ID
-    mutate(chamID = paste(plot.ID, Meas.type, sep = "_")) %>%
+    mutate(chamID = paste(plotID, Meas.type, sep = "_")) %>%
     # Remove comments
     filter(!CO2dry_ppm == "") %>% filter(!Obs == "Obs") %>%
     # Convert column class automatically

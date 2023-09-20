@@ -23,6 +23,11 @@
 #'              Hutchinson and Mosier model. Calculated with the k.max function.
 #' @param k.ratio numerical; a multiplier for the allowed k.max. Default is
 #'                k.ratio = 1.
+#' @param Ci.lim numerical vector of length 2; inferior and superior limits of
+#'               the maximal concentration at the end of the measurement.
+#'               Same units as Ci.
+#' @param C0.lim numerical vector of length 2; inferior and superior limits of
+#'               the intercept (initial concentration). Same units as C0.
 #'
 #' @return a data.frame
 #'
@@ -86,5 +91,9 @@ HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
     HM_results <- cbind.data.frame(HM.Ci, HM.C0, HM.k, HM.slope, HM.flux,
                                    HM.se, HM.se.rel, HM.R2, HM.RMSE)
 
+  } else {
+    HM_results <- cbind.data.frame(HM.Ci = NA, HM.C0 = NA, HM.k = NA,
+                                   HM.slope = NA, HM.flux = NA, HM.se = NA,
+                                   HM.se.rel = NA, HM.R2 = NA, HM.RMSE = NA)
   }
 }

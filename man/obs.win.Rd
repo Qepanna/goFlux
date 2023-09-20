@@ -68,3 +68,10 @@ data(example_LI6400_imp)
 example_LI6400_ow <- obs.win(inputfile = example_LI6400_imp, shoulder = 0)
 
 }
+\seealso{
+[click.peak.loop()]
+
+[click.peak()]
+
+[obs.win()]
+}

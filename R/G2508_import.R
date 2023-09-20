@@ -18,6 +18,15 @@
 #'
 #' @include GoFluxYourself-package.R
 #'
+#' @seealso [import2Rdata()]
+#' @seealso [GAIA_import()]
+#' @seealso [LGR_import()]
+#' @seealso [LI6400_import()]
+#' @seealso [LI7810_import()]
+#' @seealso [LI7820_import()]
+#' @seealso [LI8100_import()]
+#' @seealso [LI8200_import()]
+#'
 #' @examples
 #' # Load file from downloaded package
 #' file.path <- system.file("extdata", "G2508/2022/08/01/example_G2508.dat",

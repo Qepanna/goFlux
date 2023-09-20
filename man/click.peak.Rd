@@ -81,3 +81,8 @@ example_LI6400_ow <- obs.win(inputfile = example_LI6400_imp, shoulder = 0)
 example_LI6400_manID <- click.peak(example_LI6400_ow[[1]])
 
 }
+\seealso{
+[click.peak.loop()]
+
+[obs.win()]
+}

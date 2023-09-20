@@ -38,6 +38,9 @@
 #' @include GoFluxYourself-package.R
 #' @include click.peak.R
 #'
+#' @seealso [click.peak()]
+#' @seealso [obs.win()]
+#'
 #' @examples
 #' # Examples on how to use it in multiple situations:
 #' # Note that gastype = "CO2dry_ppm" is the default setting

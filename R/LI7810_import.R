@@ -18,6 +18,15 @@
 #'
 #' @include GoFluxYourself-package.R
 #'
+#' @seealso [import2Rdata()]
+#' @seealso [G2508_import()]
+#' @seealso [GAIA_import()]
+#' @seealso [LGR_import()]
+#' @seealso [LI6400_import()]
+#' @seealso [LI7820_import()]
+#' @seealso [LI8100_import()]
+#' @seealso [LI8200_import()]
+#'
 #' @examples
 #' # Load file from downloaded package
 #' file.path <- system.file("extdata", "LI7810/example_LI7810.data", package = "GoFluxYourself")

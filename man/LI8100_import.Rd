@@ -37,3 +37,20 @@ file.path <- system.file("extdata", "LI8100/example_LI8100.81x", package = "GoFl
 LI8100.data <- LI8100_import(inputfile = file.path)
 
 }
+\seealso{
+[import2Rdata()]
+
+[G2508_import()]
+
+[GAIA_import()]
+
+[LGR_import()]
+
+[LI6400_import()]
+
+[LI7810_import()]
+
+[LI7820_import()]
+
+[LI8200_import()]
+}

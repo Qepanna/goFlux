@@ -37,3 +37,20 @@ file.path <- system.file("extdata", "LI7820/example_LI7820.data", package = "GoF
 LI7820.data <- LI7820_import(inputfile = file.path)
 
 }
+\seealso{
+[import2Rdata()]
+
+[G2508_import()]
+
+[GAIA_import()]
+
+[LGR_import()]
+
+[LI6400_import()]
+
+[LI7810_import()]
+
+[LI8100_import()]
+
+[LI8200_import()]
+}

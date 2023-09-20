@@ -38,3 +38,20 @@ file.path <- system.file("extdata", "G2508/2022/08/01/example_G2508.dat",
 G2508.data <- G2508_import(inputfile = file.path)
 
 }
+\seealso{
+[import2Rdata()]
+
+[GAIA_import()]
+
+[LGR_import()]
+
+[LI6400_import()]
+
+[LI7810_import()]
+
+[LI7820_import()]
+
+[LI8100_import()]
+
+[LI8200_import()]
+}

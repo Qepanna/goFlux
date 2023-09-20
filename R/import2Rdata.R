@@ -32,6 +32,15 @@
 #' @include LI8100_import.R
 #' @include LI8200_import.R
 #'
+#' @seealso [G2508_import()]
+#' @seealso [GAIA_import()]
+#' @seealso [LGR_import()]
+#' @seealso [LI6400_import()]
+#' @seealso [LI7810_import()]
+#' @seealso [LI7820_import()]
+#' @seealso [LI8100_import()]
+#' @seealso [LI8200_import()]
+#'
 #' @examples
 #' # Examples on how to use it with all instruments.
 #' # The default time zone "UTC" is used in all cases.
@@ -54,6 +63,7 @@
 #' # with the LI-COR smart chamber (LI-8200)
 #' # with this instrument, date.format is not a useful parameter.
 #' import2Rdata(path = "inst/extdata/LI8200", instrument = "LI-8200")
+#'
 #' @export
 #'
 import2Rdata <- function(path, instrument, date.format, timezone = "UTC"){

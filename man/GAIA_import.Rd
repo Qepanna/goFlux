@@ -57,3 +57,20 @@ file.path <- system.file("extdata", "GAIA/example_GAIA.csv", package = "GoFluxYo
 GAIA.data <- GAIA_import(inputfile = file.path)
 
 }
+\seealso{
+[import2Rdata()]
+
+[G2508_import()]
+
+[LGR_import()]
+
+[LI6400_import()]
+
+[LI7810_import()]
+
+[LI7820_import()]
+
+[LI8100_import()]
+
+[LI8200_import()]
+}

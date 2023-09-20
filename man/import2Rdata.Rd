@@ -58,4 +58,22 @@ import2Rdata(path = "inst/extdata/LI8100", instrument = "LI-8100", date.format =
 # with the LI-COR smart chamber (LI-8200)
 # with this instrument, date.format is not a useful parameter.
 import2Rdata(path = "inst/extdata/LI8200", instrument = "LI-8200")
+
+}
+\seealso{
+\code{\link[=G2508_import]{G2508_import()}}
+
+\code{\link[=GAIA_import]{GAIA_import()}}
+
+\code{\link[=LGR_import]{LGR_import()}}
+
+\code{\link[=LI6400_import]{LI6400_import()}}
+
+\code{\link[=LI7810_import]{LI7810_import()}}
+
+\code{\link[=LI7820_import]{LI7820_import()}}
+
+\code{\link[=LI8100_import]{LI8100_import()}}
+
+\code{\link[=LI8200_import]{LI8200_import()}}
 }

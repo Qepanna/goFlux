@@ -14,6 +14,15 @@
 #'
 #' @include GoFluxYourself-package.R
 #'
+#' @seealso [import2Rdata()]
+#' @seealso [G2508_import()]
+#' @seealso [GAIA_import()]
+#' @seealso [LGR_import()]
+#' @seealso [LI6400_import()]
+#' @seealso [LI7810_import()]
+#' @seealso [LI7820_import()]
+#' @seealso [LI8100_import()]
+#'
 #' @examples
 #' # Load file from downloaded package
 #' file.path <- system.file("extdata", "LI8200/example_LI8200.json", package = "GoFluxYourself")
@@ -26,7 +35,7 @@
 LI8200_import <- function(inputfile, timezone = "UTC", save = FALSE){
 
   # Assign NULL to variables without binding
-  h2o <- cham.close <- deadband <- POSIX.time <- plot.ID <- n2o <- Etime <-
+  h2o <- cham.close <- deadband <- POSIX.time <- plotID <- n2o <- Etime <-
     ch4 <- co2 <- H2O_ppm <- chamber_t <- chamber_p <- Vcham <- Area <-
     soilp_m <- . <- soilp_t <- DATE <- cham.open <- start.time <- NULL
 
@@ -35,7 +44,7 @@ LI8200_import <- function(inputfile, timezone = "UTC", save = FALSE){
 
   # Create empty lists to extract objects from lists of data.raw.ls
   df.ls <- list()
-  plot.ID.ls <- list()
+  plotID.ls <- list()
   cham.close.ls <- list()
   deadband.ls <- list()
   Vcham.ls <- list()
@@ -46,8 +55,8 @@ LI8200_import <- function(inputfile, timezone = "UTC", save = FALSE){
   for (i in 1:length(data.raw.ls$datasets)) {
     # loop through all measurements reps
     all.reps <- data.raw.ls$datasets[[i]][[1]]$reps
-    # Extract plot.ID from list "datasets"
-    plot.ID.ls[[i]] <- names(data.raw.ls$datasets[[i]])
+    # Extract plotID from list "datasets"
+    plotID.ls[[i]] <- names(data.raw.ls$datasets[[i]])
     if(length(all.reps) > 0) {
       rep.ls <- list()
       for (j in 1:length(all.reps)) {
@@ -79,7 +88,7 @@ LI8200_import <- function(inputfile, timezone = "UTC", save = FALSE){
   # Convert lists of metadata into matrix
   metadata <- cbind.data.frame(
     Obs = as.character(c(1:length(data.raw.ls$datasets))),
-    plot.ID = unlist(plot.ID.ls),
+    plotID = unlist(plotID.ls),
     cham.close = unlist(cham.close.ls),
     deadband = unlist(deadband.ls),
     Vcham = unlist(Vcham.ls),
@@ -102,18 +111,18 @@ LI8200_import <- function(inputfile, timezone = "UTC", save = FALSE){
            Etime = timestamp - deadband,
            DATE = substr(POSIX.time, 0, 10)) %>%
     # Select and rename useful columns
-    select(POSIX.time, plot.ID, rep, cham.close, deadband, Etime,
+    select(POSIX.time, plotID, rep, cham.close, deadband, Etime,
            N2Odry_ppb = n2o, CH4dry_ppb = ch4, CO2dry_ppm = co2, H2O_ppm,
            Tcham = chamber_t, Pcham = chamber_p, Vcham, Area,
            SWC = soilp_m, Tsoil = soilp_t, DATE) %>%
     # Add start.time and cham.open (POSIX.time)
-    group_by(plot.ID, rep) %>%
+    group_by(plotID, rep) %>%
     mutate(start.time = cham.close + deadband,
            cham.open = last(POSIX.time),
            obs.length = as.numeric(cham.open - cham.close, units = "secs")+1) %>%
     ungroup() %>%
     # Create chamID and flag
-    mutate(chamID = paste(plot.ID, rep, sep = "_"),
+    mutate(chamID = paste(plotID, rep, sep = "_"),
            flag = if_else(between(POSIX.time, start.time, cham.open), 1, 0))
 
   # Save cleaned data file

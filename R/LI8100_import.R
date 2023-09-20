@@ -18,6 +18,15 @@
 #'
 #' @include GoFluxYourself-package.R
 #'
+#' @seealso [import2Rdata()]
+#' @seealso [G2508_import()]
+#' @seealso [GAIA_import()]
+#' @seealso [LGR_import()]
+#' @seealso [LI6400_import()]
+#' @seealso [LI7810_import()]
+#' @seealso [LI7820_import()]
+#' @seealso [LI8200_import()]
+#'
 #' @examples
 #' # Load file from downloaded package
 #' file.path <- system.file("extdata", "LI8100/example_LI8100.81x", package = "GoFluxYourself")
@@ -33,7 +42,7 @@ LI8100_import <- function(inputfile, date.format = "ymd",
   # Assign NULL to variables without binding
   Type <- Etime <- Tcham <- Pressure <- H2O <- Cdry <- V1 <- V2 <- V3 <- V4 <-
     H2O_mmol <- DATE_TIME <- Obs <- . <- cham.close <- cham.open <- deadband <-
-    start.time <- obs.length <- POSIX.time <- plot.ID <- NULL
+    start.time <- obs.length <- POSIX.time <- plotID <- Date <-  NULL
 
   # Find how many rows need to be skipped
   skip.rows <- as.numeric(which(read.delim(inputfile) == "Type"))[1]
@@ -69,7 +78,7 @@ LI8100_import <- function(inputfile, date.format = "ymd",
   # Import metadata from LI8100 (.81x)
   metadata <- read.delim(inputfile, header = F) %>% select(c(1:2)) %>%
     reframe(Obs = as.numeric(.[which(.[,1] == "Obs#:"),2]),
-            plot.ID = .[which(.[,1] == "Label:"),2],
+            plotID = .[which(.[,1] == "Label:"),2],
             Area = as.numeric(.[which(.[,1] == "Area:"),2]),
             Vcham = as.numeric(.[which(.[,1] == "Vcham:"),2]),
             offset = as.numeric(.[which(.[,1] == "Offset:"),2]),
@@ -84,7 +93,7 @@ LI8100_import <- function(inputfile, date.format = "ymd",
            cham.close = POSIX.time[which(Etime == 0)],
            cham.open = last(POSIX.time)) %>% ungroup() %>%
     mutate(DATE = substr(POSIX.time, 0, 10),
-           chamID = paste(plot.ID, Obs, sep = "_"),
+           chamID = paste(plotID, Obs, sep = "_"),
            start.time = cham.close + deadband,
            flag = if_else(between(POSIX.time, start.time, cham.open), 1, 0))
 

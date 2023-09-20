@@ -45,6 +45,13 @@ minimal value of kappa if LM.flux = MDF and t = 180 secs.}
 
 \item{k.ratio}{numerical; a multiplier for the allowed k.max. Default is
 k.ratio = 1.}
+
+\item{Ci.lim}{numerical vector of length 2; inferior and superior limits of
+the maximal concentration at the end of the measurement.
+Same units as Ci.}
+
+\item{C0.lim}{numerical vector of length 2; inferior and superior limits of
+the intercept (initial concentration). Same units as C0.}
 }
 \value{
 a data.frame
