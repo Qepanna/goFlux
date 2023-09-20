@@ -9,12 +9,12 @@ HM.flux(
   time.meas,
   flux.term,
   k.max,
-  Ci = 1000,
-  C0 = 400,
+  Ci = NULL,
+  C0 = NULL,
   k = 0.005,
   k.ratio = 1,
-  Ci.lim = c(500, 2000),
-  C0.lim = c(200, 800)
+  Ci.lim = NULL,
+  C0.lim = NULL
 )
 }
 \arguments{
@@ -30,14 +30,12 @@ Hutchinson and Mosier model. Calculated with the k.max function.}
 \item{Ci}{numerical; gas concentration after i seconds (ppm or ppb). For forest
 soil conditions, use these estimates for the following gastypes:
 "CO2dry_ppm": Ci = 1000 ppm; "CH4dry_ppb": Ci = 1800 ppb;
-"N2Odry_ppb": Ci = 500 ppb; "H2O_ppm": Ci = 20000 ppm. Default
-values are set for CO2dry_ppm.}
+"N2Odry_ppb": Ci = 500 ppb; "H2O_ppm": Ci = 20000 ppm.}
 
 \item{C0}{numerical; initial gas concentration at time 0 second (ppm or ppb)
 For forest soil conditions, use these estimates for the following
 gastypes: "CO2dry_ppm": C0 = 380 ppm; "CH4dry_ppb": C0 = 2200 ppb;
-"N2Odry_ppb": C0 = 250 ppb; "H2O_ppm": C0 = 10000 ppm. Default
-values are set for CO2dry_ppm.}
+"N2Odry_ppb": C0 = 250 ppb; "H2O_ppm": C0 = 10000 ppm.}
 
 \item{k}{numerical; kappa gives the curvature of the regression line (s-1).
 The default parameter for kappa is k = 0.005 s-1. k = 0.005 is the

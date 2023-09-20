@@ -9,13 +9,11 @@
 #' @param Ci numerical; gas concentration after i seconds (ppm or ppb). For forest
 #'           soil conditions, use these estimates for the following gastypes:
 #'           "CO2dry_ppm": Ci = 1000 ppm; "CH4dry_ppb": Ci = 1800 ppb;
-#'           "N2Odry_ppb": Ci = 500 ppb; "H2O_ppm": Ci = 20000 ppm. Default
-#'           values are set for CO2dry_ppm.
+#'           "N2Odry_ppb": Ci = 500 ppb; "H2O_ppm": Ci = 20000 ppm.
 #' @param C0 numerical; initial gas concentration at time 0 second (ppm or ppb)
 #'           For forest soil conditions, use these estimates for the following
 #'           gastypes: "CO2dry_ppm": C0 = 380 ppm; "CH4dry_ppb": C0 = 2200 ppb;
-#'           "N2Odry_ppb": C0 = 250 ppb; "H2O_ppm": C0 = 10000 ppm. Default
-#'           values are set for CO2dry_ppm.
+#'           "N2Odry_ppb": C0 = 250 ppb; "H2O_ppm": C0 = 10000 ppm.
 #' @param k numerical; kappa gives the curvature of the regression line (s-1).
 #'          The default parameter for kappa is k = 0.005 s-1. k = 0.005 is the
 #'          minimal value of kappa if LM.flux = MDF and t = 180 secs.
@@ -36,25 +34,41 @@
 #' @keywords internal
 #'
 HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
-                    Ci = 1000, C0 = 400, k = 0.005, k.ratio = 1,
-                    Ci.lim = c(500,2000), C0.lim = c(200,800)) {
+                    Ci = NULL, C0 = NULL, k = 0.005, k.ratio = 1,
+                    Ci.lim = NULL, C0.lim = NULL) {
 
   # Root Mean Squared Error (RMSE)
   RMSE <- function(gas.meas, fit.val){
     sqrt(sum((na.omit(gas.meas - fit.val))^2) / length(na.omit(gas.meas)))
   }
 
+  # kappa limits
+  if (k.max < 0) {
+    kappa.max <- -k
+    kappa.min <- k.max
+  } else {
+    kappa.max <- k.max
+    kappa.min <- k
+  }
+
+  # adjust kappa.max with k.ratio
+  kappa.max <- kappa.max*k.ratio
+
   # Define the Hutchinson and Mosier model
   HMmod <- conc ~ Ci+(C0-Ci)*exp(-k*t)
 
   # Define the initial parameters for the fitting of the model
-  start <- list(Ci=Ci, C0=C0, k=k)
+  if (k.max < 0) {
+    start <- list(Ci=Ci, C0=C0, k=kappa.max)
+  } else {
+    start <- list(Ci=Ci, C0=C0, k=kappa.min)
+  }
 
   # Run the model using the nlsLM function from the minpack.lm package
   HM <- try(nlsLM(HMmod,
                   data = cbind.data.frame(conc = gas.meas, t = time.meas),
-                  lower = c(Ci=Ci.lim[1], C0=C0.lim[1], k=k),
-                  upper = c(Ci=Ci.lim[2], C0=C0.lim[2], k=k.max*k.ratio),
+                  lower = c(Ci=Ci.lim[1], C0=C0.lim[1], k=kappa.min),
+                  upper = c(Ci=Ci.lim[2], C0=C0.lim[2], k=kappa.max),
                   start = start,
                   na.action = na.exclude,
                   control = nls.lm.control(

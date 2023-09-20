@@ -215,7 +215,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     C0.flux <- LM.res$LM.intercept
     Ci.flux <- (LM.res$LM.slope * max(data_split[[f]]$Etime)) + C0.flux
     C.diff.flux <- abs(Ci.flux-C0.flux)
-    C0.lim.flux <- c(C0.flux-C.diff.flux*0.1, C0.flux+C.diff.flux*0.1)
+    C0.lim.flux <- c(C0.flux-C.diff.flux*0.2, C0.flux+C.diff.flux*0.2)
     Ci.lim.flux <- c(Ci.flux-C.diff.flux*0.2, Ci.flux+C.diff.flux*0.2)
 
     # Calculate C0 and Ci and their boundaries based on raw data
@@ -231,7 +231,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
       Ci.limits <- c(Ci-C.diff*0.2, Ci+C.diff*0.2)
     } else {Ci.limits = Ci.lim}
     if (is.null(C0.lim)) {
-      C0.limits <- c(C0-C.diff*0.1, C0+C.diff*0.1)
+      C0.limits <- c(C0-C.diff*0.2, C0+C.diff*0.2)
     } else {C0.limits = C0.lim}
 
     # Calculate kappa thresholds based on MDF, LM.flux and Etime
