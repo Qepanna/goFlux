@@ -1,4 +1,4 @@
-# GoFluxYourself <img src="man/figures/GoFluxYourself.png" align="right" width="100" height="100"/>
+# GoFluxYourself <img src="man/figures/GoFluxYourself.png" align="right" width="200"/>
 GoFluxYourself: A user-friendly way to calculate GHG fluxes yourself, regardless of user experience
 
 Authors: Karelle Rheault and Klaus Steenberg Larsen
