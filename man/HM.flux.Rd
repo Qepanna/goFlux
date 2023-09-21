@@ -40,13 +40,6 @@ k.ratio = 1.}
 \item{k}{numerical; kappa gives the curvature of the regression line (s-1).
 The default parameter for kappa is k = 0.005 s-1. k = 0.005 is the
 minimal value of kappa if LM.flux = MDF and t = 180 secs.}
-
-\item{Ci.lim}{numerical vector of length 2; inferior and superior limits of
-the maximal concentration at the end of the measurement.
-Same units as Ci.}
-
-\item{C0.lim}{numerical vector of length 2; inferior and superior limits of
-the intercept (initial concentration). Same units as C0.}
 }
 \value{
 a data.frame

@@ -15,9 +15,7 @@ goFlux(
   Vcham = NULL,
   Pcham = NULL,
   Tcham = NULL,
-  k.ratio = 1,
-  Ci.lim = NULL,
-  C0.lim = NULL
+  k.ratio = 1
 )
 }
 \arguments{
@@ -67,15 +65,6 @@ Tcham is different between samples.}
 
 \item{k.ratio}{numerical; a multiplier for the allowed k.max.
 Default is k.ratio = 1.}
-
-\item{Ci.lim}{numerical vector of length 2; inferior and superior limits of
-the maximal concentration at the end of the measurement.
-Same units as gastype. If not provided, calculated based on
-Ci of LM.flux().}
-
-\item{C0.lim}{numerical vector of length 2; inferior and superior limits of
-the intercept (initial concentration). Same units as gastype.
-If not provided, calculated based on C0 of LM.flux().}
 }
 \value{
 a data frame
