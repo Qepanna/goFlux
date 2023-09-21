@@ -226,23 +226,13 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     # Chose the right C0 and Ci
     Ci <- if_else(between(Ci.raw, Ci.lim.flux[1], Ci.lim.flux[2]), Ci.raw, Ci.flux)
     C0 <- if_else(between(C0.raw, C0.lim.flux[1], C0.lim.flux[2]), C0.raw, C0.flux)
-    C.diff <- abs(Ci-C0)
-
-    if (is.null(Ci.lim)) {
-      Ci.limits <- c(Ci-C.diff*0.2, Ci+C.diff*0.2)
-    } else {Ci.limits = Ci.lim}
-    if (is.null(C0.lim)) {
-      C0.limits <- c(C0-C.diff*0.2, C0+C.diff*0.2)
-    } else {C0.limits = C0.lim}
 
     # Calculate kappa thresholds based on MDF, LM.flux and Etime
-    kappa.min <- 1 / (max(data_split[[f]]$Etime)+1)
     kappa.max <- k.max(f.min, LM.res$LM.flux, (max(data_split[[f]]$Etime)+1))
 
     # Hutchinson and Mosier
     HM.res <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
-                      flux.term = flux.term, Ci = Ci, C0 = C0, k = kappa.min,
-                      k.max = kappa.max, Ci.lim = Ci.limits, C0.lim = C0.limits)
+                      flux.term = flux.term, Ci = Ci, C0 = C0, k.max = kappa.max)
 
     # Flux results and G factor
     flux.res.ls[[f]] <- cbind.data.frame(

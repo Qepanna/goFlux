@@ -34,8 +34,7 @@
 #' @keywords internal
 #'
 HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
-                    Ci = NULL, C0 = NULL, k = 0.005, k.ratio = 1,
-                    Ci.lim = NULL, C0.lim = NULL) {
+                    Ci = NULL, C0 = NULL, k.ratio = 1) {
 
   # Root Mean Squared Error (RMSE)
   RMSE <- function(gas.meas, fit.val){
@@ -44,31 +43,24 @@ HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
 
   # kappa limits
   if (k.max < 0) {
-    kappa.max <- -k
-    kappa.min <- k.max
+    kappa.max <- 0
+    kappa.min <- k.max*k.ratio
   } else {
-    kappa.max <- k.max
-    kappa.min <- k
+    kappa.max <- k.max*k.ratio
+    kappa.min <- 0
   }
-
-  # adjust kappa.max with k.ratio
-  kappa.max <- kappa.max*k.ratio
 
   # Define the Hutchinson and Mosier model
   HMmod <- conc ~ Ci+(C0-Ci)*exp(-k*t)
 
   # Define the initial parameters for the fitting of the model
-  if (k.max < 0) {
-    start <- list(Ci=Ci, C0=C0, k=kappa.max)
-  } else {
-    start <- list(Ci=Ci, C0=C0, k=kappa.min)
-  }
+  start <- list(Ci=Ci, C0=C0, k=0)
 
   # Run the model using the nlsLM function from the minpack.lm package
   HM <- try(nlsLM(HMmod,
                   data = cbind.data.frame(conc = gas.meas, t = time.meas),
-                  lower = c(Ci=Ci.lim[1], C0=C0.lim[1], k=kappa.min),
-                  upper = c(Ci=Ci.lim[2], C0=C0.lim[2], k=kappa.max),
+                  lower = c(Ci=0, C0=0, k=kappa.min),
+                  upper = c(Ci=Inf, C0=Inf, k=kappa.max),
                   start = start,
                   na.action = na.exclude,
                   control = nls.lm.control(

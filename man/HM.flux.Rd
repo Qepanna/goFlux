@@ -11,10 +11,7 @@ HM.flux(
   k.max,
   Ci = NULL,
   C0 = NULL,
-  k = 0.005,
-  k.ratio = 1,
-  Ci.lim = NULL,
-  C0.lim = NULL
+  k.ratio = 1
 )
 }
 \arguments{
@@ -37,12 +34,12 @@ For forest soil conditions, use these estimates for the following
 gastypes: "CO2dry_ppm": C0 = 380 ppm; "CH4dry_ppb": C0 = 2200 ppb;
 "N2Odry_ppb": C0 = 250 ppb; "H2O_ppm": C0 = 10000 ppm.}
 
+\item{k.ratio}{numerical; a multiplier for the allowed k.max. Default is
+k.ratio = 1.}
+
 \item{k}{numerical; kappa gives the curvature of the regression line (s-1).
 The default parameter for kappa is k = 0.005 s-1. k = 0.005 is the
 minimal value of kappa if LM.flux = MDF and t = 180 secs.}
-
-\item{k.ratio}{numerical; a multiplier for the allowed k.max. Default is
-k.ratio = 1.}
 
 \item{Ci.lim}{numerical vector of length 2; inferior and superior limits of
 the maximal concentration at the end of the measurement.
