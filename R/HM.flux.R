@@ -45,9 +45,13 @@ HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
   if (k.max < 0) {
     kappa.max <- 0
     kappa.min <- k.max*k.ratio
+    Ci.lim <- c(-Inf, 0)
+    C0.lim <- c(-Inf, 0)
   } else {
     kappa.max <- k.max*k.ratio
     kappa.min <- 0
+    Ci.lim <- c(0, Inf)
+    C0.lim <- c(0, Inf)
   }
 
   # Define the Hutchinson and Mosier model
@@ -59,8 +63,8 @@ HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
   # Run the model using the nlsLM function from the minpack.lm package
   HM <- try(nlsLM(HMmod,
                   data = cbind.data.frame(conc = gas.meas, t = time.meas),
-                  lower = c(Ci=0, C0=0, k=kappa.min),
-                  upper = c(Ci=Inf, C0=Inf, k=kappa.max),
+                  lower = c(Ci=Ci.lim[1], C0=C0.lim[1], k=kappa.min),
+                  upper = c(Ci=Ci.lim[2], C0=C0.lim[2], k=kappa.max),
                   start = start,
                   na.action = na.exclude,
                   control = nls.lm.control(

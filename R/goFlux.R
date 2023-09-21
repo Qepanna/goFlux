@@ -39,13 +39,6 @@
 #'              Tcham is different between samples.
 #' @param k.ratio numerical; a multiplier for the allowed k.max.
 #'                Default is k.ratio = 1.
-#' @param Ci.lim numerical vector of length 2; inferior and superior limits of
-#'               the maximal concentration at the end of the measurement.
-#'               Same units as gastype. If not provided, calculated based on
-#'               Ci of LM.flux().
-#' @param C0.lim numerical vector of length 2; inferior and superior limits of
-#'               the intercept (initial concentration). Same units as gastype.
-#'               If not provided, calculated based on C0 of LM.flux().
 #'
 #' @details
 #' Flux estimate units are nmol/m2*s (if initial concentration is ppm, e.g. CO2dry_ppm)
@@ -86,8 +79,7 @@
 #'
 goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
                    Area = NULL, offset = NULL, Vtot = NULL, Vcham = NULL,
-                   Pcham = NULL, Tcham = NULL, k.ratio = 1, Ci.lim = NULL,
-                   C0.lim = NULL) {
+                   Pcham = NULL, Tcham = NULL, k.ratio = 1) {
 
   # Assign NULL to variables without binding
   H2O_ppm <- H2O_mol <- Etime <- flag <- NULL
