@@ -79,6 +79,7 @@
 #' @examples
 #' data(example_LGR_manID)
 #' goFlux(example_LGR_manID, "CO2dry_ppm")
+#' goFlux(example_LGR_manID, "CH4dry_ppb")
 #' goFlux(example_LGR_manID, "H2O_ppm")
 #'
 #' @export

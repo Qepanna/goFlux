@@ -78,7 +78,7 @@ HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
                     maxfev = integer(), maxiter = 1000, nprint = 0)))
 
   # If no error encountered,
-  if(inherits(HM, "try-error")){
+  if(!inherits(HM, "try-error")){
 
     # then extract values from the HM model
     HM.Ci <- coef(summary(HM))[1,1]
