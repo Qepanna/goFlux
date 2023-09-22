@@ -2,24 +2,31 @@
 % Please edit documentation in R/g.factor.R
 \name{g.factor}
 \alias{g.factor}
-\title{G-Factor}
+\title{G-factor}
 \usage{
 g.factor(HM.flux, LM.flux)
 }
 \arguments{
-\item{HM.flux}{a numerical value; flux estimate from a non-linear flux
-calculation model (e.g. Hutchinson and Mosier; HM)}
+\item{HM.flux}{a numerical value; flux estimate from a non-linear
+regression model (e.g. Hutchinson and Mosier). Calculated with
+the `HM.flux()` function of this package.}
 
-\item{LM.flux}{a numerical value; flux estimate from a linear flux
-calculation model}
+\item{LM.flux}{a numerical value; flux estimate from a linear regression
+model. Calculated with the `LM.flux()` function of this package.}
 }
 \value{
 a numerical value
 }
 \description{
-Calculates the G-factor: the ratio between the result of a non-linear flux
-calculation model (e.g. Hutchinson and Mosier; HM) and the result of a
-linear flux calculation model. The g-factor should be <4 (flexible threshold),
-<2 (medium), or <1.25 (conservative).
+Calculates the g-factor: the ratio between the flux estimates of a non-linear
+regression model (e.g. Hutchinson and Mosier) and a linear regression model.
+The g-factor should be <4 (flexible threshold), <2 (medium), or <1.25 (conservative).
+}
+\references{
+Hüppi et al. (2018). Restricting the nonlinearity parameter in soil greenhouse gas flux calculation for more reliable flux estimates. *PloS one*, 13(7), e0200876.
+}
+\seealso{
+Look up the functions [HM.flux()] and [LM.flux()] of this package
+         for more information about these parameters.
 }
 \keyword{internal}

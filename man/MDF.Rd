@@ -13,7 +13,7 @@ MDF(p, t, n, flux.term)
 
 \item{n}{numerical; number of measurements during measurement time}
 
-\item{flux.term}{numerical; flux term calculated with the function flux.term}
+\item{flux.term}{numerical; flux term calculated with the function `flux.term()`}
 }
 \value{
 a numerical value
@@ -21,5 +21,10 @@ a numerical value
 \description{
 The minimal detectable flux based on instrument precision, measurements time,
 and the number of measurement points.
+}
+\references{
+Brechet et al. (2021). Simultaneous tree stem and soil greenhouse gas (CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O) flux measurements: a novel design for continuous monitoring towards improving flux estimates and temporal resolution. *New Phytologist*, 230(6), 2487-2500.
+
+Christiansen et al. (2015). Comparison of CO<sub>2</sub>, CH<sub>4</sub> and N<sub>2</sub>O soil-atmosphere exchange measured in static chambers with cavity ring-down spectroscopy and gas chromatography. *Agricultural and Forest Meteorology*, 211, 48-57.
 }
 \keyword{internal}

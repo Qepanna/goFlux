@@ -2,24 +2,32 @@
 % Please edit documentation in R/k.max.R
 \name{k.max}
 \alias{k.max}
-\title{KAPPA max}
+\title{KAPPA MAX}
 \usage{
 k.max(MDF, LM.flux, t)
 }
 \arguments{
-\item{MDF}{numerical; minimal detectable flux, calculated with the function MDF}
+\item{MDF}{numerical; minimal detectable flux, calculated with the function `MDF()`}
 
-\item{LM.flux}{numerical; flux estimate from a linear flux calculation model}
+\item{LM.flux}{numerical; flux estimate from a linear flux calculation model,
+calculated with the function `LM.flux()`.}
 
-\item{t}{measurement time (enclosure time) (seconds)}
+\item{t}{numerical; measurement time (enclosure time) (seconds)}
 }
 \value{
 a numerical value
 }
 \description{
-The parameter kappa determines the curvature of the non-linear flux in the
-Hutchinson and Mosier model. A maximum threshold for this parameter, kappa-max
+The parameter kappa determines the curvature of the non-linear regression in the
+Hutchinson and Mosier model. A maximum threshold for this parameter, kappa-max,
 can be calculated based on the minimal detectable flux (MDF), the linear
-flux estimate and the measurement time. The units of the kappa-max is s-1
+flux estimate and the measurement time. The unit of the kappa-max is s-1.
+}
+\references{
+Hüppi et al. (2018). Restricting the nonlinearity parameter in soil greenhouse gas flux calculation for more reliable flux estimates. *PloS one*, 13(7), e0200876.
+}
+\seealso{
+Look up the functions [MDF()] and [LM.flux()] of this package
+         for more information about these parameters.
 }
 \keyword{internal}
