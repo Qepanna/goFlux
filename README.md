@@ -10,4 +10,33 @@ This new R package, `GoFluxYourself` is meant to be "student proof", meaning tha
 
 *<p>Three R packages for the Elven-kings under the CRAN,<br> Seven for the Dwarf-lords in their halls of open softwares,<br> Nine for Mortal Men doomed to write scripts themselves,<br> One for the Dark Lady on her dark throne<br> In the Land of GitHub where the Shadows lie.<br> One Package to rule them all, One Package to find them,<br> One Package to bring them all and in the darkness bind them<br> In the Land of GitHub where the Shadows lie.</p>*
 
-<p>Authors: Karelle Rheault and Klaus Steenberg Larsen <br> Maintainer: Karelle Rheault </p> <karh@ign.ku.dk>
+### About the package
+
+This package `GoFluxYourself` is meant to be "student proof", meaning that no extensive knowledge or experience is needed to import raw data into R (except for knowing how to use R, of course), chose the best model to calculate fluxes (LM or HM, that is the question. -Shakespeare, 1603), quality check the results objectively (hence the no experience needed) and obtain high quality flux estimates from static chamber measurements (wonderful!).
+
+The package contains a wide range of functions that lets the user import raw data from a variety of instruments:
+* **[LI-COR trace gas analyzers](https://www.licor.com/env/products/trace-gas/)**: LI-7810 for CO<sub>2</sub>, CH<sub>4</sub> and H<sub>2</sub>O, LI-7820 for N<sub>2</sub>O and H<sub>2</sub>O
+* **[LI-COR Smart Chamber](https://www.licor.com/env/products/soil-flux/survey)**: for an easy import of data from any gas analyzer
+* **[Los Gatos Research (ABB) laser gas analyzers](https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers)**: Ultra-portable Greenhouse Gas Analyzer (UGGA) and Microportable Greenhouse Gas Analyzer (MGGA) for CO<sub>2</sub>, CH<sub>4</sub> and H<sub>2</sub>O
+* **[Picarro G2508 gas analyzer](https://www.picarro.com/g2508_gas_concentration_analyzer)**: for CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, NH<sub>3</sub> and H<sub>2</sub>O
+* **[GAIATECH Automated ECOFlux chamber](https://www.dmr.eu/technologies/gas-emission-measurements-eco2flux/automated-eco2flux-chamber/)**: for an easy import of data from any gas analyzer
+
+After import, the user can chose from two methods for identification of measurements:
+* **Manual selection of measurements** - based on `start.time`, provided separately in an auxiliary file. The function `obs.win()` splits the imported data into a list of data frame (divided by `UniqueID`) and creates an observation window around the `start.time` to allow for a manual selection of the start and end points of each measurements, using the function `click.peak.loop()`.
+* **Automatic selection of measurements** - based on automatic recordings of chamber opening and closing from an instrument such as the LI-COR Smart Chamber or the GAIATECH Automated ECOFlux chamber.
+
+The function `goFlux()` calculates fluxes from a variety of greenhouse gases (CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, and H<sub>2</sub>O) using both linear (LM) and non-linear (Hutchinson and Mosier) flux calculation methods.
+
+Following flux calculation, the user can select the best flux estimate (LM or HM) based on objective criteria and non-arbitrary thresholds, using the `best.flux()` function:
+* **Assumed non-linearity**: If all criteria are respected, the best flux estimate is assumed to be the non-linear estimate from the Hutchinson and Mosier model.
+* **G-factor**: the g-factor is the ratio between the result of a non-linear flux calculation model (e.g. Hutchinson and Mosier; HM) and the result of a linear flux calculation model ([Hüppi et al., 2018](https://doi.org/10.1371/journal.pone.0200876)). With the `best.flux()` function, one can chose a limit at which the HM model is deemed to overestimate (*f<sub>0</sub>*). Recommended thresholds for the g-factor are <4 for a flexible threshold, <2 for a medium threshold, or <1.25 for a more conservative threshold. The default setting in the function `best.flux()` is `g.limit = 2`. If the g-factor is above the specified threshold, the best flux estimate will switch to LM instead of HM.
+* **Minimal Detectable Flux**: The minimal detectable flux (MDF) is based on instrument precision, measurements time, and the number of measurement points. Under the MDF, the flux estimate is considered null, but the function will not return a 0 to avoid heteroscedasticity of variances. There will simply be a comment in the columns "LM.diagnose" or "HM.diagnose" saying that there is "No detectable flux (MDF)".
+* **KAPPA max**: The parameter kappa determines the curvature of the non-linear regression in the Hutchinson and Mosier model. A maximum threshold for this parameter, kappa-max, can be calculated based on the minimal detectable flux (MDF), the linear flux estimate and the measurement time ([Hüppi et al., 2018](https://doi.org/10.1371/journal.pone.0200876)). The units of the kappa-max is s-1. This limit of kappa-max is included in the `goFlux()` function, so that the non-linear flux estimate cannot exceed this maximum curvature. With the `best.flux()` function, one can chose to further limit
+* **Statistically significant flux (p-value)**: more info to come...
+* **Coefficient of determination (r<sup>2</sup>)**: more info to come...
+
+### Community Guidelines
+
+Authors: Karelle Rheault and Klaus Steenberg Larsen
+
+To report problems, seek support or contribute to the package, please contact the maintainer, Karelle Rheault (<karh@ign.ku.dk>). Suggestions for new features or improvements are always welcome.
