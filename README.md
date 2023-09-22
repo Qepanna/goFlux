@@ -8,6 +8,20 @@ Previous software that have been developed to calculate GHG fluxes were limited 
 
 This new R package, `GoFluxYourself` is meant to be "student proof", meaning that no extensive knowledge or experience is needed to import raw data into R, chose the best model to calculate fluxes (LM, HM or no flux), quality check the results objectively and obtain high quality flux estimates. The package contains a wide range of functions that lets the user import raw data from a variety of instruments (LI-COR, LGR, GAIA2TECH and Picarro); calculate fluxes from a variety of GHG (CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, and H<sub>2</sub>O) with both linear (LM) and non-linear (HM) flux calculation methods; align instruments clocks after data import; interactively identify measurements (start and end time) if there are no automatic chamber recordings (e.g. LI-COR smart chamber); plot measurements for easy visual inspection; and quality check the measurements based on objective criteria and non-arbitrary thresholds. 
 
+<<<<<<< HEAD
 *<p>Three R packages for the Elven-kings under the CRAN,<br> Seven for the Dwarf-lords in their halls of open softwares,<br> Nine for Mortal Men doomed to write scripts themselves,<br> One for the Dark Lady on her dark throne<br> In the Land of GitHub where the Shadows lie.<br> One Package to rule them all, One Package to find them,<br> One Package to bring them all and in the darkness bind them<br> In the Land of GitHub where the Shadows lie.</p>*
 
 <p>Authors: Karelle Rheault and Klaus Steenberg Larsen<br> Maintainer: Karelle Rheault <karh@ign.ku.dk> </p>
+=======
+<p>*Three R packages for the Elven-kings under the CRAN,*<br>
+*Seven for the Dwarf-lords in their halls of open softwares,*<br>
+*Nine for Mortal Men doomed to write scripts themselves,*<br>
+*One for the Dark Lady on her dark throne*<br>
+*In the Land of GitHub where the Shadows lie.*<br>
+*One Package to rule them all, One Package to find them,*<br>
+*One Package to bring them all and in the darkness bind them*<br>
+*In the Land of GitHub where the Shadows lie.*</p>
+
+<p>Authors: Karelle Rheault and Klaus Steenberg Larsen<br>
+Maintainer: Karelle Rheault <karh@ign.ku.dk></p>
+>>>>>>> 34efacd17c16ed1d674efc5ebacd8202f153c65a
