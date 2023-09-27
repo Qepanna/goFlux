@@ -4,28 +4,25 @@
 #' (CO2 and H2O GHG analyzer)
 #'
 #' @param inputfile the name of a file with the extension .81x
-#' @param date.format Date format. Chose one of the following: "dmy", "ymd", or "mdy".
-#'                    Default is "ymd" as it is the date format from the example
-#'                    data file provided.
-#' @param timezone a time zone in which to import the data to POSIXct format.
-#'                 Default is "UTC". Note about time zone: I recommend using
-#'                 the time zone "UTC" to avoid any issue related to summer
-#'                 time and winter time changes.
-#' @param save logical. If save = TRUE, save the file as Rdata in a Rdata folder
-#'             in the current working directory. If save = FALSE, return the file
+#' @param date.format character string; chose one of the following: "dmy", "ymd",
+#'                    or "mdy". Default is "ymd" as it is the date format from
+#'                    the example data file provided.
+#' @param timezone character string; a time zone in which to import the data to
+#'                 POSIXct format. Default is "UTC". Note about time zone: it is
+#'                 recommended to use the time zone "UTC" to avoid any issue
+#'                 related to summer time and winter time changes.
+#' @param save logical; if save = TRUE, saves the file as Rdata in a Rdata folder
+#'             in the current working directory. If save = FALSE, returns the file
 #'             in the Console, or load in the Environment if assigned to an object.
 #' @returns a data frame
 #'
 #' @include GoFluxYourself-package.R
 #'
-#' @seealso [import2Rdata()]
-#' @seealso [G2508_import()]
-#' @seealso [GAIA_import()]
-#' @seealso [LGR_import()]
-#' @seealso [LI6400_import()]
-#' @seealso [LI7810_import()]
-#' @seealso [LI7820_import()]
-#' @seealso [LI8200_import()]
+#' @seealso Use the wraper function [import2Rdata()] to import multiple files
+#'          from the same folder path using any instrument.
+#' @seealso See also, import functions for other instruments: [G2508_import()],
+#'          [GAIA_import()], [LGR_import()], [LI6400_import()], [LI7810_import()],
+#'          [LI7820_import()], [LI8200_import()]
 #'
 #' @examples
 #' # Load file from downloaded package
@@ -76,22 +73,38 @@ LI8100_import <- function(inputfile, date.format = "ymd",
   }
 
   # Import metadata from LI8100 (.81x)
-  metadata <- read.delim(inputfile, header = F) %>% select(c(1:2)) %>%
-    reframe(Obs = as.numeric(.[which(.[,1] == "Obs#:"),2]),
-            plotID = .[which(.[,1] == "Label:"),2],
-            Area = as.numeric(.[which(.[,1] == "Area:"),2]),
-            Vcham = as.numeric(.[which(.[,1] == "Vcham:"),2]),
-            offset = as.numeric(.[which(.[,1] == "Offset:"),2]),
-            deadband = as.numeric(ms(.[which(.[,1] == "Dead Band:"),2]), units = "secs"),
-            obs.length = as.numeric(ms(.[which(.[,1] == "Observation Length:"),2]), units = "secs"))
+  meta <- read.delim(inputfile, header = F) %>% select(c(1:2)) %>%
+    filter(V1 == "Obs#:" | V1 == "Label:" | V1 == "Area:" | V1 == "Vcham:" |
+             V1 == "Offset:" | V1 == "Dead Band:")
+
+  if (nrow(meta)/6 == ceiling(nrow(meta)/6)) {
+    metadata <- meta %>% reframe(
+      Obs = as.numeric(.[which(.[,1] == "Obs#:"),2]),
+      plotID = .[which(.[,1] == "Label:"),2],
+      Area = as.numeric(.[which(.[,1] == "Area:"),2]),
+      Vcham = as.numeric(.[which(.[,1] == "Vcham:"),2]),
+      offset = as.numeric(.[which(.[,1] == "Offset:"),2]),
+      deadband = as.numeric(ms(meta[which(meta[,1] == "Dead Band:"),2]), units = "secs"))
+  } else {
+    metadata <- meta %>% reframe(
+      Obs = as.numeric(.[which(.[,1] == "Obs#:"),2]),
+      plotID = .[which(.[,1] == "Label:"),2],
+      Area = as.numeric(.[which(.[,1] == "Area:"),2]),
+      Vcham = as.numeric(.[which(.[,1] == "Vcham:"),2]),
+      offset = as.numeric(.[which(.[,1] == "Offset:"),2]),
+      deadband = c(as.numeric(ms(meta[which(meta[,1] == "Dead Band:"),2]), units = "secs"),
+                   last(as.numeric(ms(meta[which(meta[,1] == "Dead Band:"),2]), units = "secs"))))
+  }
 
   # Add metadata to data.raw
   data.raw <- data.raw %>%
     left_join(metadata, by = "Obs") %>% group_by(Obs) %>%
     # Calculate cham.close, cham.open, flag and correct negative values of Etime
-    mutate(Etime = seq(unique(obs.length) - n(), unique(obs.length) -1, 1),
+    mutate(obs.length = as.numeric(max(POSIX.time) - min(POSIX.time), units = "secs"),
            cham.close = POSIX.time[which(Etime == 0)],
-           cham.open = last(POSIX.time)) %>% ungroup() %>%
+           cham.open = last(POSIX.time),
+           Etime = as.numeric(POSIX.time - cham.close, units = "secs")) %>%
+    ungroup() %>%
     mutate(DATE = substr(POSIX.time, 0, 10),
            chamID = paste(plotID, Obs, sep = "_"),
            start.time = cham.close + deadband,

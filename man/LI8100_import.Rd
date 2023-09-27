@@ -9,17 +9,17 @@ LI8100_import(inputfile, date.format = "ymd", timezone = "UTC", save = FALSE)
 \arguments{
 \item{inputfile}{the name of a file with the extension .81x}
 
-\item{date.format}{Date format. Chose one of the following: "dmy", "ymd", or "mdy".
-Default is "ymd" as it is the date format from the example
-data file provided.}
+\item{date.format}{character string; chose one of the following: "dmy", "ymd",
+or "mdy". Default is "ymd" as it is the date format from
+the example data file provided.}
 
-\item{timezone}{a time zone in which to import the data to POSIXct format.
-Default is "UTC". Note about time zone: I recommend using
-the time zone "UTC" to avoid any issue related to summer
-time and winter time changes.}
+\item{timezone}{character string; a time zone in which to import the data to
+POSIXct format. Default is "UTC". Note about time zone: it is
+recommended to use the time zone "UTC" to avoid any issue
+related to summer time and winter time changes.}
 
-\item{save}{logical. If save = TRUE, save the file as Rdata in a Rdata folder
-in the current working directory. If save = FALSE, return the file
+\item{save}{logical; if save = TRUE, saves the file as Rdata in a Rdata folder
+in the current working directory. If save = FALSE, returns the file
 in the Console, or load in the Environment if assigned to an object.}
 }
 \value{
@@ -38,19 +38,10 @@ LI8100.data <- LI8100_import(inputfile = file.path)
 
 }
 \seealso{
-[import2Rdata()]
+Use the wraper function [import2Rdata()] to import multiple files
+         from the same folder path using any instrument.
 
-[G2508_import()]
-
-[GAIA_import()]
-
-[LGR_import()]
-
-[LI6400_import()]
-
-[LI7810_import()]
-
-[LI7820_import()]
-
-[LI8200_import()]
+See also, import functions for other instruments: [G2508_import()],
+         [GAIA_import()], [LGR_import()], [LI6400_import()], [LI7810_import()],
+         [LI7820_import()], [LI8200_import()]
 }
