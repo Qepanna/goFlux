@@ -386,9 +386,9 @@ H2O_results <- goFlux(example_LGR_manID, "H2O_ppm")
 # based on a list of criteria
 criteria <- c("g.factor", "kappa", "MDF", "R2", "SE.rel")
 
-CO2_flux_res <- best.flux(CO2_results, "CO2dry_ppm", criteria)
-CH4_flux_res <- best.flux(CH4_results, "CH4dry_ppb", criteria)
-H2O_flux_res <- best.flux(H2O_results, "H2O_ppm", criteria)
+CO2_flux_res <- best.flux(CO2_results, criteria)
+CH4_flux_res <- best.flux(CH4_results, criteria)
+H2O_flux_res <- best.flux(H2O_results, criteria)
 
 # Plots results ----------------------------------------------------------------
 ?flux.plot
