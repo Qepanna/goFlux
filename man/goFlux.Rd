@@ -2,7 +2,7 @@
 % Please edit documentation in R/goFlux.R
 \name{goFlux}
 \alias{goFlux}
-\title{goFlux: user-friendly GHG fluxes calculation tool}
+\title{goFlux: a user-friendly GHG fluxes calculation tool}
 \usage{
 goFlux(
   dataframe,
@@ -15,7 +15,7 @@ goFlux(
   Vcham = NULL,
   Pcham = NULL,
   Tcham = NULL,
-  k.ratio = 1
+  k.mult = 1
 )
 }
 \arguments{
@@ -23,25 +23,27 @@ goFlux(
 water vapor measurements (see H2O_col below) and the following:
 UniqueID, Etime, Vtot, Area, Pcham, Tcham, flag}
 
-\item{gastype}{character string. Specify which column should be used for the
+\item{gastype}{character string; specifies which column should be used for the
 flux calculations. Must be one of the following: "CO2dry_ppm",
 "CH4dry_ppb", "N2Odry_ppb" or "H2O_ppm".}
 
-\item{H2O_col}{character string. Specify which column should be used to
+\item{H2O_col}{character string; specifies which column should be used to
 subtract the effect of water vapor in the chamber space.}
 
 \item{prec}{numerical value; precision of the instruments. Default values for
-CO2, CH4, N2O and H2O are based on the LI-COR instruments:
-CO2 = 3.5 ppm; CH4 = 0.6 ppb; N2O = 0.4 ppb; H2O = 45 ppm.
+CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O and H<sub>2</sub>O
+are based on the LI-COR instruments: CO<sub>2</sub> = 3.5 ppm;
+CH<sub>4</sub> = 0.6 ppb; N<sub>2</sub>O = 0.4 ppb; H<sub>2</sub>O = 45 ppm.
 Units must be the same as gastype. For Los Gatos Research instruments,
-if using the ultra-portable GGA (GLA132 series):
-prec = CO2: 0.3 ppm; CH4: 1.4 ppb; H2O: 50 ppm.
-If using the micro  ultra-portable GGA (GLA131 series):
-prec = CO2: 0.35 ppm; CH4: 0.9 ppb; H2O: 200 ppm.}
+you must manually specify the precision of the instruments.
+If using the ultra-portable GGA (GLA132 series): prec = CO<sub>2</sub>:
+0.3 ppm; CH<sub>4</sub>: 1.4 ppb; H<sub>2</sub>O: 50 ppm.
+If using the micro  ultra-portable GGA (GLA131 series): prec =
+CO<sub>2</sub>: 0.35 ppm; CH<sub>4</sub>: 0.9 ppb; H<sub>2</sub>O: 200 ppm.}
 
-\item{Area}{numerical value; area of the soil surface inside the chamber (cm2).
-Alternatively, provide the column Area in dataframe if Area is
-different between samples.}
+\item{Area}{numerical value; area of the soil surface inside the chamber
+(cm<sup>2</sup>). Alternatively, provide the column Area in
+dataframe if Area is different between samples.}
 
 \item{offset}{numerical value; height between the soil surface and the chamber
 (cm). Alternatively, provide the column offset in dataframe if
@@ -63,27 +65,28 @@ Pcham is different between samples.}
 Alternatively, provide the column Tcham in dataframe if
 Tcham is different between samples.}
 
-\item{k.ratio}{numerical; a multiplier for the allowed k.max.
-Default is k.ratio = 1.}
+\item{k.mult}{numerical; a multiplier for the allowed k.max.
+Default is k.mult = 1.}
 }
 \value{
 a data frame
 }
 \description{
-A wrapper function to calculate GHG fluxes from closed chamber measurements.
+A wrapper function to calculate GHG fluxes from static chamber measurements.
 Calculates linear and non-linear fluxes (Hutchinson and Mosier model; HM).
 }
 \details{
-Flux estimate units are nmol/m2*s (if initial concentration is ppm, e.g. CO2dry_ppm)
-and µmol/m2*s (if initial concentraion is ppb, e.g. CH4dry_ppm).
+Flux estimate units are nmol/m<sup>2</sup>*s (if initial concentration is ppm,
+e.g. CO2dry_ppm) and µmol/m<sup>2</sup>*s (if initial concentration is ppb,
+e.g. CH4dry_ppm).
 
-[k.max()] calculates the maximal curvature (kappa) of the non-linear model
-(Hutchinson and Mosier model) allowed for a certain flux measurements. k.max
+The function `k.max()` calculates the maximal curvature (kappa) of the non-linear
+model (Hutchinson and Mosier) allowed for each flux measurements. k.max
 is calculated based on the minimal detectable flux (MDF), the linear
-flux estimate and the measurement time. The units of the kappa-max is s-1.
+flux estimate and the measurement time. The unit of the kappa-max is s-1.
 
-[MDF()] calculates the minimal detectable flux (MDF) based on instrument
-precision, measurements time, and the number of measurement points.
+The function `MDF()` calculates the minimal detectable flux (MDF) based on
+instrument precision, measurements time, and the number of measurement points.
 }
 \examples{
 data(example_LGR_manID)
@@ -93,15 +96,11 @@ goFlux(example_LGR_manID, "H2O_ppm")
 
 }
 \seealso{
-[flux.term()]
-
-[MDF()]
-
-[LM.flux()]
-
-[HM.flux()]
-
-[g.factor()]
-
-[k.max()]
+Look up the functions \code{\link[GoFluxYourself]{MDF}},
+         \code{\link[GoFluxYourself]{flux.term}},
+         \code{\link[GoFluxYourself]{g.factor}},
+         \code{\link[GoFluxYourself]{k.max}},
+         \code{\link[GoFluxYourself]{HM.flux}} and
+         \code{\link[GoFluxYourself]{LM.flux}} of this package for more
+         information about these parameters.
 }

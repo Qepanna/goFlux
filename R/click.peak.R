@@ -2,41 +2,42 @@
 #'
 #' Identify the start and the end of a measurement by clicking on them in a
 #' scatter plot. Requires start time and UniqueID. To use in a loop with
-#' multiple measurements,first use the function obs.win to identify the
-#' observation window of each measurement and use the wrapper function
-#' click.peak.loop with lapply.
+#' multiple measurements, first use the function `obs.win()` to identify the
+#' observation window of each measurement and then use the wrapper function
+#' `click.peak.loop()` with `lapply()` (see example below).
 #'
-#' @param flux.unique A data.frame. Output from the function obs.win.
+#' @param flux.unique data.frame; output from the function `obs.win()`.
 #'                    Must contain a gastype (see gastype below) and the
 #'                    columns POSIX.time and UniqueID.
-#' @param gastype Character string. Specify which gas should be displayed on the
+#' @param gastype character string; specifies which gas should be displayed on the
 #'                plot to manually select start time and end time of measurements.
 #'                Must be one of the following: "CO2dry_ppm", "CH4dry_ppb",
 #'                "N2Odry_ppb" or "H2O_ppm". Default is "CO2dry_ppm".
-#' @param sleep Delay before closing the resulting plot. When used with the
-#'              function click.peak.loop, grants a delay between measurements to
+#' @param sleep numerical; delay before closing the resulting plot. When used with the
+#'              function `click.peak.loop()`, grants a delay between measurements to
 #'              let the user verify the output before processing the next measurement.
-#' @param plot.lim Numerical vector of length 2. Y axis limits. Removes any data
+#' @param plot.lim numerical vector of length 2; Y axis limits. Removes any data
 #'                 points below and above the plot limits for a better view of
 #'                 the scatter plot. Default values are set for a normal gas
 #'                 measurement of CO2dry_ppm from the forest floor:
 #'                 plot.lim = c(380,1000), where 380ppm is the minimum plotted
 #'                 concentration, which corresponds to atmospheric concentration,
-#'                 and 1000ppm is the maximum plotter concentraion, which correspond
+#'                 and 1000ppm is the maximum plotter concentration, which correspond
 #'                 to a maximal accumulated concentration in the chamber before
 #'                 considering it an outlier (e.g. caused by breath or gas bubble).
-#' @param warn.length Minimum amount of observations accepted (number of data points).
+#' @param warn.length numerical; minimum amount of observations accepted (number of data points).
 #'                    With nowadays portable greenhouse gas analyzers, the frequency
 #'                    of measurement is 1 measurement per second. Therefore, the
 #'                    amount of observation is equal to the chamber closure time
 #'                    length (seconds). Default is one minute (60 seconds).
 #'
-#' @returns a list of data frame, split by UniqueID.
+#' @returns a list of data.frame, split by UniqueID.
 #'
 #' @include GoFluxYourself-package.R
 #'
-#' @seealso [click.peak.loop()]
-#' @seealso [obs.win()]
+#' @seealso To use the function `click.peak()` in a loop with `lapply()`, use
+#'          \code{\link[GoFluxYourself]{click.peak.loop}}. See also
+#'          \code{\link[GoFluxYourself]{obs.win}}
 #'
 #' @examples
 #' # Examples on how to use it in multiple situations:

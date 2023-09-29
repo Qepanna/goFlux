@@ -3,8 +3,8 @@
 #' Save a list of plots to a pdf file, and combine plots sharing a UniqueID
 #' onto the same page.
 #'
-#' @param plot.list a list of plots; output from the function flux.plot().
-#' @param outfile a charachter string indicating the full name of the pdf
+#' @param plot.list a list of plots; output from the function `flux.plot()`.
+#' @param outfile a character string indicating the full name of the pdf
 #'                output file (including the path). Default is to save the pdf
 #'                in the working directory, with the name of the plot.list.
 #' @param width numerical value; width of the pdf page. Default is 11.6 inches.
@@ -14,15 +14,14 @@
 #'
 #' @include GoFluxYourself-package.R
 #'
-#' @seealso [goFlux()]
-#' @seealso [flux.plot()]
-#' @seealso [best.flux()]
+#' @seealso See also the function [goFlux()], [best.flux()] and [flux.plot()]
+#'          for more information about usage.
 #'
 #' @examples
 #' data(example_LGR_manID)
 #' example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
-#' criteria <- c("g.factor", "kappa", "MDF", "R2", "SE.rel")
-#' example_LGR_res <- best.flux(example_LGR_flux, "CO2dry_ppm")
+#' criteria <- c("g.factor", "kappa", "MDF", "r2", "SE.rel")
+#' example_LGR_res <- best.flux(example_LGR_flux)
 #' example_LGR_plots <- flux.plot(example_LGR_res, example_LGR_manID, "CO2dry_ppm")
 #' flux2pdf(example_LGR_plots)
 #'

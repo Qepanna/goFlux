@@ -1,11 +1,17 @@
 #' Linear model for flux calculation
 #'
 #' Estimates a gas flux with a linear regression, and then extracts values from
-#' the linear fit, calculates standard error, R2, p-value and RMSE.
+#' the linear fit, calculates standard error, r2, p-value and Root Mean Squared
+#' Error (RMSE).
 #'
 #' @param gas.meas numerical vector containing gas measurements (ppm or ppb)
 #' @param time.meas numerical vector containing time stamps (seconds)
-#' @param flux.term numerical value; flux term calculated with the function flux.term
+#' @param flux.term numerical value; flux term calculated with the function `flux.term()`
+#'
+#' @seealso Look up the function [flux.term()] of this package
+#'          for more information about this parameter.
+#' @seealso See also the function [HM.flux()] for information about the non-linear
+#'          regression model used in this package.
 #'
 #' @return a data.frame
 #'
@@ -24,8 +30,11 @@ LM.flux <- function(gas.meas, time.meas, flux.term) {
   LM <- lm(gas.meas ~ time.meas)
 
   # Extract values from the linear fit
-  LM.intercept <- summary(LM)[[4]][1,1]
+  LM.C0 <- summary(LM)[[4]][1,1]
   LM.slope <- summary(LM)[[4]][2,1]
+
+  # Calculate LM.Ci
+  LM.Ci <- LM.slope * last(time.meas) + LM.C0
 
   # Multiply the slope of the model by the flux term. The flux term corrects
   # for water vapor at the start of the measurement, as well as total volume,
@@ -37,15 +46,15 @@ LM.flux <- function(gas.meas, time.meas, flux.term) {
   LM.se <- deltamethod(as.formula(form), coef(LM), vcov(LM))
 
   # Indices of the model fit
-  # Relative flux standard error, R2, p-value, RMSE and nRMSE
+  # Relative flux standard error, r2, p-value and RMSE
   LM.se.rel <- (LM.se / LM.flux) * 100
-  LM.R2 <- as.numeric(summary(lm(fitted(LM) ~ gas.meas))[9])[1]
+  LM.r2 <- as.numeric(summary(lm(fitted(LM) ~ gas.meas))[9])[1]
   LM.p.val <- summary(LM)[[4]][2,4]
   LM.RMSE <- RMSE(gas.meas, fitted(LM))
 
   # Store results in new data table
-  LM_results <- cbind.data.frame(LM.slope, LM.intercept, LM.flux, LM.RMSE,
-                                 LM.se, LM.se.rel, LM.R2, LM.p.val)
+  LM_results <- cbind.data.frame(LM.slope, LM.C0, LM.Ci, LM.flux, LM.RMSE,
+                                 LM.se, LM.se.rel, LM.r2, LM.p.val)
 
   return(LM_results)
 }

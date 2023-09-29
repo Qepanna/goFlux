@@ -2,11 +2,11 @@
 #'
 #' Description
 #'
-#' @param flux.results a data.frame; output from the function goFlux().
+#' @param flux.results a data.frame; output from the function `best.flux()`.
 #' @param dataframe a data.frame containing gas measurements (see gastype below),
 #'                  and the following: UniqueID, Etime and flag (same dataframe
-#'                  as used with the function goFlux()).
-#' @param gastype character string; specify which column was used for the
+#'                  as used with the function `goFlux()`).
+#' @param gastype character string; specifies which column was used for the
 #'                flux calculations. Must be one of the following: "CO2dry_ppm",
 #'                "CH4dry_ppb", "N2Odry_ppb" or "H2O_ppm".
 #' @param shoulder numerical value; time before and after measurement in observation
@@ -16,15 +16,14 @@
 #'
 #' @include GoFluxYourself-package.R
 #'
-#' @seealso [goFlux()]
-#' @seealso [best.flux()]
-#' @seealso [flux2pdf()]
+#' @seealso See also the function [goFlux()], [best.flux()] and [flux2pdf()]
+#'          for more information about usage.
 #'
 #' @examples
 #' data(example_LGR_manID)
 #' example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
-#' criteria <- c("g.factor", "kappa", "MDF", "R2", "SE.rel")
-#' example_LGR_res <- best.flux(example_LGR_flux, "CO2dry_ppm", criteria)
+#' criteria <- c("g.factor", "kappa", "MDF", "r2", "SE.rel")
+#' example_LGR_res <- best.flux(example_LGR_flux, criteria)
 #' example_LGR_plots <- flux.plot(example_LGR_res, example_LGR_manID, "CO2dry_ppm")
 #'
 #' @export
@@ -91,8 +90,8 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30) {
       HM.flux <- round(unique(data_corr[[f]]$HM.flux), 2)
       LM.se.rel <- round(unique(data_corr[[f]]$LM.se.rel), 2)
       HM.se.rel <- round(unique(data_corr[[f]]$HM.se.rel), 2)
-      LM.R2 <- round(unique(data_corr[[f]]$LM.R2), 3)
-      HM.R2 <- round(unique(data_corr[[f]]$HM.R2), 3)
+      LM.r2 <- round(unique(data_corr[[f]]$LM.r2), 3)
+      HM.r2 <- round(unique(data_corr[[f]]$HM.r2), 3)
       LM.RMSE <- round(unique(data_corr[[f]]$LM.RMSE), 3)
       HM.RMSE <- round(unique(data_corr[[f]]$HM.RMSE), 3)
       LM.p.val <- p.val.star(unique(data_corr[[f]]$LM.p.val))
@@ -105,7 +104,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30) {
                content = c("Model", "lm", "HM",
                            "Flux", LM.flux, HM.flux,
                            "SE (%)", LM.se.rel, HM.se.rel,
-                           "R2", LM.R2, HM.R2,
+                           "r2", LM.r2, HM.r2,
                            "RMSE", LM.RMSE, HM.RMSE,
                            "p-val / kappa (%)", LM.p.val, kappa.ratio))
 
@@ -116,7 +115,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30) {
       plot_data <- cbind.data.frame(gas_meas, Etime, flag)
 
       LM.slope <- unique(data_corr[[f]]$LM.slope)
-      LM.intercept <- unique(data_corr[[f]]$LM.intercept)
+      LM.C0 <- unique(data_corr[[f]]$LM.C0)
       UniqueID <- unique(data_corr[[f]]$UniqueID)
       HM_mod <- data_split[[f]]$HM_mod
 
@@ -126,7 +125,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30) {
         scale_color_manual(values = c("darkgrey", "black"), guide = "none") +
 
         # Linear model
-        geom_abline(slope = LM.slope, intercept = LM.intercept,
+        geom_abline(slope = LM.slope, intercept = LM.C0,
                     linewidth = 1, col = "blue") +
 
         ## Hutchinson and Mosier

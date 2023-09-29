@@ -27,7 +27,8 @@ flux estimate and the measurement time. The unit of the kappa-max is s-1.
 Hüppi et al. (2018). Restricting the nonlinearity parameter in soil greenhouse gas flux calculation for more reliable flux estimates. *PloS one*, 13(7), e0200876.
 }
 \seealso{
-Look up the functions [MDF()] and [LM.flux()] of this package
+Look up the functions \code{\link[GoFluxYourself]{MDF}} and
+         \code{\link[GoFluxYourself]{LM.flux}} of this package
          for more information about these parameters.
 }
 \keyword{internal}

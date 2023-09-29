@@ -11,13 +11,21 @@ LM.flux(gas.meas, time.meas, flux.term)
 
 \item{time.meas}{numerical vector containing time stamps (seconds)}
 
-\item{flux.term}{numerical value; flux term calculated with the function flux.term}
+\item{flux.term}{numerical value; flux term calculated with the function `flux.term()`}
 }
 \value{
 a data.frame
 }
 \description{
 Estimates a gas flux with a linear regression, and then extracts values from
-the linear fit, calculates standard error, R2, p-value and RMSE.
+the linear fit, calculates standard error, r2, p-value and Root Mean Squared
+Error (RMSE).
+}
+\seealso{
+Look up the function [flux.term()] of this package
+         for more information about this parameter.
+
+See also the function [HM.flux()] for information about the non-linear
+         regression model used in this package.
 }
 \keyword{internal}

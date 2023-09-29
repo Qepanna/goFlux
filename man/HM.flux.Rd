@@ -2,7 +2,7 @@
 % Please edit documentation in R/HM.flux.R
 \name{HM.flux}
 \alias{HM.flux}
-\title{Non-linear model for flux calculation: the Hutchinson and Mosier model}
+\title{Non-linear model for flux calculation}
 \usage{
 HM.flux(
   gas.meas,
@@ -11,7 +11,7 @@ HM.flux(
   k.max,
   Ci = NULL,
   C0 = NULL,
-  k.ratio = 1
+  k.mult = 1
 )
 }
 \arguments{
@@ -19,23 +19,23 @@ HM.flux(
 
 \item{time.meas}{numerical vector containing time stamps (seconds)}
 
-\item{flux.term}{numerical value; flux term calculated with the function flux.term}
+\item{flux.term}{numerical value; flux term calculated with the function `flux.term()`}
 
 \item{k.max}{numerical; kappa-max is the maximal curvature allowed in the
-Hutchinson and Mosier model. Calculated with the k.max function.}
+Hutchinson and Mosier model. Calculated with the `k.max()` function.}
 
-\item{Ci}{numerical; gas concentration after i seconds (ppm or ppb). For forest
-soil conditions, use these estimates for the following gastypes:
+\item{Ci}{numerical; gas concentration after i seconds (ppm or ppb). For typical
+forest soil conditions, use these estimates for the following gastypes:
 "CO2dry_ppm": Ci = 1000 ppm; "CH4dry_ppb": Ci = 1800 ppb;
 "N2Odry_ppb": Ci = 500 ppb; "H2O_ppm": Ci = 20000 ppm.}
 
 \item{C0}{numerical; initial gas concentration at time 0 second (ppm or ppb)
-For forest soil conditions, use these estimates for the following
+For typical forest soil conditions, use these estimates for the following
 gastypes: "CO2dry_ppm": C0 = 380 ppm; "CH4dry_ppb": C0 = 2200 ppb;
 "N2Odry_ppb": C0 = 250 ppb; "H2O_ppm": C0 = 10000 ppm.}
 
-\item{k.ratio}{numerical; a multiplier for the allowed k.max. Default is
-k.ratio = 1.}
+\item{k.mult}{numerical; a multiplier for the allowed k.max. Default is
+k.mult = 1.}
 
 \item{k}{numerical; kappa gives the curvature of the regression line (s-1).
 The default parameter for kappa is k = 0.005 s-1. k = 0.005 is the
@@ -45,7 +45,18 @@ minimal value of kappa if LM.flux = MDF and t = 180 secs.}
 a data.frame
 }
 \description{
-Estimates a gas flux with a non-linear model, and then extracts values from
-the model fit, calculates standard error, R2, p-value and RMSE.
+Estimates a gas flux with a non-linear regression, the Hutchinson and Mosier
+model, and then extracts values from the model fit, calculates standard error,
+r2, p-value and Root Mean Squared Error (RMSE).
+}
+\references{
+Hüppi et al. (2018). Restricting the nonlinearity parameter in soil greenhouse gas flux calculation for more reliable flux estimates. *PloS one*, 13(7), e0200876.
+}
+\seealso{
+Look up the functions [flux.term()] and [k.max()] of this package
+         for more information about these parameters.
+
+See also the function [LM.flux()] for information about the linear
+         regression model used in this package.
 }
 \keyword{internal}

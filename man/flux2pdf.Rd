@@ -7,9 +7,9 @@
 flux2pdf(plot.list, outfile = NULL, width = 11.6, height = 8.2)
 }
 \arguments{
-\item{plot.list}{a list of plots; output from the function flux.plot().}
+\item{plot.list}{a list of plots; output from the function `flux.plot()`.}
 
-\item{outfile}{a charachter string indicating the full name of the pdf
+\item{outfile}{a character string indicating the full name of the pdf
 output file (including the path). Default is to save the pdf
 in the working directory, with the name of the plot.list.}
 
@@ -27,16 +27,13 @@ onto the same page.
 \examples{
 data(example_LGR_manID)
 example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
-criteria <- c("g.factor", "kappa", "MDF", "R2", "SE.rel")
-example_LGR_res <- best.flux(example_LGR_flux, "CO2dry_ppm")
+criteria <- c("g.factor", "kappa", "MDF", "r2", "SE.rel")
+example_LGR_res <- best.flux(example_LGR_flux)
 example_LGR_plots <- flux.plot(example_LGR_res, example_LGR_manID, "CO2dry_ppm")
 flux2pdf(example_LGR_plots)
 
 }
 \seealso{
-[goFlux()]
-
-[flux.plot()]
-
-[best.flux()]
+See also the function [goFlux()], [best.flux()] and [flux.plot()]
+         for more information about usage.
 }

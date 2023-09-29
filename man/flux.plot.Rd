@@ -7,13 +7,13 @@
 flux.plot(flux.results, dataframe, gastype, shoulder = 30)
 }
 \arguments{
-\item{flux.results}{a data.frame; output from the function goFlux().}
+\item{flux.results}{a data.frame; output from the function `best.flux()`.}
 
 \item{dataframe}{a data.frame containing gas measurements (see gastype below),
 and the following: UniqueID, Etime and flag (same dataframe
-as used with the function goFlux()).}
+as used with the function `goFlux()`).}
 
-\item{gastype}{character string; specify which column was used for the
+\item{gastype}{character string; specifies which column was used for the
 flux calculations. Must be one of the following: "CO2dry_ppm",
 "CH4dry_ppb", "N2Odry_ppb" or "H2O_ppm".}
 
@@ -29,15 +29,12 @@ Description
 \examples{
 data(example_LGR_manID)
 example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
-criteria <- c("g.factor", "kappa", "MDF", "R2", "SE.rel")
-example_LGR_res <- best.flux(example_LGR_flux, "CO2dry_ppm", criteria)
+criteria <- c("g.factor", "kappa", "MDF", "r2", "SE.rel")
+example_LGR_res <- best.flux(example_LGR_flux, criteria)
 example_LGR_plots <- flux.plot(example_LGR_res, example_LGR_manID, "CO2dry_ppm")
 
 }
 \seealso{
-[goFlux()]
-
-[best.flux()]
-
-[flux2pdf()]
+See also the function [goFlux()], [best.flux()] and [flux2pdf()]
+         for more information about usage.
 }
