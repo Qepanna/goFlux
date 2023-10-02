@@ -30,7 +30,7 @@ let the user verify the output before processing the next measurement.}
 points below and above the plot limits for a better view of
 the scatter plot. Default values are set for a normal gas
 measurement of CO2dry_ppm from the forest floor:
-plot.lim = c(380,1000), where 380ppm is the minimum plotted
+`plot.lim = c(380,1000)`, where 380ppm is the minimum plotted
 concentration, which corresponds to atmospheric concentration,
 and 1000ppm is the maximum plotter concentration, which correspond
 to a maximal accumulated concentration in the chamber before
@@ -82,7 +82,7 @@ example_LI6400_manID <- click.peak(example_LI6400_ow[[1]])
 
 }
 \seealso{
-To use the function `click.peak()` in a loop with `lapply()`, use
-         \code{\link[GoFluxYourself]{click.peak.loop}}. See also
-         \code{\link[GoFluxYourself]{obs.win}}
+To use the function `click.peak()` in a loop with \code{\link[base]{lapply}},
+         use \code{\link[GoFluxYourself]{click.peak.loop}}. See also
+         \code{\link[GoFluxYourself]{obs.win}} to prepare a list of data.frame.
 }

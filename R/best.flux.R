@@ -6,7 +6,7 @@
 #' @param flux.result data.frame; output from the function `goFlux()`.
 #' @param criteria character vector; criteria used to asses the goodness of fit of the
 #'                 linear and non-linear flux estimates. Must be at least one the following:
-#'                 `criteria = c("g.factor", "kappa", "MDF", "p-value", "r2", "intercept", "SE.rel")`.
+#'                 `criteria = c("RMSE", "g.factor", "kappa", "MDF", "p-value", "r2", "intercept", "SE.rel")`.
 #'                 Default is all of them.
 #' @param intercept.lim numerical vector of length 2; inferior and superior
 #'                      limits of the intercept (initial concentration). Same
@@ -54,37 +54,32 @@
 #' criteria <- c("g.factor", "kappa", "MDF", "r2", "SE.rel")
 #' example_LGR_res <- best.flux(example_LGR_flux, "CO2dry_ppm", criteria)
 #'
-#' @seealso Look up the functions [MDF()], [flux.term()], [g.factor()], [k.max()],
-#'          [HM.flux()] and [LM.flux()] of this package for more information about
-#'          these parameters.
-#' @seealso See also the function [goFlux()] for more information about usage.
+#' @seealso Look up the functions \code{\link[GoFluxYourself]{MDF}},
+#'          \code{\link[GoFluxYourself]{flux.term}},
+#'          \code{\link[GoFluxYourself]{g.factor}},
+#'          \code{\link[GoFluxYourself]{k.max}},
+#'          \code{\link[GoFluxYourself]{HM.flux}} and
+#'          \code{\link[GoFluxYourself]{LM.flux}}
+#'          of this package for more information about these parameters.
+#' @seealso See also the function \code{\link[GoFluxYourself]{goFlux}}
+#'          for more information about usage.
 #'
 #' @export
 #'
 best.flux <- function(flux.result,
-                      criteria = c("g.factor", "kappa", "MDF", "p-value",
+                      criteria = c("RMSE", "g.factor", "kappa", "MDF", "p-value",
                                    "r2", "intercept", "SE.rel"),
                       intercept.lim = NULL, SE.rel = 5, g.limit = 2,
                       p.val = 0.05, r2 = 0.6, k.ratio = 1) {
 
-  # TEST
-  # flux.result <- example_LGR_flux
-  # criteria = c("g.factor", "kappa", "MDF", "p-value", "r2", "intercept", "SE.rel")
-  # intercept.lim = NULL
-  # SE.rel = 5
-  # g.limit = 2
-  # p.val = 0.05
-  # r2 = 0.6
-  # k.ratio = 1
-
-  def.criteria <- c("g.factor", "kappa", "MDF", "p-value", "r2", "intercept", "SE.rel")
+  def.criteria <- c("RMSE", "g.factor", "kappa", "MDF", "p-value", "r2", "intercept", "SE.rel")
   if (!any(grepl(paste(def.criteria, collapse = "|"), criteria))) {
     warning("'criteria' must contain one of the following: 'g.factor', 'kappa', 'MDF', 'p-value', 'r2', 'intercept', 'SE.rel'",
             call. = F)
   }
 
   # Assign NULL to variables without binding
-  g.fact <- HM.diagnose <- model <- quality.check <- HM.k <- LM.p.val <-
+  g.fact <- HM.diagnose <- HM.RMSE <- prec <- model <- quality.check <- HM.k <- LM.p.val <-
     LM.diagnose <- HM.se.rel <- LM.se.rel <- HM.C0 <- LM.C0 <- HM.r2 <-
     LM.r2 <- LM.Ci <- LM.se <- HM.se <- f.min <- NULL
 
@@ -93,23 +88,42 @@ best.flux <- function(flux.result,
     mutate(HM.diagnose = "", LM.diagnose = "", best.flux = HM.flux,
            model = "HM", quality.check = "")
 
+  ## RMSE ####
+  # Reflects the instrument precision. Use that as a threshold?
+  if (any(grepl("RMSE", criteria))) {
+
+    rmse.diagnostic <- paste("Noisy measurement (RMSE)")
+
+    best.flux <- best.flux %>%
+      mutate(HM.diagnose = ifelse(HM.RMSE > prec, ifelse(
+        HM.diagnose == "", rmse.diagnostic,
+        paste(HM.diagnose, rmse.diagnostic, sep = " | ")),
+        HM.diagnose)) %>%
+      mutate(best.flux = ifelse(HM.RMSE > prec, LM.flux, best.flux),
+             model = ifelse(HM.RMSE > prec, "LM", model),
+             quality.check = ifelse(HM.RMSE > prec, ifelse(
+               quality.check == "", "RMSE",
+               paste(quality.check, "RMSE", sep = " | ")),
+               quality.check))
+  }
+
   # G factor ####
   # Ratio between HM/LM. Default is 2
   if (any(grepl("g.factor", criteria))) {
 
     g.diagnostic <- paste("Overestimation of flux (g-factor > ", g.limit, ")", sep = "")
 
-    best.flux <- best.flux %>% mutate(
-      HM.diagnose = ifelse(g.fact > g.limit,
-                           ifelse(HM.diagnose == "", g.diagnostic,
-                                  paste(HM.diagnose, g.diagnostic, sep = " | ")),
-                           HM.diagnose)) %>%
+    best.flux <- best.flux %>%
+      mutate(HM.diagnose = ifelse(g.fact > g.limit, ifelse(
+        HM.diagnose == "", g.diagnostic,
+        paste(HM.diagnose, g.diagnostic, sep = " | ")),
+        HM.diagnose)) %>%
       mutate(best.flux = ifelse(g.fact > g.limit, LM.flux, best.flux),
              model = ifelse(g.fact > g.limit, "LM", model),
-             quality.check = ifelse(g.fact > g.limit,
-                                    ifelse(quality.check == "", "g.fact",
-                                           paste(quality.check, "g.fact", sep = " | ")),
-                                    quality.check))
+             quality.check = ifelse(g.fact > g.limit, ifelse(
+               quality.check == "", "g.fact",
+               paste(quality.check, "g.fact", sep = " | ")),
+               quality.check))
   }
 
   # kappa max ####
@@ -243,9 +257,6 @@ best.flux <- function(flux.result,
                                            paste(quality.check, HM.SE.quality, sep = " | ")),
                                     quality.check))
     }
-
-  ## RMSE ####
-  # Reflects the instrument precision. Use that as a threshold?
 
   return(best.flux)
 }

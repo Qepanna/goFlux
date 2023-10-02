@@ -10,8 +10,9 @@
 #' @param LM.flux a numerical value; flux estimate from a linear regression
 #'                model. Calculated with the `LM.flux()` function of this package.
 #'
-#' @seealso Look up the functions [HM.flux()] and [LM.flux()] of this package
-#'          for more information about these parameters.
+#' @seealso Look up the functions \code{\link[GoFluxYourself]{HM.flux}} and
+#'          \code{\link[GoFluxYourself]{LM.flux}} of this package for more
+#'          information about these parameters.
 #'
 #' @references Hüppi et al. (2018). Restricting the nonlinearity parameter in soil greenhouse gas flux calculation for more reliable flux estimates. *PloS one*, 13(7), e0200876.
 

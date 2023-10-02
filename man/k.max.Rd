@@ -21,7 +21,7 @@ a numerical value
 The parameter kappa determines the curvature of the non-linear regression in the
 Hutchinson and Mosier model. A maximum threshold for this parameter, kappa-max,
 can be calculated based on the minimal detectable flux (MDF), the linear
-flux estimate and the measurement time. The unit of the kappa-max is s-1.
+flux estimate and the measurement time. The unit of the kappa-max is s^~-1~^.
 }
 \references{
 Hüppi et al. (2018). Restricting the nonlinearity parameter in soil greenhouse gas flux calculation for more reliable flux estimates. *PloS one*, 13(7), e0200876.

@@ -53,10 +53,11 @@ r2, p-value and Root Mean Squared Error (RMSE).
 Hüppi et al. (2018). Restricting the nonlinearity parameter in soil greenhouse gas flux calculation for more reliable flux estimates. *PloS one*, 13(7), e0200876.
 }
 \seealso{
-Look up the functions [flux.term()] and [k.max()] of this package
-         for more information about these parameters.
+Look up the functions \code{\link[GoFluxYourself]{flux.term}} and
+         \code{\link[GoFluxYourself]{k.max}} of this package for more
+         information about these parameters.
 
-See also the function [LM.flux()] for information about the linear
-         regression model used in this package.
+See also the function \code{\link[GoFluxYourself]{LM.flux}} for
+         information about the linear regression model used in this package.
 }
 \keyword{internal}

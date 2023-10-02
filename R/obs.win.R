@@ -25,9 +25,10 @@
 #'
 #' @include GoFluxYourself-package.R
 #'
-#' @seealso [click.peak.loop()]
-#' @seealso [click.peak()]
-#' @seealso [obs.win()]
+#' @seealso After defining the observation window with the function 'obs.win()',
+#'          Use the function \code{\link[GoFluxYourself]{click.peak.loop}} in a
+#'          loop with \code{\link[base]{lapply}}, or use the function
+#'          \code{\link[GoFluxYourself]{click.peak}} for a single measurement.
 #'
 #' @examples
 #' # Examples on how to use it in multiple situations:

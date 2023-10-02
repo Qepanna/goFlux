@@ -39,19 +39,15 @@ G2508.data <- G2508_import(inputfile = file.path)
 
 }
 \seealso{
-[import2Rdata()]
+Use the wraper function \code{\link[GoFluxYourself]{import2Rdata}}
+         to import multiple files from the same folder path using any instrument.
 
-[GAIA_import()]
-
-[LGR_import()]
-
-[LI6400_import()]
-
-[LI7810_import()]
-
-[LI7820_import()]
-
-[LI8100_import()]
-
-[LI8200_import()]
+Import functions for individual instruments:
+         \code{\link[GoFluxYourself]{GAIA_import}},
+         \code{\link[GoFluxYourself]{LGR_import}},
+         \code{\link[GoFluxYourself]{LI6400_import}},
+         \code{\link[GoFluxYourself]{LI7810_import}},
+         \code{\link[GoFluxYourself]{LI7820_import}},
+         \code{\link[GoFluxYourself]{LI8100_import}},
+         \code{\link[GoFluxYourself]{LI8200_import}}
 }

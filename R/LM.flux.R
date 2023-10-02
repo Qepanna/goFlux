@@ -1,17 +1,17 @@
 #' Linear model for flux calculation
 #'
 #' Estimates a gas flux with a linear regression, and then extracts values from
-#' the linear fit, calculates standard error, r2, p-value and Root Mean Squared
+#' the linear fit, calculates standard error, r~2~, p-value and Root Mean Squared
 #' Error (RMSE).
 #'
 #' @param gas.meas numerical vector containing gas measurements (ppm or ppb)
 #' @param time.meas numerical vector containing time stamps (seconds)
 #' @param flux.term numerical value; flux term calculated with the function `flux.term()`
 #'
-#' @seealso Look up the function [flux.term()] of this package
-#'          for more information about this parameter.
-#' @seealso See also the function [HM.flux()] for information about the non-linear
-#'          regression model used in this package.
+#' @seealso Look up the function \code{\link[GoFluxYourself]{flux.term}} of this
+#'          package for more information about this parameter.
+#' @seealso See also the function \code{\link[GoFluxYourself]{HM.flux}}
+#'          for information about the non-linear regression model used in this package.
 #'
 #' @return a data.frame
 #'

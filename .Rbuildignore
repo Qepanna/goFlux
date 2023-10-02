@@ -4,3 +4,5 @@
 ^docs$
 ^pkgdown$
 ^README\.Rmd$
+^\.Rhistory$
+^man/figures$

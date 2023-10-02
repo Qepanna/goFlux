@@ -26,7 +26,8 @@ The g-factor should be <4 (flexible threshold), <2 (medium), or <1.25 (conservat
 Hüppi et al. (2018). Restricting the nonlinearity parameter in soil greenhouse gas flux calculation for more reliable flux estimates. *PloS one*, 13(7), e0200876.
 }
 \seealso{
-Look up the functions [HM.flux()] and [LM.flux()] of this package
-         for more information about these parameters.
+Look up the functions \code{\link[GoFluxYourself]{HM.flux}} and
+         \code{\link[GoFluxYourself]{LM.flux}} of this package for more
+         information about these parameters.
 }
 \keyword{internal}

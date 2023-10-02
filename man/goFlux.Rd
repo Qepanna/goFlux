@@ -14,8 +14,7 @@ goFlux(
   Vtot = NULL,
   Vcham = NULL,
   Pcham = NULL,
-  Tcham = NULL,
-  k.mult = 1
+  Tcham = NULL
 )
 }
 \arguments{
@@ -42,7 +41,7 @@ If using the micro  ultra-portable GGA (GLA131 series): prec =
 CO<sub>2</sub>: 0.35 ppm; CH<sub>4</sub>: 0.9 ppb; H<sub>2</sub>O: 200 ppm.}
 
 \item{Area}{numerical value; area of the soil surface inside the chamber
-(cm<sup>2</sup>). Alternatively, provide the column Area in
+(cm~2~). Alternatively, provide the column Area in
 dataframe if Area is different between samples.}
 
 \item{offset}{numerical value; height between the soil surface and the chamber
@@ -64,9 +63,6 @@ Pcham is different between samples.}
 \item{Tcham}{numerical value; temperature inside the chamber (Celcius).
 Alternatively, provide the column Tcham in dataframe if
 Tcham is different between samples.}
-
-\item{k.mult}{numerical; a multiplier for the allowed k.max.
-Default is k.mult = 1.}
 }
 \value{
 a data frame
@@ -76,8 +72,8 @@ A wrapper function to calculate GHG fluxes from static chamber measurements.
 Calculates linear and non-linear fluxes (Hutchinson and Mosier model; HM).
 }
 \details{
-Flux estimate units are nmol/m<sup>2</sup>*s (if initial concentration is ppm,
-e.g. CO2dry_ppm) and µmol/m<sup>2</sup>*s (if initial concentration is ppb,
+Flux estimate units are nmol/m~2~*s (if initial concentration is ppm,
+e.g. CO2dry_ppm) and µmol/m~2~*s (if initial concentration is ppb,
 e.g. CH4dry_ppm).
 
 The function `k.max()` calculates the maximal curvature (kappa) of the non-linear

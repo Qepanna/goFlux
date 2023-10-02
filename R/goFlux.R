@@ -22,7 +22,7 @@
 #'             If using the micro  ultra-portable GGA (GLA131 series): prec =
 #'             CO<sub>2</sub>: 0.35 ppm; CH<sub>4</sub>: 0.9 ppb; H<sub>2</sub>O: 200 ppm.
 #' @param Area numerical value; area of the soil surface inside the chamber
-#'             (cm<sup>2</sup>). Alternatively, provide the column Area in
+#'             (cm~2~). Alternatively, provide the column Area in
 #'             dataframe if Area is different between samples.
 #' @param offset numerical value; height between the soil surface and the chamber
 #'               (cm). Alternatively, provide the column offset in dataframe if
@@ -39,12 +39,10 @@
 #' @param Tcham numerical value; temperature inside the chamber (Celcius).
 #'              Alternatively, provide the column Tcham in dataframe if
 #'              Tcham is different between samples.
-#' @param k.mult numerical; a multiplier for the allowed k.max.
-#'               Default is k.mult = 1.
 #'
 #' @details
-#' Flux estimate units are nmol/m<sup>2</sup>*s (if initial concentration is ppm,
-#' e.g. CO2dry_ppm) and µmol/m<sup>2</sup>*s (if initial concentration is ppb,
+#' Flux estimate units are nmol/m~2~*s (if initial concentration is ppm,
+#' e.g. CO2dry_ppm) and µmol/m~2~*s (if initial concentration is ppb,
 #' e.g. CH4dry_ppm).
 #'
 #' The function `k.max()` calculates the maximal curvature (kappa) of the non-linear
@@ -83,7 +81,7 @@
 #'
 goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
                    Area = NULL, offset = NULL, Vtot = NULL, Vcham = NULL,
-                   Pcham = NULL, Tcham = NULL, k.mult = 1) {
+                   Pcham = NULL, Tcham = NULL) {
 
   # Assign NULL to variables without binding
   H2O_ppm <- H2O_mol <- Etime <- flag <- NULL
@@ -232,7 +230,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
 
     # Flux results and G factor
     flux.res.ls[[f]] <- cbind.data.frame(
-      UniqueID, LM.res, HM.res, f.min, flux.term, k.max = kappa.max,
+      UniqueID, LM.res, HM.res, f.min, prec, flux.term, k.max = kappa.max,
       g.fact = g.factor(HM.res$HM.flux, LM.res$LM.flux))
 
     # Update progress bar

@@ -11,7 +11,7 @@
 #'
 #' @seealso \code{\link[GoFluxYourself]{flux.term}}
 #'
-#' @references Christiansen et al. (2015). Comparison of CO<sub>2</sub>, CH<sub>4</sub> and N<sub>2</sub>O soil-atmosphere exchange measured in static chambers with cavity ring-down spectroscopy and gas chromatography. *Agricultural and Forest Meteorology*, 211, 48-57.
+#' @references Christiansen et al. (2015). Comparison of CO~2~, CH~4~ and N~2~O soil-atmosphere exchange measured in static chambers with cavity ring-down spectroscopy and gas chromatography. *Agricultural and Forest Meteorology*, 211, 48-57.
 #'
 #' @keywords internal
 #'

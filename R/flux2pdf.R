@@ -14,7 +14,9 @@
 #'
 #' @include GoFluxYourself-package.R
 #'
-#' @seealso See also the function [goFlux()], [best.flux()] and [flux.plot()]
+#' @seealso See also the function \code{\link[GoFluxYourself]{goFlux}},
+#'          \code{\link[GoFluxYourself]{best.flux}} and
+#'          \code{\link[GoFluxYourself]{flux.plot}}
 #'          for more information about usage.
 #'
 #' @examples

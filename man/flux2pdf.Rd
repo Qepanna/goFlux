@@ -34,6 +34,8 @@ flux2pdf(example_LGR_plots)
 
 }
 \seealso{
-See also the function [goFlux()], [best.flux()] and [flux.plot()]
+See also the function \code{\link[GoFluxYourself]{goFlux}},
+         \code{\link[GoFluxYourself]{best.flux}} and
+         \code{\link[GoFluxYourself]{flux.plot}}
          for more information about usage.
 }

@@ -35,6 +35,8 @@ example_LGR_plots <- flux.plot(example_LGR_res, example_LGR_manID, "CO2dry_ppm")
 
 }
 \seealso{
-See also the function [goFlux()], [best.flux()] and [flux2pdf()]
+See also the function \code{\link[GoFluxYourself]{goFlux}},
+         \code{\link[GoFluxYourself]{best.flux}} and
+         \code{\link[GoFluxYourself]{flux2pdf}}
          for more information about usage.
 }

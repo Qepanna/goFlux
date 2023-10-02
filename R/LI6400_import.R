@@ -18,14 +18,16 @@
 #'
 #' @include GoFluxYourself-package.R
 #'
-#' @seealso [import2Rdata()]
-#' @seealso [G2508_import()]
-#' @seealso [GAIA_import()]
-#' @seealso [LGR_import()]
-#' @seealso [LI7810_import()]
-#' @seealso [LI7820_import()]
-#' @seealso [LI8100_import()]
-#' @seealso [LI8200_import()]
+#' @seealso Use the wraper function \code{\link[GoFluxYourself]{import2Rdata}}
+#'          to import multiple files from the same folder path using any instrument.
+#' @seealso Import functions for individual instruments:
+#'          \code{\link[GoFluxYourself]{G2508_import}},
+#'          \code{\link[GoFluxYourself]{GAIA_import}},
+#'          \code{\link[GoFluxYourself]{LGR_import}},
+#'          \code{\link[GoFluxYourself]{LI7810_import}},
+#'          \code{\link[GoFluxYourself]{LI7820_import}},
+#'          \code{\link[GoFluxYourself]{LI8100_import}},
+#'          \code{\link[GoFluxYourself]{LI8200_import}}
 #'
 #' @examples
 #' # Load file from downloaded package

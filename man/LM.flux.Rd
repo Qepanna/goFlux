@@ -18,14 +18,14 @@ a data.frame
 }
 \description{
 Estimates a gas flux with a linear regression, and then extracts values from
-the linear fit, calculates standard error, r2, p-value and Root Mean Squared
+the linear fit, calculates standard error, r~2~, p-value and Root Mean Squared
 Error (RMSE).
 }
 \seealso{
-Look up the function [flux.term()] of this package
-         for more information about this parameter.
+Look up the function \code{\link[GoFluxYourself]{flux.term}} of this
+         package for more information about this parameter.
 
-See also the function [HM.flux()] for information about the non-linear
-         regression model used in this package.
+See also the function \code{\link[GoFluxYourself]{HM.flux}}
+         for information about the non-linear regression model used in this package.
 }
 \keyword{internal}

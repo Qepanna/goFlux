@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# GoFluxYourself: A user-friendly way to calculate GHG fluxes yourself, regardless of user experience <img src="man/figures/GoFluxYourself.png" align="right" width="200"/>
+# GoFluxYourself: A user-friendly way to calculate GHG fluxes yourself, regardless of user experience<img src="man/figures/GoFluxYourself.png" align="right" width="200"/>
 
 ### One Package to rule them all
 
@@ -61,10 +61,10 @@ This new R package, `GoFluxYourself` is meant to be “student proof”,
 meaning that no extensive knowledge or experience is needed to import
 raw data into R, chose the best model to calculate fluxes (LM, HM or no
 flux), quality check the results objectively and obtain high quality
-flux estimates. The package contains a wide range of functions that lets
-the user import raw data from a variety of instruments (LI-COR, LGR,
-GAIA2TECH and Picarro); calculate fluxes from a variety of GHG
-(CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, and H<sub>2</sub>O)
+flux estimates. The package contains a wide range of functions that
+allows the user to import raw data from a variety of instruments
+(LI-COR, LGR, GAIA2TECH and Picarro); calculate fluxes from a variety of
+GHG (CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, and H<sub>2</sub>O)
 with both linear (LM) and non-linear (HM) flux calculation methods;
 align instruments clocks after data import; interactively identify
 measurements (start and end time) if there are no automatic chamber
@@ -202,7 +202,12 @@ Finally, after finding the best flux estimates, one can plot the results
 and visually inspect the measurements using the function `flux.plot()`
 and save the plots as pdf using `flux2pdf()`.
 
-### Installation
+### How to use
+
+Here is a simple example on how to use the package with a single raw
+file from LGR gas analyzers.
+
+#### Installation
 
 To install a package from GitHub, one must first install the package
 `remotes` from the CRAN:
@@ -226,11 +231,6 @@ The functioning of the package depends on many other packages
 `GoFluxYourself`. If required, it is recommended to update any
 pre-installed packages.
 
-### How to use
-
-Here is a simple example on how to use the package with a single raw
-file from LGR gas analyzers.
-
 #### Import raw data into R
 
 ``` r
@@ -245,7 +245,7 @@ example_LGR_imp <- LGR_import(inputfile = file.path)
 ```
 
 Note that raw data can also be imported from a multitude of other
-instruments, and example data file are provided for all of them:
+instruments, and example data files are provided for all of them:
 
 - LI-COR: LI-6400, LI-7810, LI-7820, LI-8100, LI-8200 (smart chamber)
 - Los Gatos Research instruments: (e.g. UGGA and m-GGA)
@@ -286,7 +286,7 @@ auxfile <- read.delim(aux.path) %>%
   mutate(start.time = as.POSIXct(start.time, tz = "UTC"))
 ```
 
-When runing the function `click.peak()`, for each measurement, a window
+When running the function `click.peak()`, for each measurement, a window
 will open, in which you must click on the start point and the end point.
 The observation window is based on the `start.time` given in the
 `auxfile`, the length of the measurement (`obs.length`), and a

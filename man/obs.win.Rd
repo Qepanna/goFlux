@@ -69,9 +69,8 @@ example_LI6400_ow <- obs.win(inputfile = example_LI6400_imp, shoulder = 0)
 
 }
 \seealso{
-[click.peak.loop()]
-
-[click.peak()]
-
-[obs.win()]
+After defining the observation window with the function 'obs.win()',
+         Use the function \code{\link[GoFluxYourself]{click.peak.loop}} in a
+         loop with \code{\link[base]{lapply}}, or use the function
+         \code{\link[GoFluxYourself]{click.peak}} for a single measurement.
 }

@@ -94,7 +94,7 @@ example_LI6400_manID <- lapply(seq(1,3), click.peak.loop,
 
 }
 \seealso{
-[click.peak()]
-
-[obs.win()]
+To use the function \code{\link[GoFluxYourself]{click.peak}} in a
+         loop with \code{\link[base]{lapply}}, use `click.peak.loop()`. See also
+         \code{\link[GoFluxYourself]{obs.win}} to prepare a list of data.frame.
 }

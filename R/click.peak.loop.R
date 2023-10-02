@@ -38,8 +38,9 @@
 #' @include GoFluxYourself-package.R
 #' @include click.peak.R
 #'
-#' @seealso [click.peak()]
-#' @seealso [obs.win()]
+#' @seealso To use the function \code{\link[GoFluxYourself]{click.peak}} in a
+#'          loop with \code{\link[base]{lapply}}, use `click.peak.loop()`. See also
+#'          \code{\link[GoFluxYourself]{obs.win}} to prepare a list of data.frame.
 #'
 #' @examples
 #' # Examples on how to use it in multiple situations:

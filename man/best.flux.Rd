@@ -6,7 +6,8 @@
 \usage{
 best.flux(
   flux.result,
-  criteria = c("g.factor", "kappa", "MDF", "p-value", "r2", "intercept", "SE.rel"),
+  criteria = c("RMSE", "g.factor", "kappa", "MDF", "p-value", "r2", "intercept",
+    "SE.rel"),
   intercept.lim = NULL,
   SE.rel = 5,
   g.limit = 2,
@@ -20,7 +21,7 @@ best.flux(
 
 \item{criteria}{character vector; criteria used to asses the goodness of fit of the
 linear and non-linear flux estimates. Must be at least one the following:
-`criteria = c("g.factor", "kappa", "MDF", "p-value", "r2", "intercept", "SE.rel")`.
+`criteria = c("RMSE", "g.factor", "kappa", "MDF", "p-value", "r2", "intercept", "SE.rel")`.
 Default is all of them.}
 
 \item{intercept.lim}{numerical vector of length 2; inferior and superior
@@ -79,9 +80,14 @@ example_LGR_res <- best.flux(example_LGR_flux, "CO2dry_ppm", criteria)
 
 }
 \seealso{
-Look up the functions [MDF()], [flux.term()], [g.factor()], [k.max()],
-         [HM.flux()] and [LM.flux()] of this package for more information about
-         these parameters.
+Look up the functions \code{\link[GoFluxYourself]{MDF}},
+         \code{\link[GoFluxYourself]{flux.term}},
+         \code{\link[GoFluxYourself]{g.factor}},
+         \code{\link[GoFluxYourself]{k.max}},
+         \code{\link[GoFluxYourself]{HM.flux}} and
+         \code{\link[GoFluxYourself]{LM.flux}}
+         of this package for more information about these parameters.
 
-See also the function [goFlux()] for more information about usage.
+See also the function \code{\link[GoFluxYourself]{goFlux}}
+         for more information about usage.
 }
