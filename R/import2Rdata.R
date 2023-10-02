@@ -19,7 +19,7 @@
 #'                 Default is "UTC". Note about time zone: I recommend using
 #'                 the time zone "UTC" to avoid any issue related to summer
 #'                 time and winter time changes.
-#' @returns a data frame saved as Rdata in a newly created folder, Rdata, into
+#' @returns a data frame saved as RData in a newly created folder, RData, into
 #'          your working directory.
 #'
 #' @include GoFluxYourself-package.R
@@ -32,7 +32,7 @@
 #' @include LI8100_import.R
 #' @include LI8200_import.R
 #'
-#' @seealso Use the wraper function \code{\link[GoFluxYourself]{import2Rdata}}
+#' @seealso Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso Import functions for individual instruments:
 #'          \code{\link[GoFluxYourself]{G2508_import}},
@@ -49,27 +49,27 @@
 #' # The default time zone "UTC" is used in all cases.
 #'
 #' # with Los Gatos Research instruments (e.g. UGGA or m-GGA)
-#' import2Rdata(path = "inst/extdata/LGR", instrument = "LGR", date.format = "dmy")
+#' import2RData(path = "inst/extdata/LGR", instrument = "LGR", date.format = "dmy")
 #'
 #' # with the Picarro instrument G2508
-#' import2Rdata(path = "inst/extdata/G2508", instrument = "G2508", date.format = "ymd")
+#' import2RData(path = "inst/extdata/G2508", instrument = "G2508", date.format = "ymd")
 #'
 #' # with the automated chamber ECOFlux (GAIA2TECH)
-#' import2Rdata(path = "inst/extdata/GAIA", instrument = "GAIA", date.format = "ymd")
+#' import2RData(path = "inst/extdata/GAIA", instrument = "GAIA", date.format = "ymd")
 #'
 #' # with LI-COR instruments
-#' import2Rdata(path = "inst/extdata/LI6400", instrument = "LI-6400", date.format = "ymd")
-#' import2Rdata(path = "inst/extdata/LI7810", instrument = "LI-7810", date.format = "ymd")
-#' import2Rdata(path = "inst/extdata/LI7820", instrument = "LI-7820", date.format = "ymd")
-#' import2Rdata(path = "inst/extdata/LI8100", instrument = "LI-8100", date.format = "ymd")
+#' import2RData(path = "inst/extdata/LI6400", instrument = "LI-6400", date.format = "ymd")
+#' import2RData(path = "inst/extdata/LI7810", instrument = "LI-7810", date.format = "ymd")
+#' import2RData(path = "inst/extdata/LI7820", instrument = "LI-7820", date.format = "ymd")
+#' import2RData(path = "inst/extdata/LI8100", instrument = "LI-8100", date.format = "ymd")
 #'
 #' # with the LI-COR smart chamber (LI-8200)
 #' # with this instrument, date.format is not a useful parameter.
-#' import2Rdata(path = "inst/extdata/LI8200", instrument = "LI-8200")
+#' import2RData(path = "inst/extdata/LI8200", instrument = "LI-8200")
 #'
 #' @export
 #'
-import2Rdata <- function(path, instrument, date.format, timezone = "UTC"){
+import2RData <- function(path, instrument, date.format, timezone = "UTC"){
 
   # Progress bar options
   pboptions(char = "=")

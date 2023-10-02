@@ -40,7 +40,7 @@ Collate:
     'g.factor.R'
     'k.max.R'
     'goFlux.R'
-    'import2Rdata.R'
+    'import2RData.R'
     'obs.win.R'
     'seq.rep.R'
 Imports: data.table, dplyr, ggnewscale, ggplot2, graphics, grDevices, grid, gridExtra, lubridate, minpack.lm, msm, pbapply, plyr, purrr, rjson, rlist, SimDesign, stats, tibble, tidyr, utils

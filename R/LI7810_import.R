@@ -11,14 +11,14 @@
 #'                 Default is "UTC". Note about time zone: I recommend using
 #'                 the time zone "UTC" to avoid any issue related to summer
 #'                 time and winter time changes.
-#' @param save logical. If save = TRUE, save the file as Rdata in a Rdata folder
+#' @param save logical. If save = TRUE, save the file as RData in a RData folder
 #'             in the current working directory. If save = FALSE, return the file
 #'             in the Console, or load in the Environment if assigned to an object.
 #' @returns a data frame
 #'
 #' @include GoFluxYourself-package.R
 #'
-#' @seealso Use the wraper function \code{\link[GoFluxYourself]{import2Rdata}}
+#' @seealso Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso Import functions for individual instruments:
 #'          \code{\link[GoFluxYourself]{G2508_import}},
@@ -75,18 +75,18 @@ LI7810_import <- function(inputfile, date.format = "ymd",
 
   # Save cleaned data file
   if(save == TRUE){
-    # Create Rdata folder in working directory
-    Rdata_folder <- paste(getwd(), "Rdata", sep = "/")
-    if(dir.exists(Rdata_folder) == FALSE){dir.create(Rdata_folder)}
+    # Create RData folder in working directory
+    RData_folder <- paste(getwd(), "RData", sep = "/")
+    if(dir.exists(RData_folder) == FALSE){dir.create(RData_folder)}
 
     # Create output file: change extension to .RData, and
     # add instrument name and "imp" for import to file name
     file.name <- gsub(".*/", "", sub("\\.data", "", inputfile))
     outputfile <- paste("LI7810_", file.name, "_imp.RData", sep = "")
 
-    save(data.raw, file = paste(Rdata_folder, outputfile, sep = "/"))
+    save(data.raw, file = paste(RData_folder, outputfile, sep = "/"))
 
-    message(file.name, " saved as ", outputfile, " in Rdata folder, in working directory", sep = "")
+    message(file.name, " saved as ", outputfile, " in RData folder, in working directory", sep = "")
   }
 
   if(save == FALSE){

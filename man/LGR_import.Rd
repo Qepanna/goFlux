@@ -18,7 +18,7 @@ Default is "UTC". Note about time zone: I recommend using
 the time zone "UTC" to avoid any issue related to summer
 time and winter time changes.}
 
-\item{save}{logical. If save = TRUE, save the file as Rdata in a Rdata folder
+\item{save}{logical. If save = TRUE, save the file as RData in a RData folder
 in the current working directory. If save = FALSE, return the file
 in the Console, or load in the Environment if assigned to an object.}
 }
@@ -37,7 +37,7 @@ LGR.data <- LGR_import(inputfile = file.path)
 
 }
 \seealso{
-Use the wraper function \code{\link[GoFluxYourself]{import2Rdata}}
+Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
          to import multiple files from the same folder path using any instrument.
 
 Import functions for individual instruments:

@@ -18,7 +18,7 @@ POSIXct format. Default is "UTC". Note about time zone: it is
 recommended to use the time zone "UTC" to avoid any issue
 related to summer time and winter time changes.}
 
-\item{save}{logical; if save = TRUE, saves the file as Rdata in a Rdata folder
+\item{save}{logical; if save = TRUE, saves the file as RData in a RData folder
 in the current working directory. If save = FALSE, returns the file
 in the Console, or load in the Environment if assigned to an object.}
 }
@@ -38,7 +38,7 @@ LI8100.data <- LI8100_import(inputfile = file.path)
 
 }
 \seealso{
-Use the wraper function \code{\link[GoFluxYourself]{import2Rdata}}
+Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
          to import multiple files from the same folder path using any instrument.
 
 See also, import functions for other instruments:

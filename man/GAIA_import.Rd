@@ -38,7 +38,7 @@ per chamber per parameter will be used.}
 for the flux calculation. Default is flag = c(7,11), where 7 indicates
 "Chamber Idle Closed Clear" and 11 indicates "Chamber Idle Closed Dark".}
 
-\item{save}{logical. If save = TRUE, save the file as Rdata in a Rdata folder
+\item{save}{logical. If save = TRUE, save the file as RData in a RData folder
 in the current working directory. If save = FALSE, return the file
 in the Console, or load in the Environment if assigned to an object.}
 }
@@ -58,7 +58,7 @@ GAIA.data <- GAIA_import(inputfile = file.path)
 
 }
 \seealso{
-Use the wraper function \code{\link[GoFluxYourself]{import2Rdata}}
+Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
          to import multiple files from the same folder path using any instrument.
 
 Import functions for individual instruments:

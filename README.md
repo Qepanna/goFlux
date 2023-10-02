@@ -253,7 +253,7 @@ instruments, and example data files are provided for all of them:
 - Picarro: G2508
 
 To import multiple files from a folder, use the wrapper function
-`import2Rdata()`.
+`import2RData()`.
 
 ``` r
 # Get help for import functions from the GoFluxYourself package
@@ -264,7 +264,7 @@ To import multiple files from a folder, use the wrapper function
 ?LI7820_import
 ?LI8100_import
 ?LI8200_import
-?import2Rdata
+?import2RData
 ```
 
 #### Manual identification of measurements
