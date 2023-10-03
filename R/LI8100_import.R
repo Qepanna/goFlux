@@ -3,9 +3,9 @@
 #' Imports single raw gas measurement files from the LI-COR 8100
 #' (CO2 and H2O GHG analyzer)
 #'
-#' @param inputfile the name of a file with the extension .81x
+#' @param inputfile character string; the name of a file with the extension .81x
 #' @param date.format character string; chose one of the following: "dmy", "ymd",
-#'                    or "mdy". Default is "ymd" as it is the date format from
+#'                    or "mdy". Default is "ymd", as it is the date format from
 #'                    the example data file provided.
 #' @param timezone character string; a time zone in which to import the data to
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
@@ -18,7 +18,7 @@
 #'
 #' @include GoFluxYourself-package.R
 #'
-#' @seealso Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
+#' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso See also, import functions for other instruments:
 #'          \code{\link[GoFluxYourself]{G2508_import}},
@@ -28,6 +28,8 @@
 #'          \code{\link[GoFluxYourself]{LI7810_import}},
 #'          \code{\link[GoFluxYourself]{LI7820_import}},
 #'          \code{\link[GoFluxYourself]{LI8200_import}}
+#' @seealso See \code{\link[base]{timezones}} for a description of the underlying
+#'          timezone attribute.
 #'
 #' @examples
 #' # Load file from downloaded package
@@ -44,7 +46,8 @@ LI8100_import <- function(inputfile, date.format = "ymd",
   # Assign NULL to variables without binding
   Type <- Etime <- Tcham <- Pressure <- H2O <- Cdry <- V1 <- V2 <- V3 <- V4 <-
     H2O_mmol <- DATE_TIME <- Obs <- . <- cham.close <- cham.open <- deadband <-
-    start.time <- obs.length <- POSIX.time <- plotID <- Date <-  NULL
+    start.time <- obs.length <- obs.start <- Etime.min <- POSIX.time <-
+    plotID <- Date <-  NULL
 
   # Find how many rows need to be skipped
   skip.rows <- as.numeric(which(read.delim(inputfile) == "Type"))[1]
@@ -108,12 +111,15 @@ LI8100_import <- function(inputfile, date.format = "ymd",
     mutate(obs.length = as.numeric(max(POSIX.time) - min(POSIX.time), units = "secs"),
            cham.close = POSIX.time[which(Etime == 0)],
            cham.open = last(POSIX.time),
-           Etime = as.numeric(POSIX.time - cham.close, units = "secs")) %>%
+           obs.start = min(POSIX.time),
+           Etime.min = as.numeric(obs.start - cham.close, units = "secs") - deadband,
+           Etime = seq(unique(Etime.min), n() + unique(Etime.min) -1)) %>%
     ungroup() %>%
     mutate(DATE = substr(POSIX.time, 0, 10),
            chamID = paste(plotID, Obs, sep = "_"),
            start.time = cham.close + deadband,
-           flag = if_else(between(POSIX.time, start.time, cham.open), 1, 0))
+           flag = if_else(between(POSIX.time, start.time, cham.open), 1, 0)) %>%
+    select(!c(Etime.min))
 
   # Save cleaned data file
   if(save == TRUE){

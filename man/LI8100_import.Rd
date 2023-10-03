@@ -7,10 +7,10 @@
 LI8100_import(inputfile, date.format = "ymd", timezone = "UTC", save = FALSE)
 }
 \arguments{
-\item{inputfile}{the name of a file with the extension .81x}
+\item{inputfile}{character string; the name of a file with the extension .81x}
 
 \item{date.format}{character string; chose one of the following: "dmy", "ymd",
-or "mdy". Default is "ymd" as it is the date format from
+or "mdy". Default is "ymd", as it is the date format from
 the example data file provided.}
 
 \item{timezone}{character string; a time zone in which to import the data to
@@ -38,7 +38,7 @@ LI8100.data <- LI8100_import(inputfile = file.path)
 
 }
 \seealso{
-Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
+Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
          to import multiple files from the same folder path using any instrument.
 
 See also, import functions for other instruments:
@@ -49,4 +49,7 @@ See also, import functions for other instruments:
          \code{\link[GoFluxYourself]{LI7810_import}},
          \code{\link[GoFluxYourself]{LI7820_import}},
          \code{\link[GoFluxYourself]{LI8200_import}}
+
+See \code{\link[base]{timezones}} for a description of the underlying
+         timezone attribute.
 }
