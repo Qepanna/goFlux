@@ -86,9 +86,6 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
   # Assign NULL to variables without binding
   H2O_ppm <- H2O_mol <- Etime <- flag <- NULL
 
-  # Modify global options for warning: break for-loop after warning message
-  options(warn = 2)
-
   # Use provided values for Area, offset, Vcham, Vtot, Pcham and Tcham
   # if they are missing from dataframe
   if (!is.null(Area)) {
@@ -242,9 +239,6 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
 
   # Close progress bar
   close(pb)
-
-  # Modify global options for warning: set option back to default
-  options(warn = 0)
 
   # Return results
   return(flux_results)
