@@ -11,7 +11,18 @@ GAIA_import(
   pivot = "long",
   active = TRUE,
   flag = c(7, 11),
-  save = FALSE
+  save = FALSE,
+  CH.col = "COM5A0",
+  SWC.col = "1C08_Soil.Moisture",
+  Tsoil.col = "1C07_Soil.Temperature",
+  Tcham.col = "2C07_Chamber.Temperature",
+  PAR.col = "3C07_Sunlight",
+  Op.stat.col = "0C06_OperatingStatus",
+  CO2.col = "XT2C05_CO2",
+  CH4.col = "XT2C04_CH4",
+  H2O1.col = "XT2C06_H2O",
+  N2O.col = "XT3C04_N2O",
+  H2O2.col = "XT3C05_H2O"
 )
 }
 \arguments{
@@ -41,6 +52,17 @@ for the flux calculation. Default is flag = c(7,11), where 7 indicates
 \item{save}{logical; if save = TRUE, saves the file as RData in a RData folder
 in the current working directory. If save = FALSE, returns the file
 in the Console, or load in the Environment if assigned to an object.}
+
+\item{Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, CH.col}{character string;
+a pattern to match all columns that fit the corresponding parameter. For
+example, all columns containing the pattern "3C07_Sunlight" will be
+renamed with the pattern "_PAR". Then, if `pivot = "long"`, all columns
+with the pattern "_PAR" will be merged together.}
+
+\item{CO2.col, CH4.col, H2O1.col, N2O.col, H2O2.col}{character string; a pattern
+to match the columns containing the corresponding gas measurements.
+H2O1.col must be the same instrument as CO2.col and CH4.col, and
+H2O2.col must be the same instrument as N2O.col.}
 }
 \value{
 a data frame
@@ -58,7 +80,7 @@ GAIA.data <- GAIA_import(inputfile = file.path)
 
 }
 \seealso{
-Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
+Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
          to import multiple files from the same folder path using any instrument.
 
 Import functions for individual instruments:

@@ -2,19 +2,19 @@
 #'
 #' Imports single raw data files from the LI-COR smart chamber (LI-8200)
 #'
-#' @param inputfile the name of a file with the extension .json
-#' @param save logical. If save = TRUE, save the file as RData in a RData folder
-#'             in the current working directory. If save = FALSE, return the file
+#' @param inputfile character string; the name of a file with the extension .json
+#' @param timezone character string; a time zone in which to import the data to
+#'                 POSIXct format. Default is "UTC". Note about time zone: it is
+#'                 recommended to use the time zone "UTC" to avoid any issue
+#'                 related to summer time and winter time changes.
+#' @param save logical; if save = TRUE, saves the file as RData in a RData folder
+#'             in the current working directory. If save = FALSE, returns the file
 #'             in the Console, or load in the Environment if assigned to an object.
-#' @param timezone a time zone in which to import the data to POSIXct format.
-#'                 Default is "UTC". Note about time zone: I recommend using
-#'                 the time zone "UTC" to avoid any issue related to summer
-#'                 time and winter time changes.
 #' @returns a data frame
 #'
 #' @include GoFluxYourself-package.R
 #'
-#' @seealso Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
+#' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso Import functions for individual instruments:
 #'          \code{\link[GoFluxYourself]{G2508_import}},
@@ -24,6 +24,8 @@
 #'          \code{\link[GoFluxYourself]{LI7810_import}},
 #'          \code{\link[GoFluxYourself]{LI7820_import}},
 #'          \code{\link[GoFluxYourself]{LI8100_import}}
+#' @seealso See \code{\link[base]{timezones}} for a description of the underlying
+#'          timezone attribute.
 #'
 #' @examples
 #' # Load file from downloaded package
@@ -36,10 +38,17 @@
 #'
 LI8200_import <- function(inputfile, timezone = "UTC", save = FALSE){
 
+  # Check arguments
+  if (missing(inputfile)) stop("'inputfile' is required")
+  if (!is.character(inputfile)) stop("'inputfile' must be of class character")
+  if (!is.character(timezone)) stop("'timezone' must be of class character")
+  if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
+
   # Assign NULL to variables without binding
   h2o <- cham.close <- deadband <- POSIX.time <- plotID <- n2o <- Etime <-
     ch4 <- co2 <- H2O_ppm <- chamber_t <- chamber_p <- Vcham <- Area <-
-    soilp_m <- . <- soilp_t <- DATE <- cham.open <- start.time <- NULL
+    soilp_m <- . <- soilp_t <- DATE <- cham.open <- start.time <-
+    N2Odry_ppb <- CH4dry_ppb <- CO2dry_ppm <- NULL
 
   # Load data file
   data.raw.ls <- fromJSON(file = inputfile)
@@ -125,7 +134,12 @@ LI8200_import <- function(inputfile, timezone = "UTC", save = FALSE){
     ungroup() %>%
     # Create chamID and flag
     mutate(chamID = paste(plotID, rep, sep = "_"),
-           flag = if_else(between(POSIX.time, start.time, cham.open), 1, 0))
+           flag = if_else(between(POSIX.time, start.time, cham.open), 1, 0)) %>%
+    # Remove negative gas measurements, if any
+    filter(CO2dry_ppm > 0 | is.na(CO2dry_ppm)) %>%
+    filter(CH4dry_ppb > 0 | is.na(CH4dry_ppb)) %>%
+    filter(H2O_ppm > 0 | is.na(H2O_ppm)) %>%
+    filter(N2Odry_ppb > 0 | is.na(N2Odry_ppb))
 
   # Save cleaned data file
   if(save == TRUE){

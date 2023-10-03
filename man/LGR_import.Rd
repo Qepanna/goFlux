@@ -7,19 +7,19 @@
 LGR_import(inputfile, date.format = "dmy", timezone = "UTC", save = FALSE)
 }
 \arguments{
-\item{inputfile}{the name of a file with the extension .txt}
+\item{inputfile}{character string; the name of a file with the extension .txt}
 
-\item{date.format}{Date format. Chose one of the following: "dmy", "ymd", or "mdy".
-Default is "dmy" as it is the date format from the example
-data file provided.}
+\item{date.format}{character string; chose one of the following: "dmy", "ymd",
+or "mdy". Default is "ymd", as it is the date format from
+the example data file provided.}
 
-\item{timezone}{a time zone in which to import the data to POSIXct format.
-Default is "UTC". Note about time zone: I recommend using
-the time zone "UTC" to avoid any issue related to summer
-time and winter time changes.}
+\item{timezone}{character string; a time zone in which to import the data to
+POSIXct format. Default is "UTC". Note about time zone: it is
+recommended to use the time zone "UTC" to avoid any issue
+related to summer time and winter time changes.}
 
-\item{save}{logical. If save = TRUE, save the file as RData in a RData folder
-in the current working directory. If save = FALSE, return the file
+\item{save}{logical; if save = TRUE, saves the file as RData in a RData folder
+in the current working directory. If save = FALSE, returns the file
 in the Console, or load in the Environment if assigned to an object.}
 }
 \value{
@@ -37,7 +37,7 @@ LGR.data <- LGR_import(inputfile = file.path)
 
 }
 \seealso{
-Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
+Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
          to import multiple files from the same folder path using any instrument.
 
 Import functions for individual instruments:
@@ -48,4 +48,7 @@ Import functions for individual instruments:
          \code{\link[GoFluxYourself]{LI7820_import}},
          \code{\link[GoFluxYourself]{LI8100_import}},
          \code{\link[GoFluxYourself]{LI8200_import}}
+
+See \code{\link[base]{timezones}} for a description of the underlying
+         timezone attribute.
 }

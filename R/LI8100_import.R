@@ -43,11 +43,20 @@
 LI8100_import <- function(inputfile, date.format = "ymd",
                           timezone = "UTC", save = FALSE) {
 
+  # Check arguments
+  if (missing(inputfile)) stop("'inputfile' is required")
+  if (!is.character(inputfile)) stop("'inputfile' must be of class character")
+  if (length(date.format) != 1) stop("'date.format' must be of length 1")
+  if (!any(grepl(date.format, c("ymd", "dmy", "mdy")))) {
+    stop("'date.format' must be of class character and one of the following: 'ymd', 'dmy' or 'mdy'")}
+  if (!is.character(timezone)) stop("'timezone' must be of class character")
+  if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
+
   # Assign NULL to variables without binding
   Type <- Etime <- Tcham <- Pressure <- H2O <- Cdry <- V1 <- V2 <- V3 <- V4 <-
     H2O_mmol <- DATE_TIME <- Obs <- . <- cham.close <- cham.open <- deadband <-
     start.time <- obs.length <- obs.start <- Etime.min <- POSIX.time <-
-    plotID <- Date <-  NULL
+    plotID <- Date <- CO2dry_ppm <- NULL
 
   # Find how many rows need to be skipped
   skip.rows <- as.numeric(which(read.delim(inputfile) == "Type"))[1]
@@ -61,13 +70,15 @@ LI8100_import <- function(inputfile, date.format = "ymd",
            H2O_mmol = H2O, CO2dry_ppm = Cdry, V1, V2, V3, V4) %>%
     # Convert column class automatically
     type.convert(as.is = TRUE) %>%
+    # Remove NAs and negative gas measurements, if any
+    filter(CO2dry_ppm > 0) %>%
+    filter(H2O_mmol > 0) %>%
     # Convert mmol into ppm for H2O
-    mutate(H2O_ppm = H2O_mmol*1000) %>%
+    mutate(H2O_ppm = H2O_mmol*1000) %>% select(!c(H2O_mmol)) %>%
     # Detect new observations
     arrange(DATE_TIME) %>%
     mutate(Obs = ifelse(is.na(Etime - lag(Etime)), 0, Etime - lag(Etime))) %>%
-    mutate(Obs = rleid(cumsum(Obs < 0))) %>%
-    group_by(Obs) %>% distinct(DATE_TIME, .keep_all = T) %>% ungroup()
+    mutate(Obs = rleid(cumsum(Obs < 0)))
 
   # Create a new column containing date and time (POSIX format)
   if(date.format == "dmy"){

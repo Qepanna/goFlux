@@ -3,22 +3,22 @@
 #' Imports single raw gas measurement files from the LI-COR 6400
 #' (CO2 and H2O GHG analyzer)
 #'
-#' @param inputfile the name of a file with the extension .txt
-#' @param date.format Date format. Chose one of the following: "dmy", "ymd", or "mdy".
-#'                    Default is "mdy" as it is the date format from the example
-#'                    data file provided.
-#' @param timezone a time zone in which to import the data to POSIXct format.
-#'                 Default is "UTC". Note about time zone: I recommend using
-#'                 the time zone "UTC" to avoid any issue related to summer
-#'                 time and winter time changes.
-#' @param save logical. If save = TRUE, save the file as RData in a RData folder
-#'             in the current working directory. If save = FALSE, return the file
+#' @param inputfile character string; the name of a file with the extension .txt
+#' @param date.format character string; chose one of the following: "dmy", "ymd",
+#'                    or "mdy". Default is "ymd", as it is the date format from
+#'                    the example data file provided.
+#' @param timezone character string; a time zone in which to import the data to
+#'                 POSIXct format. Default is "UTC". Note about time zone: it is
+#'                 recommended to use the time zone "UTC" to avoid any issue
+#'                 related to summer time and winter time changes.
+#' @param save logical; if save = TRUE, saves the file as RData in a RData folder
+#'             in the current working directory. If save = FALSE, returns the file
 #'             in the Console, or load in the Environment if assigned to an object.
 #' @returns a data frame
 #'
 #' @include GoFluxYourself-package.R
 #'
-#' @seealso Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
+#' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso Import functions for individual instruments:
 #'          \code{\link[GoFluxYourself]{G2508_import}},
@@ -28,6 +28,8 @@
 #'          \code{\link[GoFluxYourself]{LI7820_import}},
 #'          \code{\link[GoFluxYourself]{LI8100_import}},
 #'          \code{\link[GoFluxYourself]{LI8200_import}}
+#' @seealso See \code{\link[base]{timezones}} for a description of the underlying
+#'          timezone attribute.
 #'
 #' @examples
 #' # Load file from downloaded package
@@ -40,6 +42,15 @@
 #'
 LI6400_import <- function(inputfile, date.format = "mdy",
                           timezone = "UTC", save = FALSE){
+
+  # Check arguments
+  if (missing(inputfile)) stop("'inputfile' is required")
+  if (!is.character(inputfile)) stop("'inputfile' must be of class character")
+  if (length(date.format) != 1) stop("'date.format' must be of length 1")
+  if (!any(grepl(date.format, c("ymd", "dmy", "mdy")))) {
+    stop("'date.format' must be of class character and one of the following: 'ymd', 'dmy' or 'mdy'")}
+  if (!is.character(timezone)) stop("'timezone' must be of class character")
+  if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
 
   # Assign NULL to variables without binding
   cham.close <- cham.open <- POSIX.time <- chamID <- DATE <- TIME <- H2O_mmol <-
@@ -86,10 +97,13 @@ LI6400_import <- function(inputfile, date.format = "mdy",
     # As the LICOR only saves rows when you have passed all promts after
     # pressing start, Etime below 4 seconds is not possible.
     filter(Etime > 4) %>%
+    # Remove NAs and negative gas measurements, if any
+    filter(CO2dry_ppm > 0) %>%
+    filter(H2O_mmol > 0) %>%
     # Convert mmol into ppm for H2O
     mutate(H2O_ppm = H2O_mmol*1000) %>%
     # Remove rows with duplicated times
-    distinct(TIME, .keep_all = TRUE) %>%
+    # distinct(TIME, .keep_all = TRUE) %>%
     # Create new columns containing date and time (POSIX format)
     mutate(DATE = met.date,
            POSIX.time = as.POSIXct(paste(DATE, TIME), tz = timezone)) %>%
@@ -99,15 +113,15 @@ LI6400_import <- function(inputfile, date.format = "mdy",
     mutate(Area = as.numeric(metadata[which(metadata[,3] == "Area")[1],4]),
            Vcham = as.numeric(metadata[which(metadata[,3] == "Vtot")[1],4]),
            offset = as.numeric(metadata[which(metadata[,3] == "Offset")[1],4])) %>%
-    # Add cham.close and cham.open (POSIX.time)
-    group_by(chamID) %>%
-    mutate(cham.close = first(POSIX.time),
-           start.time = cham.close,
-           cham.open = last(POSIX.time),
-           Etime = seq(0, length(cham.open - cham.close)-1, 1)) %>%
-    ungroup() %>%
-    mutate(obs.length = as.numeric(cham.open - cham.close, units = "secs"),
-           flag = 1)
+    # Add time related variables (POSIX.time)
+    group_by(chamID) %>% mutate(
+      cham.close = first(POSIX.time),
+      start.time = cham.close,
+      cham.open = last(POSIX.time),
+      Etime = seq(0, n()-1),
+      obs.length = n()) %>% ungroup() %>%
+    # Add flag
+    mutate(flag = 1)
 
   # Save cleaned data file
   if(save == TRUE){

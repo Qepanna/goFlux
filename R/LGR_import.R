@@ -3,22 +3,22 @@
 #' Imports single raw gas measurement files from the ultra-portable GHG analyzers
 #' (UGGA and m-GGA) from Los Gatos Research (CO2, CH4 and H2O) with the extension .txt
 #'
-#' @param inputfile the name of a file with the extension .txt
-#' @param date.format Date format. Chose one of the following: "dmy", "ymd", or "mdy".
-#'                    Default is "dmy" as it is the date format from the example
-#'                    data file provided.
-#' @param timezone a time zone in which to import the data to POSIXct format.
-#'                 Default is "UTC". Note about time zone: I recommend using
-#'                 the time zone "UTC" to avoid any issue related to summer
-#'                 time and winter time changes.
-#' @param save logical. If save = TRUE, save the file as RData in a RData folder
-#'             in the current working directory. If save = FALSE, return the file
+#' @param inputfile character string; the name of a file with the extension .txt
+#' @param date.format character string; chose one of the following: "dmy", "ymd",
+#'                    or "mdy". Default is "ymd", as it is the date format from
+#'                    the example data file provided.
+#' @param timezone character string; a time zone in which to import the data to
+#'                 POSIXct format. Default is "UTC". Note about time zone: it is
+#'                 recommended to use the time zone "UTC" to avoid any issue
+#'                 related to summer time and winter time changes.
+#' @param save logical; if save = TRUE, saves the file as RData in a RData folder
+#'             in the current working directory. If save = FALSE, returns the file
 #'             in the Console, or load in the Environment if assigned to an object.
 #' @returns a data frame
 #'
 #' @include GoFluxYourself-package.R
 #'
-#' @seealso Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
+#' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso Import functions for individual instruments:
 #'          \code{\link[GoFluxYourself]{G2508_import}},
@@ -28,6 +28,8 @@
 #'          \code{\link[GoFluxYourself]{LI7820_import}},
 #'          \code{\link[GoFluxYourself]{LI8100_import}},
 #'          \code{\link[GoFluxYourself]{LI8200_import}}
+#' @seealso See \code{\link[base]{timezones}} for a description of the underlying
+#'          timezone attribute.
 #'
 #' @examples
 #' # Examples on how to use:
@@ -39,6 +41,15 @@
 #'
 LGR_import <- function(inputfile, date.format = "dmy",
                        timezone = "UTC", save = FALSE){
+
+  # Check arguments
+  if (missing(inputfile)) stop("'inputfile' is required")
+  if (!is.character(inputfile)) stop("'inputfile' must be of class character")
+  if (length(date.format) != 1) stop("'date.format' must be of length 1")
+  if (!any(grepl(date.format, c("ymd", "dmy", "mdy")))) {
+    stop("'date.format' must be of class character and one of the following: 'ymd', 'dmy' or 'mdy'")}
+  if (!is.character(timezone)) stop("'timezone' must be of class character")
+  if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
 
   # Assign NULL to variables without binding
   POSIX.time <- DATE_TIME <- H2O_ppm <- CH4dry_ppb <- Time <- . <-
@@ -55,6 +66,10 @@ LGR_import <- function(inputfile, date.format = "dmy",
     drop_na(CO2dry_ppm) %>%
     # Convert ppm into ppb for CH4dry
     mutate(CH4dry_ppb = CH4dry_ppm*1000) %>%
+    # Remove NAs and negative gas measurements, if any
+    filter(CO2dry_ppm > 0) %>%
+    filter(CH4dry_ppb > 0) %>%
+    filter(H2O_ppm > 0) %>%
     # Keep only useful columns
     select(DATE_TIME = Time, CO2dry_ppm, CH4dry_ppb, H2O_ppm) %>%
     # Replace characters in Time ("/" -> "-") and remove first space

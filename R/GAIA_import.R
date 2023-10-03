@@ -24,11 +24,21 @@
 #' @param flag numeric vector; indicates the operating status that should be used
 #'             for the flux calculation. Default is flag = c(7,11), where 7 indicates
 #'             "Chamber Idle Closed Clear" and 11 indicates "Chamber Idle Closed Dark".
+#' @param Op.stat.col,PAR.col,Tcham.col,Tsoil.col,SWC.col,CH.col character string;
+#'        a pattern to match all columns that fit the corresponding parameter. For
+#'        example, all columns containing the pattern "3C07_Sunlight" will be
+#'        renamed with the pattern "_PAR". Then, if `pivot = "long"`, all columns
+#'        with the pattern "_PAR" will be merged together.
+#' @param CO2.col,CH4.col,H2O1.col,N2O.col,H2O2.col character string; a pattern
+#'        to match the columns containing the corresponding gas measurements.
+#'        H2O1.col must be the same instrument as CO2.col and CH4.col, and
+#'        H2O2.col must be the same instrument as N2O.col.
+#'
 #' @returns a data frame
 #'
 #' @include GoFluxYourself-package.R
 #'
-#' @seealso Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
+#' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso Import functions for individual instruments:
 #'          \code{\link[GoFluxYourself]{G2508_import}},
@@ -51,26 +61,62 @@
 #'
 GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                         pivot = "long", active = TRUE, flag = c(7,11),
-                        save = FALSE){
+                        save = FALSE,
+                        CH.col = "COM5A0",
+                        SWC.col = "1C08_Soil.Moisture",
+                        Tsoil.col = "1C07_Soil.Temperature",
+                        Tcham.col = "2C07_Chamber.Temperature",
+                        PAR.col = "3C07_Sunlight",
+                        Op.stat.col = "0C06_OperatingStatus",
+                        CO2.col = "XT2C05_CO2",
+                        CH4.col = "XT2C04_CH4",
+                        H2O1.col = "XT2C06_H2O",
+                        N2O.col = "XT3C04_N2O",
+                        H2O2.col = "XT3C05_H2O"){
+
+  # Check arguments
+  if (missing(inputfile)) stop("'inputfile' is required")
+  if (!is.character(inputfile)) stop("'inputfile' must be of class character")
+  if (length(date.format) != 1) stop("'date.format' must be of length 1")
+  if (!any(grepl(date.format, c("ymd", "dmy", "mdy")))) {
+    stop("'date.format' must be of class character and one of the following: 'ymd', 'dmy' or 'mdy'")}
+  if (!is.character(timezone)) stop("'timezone' must be of class character")
+  if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
+  if (active != TRUE & active != FALSE) stop("'active' must be TRUE or FALSE")
+  if (length(pivot) != 1) stop("'pivot' must be of length 1")
+  if (!any(grepl(pivot, c("long", "wide")))) {
+    stop("'pivot' must be of class character and one of the following: 'long' or 'wide'")}
+  if (!is.numeric(flag)) stop("'flag' must be of class numeric")
+  if (!is.character(H2O2.col)) stop("'H2O2.col' must be of class character")
+  if (!is.character(N2O.col)) stop("'N2O.col' must be of class character")
+  if (!is.character(H2O1.col)) stop("'H2O1.col' must be of class character")
+  if (!is.character(CH4.col)) stop("'CH4.col' must be of class character")
+  if (!is.character(CO2.col)) stop("'CO2.col' must be of class character")
+  if (!is.character(Op.stat.col)) stop("'Op.stat.col' must be of class character")
+  if (!is.character(PAR.col)) stop("'PAR.col' must be of class character")
+  if (!is.character(Tcham.col)) stop("'Tcham.col' must be of class character")
+  if (!is.character(Tsoil.col)) stop("'Tsoil.col' must be of class character")
+  if (!is.character(SWC.col)) stop("'SWC.col' must be of class character")
+  if (!is.character(CH.col)) stop("'CH.col' must be of class character")
+
 
   # Assign NULL to variables without binding
-  POSIX.time <- activ.cham <- DATE_TIME <- XT3C05_H2O <- XT3C04_N2O <- . <-
-    XT2C06_H2O <- XT2C04_CH4 <- XT2C05_CO2 <- SEQUENCE <- Titles. <- Obs <-
-    cham.probe <- chamID <- CO2dry_ppm <- H2O_ppm_LI7810 <- H2O_ppm_LI7820 <-
-    CH4dry_ppb <- N2Odry_ppb <- obs.start <- Etime.min <- rbind.fill <-
-    cham.close <- cham.open <- NULL
+  POSIX.time <- activ.cham <- DATE_TIME <- start.time <- . <- SEQUENCE <-
+    Titles. <- Obs <- cham.probe <- chamID <- obs.start <- Etime.min <-
+    rbind.fill <- cham.close <- cham.open <- H2O_ppm_LI7820 <- N2Odry_ppb <-
+    H2O_ppm_LI7810 <- CH4dry_ppb <- CO2dry_ppm <- NULL
 
   # Import raw data file from GAIA (.csv)
   data.raw <- read.delim(inputfile, skip = 1, colClasses = "character") %>%
     # Remove first row containing units
     filter(!Titles. == 'Units:') %>%
     # Modify useful column names
-    setNames(gsub("COM5A0", "CH", names(.))) %>%
-    setNames(gsub("1C07_Soil.Temperature", "_Tsoil", names(.))) %>%
-    setNames(gsub("2C07_Chamber.Temperature", "_Tcham", names(.))) %>%
-    setNames(gsub("1C08_Soil.Moisture", "_SWC", names(.))) %>%
-    setNames(gsub("3C07_Sunlight", "_PAR", names(.))) %>%
-    setNames(gsub("0C06_OperatingStatus", "_Op.stat", names(.))) %>%
+    setNames(gsub(CH.col, "CH", names(.))) %>%
+    setNames(gsub(Tsoil.col, "_Tsoil", names(.))) %>%
+    setNames(gsub(Tcham.col, "_Tcham", names(.))) %>%
+    setNames(gsub(SWC.col, "_SWC", names(.))) %>%
+    setNames(gsub(PAR.col, "_PAR", names(.))) %>%
+    setNames(gsub(Op.stat.col, "_Op.stat", names(.))) %>%
     # Extract information about light/dark measurements
     mutate(cover = if_else(grepl("Opaque", SEQUENCE), "Dark", if_else(
       grepl("Translucent", SEQUENCE), "Clear", NA))) %>%
@@ -79,14 +125,13 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
            SEQUENCE = ifelse(SEQUENCE == "", "Background", SEQUENCE)) %>%
     dplyr::rename(DATE_TIME = Titles., activ.cham = SEQUENCE) %>%
     # Gas measurements from GHG analyzers need to be renamed manually
-    dplyr::rename(
-      # LI-7810: CO2dry_ppm, CH4dry_ppb, H2O_ppm_LI7810
-      CO2dry_ppm = XT2C05_CO2,
-      CH4dry_ppb = XT2C04_CH4,
-      H2O_ppm_LI7810 = XT2C06_H2O,
-      # LI-7820: N2Odry_ppb, H2O_ppm_LI7820
-      N2Odry_ppb = XT3C04_N2O,
-      H2O_ppm_LI7820 = XT3C05_H2O) %>%
+    # LI-7810: CO2dry_ppm, CH4dry_ppb, H2O_ppm_LI7810
+    setNames(gsub(CO2.col, "CO2dry_ppm", names(.))) %>%
+    setNames(gsub(CH4.col, "CH4dry_ppb", names(.))) %>%
+    setNames(gsub(H2O1.col, "H2O_ppm_LI7810", names(.))) %>%
+    # LI-7820: N2Odry_ppb, H2O_ppm_LI7820
+    setNames(gsub(N2O.col, "N2Odry_ppb", names(.))) %>%
+    setNames(gsub(H2O2.col, "H2O_ppm_LI7820", names(.))) %>%
     # Detect new observations (Obs) and give a chamber UniqueID (chamID)
     arrange(DATE_TIME) %>%
     mutate(Obs = rleid(activ.cham),
@@ -94,7 +139,15 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                            paste("CH", activ.cham, "_", Obs, sep = ""))) %>%
     # Select only useful columns
     select(contains(c("DATE_TIME", "ChamID", "activ.cham", "Tsoil", "Tcham", "SWC",
-                      "cover", "PAR", "Op.stat", "ppm", "ppb")))
+                      "cover", "PAR", "Op.stat", "ppm", "ppb"))) %>%
+    # Convert column class automatically
+    type.convert(as.is = TRUE) %>%
+    # Remove negative gas measurements, if any
+    filter(CO2dry_ppm > 0 | is.na(CO2dry_ppm)) %>%
+    filter(CH4dry_ppb > 0 | is.na(CH4dry_ppb)) %>%
+    filter(H2O_ppm_LI7810 > 0 | is.na(H2O_ppm_LI7810)) %>%
+    filter(N2Odry_ppb > 0 | is.na(N2Odry_ppb)) %>%
+    filter(H2O_ppm_LI7820 > 0 | is.na(H2O_ppm_LI7820))
 
   # Group together all columns containing information and merge data
   if (pivot == "long"){ # pivot long: only one column per parameter
@@ -184,11 +237,10 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   }
   options(op)
 
-  # Add other useful variables (DATE, flag, offset, Vcham, Area, Pcham)
+  # Add other useful variables (DATE, flag)
   data.raw <- data.raw %>%
     mutate(DATE = substr(POSIX.time, 0, 10),
-           flag = ifelse(grepl(paste(flag, collapse = "|"), Op.stat), 1, 0),
-           offset = NA, Vcham = NA, Area = NA, Pcham = NA)
+           flag = ifelse(grepl(paste(flag, collapse = "|"), Op.stat), 1, 0))
 
   # Calculate chamber closure and chamber opening
   data.time <- data.raw %>% select(chamID, flag, POSIX.time) %>%
@@ -203,13 +255,12 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
     mutate(obs.start = min(POSIX.time),
            Etime.min = as.numeric(obs.start - unique(cham.close), units = "secs"),
            Etime = seq(unique(Etime.min), n() + unique(Etime.min) -1)) %>%
-    ungroup() %>% select(!c(Etime.min))
+    ungroup() %>% select(!c(Etime.min)) %>%
+    mutate(start.time = cham.close)
 
   # Merge data
   data.raw <- data.raw %>% full_join(Etime, by = c("chamID", "POSIX.time")) %>%
-    mutate(obs.length = as.numeric(cham.open - cham.close, units = "secs")) %>%
-    # Convert column class automatically
-    type.convert(as.is = TRUE)
+    mutate(obs.length = as.numeric(cham.open - cham.close, units = "secs"))
 
   # Save cleaned data file
   if(save == TRUE){
