@@ -15,31 +15,31 @@ GAIA_import(
 )
 }
 \arguments{
-\item{inputfile}{the name of a file with the extension .csv}
+\item{inputfile}{character string; the name of a file with the extension .csv}
 
-\item{date.format}{Date format. Chose one of the following: "dmy", "ymd", or "mdy".
-Default is "ymd" as it is the date format from the example
-data file provided.}
+\item{date.format}{character string; chose one of the following: "dmy", "ymd",
+or "mdy". Default is "ymd", as it is the date format from
+the example data file provided.}
 
-\item{timezone}{a time zone in which to import the data to POSIXct format.
-Default is "UTC". Note about time zone: I recommend using
-the time zone "UTC" to avoid any issue related to summer
-time and winter time changes.}
+\item{timezone}{character string; a time zone in which to import the data to
+POSIXct format. Default is "UTC". Note about time zone: it is
+recommended to use the time zone "UTC" to avoid any issue
+related to summer time and winter time changes.}
 
-\item{pivot}{Character string. Either "long" or "wide". If pivot = "long",
+\item{pivot}{character string; either "long" or "wide". If pivot = "long",
 each column containing information about Tsoil, Tcham, SWC, PAR
 and operating status (Op.stat) will be saved in a single column
 per parameter. If pivot = "wide", the default display of one column
 per chamber per parameter will be used.}
 
-\item{active}{Logical. If active = TRUE, preserve data for active chambers only.}
+\item{active}{logical; if active = TRUE, preserve data for active chambers only.}
 
-\item{flag}{Numeric vector. Indicates the operating status that should be used
+\item{flag}{numeric vector; indicates the operating status that should be used
 for the flux calculation. Default is flag = c(7,11), where 7 indicates
 "Chamber Idle Closed Clear" and 11 indicates "Chamber Idle Closed Dark".}
 
-\item{save}{logical. If save = TRUE, save the file as RData in a RData folder
-in the current working directory. If save = FALSE, return the file
+\item{save}{logical; if save = TRUE, saves the file as RData in a RData folder
+in the current working directory. If save = FALSE, returns the file
 in the Console, or load in the Environment if assigned to an object.}
 }
 \value{
@@ -69,4 +69,7 @@ Import functions for individual instruments:
          \code{\link[GoFluxYourself]{LI7820_import}},
          \code{\link[GoFluxYourself]{LI8100_import}},
          \code{\link[GoFluxYourself]{LI8200_import}}
+
+See \code{\link[base]{timezones}} for a description of the underlying
+         timezone attribute.
 }

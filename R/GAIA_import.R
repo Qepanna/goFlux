@@ -4,24 +4,24 @@
 #' ECOFlux (GAIA2TECH) with the extension .csv
 #' (LI-7810: CO2, CH4 and H2O / LI7820: N2O and H2O)
 #'
-#' @param inputfile the name of a file with the extension .csv
-#' @param date.format Date format. Chose one of the following: "dmy", "ymd", or "mdy".
-#'                    Default is "ymd" as it is the date format from the example
-#'                    data file provided.
-#' @param timezone a time zone in which to import the data to POSIXct format.
-#'                 Default is "UTC". Note about time zone: I recommend using
-#'                 the time zone "UTC" to avoid any issue related to summer
-#'                 time and winter time changes.
-#' @param save logical. If save = TRUE, save the file as RData in a RData folder
-#'             in the current working directory. If save = FALSE, return the file
+#' @param inputfile character string; the name of a file with the extension .csv
+#' @param date.format character string; chose one of the following: "dmy", "ymd",
+#'                    or "mdy". Default is "ymd", as it is the date format from
+#'                    the example data file provided.
+#' @param timezone character string; a time zone in which to import the data to
+#'                 POSIXct format. Default is "UTC". Note about time zone: it is
+#'                 recommended to use the time zone "UTC" to avoid any issue
+#'                 related to summer time and winter time changes.
+#' @param save logical; if save = TRUE, saves the file as RData in a RData folder
+#'             in the current working directory. If save = FALSE, returns the file
 #'             in the Console, or load in the Environment if assigned to an object.
-#' @param pivot Character string. Either "long" or "wide". If pivot = "long",
+#' @param pivot character string; either "long" or "wide". If pivot = "long",
 #'              each column containing information about Tsoil, Tcham, SWC, PAR
 #'              and operating status (Op.stat) will be saved in a single column
 #'              per parameter. If pivot = "wide", the default display of one column
 #'              per chamber per parameter will be used.
-#' @param active Logical. If active = TRUE, preserve data for active chambers only.
-#' @param flag Numeric vector. Indicates the operating status that should be used
+#' @param active logical; if active = TRUE, preserve data for active chambers only.
+#' @param flag numeric vector; indicates the operating status that should be used
 #'             for the flux calculation. Default is flag = c(7,11), where 7 indicates
 #'             "Chamber Idle Closed Clear" and 11 indicates "Chamber Idle Closed Dark".
 #' @returns a data frame
@@ -38,6 +38,8 @@
 #'          \code{\link[GoFluxYourself]{LI7820_import}},
 #'          \code{\link[GoFluxYourself]{LI8100_import}},
 #'          \code{\link[GoFluxYourself]{LI8200_import}}
+#' @seealso See \code{\link[base]{timezones}} for a description of the underlying
+#'          timezone attribute.
 #'
 #' @examples
 #' # Examples on how to use:
@@ -204,7 +206,9 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
 
   # Merge data
   data.raw <- data.raw %>% full_join(Etime, by = c("chamID", "POSIX.time")) %>%
-    mutate(obs.length = as.numeric(cham.open - cham.close, units = "secs"))
+    mutate(obs.length = as.numeric(cham.open - cham.close, units = "secs")) %>%
+    # Convert column class automatically
+    type.convert(as.is = TRUE)
 
   # Save cleaned data file
   if(save == TRUE){
