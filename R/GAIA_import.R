@@ -57,7 +57,8 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   POSIX.time <- activ.cham <- DATE_TIME <- XT3C05_H2O <- XT3C04_N2O <- . <-
     XT2C06_H2O <- XT2C04_CH4 <- XT2C05_CO2 <- SEQUENCE <- Titles. <- Obs <-
     cham.probe <- chamID <- CO2dry_ppm <- H2O_ppm_LI7810 <- H2O_ppm_LI7820 <-
-    CH4dry_ppb <- N2Odry_ppb <- rbind.fill <- cham.close <- cham.open <- NULL
+    CH4dry_ppb <- N2Odry_ppb <- obs.start <- Etime.min <- rbind.fill <-
+    cham.close <- cham.open <- NULL
 
   # Import raw data file from GAIA (.csv)
   data.raw <- read.delim(inputfile, skip = 1, colClasses = "character") %>%
@@ -199,10 +200,10 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   Etime <- data.raw %>% full_join(data.time, by = "chamID") %>%
     select(POSIX.time, chamID, cham.close, cham.open) %>%
     filter(!grepl("Background", chamID)) %>% group_by(chamID) %>%
-    mutate(min = as.numeric(first(POSIX.time) - unique(cham.close), units = "secs"),
-           max = as.numeric(last(POSIX.time) - first(POSIX.time), units = "secs"),
-           Etime = seq(from = unique(min), to = unique(max) + unique(min))) %>%
-    ungroup() %>% select(!c(min, max))
+    mutate(obs.start = min(POSIX.time),
+           Etime.min = as.numeric(obs.start - unique(cham.close), units = "secs"),
+           Etime = seq(unique(Etime.min), n() + unique(Etime.min) -1)) %>%
+    ungroup() %>% select(!c(Etime.min))
 
   # Merge data
   data.raw <- data.raw %>% full_join(Etime, by = c("chamID", "POSIX.time")) %>%
