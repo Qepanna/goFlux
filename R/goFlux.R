@@ -12,17 +12,17 @@
 #' @param H2O_col character string; specifies which column should be used to
 #'                subtract the effect of water vapor in the chamber space.
 #' @param prec numerical value; precision of the instruments. Default values for
-#'             CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O and H<sub>2</sub>O
-#'             are based on the LI-COR instruments: CO<sub>2</sub> = 3.5 ppm;
-#'             CH<sub>4</sub> = 0.6 ppb; N<sub>2</sub>O = 0.4 ppb; H<sub>2</sub>O = 45 ppm.
+#'             CO~2~, CH~4~, N~2~O and H~2~O
+#'             are based on the LI-COR instruments: CO~2~ = 3.5 ppm;
+#'             CH~4~ = 0.6 ppb; N~2~O = 0.4 ppb; H~2~O = 45 ppm.
 #'             Units must be the same as gastype. For Los Gatos Research instruments,
 #'             you must manually specify the precision of the instruments.
-#'             If using the ultra-portable GGA (GLA132 series): prec = CO<sub>2</sub>:
-#'             0.3 ppm; CH<sub>4</sub>: 1.4 ppb; H<sub>2</sub>O: 50 ppm.
+#'             If using the ultra-portable GGA (GLA132 series): prec = CO~2~:
+#'             0.3 ppm; CH~4~: 1.4 ppb; H~2~O: 50 ppm.
 #'             If using the micro  ultra-portable GGA (GLA131 series): prec =
-#'             CO<sub>2</sub>: 0.35 ppm; CH<sub>4</sub>: 0.9 ppb; H<sub>2</sub>O: 200 ppm.
+#'             CO~2~: 0.35 ppm; CH~4~: 0.9 ppb; H~2~O: 200 ppm.
 #' @param Area numerical value; area of the soil surface inside the chamber
-#'             (cm~2~). Alternatively, provide the column Area in
+#'             (cm^~2~^). Alternatively, provide the column Area in
 #'             dataframe if Area is different between samples.
 #' @param offset numerical value; height between the soil surface and the chamber
 #'               (cm). Alternatively, provide the column offset in dataframe if
@@ -39,16 +39,20 @@
 #' @param Tcham numerical value; temperature inside the chamber (Celcius).
 #'              Alternatively, provide the column Tcham in dataframe if
 #'              Tcham is different between samples.
+#' @param k.mult numerical value; a multiplier for the allowed kappa-max.
+#'               kappa-max is the maximal curvature (kappa) of the non-linear
+#'               regression (Hutchinson and Mosier model) allowed for a each
+#'               flux measurement. Default setting is `k.mult = 1`.
 #'
 #' @details
-#' Flux estimate units are nmol/m~2~*s (if initial concentration is ppm,
-#' e.g. CO2dry_ppm) and µmol/m~2~*s (if initial concentration is ppb,
+#' Flux estimate units are nmol/m^~2~^*s (if initial concentration is ppm,
+#' e.g. CO2dry_ppm) and µmol/m^~2~^*s (if initial concentration is ppb,
 #' e.g. CH4dry_ppm).
 #'
 #' The function `k.max()` calculates the maximal curvature (kappa) of the non-linear
 #' model (Hutchinson and Mosier) allowed for each flux measurements. k.max
 #' is calculated based on the minimal detectable flux (MDF), the linear
-#' flux estimate and the measurement time. The unit of the kappa-max is s-1.
+#' flux estimate and the measurement time. The unit of the kappa-max is s^~-1~^.
 #'
 #' The function `MDF()` calculates the minimal detectable flux (MDF) based on
 #' instrument precision, measurements time, and the number of measurement points.
@@ -81,7 +85,7 @@
 #'
 goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
                    Area = NULL, offset = NULL, Vtot = NULL, Vcham = NULL,
-                   Pcham = NULL, Tcham = NULL) {
+                   Pcham = NULL, Tcham = NULL, k.mult = 1) {
 
   # Assign NULL to variables without binding
   H2O_ppm <- H2O_mol <- Etime <- flag <- NULL
@@ -227,7 +231,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
 
     # Flux results and G factor
     flux.res.ls[[f]] <- cbind.data.frame(
-      UniqueID, LM.res, HM.res, f.min, prec, flux.term, k.max = kappa.max,
+      UniqueID, LM.res, HM.res, f.min, prec, flux.term, k.max = kappa.max*k.mult,
       g.fact = g.factor(HM.res$HM.flux, LM.res$LM.flux))
 
     # Update progress bar
