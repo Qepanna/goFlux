@@ -250,6 +250,7 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
 
   # Calculate Etime
   Etime <- data.raw %>% full_join(data.time, by = "chamID") %>%
+    filter(flag == 1) %>%
     select(POSIX.time, chamID, cham.close, cham.open) %>%
     filter(!grepl("Background", chamID)) %>% group_by(chamID) %>%
     mutate(obs.start = min(POSIX.time),
