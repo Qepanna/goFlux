@@ -45,14 +45,14 @@ are based on the LI-COR instruments:
   \item \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} = 0.6 ppb;
   \item \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} = 0.4 ppb;
   \item \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} = 45 ppm.
-} \cr
+}
 For other instruments, you must manually specify the precision of
 the instrument. If using the ultra-portable GGA (GLA132 series):
 \itemize{
   \item \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} = 0.3 ppm;
   \item \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} = 1.4 ppb;
   \item \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} = 50 ppm.
-} \cr
+}
 If using the micro  ultra-portable GGA (GLA131 series):
 \itemize{
   \item \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} = 0.35 ppm;
@@ -62,56 +62,69 @@ If using the micro  ultra-portable GGA (GLA131 series):
 
 \item{Area}{numerical value; area of the soil surface inside the chamber
 \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}.
-Alternatively, provide the column 'Area' in dataframe if \strong{Area} is
-different between samples.}
+Alternatively, provide the column \code{Area} in dataframe if
+\code{Area} is different between samples.}
 
-\item{offset}{numerical value; height between the soil surface and the chamber
- (cm). Alternatively, provide the column offset in dataframe if
- offset is different between samples. OPTIONAL: only used if Vtot
-is missing.}
+\item{offset}{(optional) numerical value; height between the soil surface and
+the chamber (cm). Alternatively, provide the column \code{offset}
+in dataframe if \code{offset} is different between samples.
+\code{offset} is only used if \code{Vtot} is missing.}
 
 \item{Vtot}{numerical value; total volume inside the chamber, tubes, instruments,
-etc. (L). Alternatively, provide the column Vtot in dataframe if
-Vtot is different between samples. If Vtot is missing, the function
-will calculate it from Area, Vcham and offset.}
+etc. (L). Alternatively, provide the column \code{Vtot} in dataframe
+if \code{Vtot} is different between samples. If \code{Vtot} is
+missing, the function will calculate it from \code{Area},
+\code{Vcham} and \code{offset}.}
 
-\item{Vcham}{numerical value; volume inside the chamber, tubes and instruments
-(L). Alternatively, provide the column Vcham in dataframe if
-Vcham is different between samples. OPTIONAL: only used if Vtot
-is missing.}
+\item{Vcham}{(optional) numerical value; volume inside the chamber, tubes and
+instruments (L). Alternatively, provide the column \code{Vcham}
+in dataframe if \code{Vcham} is different between samples.
+\code{Vhcam} is only used if \code{Vtot} is missing.}
 
 \item{Pcham}{numerical value; pressure inside the chamber (kPa).
-Alternatively, provide the column Pcham in dataframe if
-Pcham is different between samples.}
+Alternatively, provide the column \code{Pcham} in dataframe if
+\code{Pcham} is different between samples. If \code{Pcham} is
+not provided, normal atmospheric pressure (101.325 kPa) is used.}
 
 \item{Tcham}{numerical value; temperature inside the chamber (Celcius).
-Alternatively, provide the column Tcham in dataframe if
-Tcham is different between samples.}
+Alternatively, provide the column \code{Tcham} in dataframe if
+\code{Tcham} is different between samples. If \code{Tcham} is
+not provided, normal air temperature (15 "\u00b0"C) is used.}
 
 \item{k.mult}{numerical value; a multiplier for the allowed kappa-max.
 kappa-max is the maximal curvature (kappa) of the non-linear
 regression (Hutchinson and Mosier model) allowed for a each
-flux measurement. Default setting is [k.mult = 1].}
+flux measurement. See the functions
+\code{\link[GoFluxYourself]{k.max}} and
+\code{\link[GoFluxYourself]{HM.flux}}
+for more information. Default setting is \code{k.mult = 1}.}
 }
 \value{
 a data frame
 }
 \description{
 A wrapper function to calculate GHG fluxes from static chamber measurements.
-Calculates linear and non-linear fluxes (Hutchinson and Mosier model; HM).
+Calculates linear (\code{\link[GoFluxYourself]{LM.flux}}) and non-linear fluxes
+(Hutchinson and Mosier model; \code{\link[GoFluxYourself]{HM.flux}}).
 }
 \details{
-Flux estimate units are nmol/m^~2~^*s (if initial concentration is ppm,
-e.g. CO2dry_ppm) and µmol/m^~2~^*s (if initial concentration is ppb,
-e.g. CH4dry_ppm).
+Flux estimate units are
+\ifelse{html}{\out{nmol/m<sup>2</sup>*s}}{\eqn{nmol/m^{2}*s}{ASCII}}
+(if initial concentration is ppm, e.g. CO2dry_ppm) and
+\ifelse{html}{\out{µmol/m<sup>2</sup>*s}}{\eqn{µmol/m^{2}*s}{ASCII}}
+(if initial concentration is ppb, e.g. CH4dry_ppm).
 
-The function `k.max()` calculates the maximal curvature (kappa) of the non-linear
-model (Hutchinson and Mosier) allowed for each flux measurements. k.max
-is calculated based on the minimal detectable flux (MDF), the linear
-flux estimate and the measurement time. The unit of the kappa-max is s^~-1~^.
+The function \code{\link[GoFluxYourself]{k.max}} calculates the maximal
+curvature (kappa) of the non-linear model (Hutchinson and Mosier;
+\code{\link[GoFluxYourself]{HM.flux}}) allowed for each flux measurements.
+kappa-max is calculated based on the minimal detectable flux
+(\code{\link[GoFluxYourself]{MDF}}), the linear flux estimate
+\code{\link[GoFluxYourself]{LM.flux}}
+and the measurement time. The unit of kappa-max is
+\ifelse{html}{\out{s<sup>-1</sup>}}{\eqn{s^{-1}}{ASCII}}.
 
-The function `MDF()` calculates the minimal detectable flux (MDF) based on
-instrument precision, measurements time, and the number of measurement points.
+The function \code{\link[GoFluxYourself]{MDF}} calculates the minimal detectable 
+flux (MDF) based on instrument precision and measurement time.
 }
 \examples{
 data(example_LGR_manID)
