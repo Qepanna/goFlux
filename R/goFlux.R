@@ -3,47 +3,59 @@
 #' A wrapper function to calculate GHG fluxes from static chamber measurements.
 #' Calculates linear and non-linear fluxes (Hutchinson and Mosier model; HM).
 #'
-#' @param dataframe a data.frame containing gas measurements (see gastype below),
-#'                  water vapor measurements (see H2O_col below) and the following:
-#'                  UniqueID, Etime, Vtot, Area, Pcham, Tcham, flag
+#' @param dataframe a data.frame containing gas measurements (see \code{gastype}
+#'                  below), water vapor measurements (see \code{H2O_col} below)
+#'                  and the following columns: \code{UniqueID}, \code{Etime},
+#'                  \code{Vtot}, \code{Area}, \code{Pcham}, \code{Tcham} and
+#'                  \code{flag} (see the parameters \code{Vtot}, \code{Area},
+#'                  \code{Pcham} and \code{Tcham} below for more details).
 #' @param gastype character string; specifies which column should be used for the
 #'                flux calculations. Must be one of the following: "CO2dry_ppm",
 #'                "CH4dry_ppb", "N2Odry_ppb" or "H2O_ppm".
 #' @param H2O_col character string; specifies which column should be used to
 #'                subtract the effect of water vapor in the chamber space.
-#' @param prec numerical value; precision of the instruments. Default values for
+#' @param prec numerical value; precision of the instruments. Units must be the
+#'             same as \code{gastype}. Default values for
 #'             \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 #'             \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
 #'             \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
 #'             \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
 #'             are based on the LI-COR instruments:
-#'             \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} = 3.5 ppm;
-#'             \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} = 0.6 ppb;
-#'             \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} = 0.4 ppb;
-#'             \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} = 45 ppm.
-#'             Units must be the same as [gastype]. For other instruments,
-#'             you must manually specify the precision of the instrument.
-#'             If using the ultra-portable GGA (GLA132 series):
-#'             \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} = 0.3 ppm;
-#'             \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} = 1.4 ppb;
-#'             \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} = 50 ppm.
+#'             \itemize{
+#'               \item \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} = 3.5 ppm;
+#'               \item \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} = 0.6 ppb;
+#'               \item \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} = 0.4 ppb;
+#'               \item \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} = 45 ppm.
+#'             } \cr
+#'             For other instruments, you must manually specify the precision of
+#'             the instrument. If using the ultra-portable GGA (GLA132 series):
+#'             \itemize{
+#'               \item \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} = 0.3 ppm;
+#'               \item \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} = 1.4 ppb;
+#'               \item \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} = 50 ppm.
+#'             } \cr
 #'             If using the micro  ultra-portable GGA (GLA131 series):
-#'             \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} = 0.35 ppm;
-#'             \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} = 0.9 ppb;
-#'             \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} = 200 ppm.
+#'             \itemize{
+#'               \item \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} = 0.35 ppm;
+#'               \item \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} = 0.9 ppb;
+#'               \item \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} = 200 ppm.
+#'             }
 #' @param Area numerical value; area of the soil surface inside the chamber
 #'             \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}.
-#'             Alternatively, provide the column Area in dataframe if Area is
+#'             Alternatively, provide the column 'Area' in dataframe if \strong{Area} is
 #'             different between samples.
-#' @param offset numerical value; height between the soil surface and the chamber
-#'               (cm). Alternatively, provide the column offset in dataframe if
-#'               offset is different between samples.
 #' @param Vtot numerical value; total volume inside the chamber, tubes, instruments,
 #'             etc. (L). Alternatively, provide the column Vtot in dataframe if
-#'             Vtot is different between samples.
+#'             Vtot is different between samples. If Vtot is missing, the function
+#'             will calculate it from Area, Vcham and offset.
 #' @param Vcham numerical value; volume inside the chamber, tubes and instruments
 #'              (L). Alternatively, provide the column Vcham in dataframe if
-#'              Vcham is different between samples.
+#'              Vcham is different between samples. OPTIONAL: only used if Vtot
+#'              is missing.
+#' @param offset numerical value; height between the soil surface and the chamber
+#'               (cm). Alternatively, provide the column offset in dataframe if
+#'               offset is different between samples. OPTIONAL: only used if Vtot
+#'              is missing.
 #' @param Pcham numerical value; pressure inside the chamber (kPa).
 #'              Alternatively, provide the column Pcham in dataframe if
 #'              Pcham is different between samples.
