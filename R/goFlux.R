@@ -12,7 +12,10 @@
 #' @param H2O_col character string; specifies which column should be used to
 #'                subtract the effect of water vapor in the chamber space.
 #' @param prec numerical value; precision of the instruments. Default values for
-#'             CO~2~, CH~4~, N~2~O and H~2~O
+#'             \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+#'             \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
+#'             \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+#'             \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
 #'             are based on the LI-COR instruments: CO~2~ = 3.5 ppm;
 #'             CH~4~ = 0.6 ppb; N~2~O = 0.4 ppb; H~2~O = 45 ppm.
 #'             Units must be the same as gastype. For Los Gatos Research instruments,

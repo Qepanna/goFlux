@@ -14,7 +14,8 @@ goFlux(
   Vtot = NULL,
   Vcham = NULL,
   Pcham = NULL,
-  Tcham = NULL
+  Tcham = NULL,
+  k.mult = 1
 )
 }
 \arguments{
@@ -30,18 +31,21 @@ flux calculations. Must be one of the following: "CO2dry_ppm",
 subtract the effect of water vapor in the chamber space.}
 
 \item{prec}{numerical value; precision of the instruments. Default values for
-CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O and H<sub>2</sub>O
-are based on the LI-COR instruments: CO<sub>2</sub> = 3.5 ppm;
-CH<sub>4</sub> = 0.6 ppb; N<sub>2</sub>O = 0.4 ppb; H<sub>2</sub>O = 45 ppm.
+\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
+\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
+are based on the LI-COR instruments: CO~2~ = 3.5 ppm;
+CH~4~ = 0.6 ppb; N~2~O = 0.4 ppb; H~2~O = 45 ppm.
 Units must be the same as gastype. For Los Gatos Research instruments,
 you must manually specify the precision of the instruments.
-If using the ultra-portable GGA (GLA132 series): prec = CO<sub>2</sub>:
-0.3 ppm; CH<sub>4</sub>: 1.4 ppb; H<sub>2</sub>O: 50 ppm.
+If using the ultra-portable GGA (GLA132 series): prec = CO~2~:
+0.3 ppm; CH~4~: 1.4 ppb; H~2~O: 50 ppm.
 If using the micro  ultra-portable GGA (GLA131 series): prec =
-CO<sub>2</sub>: 0.35 ppm; CH<sub>4</sub>: 0.9 ppb; H<sub>2</sub>O: 200 ppm.}
+CO~2~: 0.35 ppm; CH~4~: 0.9 ppb; H~2~O: 200 ppm.}
 
 \item{Area}{numerical value; area of the soil surface inside the chamber
-(cm~2~). Alternatively, provide the column Area in
+(cm^~2~^). Alternatively, provide the column Area in
 dataframe if Area is different between samples.}
 
 \item{offset}{numerical value; height between the soil surface and the chamber
@@ -63,6 +67,11 @@ Pcham is different between samples.}
 \item{Tcham}{numerical value; temperature inside the chamber (Celcius).
 Alternatively, provide the column Tcham in dataframe if
 Tcham is different between samples.}
+
+\item{k.mult}{numerical value; a multiplier for the allowed kappa-max.
+kappa-max is the maximal curvature (kappa) of the non-linear
+regression (Hutchinson and Mosier model) allowed for a each
+flux measurement. Default setting is `k.mult = 1`.}
 }
 \value{
 a data frame
@@ -72,14 +81,14 @@ A wrapper function to calculate GHG fluxes from static chamber measurements.
 Calculates linear and non-linear fluxes (Hutchinson and Mosier model; HM).
 }
 \details{
-Flux estimate units are nmol/m~2~*s (if initial concentration is ppm,
-e.g. CO2dry_ppm) and µmol/m~2~*s (if initial concentration is ppb,
+Flux estimate units are nmol/m^~2~^*s (if initial concentration is ppm,
+e.g. CO2dry_ppm) and µmol/m^~2~^*s (if initial concentration is ppb,
 e.g. CH4dry_ppm).
 
 The function `k.max()` calculates the maximal curvature (kappa) of the non-linear
 model (Hutchinson and Mosier) allowed for each flux measurements. k.max
 is calculated based on the minimal detectable flux (MDF), the linear
-flux estimate and the measurement time. The unit of the kappa-max is s-1.
+flux estimate and the measurement time. The unit of the kappa-max is s^~-1~^.
 
 The function `MDF()` calculates the minimal detectable flux (MDF) based on
 instrument precision, measurements time, and the number of measurement points.
