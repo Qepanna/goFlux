@@ -41,23 +41,23 @@ same as \code{gastype}. Default values for
 \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
 are based on the LI-COR instruments:
 \itemize{
-  \item \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} = 3.5 ppm;
-  \item \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} = 0.6 ppb;
-  \item \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} = 0.4 ppb;
-  \item \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} = 45 ppm.
+  \item \ifelse{html}{\out{CO<sub>2</sub> = 3.5 ppm;}}{\eqn{CO[2] = 3.5 ppm;}{ASCII}}
+  \item \ifelse{html}{\out{CH<sub>4</sub> = 0.6 ppb;}}{\eqn{CH[4] = 0.6 ppb;}{ASCII}}
+  \item \ifelse{html}{\out{N<sub>2</sub>O = 0.4 ppb;}}{\eqn{N[2]O = 0.4 ppb;}{ASCII}}
+  \item \ifelse{html}{\out{H<sub>2</sub>O = 45 ppm.}}{\eqn{H[2]O = 45 ppm.}{ASCII}}
 }
 For other instruments, you must manually specify the precision of
 the instrument. If using the ultra-portable GGA (GLA132 series):
 \itemize{
-  \item \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} = 0.3 ppm;
-  \item \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} = 1.4 ppb;
-  \item \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} = 50 ppm.
+  \item \ifelse{html}{\out{CO<sub>2</sub> = 0.3 ppm;}}{\eqn{CO[2] = 0.3 ppm;}{ASCII}}
+  \item \ifelse{html}{\out{CH<sub>4</sub> = 0.3 ppm;}}{\eqn{CH[4] = 0.3 ppm;}{ASCII}} = 1.4 ppb;
+  \item \ifelse{html}{\out{H<sub>2</sub>O = 50 ppm.}}{\eqn{H[2]O = 50 ppm.}{ASCII}}
 }
 If using the micro  ultra-portable GGA (GLA131 series):
 \itemize{
-  \item \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} = 0.35 ppm;
-  \item \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} = 0.9 ppb;
-  \item \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} = 200 ppm.
+  \item \ifelse{html}{\out{CO<sub>2</sub> = 0.35 ppm;}}{\eqn{CO[2] = 0.35 ppm;}{ASCII}}
+  \item \ifelse{html}{\out{CH<sub>4</sub> = 0.9 ppb;}}{\eqn{CH[4] = 0.9 ppb;}{ASCII}}
+  \item \ifelse{html}{\out{H<sub>2</sub>O = 200 ppm.}}{\eqn{H[2]O = 200 ppm.}{ASCII}}
 }}
 
 \item{Area}{numerical value; area of the soil surface inside the chamber
@@ -89,7 +89,7 @@ not provided, normal atmospheric pressure (101.325 kPa) is used.}
 \item{Tcham}{numerical value; temperature inside the chamber (Celcius).
 Alternatively, provide the column \code{Tcham} in dataframe if
 \code{Tcham} is different between samples. If \code{Tcham} is
-not provided, normal air temperature (15 "\u00b0"C) is used.}
+not provided, normal air temperature (15 \u00b0 C) is used.}
 
 \item{k.mult}{numerical value; a multiplier for the allowed kappa-max.
 kappa-max is the maximal curvature (kappa) of the non-linear
@@ -100,7 +100,18 @@ flux measurement. See the functions
 for more information. Default setting is \code{k.mult = 1}.}
 }
 \value{
-a data frame
+Returns a data frame with 24 columns: a UniqueID per measurement,
+         9 columns for the linear model results (slope, C0, Ci, flux, root
+         mean square error (RMSE), standard error (se), relative se (se.rel),
+         \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{2^2}{ASCII}}, and p-value),
+         9 columns for the non-linear model results (slope, C0, Ci, flux, root
+         mean square error (RMSE), standard error (se), relative se (se.rel),
+         \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{2^2}{ASCII}}, and kappa), as
+         well as the minimal detectable flux (f.min; \code{\link[GoFluxYourself]{MDF}}),
+         the precision of the instrument (prec), the flux term
+         (\code{\link[GoFluxYourself]{flux.term}}), kappa-max
+         (\code{\link[GoFluxYourself]{k.max}}) and the g factor
+         (\code{\link[GoFluxYourself]{g.factor}}).
 }
 \description{
 A wrapper function to calculate GHG fluxes from static chamber measurements.
@@ -109,9 +120,9 @@ Calculates linear (\code{\link[GoFluxYourself]{LM.flux}}) and non-linear fluxes
 }
 \details{
 Flux estimate units are
-\ifelse{html}{\out{nmol/m<sup>2</sup>*s}}{\eqn{nmol/m^{2}*s}{ASCII}}
+\ifelse{html}{\out{nmol/m<sup>2</sup>s}}{\eqn{nmol/m^{2}s}{ASCII}}
 (if initial concentration is ppm, e.g. CO2dry_ppm) and
-\ifelse{html}{\out{µmol/m<sup>2</sup>*s}}{\eqn{µmol/m^{2}*s}{ASCII}}
+\ifelse{html}{\out{µmol/m<sup>2</sup>s}}{\eqn{µmol/m^{2}s}{ASCII}}
 (if initial concentration is ppb, e.g. CH4dry_ppm).
 
 The function \code{\link[GoFluxYourself]{k.max}} calculates the maximal
@@ -123,14 +134,14 @@ kappa-max is calculated based on the minimal detectable flux
 and the measurement time. The unit of kappa-max is
 \ifelse{html}{\out{s<sup>-1</sup>}}{\eqn{s^{-1}}{ASCII}}.
 
-The function \code{\link[GoFluxYourself]{MDF}} calculates the minimal detectable 
+The function \code{\link[GoFluxYourself]{MDF}} calculates the minimal detectable
 flux (MDF) based on instrument precision and measurement time.
 }
 \examples{
 data(example_LGR_manID)
-goFlux(example_LGR_manID, "CO2dry_ppm")
-goFlux(example_LGR_manID, "CH4dry_ppb")
-goFlux(example_LGR_manID, "H2O_ppm")
+CO2_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
+CH4_flux <- goFlux(example_LGR_manID, "CH4dry_ppb")
+H2O_flux <- goFlux(example_LGR_manID, "H2O_ppm")
 
 }
 \seealso{
