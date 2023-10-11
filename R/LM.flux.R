@@ -26,9 +26,9 @@ LM.flux <- function(gas.meas, time.meas, flux.term) {
     sqrt(sum((na.omit(gas.meas - fit.val))^2) / length(na.omit(gas.meas)))
   }
 
-  # Mean Absolute Deviation (MAD)
-  MAD <- function(gas.meas, fit.val){
-    sum(na.omit(gas.meas - fit.val)) / length(na.omit(gas.meas))
+  # Mean Absolute Error (MAE)
+  MAE <- function(gas.meas, fit.val){
+    sum(abs(na.omit(gas.meas - fit.val))) / length(na.omit(gas.meas))
   }
 
   # Linear model
@@ -51,16 +51,16 @@ LM.flux <- function(gas.meas, time.meas, flux.term) {
   LM.se <- deltamethod(as.formula(form), coef(LM), vcov(LM))
 
   # Indices of the model fit
-  # Relative flux standard error, r2, p-value, MAD and RMSE
+  # Relative flux standard error, r2, p-value, MAE and RMSE
   LM.se.rel <- (LM.se / LM.flux) * 100
   LM.r2 <- as.numeric(summary(lm(fitted(LM) ~ gas.meas))[9])[1]
   LM.p.val <- summary(LM)[[4]][2,4]
   LM.RMSE <- RMSE(gas.meas, fitted(LM))
-  LM.MAD <- MAD(gas.meas, fitted(LM))
+  LM.MAE <- MAE(gas.meas, fitted(LM))
 
   # Store results in new data table
   LM_results <- cbind.data.frame(LM.flux, LM.C0, LM.Ci, LM.slope, LM.se,
-                                 LM.se.rel, LM.MAD, LM.RMSE, LM.r2, LM.p.val)
+                                 LM.se.rel, LM.MAE, LM.RMSE, LM.r2, LM.p.val)
 
   return(LM_results)
 }

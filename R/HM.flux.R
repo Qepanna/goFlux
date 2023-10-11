@@ -45,9 +45,9 @@ HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
     sqrt(sum((na.omit(gas.meas - fit.val))^2) / length(na.omit(gas.meas)))
   }
 
-  # Mean Absolute Deviation (MAD)
-  MAD <- function(gas.meas, fit.val){
-    sum(na.omit(gas.meas - fit.val)) / length(na.omit(gas.meas))
+  # Mean Absolute Error (MAE)
+  MAE <- function(gas.meas, fit.val){
+    sum(abs(na.omit(gas.meas - fit.val))) / length(na.omit(gas.meas))
   }
 
   # kappa limits
@@ -97,15 +97,15 @@ HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
     HM.se <- deltamethod(as.formula(form), coef(HM), vcov(HM))
 
     # Indices of the model fit
-    # Relative flux standard error, r2, MAD and RMSE
+    # Relative flux standard error, r2, MAE and RMSE
     HM.se.rel <- (HM.se / HM.flux) * 100
     HM.r2 <- as.numeric(summary(lm(fitted(HM) ~ gas.meas))[9])[1]
     HM.RMSE <- RMSE(gas.meas, fitted(HM))
-    HM.MAD <- MAD(gas.meas, fitted(HM))
+    HM.MAE <- MAE(gas.meas, fitted(HM))
 
     # Store results in new data table
     HM_results <- cbind.data.frame(HM.flux, HM.C0, HM.Ci, HM.slope, HM.k,
-                                   HM.se, HM.se.rel, HM.MAD, HM.RMSE, HM.r2)
+                                   HM.se, HM.se.rel, HM.MAE, HM.RMSE, HM.r2)
 
   } else {
     HM_results <- cbind.data.frame(HM.Ci = NA, HM.C0 = NA, HM.k = NA,
