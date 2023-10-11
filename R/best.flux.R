@@ -81,7 +81,7 @@ best.flux <- function(flux.result,
   # Assign NULL to variables without binding
   g.fact <- HM.diagnose <- HM.RMSE <- prec <- model <- quality.check <- HM.k <- LM.p.val <-
     LM.diagnose <- HM.se.rel <- LM.se.rel <- HM.C0 <- LM.C0 <- HM.r2 <-
-    LM.r2 <- LM.Ci <- LM.se <- HM.se <- f.min <- NULL
+    LM.r2 <- LM.Ci <- LM.se <- HM.se <- MDF <- NULL
 
   # Assume that the best flux is HM.flux and leave *.diagnose empty
   best.flux <- flux.result %>%
@@ -174,24 +174,24 @@ best.flux <- function(flux.result,
 
     best.flux <- best.flux %>% mutate(
       # LM
-      LM.diagnose = ifelse(abs(LM.flux) < (f.min + abs(LM.se)),
+      LM.diagnose = ifelse(abs(LM.flux) < (MDF + abs(LM.se)),
                            ifelse(LM.diagnose == "", mdf.diagnostic,
                                   paste(LM.diagnose, mdf.diagnostic, sep = " | ")),
                            LM.diagnose)) %>%
-      mutate(best.flux = ifelse(abs(LM.flux) < (f.min + abs(LM.se)), LM.flux, best.flux),
-             model = ifelse(abs(LM.flux) < (f.min + abs(LM.se)), "LM", model),
-             quality.check = ifelse(abs(LM.flux) < (f.min + abs(LM.se)),
+      mutate(best.flux = ifelse(abs(LM.flux) < (MDF + abs(LM.se)), LM.flux, best.flux),
+             model = ifelse(abs(LM.flux) < (MDF + abs(LM.se)), "LM", model),
+             quality.check = ifelse(abs(LM.flux) < (MDF + abs(LM.se)),
                                     ifelse(quality.check == "", "No flux (MDF)",
                                            paste(quality.check, "No flux (MDF)", sep = " | ")),
                                     quality.check)) %>%
       # HM
-      mutate(HM.diagnose = ifelse(abs(HM.flux) < (f.min + abs(HM.se)),
+      mutate(HM.diagnose = ifelse(abs(HM.flux) < (MDF + abs(HM.se)),
                                   ifelse(HM.diagnose == "", mdf.diagnostic,
                                          paste(HM.diagnose, mdf.diagnostic, sep = " | ")),
                                   HM.diagnose)) %>%
-      mutate(best.flux = ifelse(abs(HM.flux) < (f.min + abs(HM.se)), LM.flux, best.flux),
-             model = ifelse(abs(HM.flux) < (f.min + abs(HM.se)), "LM", model),
-             quality.check = ifelse(abs(HM.flux) < (f.min + abs(HM.se)),
+      mutate(best.flux = ifelse(abs(HM.flux) < (MDF + abs(HM.se)), LM.flux, best.flux),
+             model = ifelse(abs(HM.flux) < (MDF + abs(HM.se)), "LM", model),
+             quality.check = ifelse(abs(HM.flux) < (MDF + abs(HM.se)),
                                     ifelse(quality.check == "", "No flux (MDF)",
                                            paste(quality.check, "No flux (MDF)", sep = " | ")),
                                     quality.check))

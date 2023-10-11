@@ -32,7 +32,7 @@
 #'             the instrument. If using the ultra-portable GGA (GLA132 series):
 #'             \itemize{
 #'               \item \ifelse{html}{\out{CO<sub>2</sub> = 0.3 ppm;}}{\eqn{CO[2] = 0.3 ppm;}{ASCII}}
-#'               \item \ifelse{html}{\out{CH<sub>4</sub> = 0.3 ppm;}}{\eqn{CH[4] = 0.3 ppm;}{ASCII}} = 1.4 ppb;
+#'               \item \ifelse{html}{\out{CH<sub>4</sub> = 1.4 ppb;}}{\eqn{CH[4] = 1.4 ppb;}{ASCII}}
 #'               \item \ifelse{html}{\out{H<sub>2</sub>O = 50 ppm.}}{\eqn{H[2]O = 50 ppm.}{ASCII}}
 #'             }
 #'             If using the micro  ultra-portable GGA (GLA131 series):
@@ -65,7 +65,7 @@
 #' @param Tcham numerical value; temperature inside the chamber (Celcius).
 #'              Alternatively, provide the column \code{Tcham} in dataframe if
 #'              \code{Tcham} is different between samples. If \code{Tcham} is
-#'              not provided, normal air temperature (15 \u00b0 C) is used.
+#'              not provided, normal air temperature (15 "\u00b0" °C) is used.
 #' @param k.mult numerical value; a multiplier for the allowed kappa-max.
 #'               kappa-max is the maximal curvature (kappa) of the non-linear
 #'               regression (Hutchinson and Mosier model) allowed for a each
@@ -94,13 +94,13 @@
 #' flux (MDF) based on instrument precision and measurement time.
 #'
 #' @returns Returns a data frame with 24 columns: a UniqueID per measurement,
-#'          9 columns for the linear model results (slope, C0, Ci, flux, root
+#'          9 columns for the linear model results (flux, C0, Ci, slope, root
 #'          mean square error (RMSE), standard error (se), relative se (se.rel),
-#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{2^2}{ASCII}}, and p-value),
-#'          9 columns for the non-linear model results (slope, C0, Ci, flux, root
+#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and p-value),
+#'          9 columns for the non-linear model results (flux, C0, Ci, slope, root
 #'          mean square error (RMSE), standard error (se), relative se (se.rel),
-#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{2^2}{ASCII}}, and kappa), as
-#'          well as the minimal detectable flux (f.min; \code{\link[GoFluxYourself]{MDF}}),
+#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and kappa), as
+#'          well as the minimal detectable flux (MDF; \code{\link[GoFluxYourself]{MDF}}),
 #'          the precision of the instrument (prec), the flux term
 #'          (\code{\link[GoFluxYourself]{flux.term}}), kappa-max
 #'          (\code{\link[GoFluxYourself]{k.max}}) and the g factor
@@ -229,7 +229,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     data_split[[f]] <- data_split[[f]] %>%
       mutate(flux.term = flux.term(first(Vtot), first(Pcham), first(Area),
                                    first(Tcham), H2O_flux.term),
-             f.min = MDF(prec, (max(Etime)+1), flux.term))
+             MDF = MDF(prec, (max(Etime)+1), flux.term))
   }
 
   # Create an empty list to store results
@@ -244,7 +244,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     # Extract auxiliary variables: flux term, minimal detectable flux and UniqueID
     UniqueID <- unique(data_split[[f]]$UniqueID)
     flux.term <- first(data_split[[f]]$flux.term)
-    f.min <- first(data_split[[f]]$f.min)
+    MDF <- first(data_split[[f]]$MDF)
 
     # Extract gas measurement (by gastype)
     gas.meas <- Reduce("c", data_split[[f]][, gastype])
@@ -270,7 +270,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     C0 <- if_else(between(C0.raw, C0.lim.flux[1], C0.lim.flux[2]), C0.raw, C0.flux)
 
     # Calculate kappa thresholds based on MDF, LM.flux and Etime
-    kappa.max <- k.max(f.min, LM.res$LM.flux, (max(data_split[[f]]$Etime)+1))
+    kappa.max <- k.max(MDF, LM.res$LM.flux, (max(data_split[[f]]$Etime)+1))
 
     # Hutchinson and Mosier
     HM.res <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
@@ -278,7 +278,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
 
     # Flux results and G factor
     flux.res.ls[[f]] <- cbind.data.frame(
-      UniqueID, LM.res, HM.res, f.min, prec, flux.term, k.max = kappa.max*k.mult,
+      UniqueID, LM.res, HM.res, MDF, prec, flux.term, k.max = kappa.max*k.mult,
       g.fact = g.factor(HM.res$HM.flux, LM.res$LM.flux))
 
     # Update progress bar
