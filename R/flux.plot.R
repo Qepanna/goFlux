@@ -56,14 +56,20 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30) {
 
   # Create a list of dataframe (by UniqueID)
   data_split <- dataframe %>%
-    left_join(flux.results, by = c("UniqueID")) %>% group_by(UniqueID) %>%
-    mutate(HM_mod = HMmod(HM.Ci, HM.C0, HM.k, Etime)) %>% group_split()
+    right_join(flux.results, by = c("UniqueID")) %>% group_by(UniqueID) %>%
+    # Correct Etime for NAs
+    mutate(start.Etime = which(Etime == 0) -1,
+           end.Etime = n() - start.Etime -1,
+           Etime = seq(-unique(start.Etime), unique(end.Etime)),
+           # Calculate HM_mod
+           HM_mod = HMmod(HM.Ci, HM.C0, HM.k, Etime)) %>%
+    select(!c(start.Etime, end.Etime)) %>% group_split()
 
   # Remove non-measurements (flag == 0)
   data_corr <- lapply(seq_along(data_split), function(f) {
     data_split[[f]] %>% filter(flag == 1) })
 
-  # Loop through list of dataframes (by UniqueID)
+  # Loop through list of data frames (by UniqueID)
   pboptions(char = "=")
   plot_list <- pblapply(seq_along(data_split), function(f) {
 
@@ -71,7 +77,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30) {
 
     if (obs.length < 60) {
       warning("Measurement length is smaller than 60 seconds for ",
-              unique(data_corr[[f]]$UniqueID), call. = F)
+              unique(data_split[[f]]$UniqueID), call. = F)
     } else {
 
       # Plot limits
@@ -111,8 +117,8 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30) {
                            "p-val / kappa (%)", LM.p.val, kappa.ratio))
 
       # Content of plot
-      gas_meas <- Reduce("c", data_split[[f]][, gastype])
       Etime <- data_split[[f]]$Etime
+      gas_meas <- Reduce("c", data_split[[f]][, gastype])
       flag <- data_split[[f]]$flag
       plot_data <- cbind.data.frame(gas_meas, Etime, flag)
 
