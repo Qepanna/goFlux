@@ -65,7 +65,7 @@
 #' @param Tcham numerical value; temperature inside the chamber (Celcius).
 #'              Alternatively, provide the column \code{Tcham} in dataframe if
 #'              \code{Tcham} is different between samples. If \code{Tcham} is
-#'              not provided, normal air temperature (15 "\u00b0" °C) is used.
+#'              not provided, normal air temperature (15 \code{print('\u00B0')} test"°C") is used.
 #' @param k.mult numerical value; a multiplier for the allowed kappa-max.
 #'               kappa-max is the maximal curvature (kappa) of the non-linear
 #'               regression (Hutchinson and Mosier model) allowed for a each
