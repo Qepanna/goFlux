@@ -2,41 +2,47 @@
 #'
 #' Identify the start and the end of a measurement by clicking on them in a
 #' scatter plot. Requires start time and UniqueID. To use in a loop with
-#' multiple measurements, first use the function `obs.win()` to identify the
-#' observation window of each measurement and then use the wrapper function
-#' `click.peak.loop()` with `lapply()` (see example below).
+#' multiple measurements, first use the function \code{\link[GoFluxYourself]{obs.win}}
+#' to identify the observation window of each measurement and then use the wrapper
+#' function \code{\link[GoFluxYourself]{click.peak.loop}} with
+#' \code{\link[base]{lapply}} (see example below).
 #'
-#' @param flux.unique data.frame; output from the function `obs.win()`.
-#'                    Must contain a gastype (see gastype below) and the
-#'                    columns POSIX.time and UniqueID.
+#' @param flux.unique data.frame; output from the function \code{obs.win()}.
+#'                    Must contain the columns \code{gastype} (see below),
+#'                    \code{POSIX.time} and \code{UniqueID}.
 #' @param gastype character string; specifies which gas should be displayed on the
 #'                plot to manually select start time and end time of measurements.
 #'                Must be one of the following: "CO2dry_ppm", "CH4dry_ppb",
 #'                "N2Odry_ppb" or "H2O_ppm". Default is "CO2dry_ppm".
-#' @param sleep numerical; delay before closing the resulting plot. When used with the
-#'              function `click.peak.loop()`, grants a delay between measurements to
-#'              let the user verify the output before processing the next measurement.
+#' @param sleep numerical; delay before closing the resulting plot. When used
+#'              with the function \code{\link[GoFluxYourself]{click.peak.loop}},
+#'              grants a delay between measurements to verify the output before
+#'              processing the next measurement. Sleep must be shorter than 10 seconds.
 #' @param plot.lim numerical vector of length 2; Y axis limits. Removes any data
 #'                 points below and above the plot limits for a better view of
 #'                 the scatter plot. Default values are set for a normal gas
-#'                 measurement of CO2dry_ppm from the forest floor:
-#'                 `plot.lim = c(380,1000)`, where 380ppm is the minimum plotted
+#'                 measurement of "CO2dry_ppm" from the forest floor:
+#'                 \code{plot.lim = c(380,1000)}, where 380ppm is the minimum plotted
 #'                 concentration, which corresponds to atmospheric concentration,
-#'                 and 1000ppm is the maximum plotter concentration, which correspond
+#'                 and 1000ppm is the maximum plotted concentration, which correspond
 #'                 to a maximal accumulated concentration in the chamber before
 #'                 considering it an outlier (e.g. caused by breath or gas bubble).
-#' @param warn.length numerical; minimum amount of observations accepted (number of data points).
-#'                    With nowadays portable greenhouse gas analyzers, the frequency
-#'                    of measurement is 1 measurement per second. Therefore, the
-#'                    amount of observation is equal to the chamber closure time
-#'                    length (seconds). Default is one minute (60 seconds).
+#' @param warn.length numerical; minimum amount of observations accepted (number
+#'                    of data points). With nowadays portable greenhouse gas
+#'                    analyzers, the frequency of measurement is 1 measurement
+#'                    per second. Therefore, the amount of observation is equal
+#'                    to the chamber closure time length (seconds). Default is
+#'                    one minute (60 seconds).
 #'
-#' @returns a list of data.frame, split by UniqueID.
+#' @returns a list of data.frame, split by UniqueID, identical to the input
+#'          \code{flux.unique}, with the additional columns \code{flag},
+#'          \code{Etime}, \code{start.time_corr} and \code{end.time_corr}.
 #'
 #' @include GoFluxYourself-package.R
 #'
-#' @seealso To use the function `click.peak()` in a loop with \code{\link[base]{lapply}},
-#'          use \code{\link[GoFluxYourself]{click.peak.loop}}. See also
+#' @seealso To use the function \code{click.peak()} in a loop with
+#'          \code{\link[base]{lapply}}, use
+#'          \code{\link[GoFluxYourself]{click.peak.loop}}. See also
 #'          \code{\link[GoFluxYourself]{obs.win}} to prepare a list of data.frame.
 #'
 #' @examples
@@ -72,8 +78,31 @@
 click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
                        plot.lim = c(380,1000), warn.length = 60) {
 
+  # Check arguments
+  if (missing(flux.unique)) stop("'flux.unique' is required")
+  if(!is.null(flux.unique) & !is.data.frame(flux.unique)) stop("'flux.unique' must be of class data.frame")
+  if (!any(grepl("UniqueID", names(flux.unique)))) {
+    stop("'UniqueID' is required and was not found in 'flux.unique'")}
+  if (!any(grepl("POSIX.time", names(flux.unique)))) {
+    stop("'POSIX.time' is required and was not found in 'flux.unique'")}
+  if (!any(grepl("UniqueID", names(flux.unique)))) {
+    stop("'UniqueID' is required and was not found in 'flux.unique'")}
+  if (!any(grepl("CO2dry_ppm", names(flux.unique))) &
+      !any(grepl("CH4dry_ppb", names(flux.unique))) &
+      !any(grepl("N2Odry_ppb", names(flux.unique))) &
+      !any(grepl("H2O_ppm", names(flux.unique)))) {
+    stop("'flux.unique' must contain one of the following gastypes: 'CO2dry_ppm', 'CH4dry_ppb', 'N2Odry_ppb' or 'H2O_ppm'")}
+  if (!any(grepl(gastype, c("CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb", "H2O_ppm")))) {
+    stop("'gastype' must be of class character and one of the following: 'CO2dry_ppm', 'CH4dry_ppb', 'N2Odry_ppb' or 'H2O_ppm'")}
+  if(!is.numeric(sleep)) stop("'sleep' must be of class numeric")
+  if(sleep > 10) stop("'sleep' must be shorter than 10 seconds")
+  if(sleep < 0) stop("'sleep' cannot be negative")
+  if(!is.numeric(plot.lim) | length(plot.lim) != 2) {
+    stop("'plot.lim' must be numeric and of length 2")}
+  if(!is.numeric(warn.length)) stop("'warn.length' must be of class numeric")
+
   # Assign NULL to variables without binding
-  flag <- . <- NULL
+  flag <- . <- POSIX.time <- NULL
 
   # Function that takes a break for a few seconds between each loop
   sleeploop <- function(x)
@@ -101,7 +130,13 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
        main = paste(unique(flux.unique$UniqueID)),
        xlab = "Time", ylab = gastype, xaxt = 'n',
        ylim = c(yaxis.limit.min, yaxis.limit.max))
-  axis.POSIXct(1, at = seq(min(time.meas), max(time.meas), by = "10 secs"), format = "%H:%M:%S")
+
+  # Force axis.POSIXct to use the right time zone
+  time.zone <- attr(time.meas, "tzone")
+  Sys.setenv(TZ = time.zone)
+  axis.POSIXct(1, at = seq(min(time.meas), max(time.meas), by = "10 secs"),
+               format = "%H:%M:%S")
+  Sys.unsetenv("TZ") # change back to default
 
   # Use the identify function to select start and end points
   rownum <- identify(time.meas, flux.meas, pos = FALSE, n = 2, plot = TRUE,
@@ -114,31 +149,38 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
   # Assign fictional values to rownum for the function check to work
   if (length(rownum) < 2) {rownum <- c(1,2)}
 
-  flux.start <- min(time.meas)
-  flux.start_corr <- time.meas[rownum[1]]
-  flux.end <- time.meas[rownum[2]]
-  flux.flag <- which(between(time.meas, flux.start_corr, flux.end))
-  flux.diff <- as.numeric(flux.start - flux.start_corr, units = "secs") -1
+  start.time_corr <- time.meas[rownum[1]]
+  end.time_corr <- time.meas[rownum[2]]
+  flux.flag <- which(between(time.meas, start.time_corr, end.time_corr))
 
   # Based on these identifications, the flagging and Etime columns are added
   flux.corr <- flux.unique %>%
     # 0 == no measurement, 1 == measurement point to be used for flux calculation
     mutate(flag = if_else(row_number() %in% flux.flag, 1, 0)) %>%
     # Set to 0 at start of measurement and count seconds to end of measurement
-    mutate(Etime = seq(flux.diff, length(time.meas) + flux.diff - 1)) %>%
-    # Add start.time_corr and end.time
-    mutate(start.time_corr = flux.start_corr,
-           end.time = flux.end)
+    mutate(Etime = as.numeric(POSIX.time - start.time_corr, units = "secs")) %>%
+    # Add start.time_corr and end.time_corr
+    mutate(start.time_corr = start.time_corr,
+           end.time_corr = end.time_corr)
+
+  # xaxis in validation plot: get lowest and highest Etime, rounded around 30s
+  xmin <- min(round_any(flux.corr$Etime, 30, f = floor))
+  xmax <- max(round_any(flux.corr$Etime, 30, f = ceiling))
+  xmult <- (xmax + abs(xmin))/30
+
+  # yaxis in validation plot: zoom on the selected values
+  ymax <- flux.corr %>% filter(flag == 1) %>% select(all_of(gastype)) %>% max()
+  ymin <- flux.corr %>% filter(flag == 1) %>% select(all_of(gastype)) %>% min()
 
   # Inspect the full data set to see if it looks OK
   dev.new(noRStudioGD = TRUE, width = 14, height = 8)
   plot(flux.meas ~ flux.corr$Etime, col = flux.corr$flag+1,
        main = paste(unique(flux.corr$UniqueID)),
-       xlab = "Etime", ylab = gastype, xaxp = c(-60, 300, 12),
-       ylim = c(yaxis.limit.min, yaxis.limit.max))
+       xlab = "Etime", ylab = gastype, xaxp = c(xmin, xmax, xmult),
+       ylim = c(ymin-0.02*ymax, ymax+0.02*ymax))
 
   # Wait a few seconds before closing the window to inspect the plot
-  sleeploop(sleep)
+  if (!is.null(sleep) | sleep > 0) sleeploop(sleep)
   dev.off()
 
   # Print warning if observation length < warn.length (default 60 observations)
