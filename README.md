@@ -228,8 +228,14 @@ The functioning of the package depends on many other packages
 `grDevices`, `grid`, `gridExtra`, `lubridate`, `minpack.lm`, `msm`,
 `pbapply`, `plyr`, `purrr`, `rjson`, `rlist`, `SimDesign`, `stats`,
 `tibble`, `tidyr`, `utils`), which will be installed when installing
-`GoFluxYourself`. If required, it is recommended to update any
+`GoFluxYourself`. If prompted, it is recommended to update any
 pre-installed packages.
+
+Troubleshoot errors with `install_github()`:
+
+- [Error: API rate limit exceeded](#error-api-rate-limit-exceeded)
+- [Warning: package is in use and will not be
+  installed](#warning-package-is-in-use-and-will-not-be-installed)
 
 #### Import raw data into R
 
@@ -434,3 +440,62 @@ Authors: Karelle Rheault and Klaus Steenberg Larsen
 To report problems, seek support or contribute to the package, please
 contact the maintainer, Karelle Rheault (<karh@ign.ku.dk>). Suggestions
 for new features or improvements are always welcome.
+
+### Troubleshoot problems with `install_github()`
+
+#### Error: API rate limit exceeded
+
+If you get this error while trying to install an R package from GitHub:
+
+    ## Error: Failed to install 'GoFluxYourself' from GitHub:
+    ##   HTTP error 403.
+    ##   API rate limit exceeded for xxx.xxx.xxx.x (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)
+    ## 
+    ##   Rate limit remaining: 0/60
+    ##   Rate limit reset at: 2023-10-16 09:08:07 UTC
+    ## 
+    ##   To increase your GitHub API rate limit
+    ##   - Use `usethis::create_github_token()` to create a Personal Access Token.
+    ##   - Use `usethis::edit_r_environ()` and add the token as `GITHUB_PAT`.
+
+##### Step 1: Set up a GitHub account
+
+**Go to <https://github.com/join> .**
+
+1.  Type a user name, your email address, and a password.
+
+2.  Choose Sign up for GitHub, and then follow the instructions.
+
+##### Step 2: Create a GitHub token
+
+Run in R:
+
+``` r
+usethis::create_github_token()
+```
+
+On pop-up website, generate and copy your token.
+
+##### Step 3: Set your GitHub PAT from R
+
+Run in R with your own token generated in step 2:
+
+``` r
+credentials::set_github_pat("YourTokeninStep2")
+```
+
+#### Warning: package is in use and will not be installed
+
+If you get this warning while trying to install an R package from
+GitHub:
+
+    ## Warning: package ‘GoFluxYourself’ is in use and will not be installed
+
+This error means that the package is loaded. Before re-installing the
+package, you must first detach it:
+
+``` r
+detach("package:GoFluxYourself", unload = TRUE)
+```
+
+If this does not solve the problem, restart your session and try again.
