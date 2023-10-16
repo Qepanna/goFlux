@@ -177,7 +177,7 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
   plot(flux.meas ~ flux.corr$Etime, col = flux.corr$flag+1,
        main = paste(unique(flux.corr$UniqueID)),
        xlab = "Etime", ylab = gastype, xaxp = c(xmin, xmax, xmult),
-       ylim = c(ymin-0.02*ymax, ymax+0.02*ymax))
+       ylim = c(ymin-0.05*ymax, ymax+0.05*ymax))
 
   # Wait a few seconds before closing the window to inspect the plot
   if (!is.null(sleep) | sleep > 0) sleeploop(sleep)
