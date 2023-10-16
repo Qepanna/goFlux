@@ -33,8 +33,8 @@
 flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30) {
 
   # Assign NULL to variables without binding
-  UniqueID <- HM.Ci <- HM.C0 <- HM.k <- . <- flag <-
-    Etime <- x <- y <- content <- color <- NULL
+  UniqueID <- HM.Ci <- HM.C0 <- HM.k <- . <- flag <- start.Etime <-
+    end.Etime <- Etime <- x <- y <- content <- color <- NULL
 
   # Hutchinson and Mosier model
   HMmod <- function(Ci, C0, k, x){
