@@ -13,30 +13,30 @@ obs.win(
 )
 }
 \arguments{
-\item{inputfile}{Character string. The name of a file with the extension .RData
-(output from import or align functions).}
+\item{inputfile}{data.frame; output from import or align functions.}
 
-\item{auxfile}{Auxiliary data frame containing the columns "start.time" and
-"UniqueID". start.time must contain a date and be in POSIXct
-format. The time zone must be the same as the POSIX.time in
-the inputfile. The default time zone for the import functions
-is "UTC". A file from the Smart Chamber (LI-8200) can be
-used as an auxiliary file in this case.}
+\item{auxfile}{data.frame; auxiliary data frame containing the columns
+"start.time" and "UniqueID". "start.time" must contain a date
+and be in POSIXct format. The time zone must be the same as
+the POSIX.time in the inputfile. The default time zone for the
+import functions is "UTC". A file from the Smart Chamber
+(LI-8200) can be used as an auxiliary file in this case.}
 
-\item{gastype}{Character string. Specify which gas should be displayed on the
+\item{gastype}{character string; specifies which gas should be displayed on the
 plot to manually select start time and end time of measurements.
 Must be one of the following: "CO2dry_ppm", "CH4dry_ppb",
 "N2Odry_ppb" or "H2O_ppm". Default is "CO2dry_ppm".}
 
-\item{obs.length}{Numerical. Chamber closure time (seconds). Default is NULL.
+\item{obs.length}{numerical; chamber closure time (seconds). Default is NULL.
 If obs.length is not provided, a column "obs.length" should
-be contained in the auxiliary file.}
+be contained in the auxiliary file or the inputfile.}
 
-\item{shoulder}{Numerical. Time before and after measurement in observation
+\item{shoulder}{numerical; time before and after measurement in observation
 window (seconds). Default is 120 seconds.}
 }
 \value{
-a list of data frame, split by UniqueID.
+a list of data frame, split by UniqueID, merging \code{inputfile},
+         and \code{auxfile}.
 }
 \description{
 Split gas data into one observation window per gas measurement
@@ -69,7 +69,7 @@ example_LI6400_ow <- obs.win(inputfile = example_LI6400_imp, shoulder = 0)
 
 }
 \seealso{
-After defining the observation window with the function 'obs.win()',
+After defining the observation window with the function \code{obs.win()},
          Use the function \code{\link[GoFluxYourself]{click.peak.loop}} in a
          loop with \code{\link[base]{lapply}}, or use the function
          \code{\link[GoFluxYourself]{click.peak}} for a single measurement.
