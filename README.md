@@ -81,7 +81,7 @@ criteria and non-arbitrary thresholds.
 > One Package to bring them all and in the darkness bind them  
 > In the Land of GitHub where the Shadows lie.*
 
-### About the package
+## About the package
 
 This package `GoFluxYourself` is meant to be “student proof”, meaning
 that no extensive knowledge or experience is needed to import raw data
@@ -144,12 +144,11 @@ using the `best.flux()` function:
   the result of a linear flux calculation model ([Hüppi et al.,
   2018](https://doi.org/10.1371/journal.pone.0200876)). With the
   `best.flux()` function, one can chose a limit at which the HM model is
-  deemed to overestimate (*f*<sub>0</sub>). <u>Recommended thresholds
-  for the g-factor are \<4 for a flexible threshold, \<2 for a medium
-  threshold, or \<1.25 for a more conservative threshold.</u> The
-  default threshold is `g.limit = 2`. If the g-factor is above the
-  specified threshold, the best flux estimate will switch to LM instead
-  of HM.
+  deemed to overestimate (*f*<sub>0</sub>). Recommended thresholds for
+  the g-factor are \<4 for a flexible threshold, \<2 for a medium
+  threshold, or \<1.25 for a more conservative threshold. The default
+  threshold is `g.limit = 2`. If the g-factor is above the specified
+  threshold, the best flux estimate will switch to LM instead of HM.
 - **Minimal Detectable Flux**: The minimal detectable flux (MDF) is
   based on instrument precision and measurements time ([Christiansen et
   al., 2015](https://doi.org/10.1016/j.agrformet.2015.06.004)). Under
@@ -166,7 +165,7 @@ using the `best.flux()` function:
   units of the kappa-max is s<sup>-1</sup>. This limit of kappa-max is
   included in the `goFlux()` function, so that the non-linear flux
   estimate cannot exceed this maximum curvature. In the function
-  best.flux(), one can chose the linear flux estimate over the
+  best.flux(), one can choose the linear flux estimate over the
   non-linear flux estimate based on the ratio between kappa and
   kappa-max. The ratio is expressed as a percentage, where 1 indicates
   HM.k = k.max, and 0.5 indicates HM.k = 0.5\*k.max. The default setting
@@ -175,11 +174,14 @@ using the `best.flux()` function:
   applicable to the linear flux. Under a defined *p-value*, the linear
   flux estimate is deemed non-significant, i. e., no flux. The default
   threshold is `p.val = 0.05`.
-- **Coefficient of determination (r<sup><sub>2</sub></sup>)**: This
-  criteria is used as a warning of a potentially “bad measurement”. No
-  best flux estimate is chosen based on r<sup>2</sup>, but a warning
-  will be given in the column “quality.check” saying “Check plot (r2 \<
-  0.6)”, for example. The default threshold is `r2 = 0.6`.
+- **Root Mean Square Error (RMSE)**: This criteria is used to warned
+  against “noisy” measurements. RMSE reflects the instrument precision.
+  Therefore, the instrument precision is used in the `best.flux()`
+  function as a threshold for RMSE. If RMSE is larger than the
+  instrument precision, then the LM flux estimate is returned instead of
+  the HM flux estimate. In addition, a warning is given in the column
+  “quality.check” saying “Noisy measurement (RMSE)”.
+- **Mean Absolute Error (MAE)**: more to come about MAE…
 - **Relative Standard Error**: The delta method is used to propagate the
   total error of the flux calculation (`deltamethod()` from the `msm`
   package). The standard error is then divided by the flux estimate to
@@ -202,12 +204,12 @@ Finally, after finding the best flux estimates, one can plot the results
 and visually inspect the measurements using the function `flux.plot()`
 and save the plots as pdf using `flux2pdf()`.
 
-### How to use
+## How to use
 
 Here is a simple example on how to use the package with a single raw
 file from LGR gas analyzers.
 
-#### Installation
+### Installation
 
 To install a package from GitHub, one must first install the package
 `remotes` from the CRAN:
@@ -231,13 +233,13 @@ The functioning of the package depends on many other packages
 `GoFluxYourself`. If prompted, it is recommended to update any
 pre-installed packages.
 
-Troubleshoot errors with `install_github()`:
+Troubleshoot problems with `install_github()`:
 
-- [Error: API rate limit exceeded](#error-api-rate-limit-exceeded)
 - [Warning: package is in use and will not be
   installed](#warning-package-is-in-use-and-will-not-be-installed)
+- [Error: API rate limit exceeded](#error-api-rate-limit-exceeded)
 
-#### Import raw data into R
+### Import raw data into R
 
 ``` r
 library(GoFluxYourself)
@@ -273,7 +275,7 @@ To import multiple files from a folder, use the wrapper function
 ?import2RData
 ```
 
-#### Manual identification of measurements
+### Manual identification of measurements
 
 In this example, the `start.time` for each measurement (`UniqueID`) was
 noted manually in the field, and are provided in an auxiliary file
@@ -332,12 +334,12 @@ If the number of observation is under a certain threshold
 (`warn.length = 60`), a warning will be given after clicking on the
 start and end points as such:
 
-    Warning message: Observation length for UniqueID: 733_C_C is 59 observations
+    ## Warning message: Observation length for UniqueID: 733_C_C is 59 observations
 
 Otherwise, if the number of observation satisfies this threshold, then
 the following message is given instead:
 
-    Good window of observation for UniqueID: 733a_C_C
+    ## Good window of observation for UniqueID: 733a_C_C
 
 Between each measurement, the result of the `click.peak()` function is
 displayed for 3 seconds. To increase this delay, change the parameter
@@ -371,7 +373,7 @@ example_LGR_manID <- example_LGR_manID %>%
   left_join(auxfile %>% select(UniqueID, Area, Vtot, Tcham, Pcham))
 ```
 
-#### Flux calculation
+### Flux calculation
 
 The hardest part is now behind you. All that’s left is to run the flux
 calculation with the `goFlux()` function. Then use the `best.flux()`
@@ -433,58 +435,9 @@ write.xlsx(CH4_flux_res, file = "CH4_flux_res.xlsx")
 write.xlsx(H2O_flux_res, file = "H2O_flux_res.xlsx")
 ```
 
-### Community Guidelines
+## Troubleshoot problems with `install_github()`
 
-Authors: Karelle Rheault and Klaus Steenberg Larsen
-
-To report problems, seek support or contribute to the package, please
-contact the maintainer, Karelle Rheault (<karh@ign.ku.dk>). Suggestions
-for new features or improvements are always welcome.
-
-### Troubleshoot problems with `install_github()`
-
-#### Error: API rate limit exceeded
-
-If you get this error while trying to install an R package from GitHub:
-
-    ## Error: Failed to install 'GoFluxYourself' from GitHub:
-    ##   HTTP error 403.
-    ##   API rate limit exceeded for xxx.xxx.xxx.x (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)
-    ## 
-    ##   Rate limit remaining: 0/60
-    ##   Rate limit reset at: 2023-10-16 09:08:07 UTC
-    ## 
-    ##   To increase your GitHub API rate limit
-    ##   - Use `usethis::create_github_token()` to create a Personal Access Token.
-    ##   - Use `usethis::edit_r_environ()` and add the token as `GITHUB_PAT`.
-
-##### Step 1: Set up a GitHub account
-
-**Go to <https://github.com/join> .**
-
-1.  Type a user name, your email address, and a password.
-
-2.  Choose Sign up for GitHub, and then follow the instructions.
-
-##### Step 2: Create a GitHub token
-
-Run in R:
-
-``` r
-usethis::create_github_token()
-```
-
-On pop-up website, generate and copy your token.
-
-##### Step 3: Set your GitHub PAT from R
-
-Run in R with your own token generated in step 2:
-
-``` r
-credentials::set_github_pat("YourTokeninStep2")
-```
-
-#### Warning: package is in use and will not be installed
+### Warning: package is in use and will not be installed
 
 If you get this warning while trying to install an R package from
 GitHub:
@@ -499,3 +452,54 @@ detach("package:GoFluxYourself", unload = TRUE)
 ```
 
 If this does not solve the problem, restart your session and try again.
+
+------------------------------------------------------------------------
+
+### Error: API rate limit exceeded
+
+If you get this error while trying to install an R package from GitHub:
+
+    ## Error: Failed to install 'GoFluxYourself' from GitHub:
+    ##   HTTP error 403.
+    ##   API rate limit exceeded for xxx.xxx.xxx.x (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)
+    ## 
+    ##   Rate limit remaining: 0/60
+    ##   Rate limit reset at: 2023-10-16 09:08:07 UTC
+    ## 
+    ##   To increase your GitHub API rate limit
+    ##   - Use `usethis::create_github_token()` to create a Personal Access Token.
+    ##   - Use `usethis::edit_r_environ()` and add the token as `GITHUB_PAT`.
+
+#### Step 1: Set up a GitHub account
+
+**Go to <https://github.com/join> .**
+
+1.  Type a user name, your email address, and a password.
+
+2.  Choose Sign up for GitHub, and then follow the instructions.
+
+#### Step 2: Create a GitHub token
+
+Run in R:
+
+``` r
+usethis::create_github_token()
+```
+
+On pop-up website, generate and copy your token.
+
+#### Step 3: Set your GitHub PAT from R
+
+Run in R with your own token generated in step 2:
+
+``` r
+credentials::set_github_pat("YourTokeninStep2")
+```
+
+## Community Guidelines
+
+Authors: Karelle Rheault and Klaus Steenberg Larsen
+
+To report problems, seek support or contribute to the package, please
+contact the maintainer, Karelle Rheault (<karh@ign.ku.dk>). Suggestions
+for new features or improvements are always welcome.
