@@ -58,7 +58,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30) {
   data_split <- dataframe %>%
     right_join(flux.results, by = c("UniqueID")) %>% group_by(UniqueID) %>%
     # Correct Etime for NAs
-    mutate(start.Etime = which(Etime == 0) -1,
+    mutate(start.Etime = which.min(Etime == 0) -1,
            end.Etime = n() - start.Etime -1,
            Etime = seq(-unique(start.Etime), unique(end.Etime)),
            # Calculate HM_mod
