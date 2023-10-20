@@ -73,14 +73,15 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30) {
   pboptions(char = "=")
   plot_list <- pblapply(seq_along(data_split), function(f) {
 
-    obs.length <- nrow(na.omit(data_corr[[f]][, gastype]))
+    nb.length <- nrow(na.omit(data_corr[[f]][, gastype]))
 
-    if (obs.length < 60) {
+    if (nb.length < 60) {
       warning("Measurement length is smaller than 60 seconds for ",
               unique(data_split[[f]]$UniqueID), call. = F)
     } else {
 
       # Plot limits
+      obs.length <- max(na.omit(data_corr[[f]]$Etime))
       xmax <- max(na.omit(data_split[[f]]$Etime)) %>%
         ifelse(. > obs.length + shoulder, obs.length + shoulder, .)
       xmin <- min(na.omit(data_split[[f]]$Etime)) %>%
