@@ -249,7 +249,10 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
   }
   time_filter <- map_df(time_filter.ls, ~as.data.frame(.x)) %>% distinct()
 
-  # Remove start.time and obs.length from inputfile if present
+  # Remove UniqueID, start.time and obs.length from inputfile if present
+  if (any(grepl("UniqueID", names(inputfile)))){
+    inputfile <- inputfile %>% select(-UniqueID)
+  }
   if (any(grepl("start.time", names(inputfile)))){
     inputfile <- inputfile %>% select(-start.time)
   }
