@@ -9,14 +9,18 @@
 #'                Must be one of the following: "CO2dry_ppm", "CH4dry_ppb",
 #'                "N2Odry_ppb" or "H2O_ppm". Default is "CO2dry_ppm".
 #' @param auxfile data.frame; auxiliary data frame containing the columns
-#'                "start.time" and "UniqueID". "start.time" must contain a date
+#'                'start.time' and 'UniqueID.' 'start.time' must contain a date
 #'                and be in POSIXct format. The time zone must be the same as
-#'                the POSIX.time in the inputfile. The default time zone for the
+#'                the POSIX.time in the 'inputfile'. The default time zone for the
 #'                import functions is "UTC". A file from the Smart Chamber
 #'                (LI-8200) can be used as an auxiliary file in this case.
 #' @param obs.length numerical; chamber closure time (seconds). Default is NULL.
-#'                   If obs.length is not provided, a column "obs.length" should
-#'                   be contained in the auxiliary file or the inputfile.
+#'                   If 'obs.length' is not provided, a column \code{obs.length}
+#'                   should be contained in the 'auxfile' or the 'inputfile'.
+#'                   Alternatively, 'obs.length' will be calculated from
+#'                   \code{start.time} and \code{cham.open} or \code{end.time}
+#'                   if found in the 'inputfile' or the 'auxfile'.
+#'
 #' @param shoulder numerical; time before and after measurement in observation
 #'                 window (seconds). Default is 120 seconds.
 #'
@@ -60,21 +64,22 @@
 obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
                     obs.length = NULL, shoulder = 120){
 
+  # TEST
+  data(example_LI8200_imp)
+  data(example_LI7810_imp)
+  inputfile = example_LI7810_imp
+  auxfile = example_LI8200_imp %>% select(-obs.length)
+  shoulder = 30
+  gastype = "CO2dry_ppm"
+  obs.length = NULL
+
   # Check arguments
-  if (missing(inputfile)) stop("'inputfile' is required")
+  if(missing(inputfile)) stop("'inputfile' is required")
   if(!is.null(inputfile) & !is.data.frame(inputfile)) stop("'inputfile' must be of class data.frame")
-  if (!any(grepl(gastype, c("CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb", "H2O_ppm")))) {
+  if(!any(grepl(gastype, c("CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb", "H2O_ppm")))) {
     stop("'gastype' must be of class character and one of the following: 'CO2dry_ppm', 'CH4dry_ppb', 'N2Odry_ppb' or 'H2O_ppm'")}
   if(!is.null(auxfile) & !is.data.frame(auxfile)) stop("'auxfile' must be of class data.frame")
   if(!is.numeric(shoulder)) stop("'shoulder' must be of class numeric")
-
-  # Check arguments for obs.length
-  if (is.null(obs.length) & !any(grepl("obs.length", names(inputfile))) &
-      !is.null(auxfile) & !any(grepl("obs.length", names(auxfile)))) {
-    stop("'obs.length' is required and was not found in 'inputfile' nor in 'auxfile'")}
-  if (is.null(obs.length) & !any(grepl("obs.length", names(inputfile))) &
-      is.null(auxfile)) {
-    stop("'obs.length' is required and was not found in 'inputfile'")}
 
   # Check arguments for UniqueID
   if (is.null(auxfile)) {
@@ -118,18 +123,71 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
     }
   }
 
+  # Check arguments for obs.length
+  if(!is.null(obs.length) & !is.numeric(obs.length)) {
+    stop("'obs.length' must be of class numeric")}
+  # if obs.length = NULL
+  if(is.null(obs.length)){
+    # look for it in auxfile and inputfile
+    if(!any(grepl("obs.length", c(names(inputfile), names(auxfile))))){
+      # otherwise, look for alternative arguments in auxfile and inputfile
+      if(!is.null(auxfile)){
+        if(length(grep(paste(c("end.time", "cham.open"), collapse = "|"),
+                       c(names(inputfile), names(auxfile)))) <1){
+          stop("'obs.length' missing. 'inputfile' or 'auxfile' must contain alternative arguments to calculate 'obs.length': 'start.time' and 'cham.open' or 'end.time'.")}
+
+      } else {
+        if(length(grep(paste(c("end.time", "cham.open"), collapse = "|"),
+                       names(inputfile))) <1){
+          stop("'obs.length' missing. 'inputfile' must contain alternative arguments to calculate 'obs.length': start.time' and 'cham.open' or 'end.time'.")}
+      }
+    }
+  }
+
+  # Check arguments for end.time
+  if(any(grepl("end.time", names(inputfile)))){
+    if(!is.POSIXct(inputfile$end.time)){
+      stop("'end.time' in 'inputfile' must be of class POSIXct")
+    } else if(attr(inputfile$end.time, "tzone") != attr(inputfile$POSIX.time, "tzone")){
+      stop("'end.time' in 'inputfile' must be in the same time zone as 'POSIX.time'")
+    }
+  }
+  if(any(grepl("end.time", names(auxfile)))){
+    if(!is.POSIXct(auxfile$end.time)){
+      stop("'end.time' in 'auxfile' must be of class POSIXct")
+    } else if(attr(auxfile$end.time, "tzone") != attr(inputfile$POSIX.time, "tzone")){
+      stop("'end.time' in 'auxfile' must be in the same time zone as 'POSIX.time' in 'inputfile'")
+    }
+  }
+
+  # Check arguments for cham.open
+  if(any(grepl("cham.open", names(inputfile)))){
+    if(!is.POSIXct(inputfile$cham.open)){
+      stop("'cham.open' in 'inputfile' must be of class POSIXct")
+    } else if(attr(inputfile$cham.open, "tzone") != attr(inputfile$POSIX.time, "tzone")){
+      stop("'cham.open' in 'inputfile' must be in the same time zone as 'POSIX.time'")
+    }
+  }
+  if(any(grepl("cham.open", names(auxfile)))){
+    if(!is.POSIXct(auxfile$cham.open)){
+      stop("'cham.open' in 'auxfile' must be of class POSIXct")
+    } else if(attr(auxfile$cham.open, "tzone") != attr(inputfile$POSIX.time, "tzone")){
+      stop("'cham.open' in 'auxfile' must be in the same time zone as 'POSIX.time' in 'inputfile'")
+    }
+  }
+
   # Assign NULL to variables without binding
   POSIX.time <- chamID <- start.time <- UniqueID <- Etime <- flag <- DATE <-
     CO2dry_ppm <- CH4dry_ppb <- N2Odry_ppb <- H2O_ppm <- NULL
 
-  # Convert milliseconds to seconds, for compatibility
+  # Convert milliseconds to seconds, for compatibility with auxfile
   inputfile <- inputfile %>%
     mutate(POSIX.time = as.POSIXct(round(POSIX.time, "secs")))
 
   # Get start.time and UniqueID
   if (is.null(auxfile)){
     # Rename chamID to UniqueID
-    if (any(grepl("chamID", names(inputfile))) == TRUE){
+    if (any(grepl("chamID", names(inputfile)))){
       inputfile <- inputfile %>% mutate(UniqueID = chamID) %>%
         # Convert milliseconds to seconds, for compatibility
         mutate(start.time = as.POSIXct(round(start.time, "secs")))
@@ -137,27 +195,47 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
     aux.data <- inputfile %>% select(UniqueID, start.time) %>% distinct()
   } else {
     # Rename chamID to UniqueID
-    if (any(grepl("chamID", names(auxfile))) == TRUE){
+    if (any(grepl("chamID", names(auxfile)))){
       auxfile <- auxfile %>% mutate(UniqueID = chamID)
     }
     aux.data <- auxfile %>% select(UniqueID, start.time) %>% distinct()
   }
 
+  # Rename cham.open to end.time if found in auxfile or inputflle
+  if (any(grepl("cham.open", names(inputfile)))){
+    inputfile <- inputfile %>% mutate(end.time = cham.open)}
+  if (any(grepl("cham.open", names(auxfile)))){
+    auxfile <- auxfile %>% mutate(end.time = cham.open)}
+
   # Get obs.length
-  # If obs.length is null
-  if (is.null(obs.length)){
-    # And there is no auxfile
-    if (is.null(auxfile)){
-      aux.data <- aux.data %>% left_join(
-        inputfile %>% select(UniqueID, obs.length) %>% distinct(), by = "UniqueID")
-    } else {
-      # Or there is an auxfile
+  # If obs.length is provided
+  if (!is.null(obs.length)){
+    aux.data <- aux.data %>% mutate(obs.length = obs.length)
+  } else {
+    # Or if obs.length is NULL
+    ## And it can be found in auxfile
+    if (!is.null(auxfile) & any(grepl("obs.length", names(auxfile)))){
       aux.data <- aux.data %>% left_join(
         auxfile %>% select(UniqueID, obs.length) %>% distinct(), by = "UniqueID")
+      ## Or there is an auxfile with alternative arguments to calculate obs.length
+    } else if (!is.null(auxfile) & any(grepl("end.time", names(auxfile)))){
+      aux.data <- aux.data %>% left_join(
+        auxfile %>% select(UniqueID, end.time) %>%
+          distinct(), by = "UniqueID") %>% group_by(UniqueID) %>%
+        mutate(obs.length = as.numeric(end.time - start.time, units = "secs")) %>%
+        ungroup() %>% select(-end.time)
+      ## Or it can be found in inputfile
+    } else if (any(grepl("obs.length", names(inputfile)))){
+      aux.data <- aux.data %>% left_join(
+        inputfile %>% select(UniqueID, obs.length) %>% distinct(), by = "UniqueID")
+      ## Or there are alternative arguments to calculate obs.length in inputfile
+    } else if (any(grepl("end.time", names(inputfile)))){
+      aux.data <- aux.data %>% left_join(
+        inputfile %>% select(UniqueID, end.time) %>%
+          distinct(), by = "UniqueID") %>% group_by(UniqueID) %>%
+        mutate(obs.length = as.numeric(end.time - start.time, units = "secs")) %>%
+        ungroup() %>% select(-end.time)
     }
-  } else {
-    # Or if obs.length is provided
-    aux.data <- aux.data %>% mutate(obs.length = obs.length)
   }
 
   # Define windows of time ranges to keep
