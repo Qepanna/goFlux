@@ -161,7 +161,9 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
     mutate(Etime = as.numeric(POSIX.time - start.time_corr, units = "secs")) %>%
     # Add start.time_corr and end.time_corr
     mutate(start.time_corr = start.time_corr,
-           end.time_corr = end.time_corr)
+           end.time_corr = end.time_corr) %>%
+    # Add obs.length
+    mutate(obs.length_corr = as.numeric(end.time_corr - start.time_corr, units = "secs"))
 
   # xaxis in validation plot: get lowest and highest Etime, rounded around 30s
   xmin <- min(round_any(flux.corr$Etime, 30, f = floor))
@@ -183,9 +185,9 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
   if (!is.null(sleep) | sleep > 0) sleeploop(sleep)
   dev.off()
 
-  # Print warning if observation length < warn.length (default 60 observations)
+  # Print warning if nb.obs < warn.length (default 60 observations)
   if (nrow(filter(flux.corr, flag == 1)) < warn.length) {
-    warning("Observation length for UniqueID: ", unique(flux.corr$UniqueID),
+    warning("Number of observations for UniqueID: ", unique(flux.corr$UniqueID),
             " is ", nrow(filter(flux.corr, flag == 1)), " observations",
             call. = FALSE)
   } else {
