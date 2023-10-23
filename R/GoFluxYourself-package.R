@@ -16,6 +16,7 @@
 #' @importFrom dplyr left_join
 #' @importFrom dplyr matches
 #' @importFrom dplyr mutate
+#' @importFrom dplyr mutate_at
 #' @importFrom dplyr n
 #' @importFrom dplyr reframe
 #' @importFrom dplyr rename
