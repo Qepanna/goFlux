@@ -231,27 +231,33 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
   }
 
   # Define windows of time ranges to keep
-  time_range <- aux.data %>% group_by(UniqueID, start.time) %>%
+  time_range <- aux.data %>% group_by(UniqueID) %>%
     reframe(time_min = start.time - shoulder,
-            time_max = start.time + obs.length + shoulder)
+            time_max = start.time + obs.length + shoulder,
+            obs.length = obs.length,
+            start.time = start.time)
 
   time_filter.ls <- list()
   for (i in 1:nrow(time_range)) {
     time_filter.ls[[i]] <- cbind.data.frame(
       UniqueID = time_range$UniqueID[[i]],
       start.time = time_range$start.time[[i]],
+      obs.length = time_range$obs.length[[i]],
       POSIX.time = seq(from = time_range$time_min[i],
                        to = time_range$time_max[i],
                        by = 'sec'))
   }
   time_filter <- map_df(time_filter.ls, ~as.data.frame(.x)) %>% distinct()
 
-  # If there is no auxfile, remove start.time from inputfile at this point
-  if (is.null(auxfile)){
-    inputfile <- inputfile %>% select(!c(start.time))
+  # Remove start.time and obs.length from inputfile if present
+  if (any(grepl("start.time", names(inputfile)))){
+    inputfile <- inputfile %>% select(-start.time)
+  }
+  if (any(grepl("obs.length", names(inputfile)))){
+    inputfile <- inputfile %>% select(-obs.length)
   }
 
-  # Add start.time to inputfile and filter POSIXct
+  # Add time_filter to inputfile and filter POSIXct
   data.filter <- inputfile %>%
     right_join(time_filter, relationship = "many-to-many", by = "POSIX.time") %>%
     drop_na(matches(gastype))
@@ -260,11 +266,11 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
   if (!is.null(auxfile)){
     # Remove obs.length, if present
     if (any(grepl("obs.length", names(auxfile)))){
-      auxfile <- auxfile %>% select(!c(obs.length))
+      auxfile <- auxfile %>% select(-obs.length)
     }
     # Remove start.time, if present
     if (any(grepl("start.time", names(auxfile)))){
-      auxfile <- auxfile %>% select(!c(start.time))
+      auxfile <- auxfile %>% select(-start.time)
     }
     # If the auxfile contains aux data each second...
     # 1. Remove the following columns:
