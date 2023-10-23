@@ -34,7 +34,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30) {
 
   # Assign NULL to variables without binding
   UniqueID <- HM.Ci <- HM.C0 <- HM.k <- . <- flag <- start.Etime <-
-    end.Etime <- Etime <- x <- y <- content <- color <- NULL
+    end.Etime <- Etime <- x <- y <- content <- color <- POSIX.time <- NULL
 
   # Hutchinson and Mosier model
   HMmod <- function(Ci, C0, k, x){
@@ -73,9 +73,9 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30) {
   pboptions(char = "=")
   plot_list <- pblapply(seq_along(data_split), function(f) {
 
-    nb.length <- nrow(na.omit(data_corr[[f]][, gastype]))
+    nb.obs <- nrow(na.omit(data_corr[[f]][, gastype]))
 
-    if (nb.length < 60) {
+    if (nb.obs < 60) {
       warning("Measurement length is smaller than 60 seconds for ",
               unique(data_split[[f]]$UniqueID), call. = F)
     } else {
