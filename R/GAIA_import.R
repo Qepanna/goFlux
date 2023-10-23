@@ -4,7 +4,8 @@
 #' ECOFlux (GAIA2TECH) with the extension .csv
 #' (LI-7810: CO2, CH4 and H2O / LI7820: N2O and H2O)
 #'
-#' @param inputfile character string; the name of a file with the extension .csv
+#' @param inputfile character string; the name of a file with the extension .csv,
+#'                  including path.
 #' @param date.format character string; chose one of the following: "dmy", "ymd",
 #'                    or "mdy". Default is "ymd", as it is the date format from
 #'                    the example data file provided.
@@ -12,23 +13,28 @@
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
 #'                 recommended to use the time zone "UTC" to avoid any issue
 #'                 related to summer time and winter time changes.
-#' @param save logical; if save = TRUE, saves the file as RData in a RData folder
-#'             in the current working directory. If save = FALSE, returns the file
-#'             in the Console, or load in the Environment if assigned to an object.
-#' @param pivot character string; either "long" or "wide". If pivot = "long",
+#' @param pivot character string; either "long" or "wide". If \code{pivot = "long"},
 #'              each column containing information about Tsoil, Tcham, SWC, PAR
 #'              and operating status (Op.stat) will be saved in a single column
-#'              per parameter. If pivot = "wide", the default display of one column
-#'              per chamber per parameter will be used.
-#' @param active logical; if active = TRUE, preserve data for active chambers only.
+#'              per parameter. If \code{pivot = "wide"}, the default display of
+#'              one column per chamber per parameter will be used.
+#' @param active logical; if \code{active = TRUE}, preserve data for active
+#'               chambers only.
 #' @param flag numeric vector; indicates the operating status that should be used
-#'             for the flux calculation. Default is flag = c(7,11), where 7 indicates
-#'             "Chamber Idle Closed Clear" and 11 indicates "Chamber Idle Closed Dark".
+#'             for the flux calculation. Default is \code{flag = c(7,11)}, where
+#'             7 indicates "Chamber Idle Closed Clear" and 11 indicates
+#'             "Chamber Idle Closed Dark".
+#' @param background logical; if \code{background = FALSE}, removes all data from
+#'                   \code{activ.cham == "Background"}.
+#' @param save logical; if \code{save = TRUE}, saves the file as RData in a RData
+#'             folder in the current working directory. If \code{save = FALSE},
+#'             returns the file in the Console, or load in the Environment if
+#'             assigned to an object.
 #' @param Op.stat.col,PAR.col,Tcham.col,Tsoil.col,SWC.col,CH.col character string;
 #'        a pattern to match all columns that fit the corresponding parameter. For
 #'        example, all columns containing the pattern "3C07_Sunlight" will be
-#'        renamed with the pattern "_PAR". Then, if `pivot = "long"`, all columns
-#'        with the pattern "_PAR" will be merged together.
+#'        renamed with the pattern "_PAR". Then, if \code{pivot = "long"}, all
+#'        columns with the pattern "_PAR" will be merged together.
 #' @param CO2.col,CH4.col,H2O1.col,N2O.col,H2O2.col character string; a pattern
 #'        to match the columns containing the corresponding gas measurements.
 #'        H2O1.col must be the same instrument as CO2.col and CH4.col, and
@@ -61,7 +67,7 @@
 #'
 GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                         pivot = "long", active = TRUE, flag = c(7,11),
-                        save = FALSE,
+                        background = FALSE, save = FALSE,
                         CH.col = "COM5A0",
                         SWC.col = "1C08_Soil.Moisture",
                         Tsoil.col = "1C07_Soil.Temperature",
@@ -83,6 +89,7 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   if (!is.character(timezone)) stop("'timezone' must be of class character")
   if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
   if (active != TRUE & active != FALSE) stop("'active' must be TRUE or FALSE")
+  if (background != TRUE & background != FALSE) stop("'background' must be TRUE or FALSE")
   if (length(pivot) != 1) stop("'pivot' must be of length 1")
   if (!any(grepl(pivot, c("long", "wide")))) {
     stop("'pivot' must be of class character and one of the following: 'long' or 'wide'")}
@@ -142,6 +149,9 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                       "cover", "PAR", "Op.stat", "ppm", "ppb"))) %>%
     # Convert column class automatically
     type.convert(as.is = TRUE) %>%
+    # Make sure that all gas data are class numerical
+    mutate_at(c("CO2dry_ppm", "CH4dry_ppb", "H2O_ppm_LI7810", "N2Odry_ppb",
+                "H2O_ppm_LI7820"), as.numeric) %>%
     # Remove negative gas measurements, if any
     filter(CO2dry_ppm > 0 | is.na(CO2dry_ppm)) %>%
     filter(CH4dry_ppb > 0 | is.na(CH4dry_ppb)) %>%
@@ -198,7 +208,7 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   # Group together all columns containing information and merge data
   if (pivot == "wide"){ # keep wide: one column per instrument per parameter
 
-    ### Operating Status from each active chamber
+    # Operating Status from each active chamber
     Op.stat <- data.raw %>% select(DATE_TIME, contains("Op.stat")) %>%
       pivot_longer(contains("Op.stat"), values_to = "Op.stat", names_to = "cham.probe") %>%
       mutate(cham.probe = substr(cham.probe, 3, 3))
@@ -211,13 +221,9 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
 
   # Remove measurements from non-active chambers
   if (active == TRUE){
-    Background <- data.raw %>% filter(grepl("Background", chamID)) %>%
-      select(DATE_TIME, chamID, activ.cham, CO2dry_ppm, H2O_ppm_LI7810,
-             H2O_ppm_LI7820, CH4dry_ppb, N2Odry_ppb, Op.stat) %>%
-      distinct()
+    Background <- data.raw %>% filter(grepl("Background", chamID))
     data.raw <- data.raw %>% filter(activ.cham == cham.probe) %>%
-      rbind.fill(Background) %>% select(!c(cham.probe))
-
+      rbind.fill(Background)
   }
 
   # Create a new column containing date and time (POSIX format)
@@ -240,7 +246,9 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   # Add other useful variables (DATE, flag)
   data.raw <- data.raw %>%
     mutate(DATE = substr(POSIX.time, 0, 10),
-           flag = ifelse(grepl(paste(flag, collapse = "|"), Op.stat), 1, 0))
+           flag = ifelse(grepl(paste(flag, collapse = "|"), Op.stat), 1, 0)) %>%
+    # Remove flag from Background
+    mutate(flag = if_else(grepl("Background", chamID), 0, flag))
 
   # Calculate chamber closure and chamber opening
   data.time <- data.raw %>% select(chamID, flag, POSIX.time) %>%
@@ -250,18 +258,20 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
 
   # Calculate Etime
   Etime <- data.raw %>% full_join(data.time, by = "chamID") %>%
-    filter(flag == 1) %>%
     select(POSIX.time, chamID, cham.close, cham.open) %>%
+    mutate(start.time = cham.close) %>%
     filter(!grepl("Background", chamID)) %>% group_by(chamID) %>%
-    mutate(obs.start = min(POSIX.time),
-           Etime.min = as.numeric(obs.start - unique(cham.close), units = "secs"),
-           Etime = seq(unique(Etime.min), n() + unique(Etime.min) -1)) %>%
-    ungroup() %>% select(!c(Etime.min)) %>%
-    mutate(start.time = cham.close)
+    mutate(Etime = as.numeric(POSIX.time - start.time, units = "secs")) %>%
+    ungroup()
 
   # Merge data
-  data.raw <- data.raw %>% full_join(Etime, by = c("chamID", "POSIX.time")) %>%
-    mutate(obs.length = as.numeric(cham.open - cham.close, units = "secs"))
+  data.raw <- data.raw %>% full_join(Etime, by = c("chamID", "POSIX.time"))
+
+  # Remove background
+  if (background == FALSE){
+    data.raw <- data.raw %>% filter(activ.cham != "Background") %>%
+      mutate_at("activ.cham", as.numeric)
+  }
 
   # Save cleaned data file
   if(save == TRUE){
