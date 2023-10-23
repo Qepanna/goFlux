@@ -11,6 +11,7 @@ GAIA_import(
   pivot = "long",
   active = TRUE,
   flag = c(7, 11),
+  background = FALSE,
   save = FALSE,
   CH.col = "COM5A0",
   SWC.col = "1C08_Soil.Moisture",
@@ -26,7 +27,8 @@ GAIA_import(
 )
 }
 \arguments{
-\item{inputfile}{character string; the name of a file with the extension .csv}
+\item{inputfile}{character string; the name of a file with the extension .csv,
+including path.}
 
 \item{date.format}{character string; chose one of the following: "dmy", "ymd",
 or "mdy". Default is "ymd", as it is the date format from
@@ -37,27 +39,33 @@ POSIXct format. Default is "UTC". Note about time zone: it is
 recommended to use the time zone "UTC" to avoid any issue
 related to summer time and winter time changes.}
 
-\item{pivot}{character string; either "long" or "wide". If pivot = "long",
+\item{pivot}{character string; either "long" or "wide". If \code{pivot = "long"},
 each column containing information about Tsoil, Tcham, SWC, PAR
 and operating status (Op.stat) will be saved in a single column
-per parameter. If pivot = "wide", the default display of one column
-per chamber per parameter will be used.}
+per parameter. If \code{pivot = "wide"}, the default display of
+one column per chamber per parameter will be used.}
 
-\item{active}{logical; if active = TRUE, preserve data for active chambers only.}
+\item{active}{logical; if \code{active = TRUE}, preserve data for active
+chambers only.}
 
 \item{flag}{numeric vector; indicates the operating status that should be used
-for the flux calculation. Default is flag = c(7,11), where 7 indicates
-"Chamber Idle Closed Clear" and 11 indicates "Chamber Idle Closed Dark".}
+for the flux calculation. Default is \code{flag = c(7,11)}, where
+7 indicates "Chamber Idle Closed Clear" and 11 indicates
+"Chamber Idle Closed Dark".}
 
-\item{save}{logical; if save = TRUE, saves the file as RData in a RData folder
-in the current working directory. If save = FALSE, returns the file
-in the Console, or load in the Environment if assigned to an object.}
+\item{background}{logical; if \code{background = FALSE}, removes all data from
+\code{activ.cham == "Background"}.}
+
+\item{save}{logical; if \code{save = TRUE}, saves the file as RData in a RData
+folder in the current working directory. If \code{save = FALSE},
+returns the file in the Console, or load in the Environment if
+assigned to an object.}
 
 \item{Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, CH.col}{character string;
 a pattern to match all columns that fit the corresponding parameter. For
 example, all columns containing the pattern "3C07_Sunlight" will be
-renamed with the pattern "_PAR". Then, if `pivot = "long"`, all columns
-with the pattern "_PAR" will be merged together.}
+renamed with the pattern "_PAR". Then, if \code{pivot = "long"}, all
+columns with the pattern "_PAR" will be merged together.}
 
 \item{CO2.col, CH4.col, H2O1.col, N2O.col, H2O2.col}{character string; a pattern
 to match the columns containing the corresponding gas measurements.
