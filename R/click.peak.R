@@ -174,12 +174,15 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
   ymax <- flux.corr %>% filter(flag == 1) %>% select(all_of(gastype)) %>% max()
   ymin <- flux.corr %>% filter(flag == 1) %>% select(all_of(gastype)) %>% min()
 
+  yaxis.lim.max <- ymax+0.05*ymax %>% ifelse(. > yaxis.limit.max, yaxis.limit.max, .)
+  yaxis.lim.min <- ymin-0.05*ymax %>% ifelse(. < yaxis.limit.min, yaxis.limit.min, .)
+
   # Inspect the full data set to see if it looks OK
   dev.new(noRStudioGD = TRUE, width = 14, height = 8)
   plot(flux.meas ~ flux.corr$Etime, col = flux.corr$flag+1,
        main = paste(unique(flux.corr$UniqueID)),
        xlab = "Etime", ylab = gastype, xaxp = c(xmin, xmax, xmult),
-       ylim = c(ymin-0.05*ymax, ymax+0.05*ymax))
+       ylim = c(yaxis.lim.min, yaxis.lim.max))
 
   # Wait a few seconds before closing the window to inspect the plot
   if (!is.null(sleep) | sleep > 0) sleeploop(sleep)
