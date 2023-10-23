@@ -129,8 +129,7 @@ LI8200_import <- function(inputfile, timezone = "UTC", save = FALSE){
     # Add start.time and cham.open (POSIX.time)
     group_by(plotID, rep) %>%
     mutate(start.time = cham.close + deadband,
-           cham.open = last(POSIX.time),
-           obs.length = as.numeric(cham.open - cham.close, units = "secs")+1) %>%
+           cham.open = last(POSIX.time)) %>%
     ungroup() %>%
     # Create chamID and flag
     mutate(chamID = paste(plotID, rep, sep = "_"),

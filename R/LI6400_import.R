@@ -118,8 +118,7 @@ LI6400_import <- function(inputfile, date.format = "mdy",
       cham.close = first(POSIX.time),
       start.time = cham.close,
       cham.open = last(POSIX.time),
-      Etime = seq(0, n()-1),
-      obs.length = n()) %>% ungroup() %>%
+      Etime = seq(0, n()-1)) %>% ungroup() %>%
     # Add flag
     mutate(flag = 1)
 

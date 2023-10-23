@@ -55,7 +55,7 @@ LI8100_import <- function(inputfile, date.format = "ymd",
   # Assign NULL to variables without binding
   Type <- Etime <- Tcham <- Pressure <- H2O <- Cdry <- V1 <- V2 <- V3 <- V4 <-
     H2O_mmol <- DATE_TIME <- Obs <- . <- cham.close <- cham.open <- deadband <-
-    start.time <- obs.length <- obs.start <- Etime.min <- POSIX.time <-
+    start.time <- obs.start <- Etime.min <- POSIX.time <-
     plotID <- Date <- CO2dry_ppm <- NULL
 
   # Find how many rows need to be skipped
@@ -119,8 +119,7 @@ LI8100_import <- function(inputfile, date.format = "ymd",
   data.raw <- data.raw %>%
     left_join(metadata, by = "Obs") %>% group_by(Obs) %>%
     # Calculate cham.close, cham.open, flag and correct negative values of Etime
-    mutate(obs.length = as.numeric(max(POSIX.time) - min(POSIX.time), units = "secs"),
-           cham.close = POSIX.time[which(Etime == 0)],
+    mutate(cham.close = POSIX.time[which(Etime == 0)],
            cham.open = last(POSIX.time),
            obs.start = min(POSIX.time),
            Etime.min = as.numeric(obs.start - cham.close, units = "secs") - deadband,
