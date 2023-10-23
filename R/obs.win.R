@@ -64,15 +64,6 @@
 obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
                     obs.length = NULL, shoulder = 120){
 
-  # TEST
-  data(example_LI8200_imp)
-  data(example_LI7810_imp)
-  inputfile = example_LI7810_imp
-  auxfile = example_LI8200_imp %>% select(-obs.length)
-  shoulder = 30
-  gastype = "CO2dry_ppm"
-  obs.length = NULL
-
   # Check arguments
   if(missing(inputfile)) stop("'inputfile' is required")
   if(!is.null(inputfile) & !is.data.frame(inputfile)) stop("'inputfile' must be of class data.frame")
@@ -177,8 +168,9 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
   }
 
   # Assign NULL to variables without binding
-  POSIX.time <- chamID <- start.time <- UniqueID <- Etime <- flag <- DATE <-
-    CO2dry_ppm <- CH4dry_ppb <- N2Odry_ppb <- H2O_ppm <- NULL
+  POSIX.time <- chamID <- start.time <- UniqueID <- Etime <- flag <-
+    DATE <- CO2dry_ppm <- CH4dry_ppb <- N2Odry_ppb <- H2O_ppm <-
+    cham.open <- end.time <- NULL
 
   # Convert milliseconds to seconds, for compatibility with auxfile
   inputfile <- inputfile %>%

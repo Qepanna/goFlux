@@ -16,9 +16,9 @@ obs.win(
 \item{inputfile}{data.frame; output from import or align functions.}
 
 \item{auxfile}{data.frame; auxiliary data frame containing the columns
-"start.time" and "UniqueID". "start.time" must contain a date
+'start.time' and 'UniqueID.' 'start.time' must contain a date
 and be in POSIXct format. The time zone must be the same as
-the POSIX.time in the inputfile. The default time zone for the
+the POSIX.time in the 'inputfile'. The default time zone for the
 import functions is "UTC". A file from the Smart Chamber
 (LI-8200) can be used as an auxiliary file in this case.}
 
@@ -28,8 +28,11 @@ Must be one of the following: "CO2dry_ppm", "CH4dry_ppb",
 "N2Odry_ppb" or "H2O_ppm". Default is "CO2dry_ppm".}
 
 \item{obs.length}{numerical; chamber closure time (seconds). Default is NULL.
-If obs.length is not provided, a column "obs.length" should
-be contained in the auxiliary file or the inputfile.}
+If 'obs.length' is not provided, a column \code{obs.length}
+should be contained in the 'auxfile' or the 'inputfile'.
+Alternatively, 'obs.length' will be calculated from
+\code{start.time} and \code{cham.open} or \code{end.time}
+if found in the 'inputfile' or the 'auxfile'.}
 
 \item{shoulder}{numerical; time before and after measurement in observation
 window (seconds). Default is 120 seconds.}
