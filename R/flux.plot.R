@@ -73,90 +73,82 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30) {
   pboptions(char = "=")
   plot_list <- pblapply(seq_along(data_split), function(f) {
 
-    nb.obs <- nrow(na.omit(data_corr[[f]][, gastype]))
+    # Plot limits
+    obs.length <- max(na.omit(data_corr[[f]]$Etime))
+    xmax <- max(na.omit(data_split[[f]]$Etime)) %>%
+      ifelse(. > obs.length + shoulder, obs.length + shoulder, .)
+    xmin <- min(na.omit(data_split[[f]]$Etime)) %>%
+      ifelse(. < -shoulder, -shoulder, .)
+    xdiff <- xmax - xmin
+    seq.x <- seq.rep(0.87, -0.12, 3, 6)
 
-    if (nb.obs < 60) {
-      warning("Measurement length is smaller than 60 seconds for ",
-              unique(data_split[[f]]$UniqueID), call. = F)
-    } else {
+    ymax <- max(na.omit(data_corr[[f]][, gastype]))
+    ymin <- min(na.omit(data_corr[[f]][, gastype]))
+    ydiff <- ymax - ymin
+    seq.y <- seq.rep(0.21, -0.07, 6, 3, rep.seq = T)
 
-      # Plot limits
-      obs.length <- max(na.omit(data_corr[[f]]$Etime))
-      xmax <- max(na.omit(data_split[[f]]$Etime)) %>%
-        ifelse(. > obs.length + shoulder, obs.length + shoulder, .)
-      xmin <- min(na.omit(data_split[[f]]$Etime)) %>%
-        ifelse(. < -shoulder, -shoulder, .)
-      xdiff <- xmax - xmin
-      seq.x <- seq.rep(0.87, -0.12, 3, 6)
+    # Content of legend on plot
+    LM.flux <- round(unique(data_corr[[f]]$LM.flux), 2)
+    HM.flux <- round(unique(data_corr[[f]]$HM.flux), 2)
+    LM.se.rel <- round(unique(data_corr[[f]]$LM.se.rel), 2)
+    HM.se.rel <- round(unique(data_corr[[f]]$HM.se.rel), 2)
+    LM.r2 <- round(unique(data_corr[[f]]$LM.r2), 3)
+    HM.r2 <- round(unique(data_corr[[f]]$HM.r2), 3)
+    LM.RMSE <- round(unique(data_corr[[f]]$LM.RMSE), 3)
+    HM.RMSE <- round(unique(data_corr[[f]]$HM.RMSE), 3)
+    LM.p.val <- p.val.star(unique(data_corr[[f]]$LM.p.val))
+    HM.k <- unique(data_corr[[f]]$HM.k)
+    kappa.ratio <- round((HM.k / unique(data_corr[[f]]$k.max) * 100), 1)
 
-      ymax <- max(na.omit(data_corr[[f]][, gastype]))
-      ymin <- min(na.omit(data_corr[[f]][, gastype]))
-      ydiff <- ymax - ymin
-      seq.y <- seq.rep(0.21, -0.07, 6, 3, rep.seq = T)
+    mod.legend <- cbind.data.frame(color = rep(c("black", "blue", "red"), 6)) %>%
+      mutate(x = xmax - xdiff*seq.x,
+             y = ymax + ydiff*seq.y,
+             content = c("Model", "lm", "HM",
+                         "Flux", LM.flux, HM.flux,
+                         "SE (%)", LM.se.rel, HM.se.rel,
+                         "r2", LM.r2, HM.r2,
+                         "RMSE", LM.RMSE, HM.RMSE,
+                         "p-val / kappa (%)", LM.p.val, kappa.ratio))
 
-      # Content of legend on plot
-      LM.flux <- round(unique(data_corr[[f]]$LM.flux), 2)
-      HM.flux <- round(unique(data_corr[[f]]$HM.flux), 2)
-      LM.se.rel <- round(unique(data_corr[[f]]$LM.se.rel), 2)
-      HM.se.rel <- round(unique(data_corr[[f]]$HM.se.rel), 2)
-      LM.r2 <- round(unique(data_corr[[f]]$LM.r2), 3)
-      HM.r2 <- round(unique(data_corr[[f]]$HM.r2), 3)
-      LM.RMSE <- round(unique(data_corr[[f]]$LM.RMSE), 3)
-      HM.RMSE <- round(unique(data_corr[[f]]$HM.RMSE), 3)
-      LM.p.val <- p.val.star(unique(data_corr[[f]]$LM.p.val))
-      HM.k <- unique(data_corr[[f]]$HM.k)
-      kappa.ratio <- round((HM.k / unique(data_corr[[f]]$k.max) * 100), 1)
+    # Content of plot
+    Etime <- data_split[[f]]$Etime
+    gas_meas <- Reduce("c", data_split[[f]][, gastype])
+    flag <- data_split[[f]]$flag
+    plot_data <- cbind.data.frame(gas_meas, Etime, flag)
 
-      mod.legend <- cbind.data.frame(color = rep(c("black", "blue", "red"), 6)) %>%
-        mutate(x = xmax - xdiff*seq.x,
-               y = ymax + ydiff*seq.y,
-               content = c("Model", "lm", "HM",
-                           "Flux", LM.flux, HM.flux,
-                           "SE (%)", LM.se.rel, HM.se.rel,
-                           "r2", LM.r2, HM.r2,
-                           "RMSE", LM.RMSE, HM.RMSE,
-                           "p-val / kappa (%)", LM.p.val, kappa.ratio))
+    LM.slope <- unique(data_corr[[f]]$LM.slope)
+    LM.C0 <- unique(data_corr[[f]]$LM.C0)
+    UniqueID <- unique(data_corr[[f]]$UniqueID)
+    HM_mod <- data_split[[f]]$HM_mod
 
-      # Content of plot
-      Etime <- data_split[[f]]$Etime
-      gas_meas <- Reduce("c", data_split[[f]][, gastype])
-      flag <- data_split[[f]]$flag
-      plot_data <- cbind.data.frame(gas_meas, Etime, flag)
+    # Draw plot
+    plot <- ggplot(plot_data, aes(x = Etime)) +
+      geom_point(aes(y = gas_meas, col = as.factor(flag))) +
+      scale_color_manual(values = c("darkgrey", "black"), guide = "none") +
 
-      LM.slope <- unique(data_corr[[f]]$LM.slope)
-      LM.C0 <- unique(data_corr[[f]]$LM.C0)
-      UniqueID <- unique(data_corr[[f]]$UniqueID)
-      HM_mod <- data_split[[f]]$HM_mod
+      # Linear model
+      geom_abline(slope = LM.slope, intercept = LM.C0,
+                  linewidth = 1, col = "blue") +
 
-      # Draw plot
-      plot <- ggplot(plot_data, aes(x = Etime)) +
-        geom_point(aes(y = gas_meas, col = as.factor(flag))) +
-        scale_color_manual(values = c("darkgrey", "black"), guide = "none") +
+      ## Hutchinson and Mosier
+      geom_line(aes(y = HM_mod), linewidth = 1, col = "red") +
 
-        # Linear model
-        geom_abline(slope = LM.slope, intercept = LM.C0,
-                    linewidth = 1, col = "blue") +
+      # Add a legend with info on the two models
+      new_scale_color() +
+      geom_text(data = mod.legend, aes(x = x, y = y, label = content,
+                                       hjust = 0, color = color)) +
+      scale_color_manual(values = mod.legend$color, guide = "none") +
 
-        ## Hutchinson and Mosier
-        geom_line(aes(y = HM_mod), linewidth = 1, col = "red") +
+      # Make the plot pretty
+      xlab("Time (sec)") + ylab(ylab) +
+      scale_x_continuous(breaks = seq(-60, max(Etime), 30),
+                         minor_breaks = seq(-60, max(Etime)+60, 10)) +
+      coord_cartesian(xlim = c(xmin + xdiff*0.05, xmax - xdiff*0.05),
+                      ylim = c(ymin - ydiff*0.02, ymax + ydiff*max(seq.y))) +
+      theme_bw() +
+      theme(axis.title.x = element_text(size = 10, face = "bold"),
+            axis.title.y = element_text(size = 10, face = "bold"))
 
-        # Add a legend with info on the two models
-        new_scale_color() +
-        geom_text(data = mod.legend, aes(x = x, y = y, label = content,
-                                         hjust = 0, color = color)) +
-        scale_color_manual(values = mod.legend$color, guide = "none") +
-
-        # Make the plot pretty
-        xlab("Time (sec)") + ylab(ylab) +
-        scale_x_continuous(breaks = seq(-60, max(Etime), 30),
-                           minor_breaks = seq(-60, max(Etime)+60, 10)) +
-        coord_cartesian(xlim = c(xmin + xdiff*0.05, xmax - xdiff*0.05),
-                        ylim = c(ymin - ydiff*0.02, ymax + ydiff*max(seq.y))) +
-        theme_bw() +
-        theme(axis.title.x = element_text(size = 10, face = "bold"),
-              axis.title.y = element_text(size = 10, face = "bold"))
-
-      return(plot)
-    }
+    return(plot)
   })
 }
