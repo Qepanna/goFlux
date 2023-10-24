@@ -114,11 +114,12 @@ LI6400_import <- function(inputfile, date.format = "mdy",
            Vcham = as.numeric(metadata[which(metadata[,3] == "Vtot")[1],4]),
            offset = as.numeric(metadata[which(metadata[,3] == "Offset")[1],4])) %>%
     # Add time related variables (POSIX.time)
-    group_by(chamID) %>% mutate(
-      cham.close = first(POSIX.time),
-      start.time = cham.close,
-      cham.open = last(POSIX.time),
-      Etime = seq(0, n()-1)) %>% ungroup() %>%
+    group_by(chamID) %>%
+    mutate(cham.close = first(POSIX.time),
+           start.time = cham.close,
+           cham.open = last(POSIX.time),
+           Etime = as.numeric(POSIX.time - start.time, units = "secs")) %>%
+    ungroup() %>%
     # Add flag
     mutate(flag = 1)
 

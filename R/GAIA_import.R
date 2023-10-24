@@ -109,8 +109,8 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
 
   # Assign NULL to variables without binding
   POSIX.time <- activ.cham <- DATE_TIME <- start.time <- . <- SEQUENCE <-
-    Titles. <- Obs <- cham.probe <- chamID <- obs.start <- Etime.min <-
-    rbind.fill <- cham.close <- cham.open <- H2O_ppm_LI7820 <- N2Odry_ppb <-
+    Titles. <- Obs <- cham.probe <- chamID <- obs.start <- rbind.fill <-
+    cham.close <- cham.open <- H2O_ppm_LI7820 <- N2Odry_ppb <-
     H2O_ppm_LI7810 <- CH4dry_ppb <- CO2dry_ppm <- NULL
 
   # Import raw data file from GAIA (.csv)

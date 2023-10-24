@@ -53,10 +53,10 @@ LI8100_import <- function(inputfile, date.format = "ymd",
   if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
 
   # Assign NULL to variables without binding
-  Type <- Etime <- Tcham <- Pressure <- H2O <- Cdry <- V1 <- V2 <- V3 <- V4 <-
-    H2O_mmol <- DATE_TIME <- Obs <- . <- cham.close <- cham.open <- deadband <-
-    start.time <- obs.start <- Etime.min <- POSIX.time <-
-    plotID <- Date <- CO2dry_ppm <- NULL
+  Type <- Etime <- Tcham <- Pressure <- H2O <- Cdry <- V1 <- V2 <- V3 <-
+    V4 <- H2O_mmol <- DATE_TIME <- Obs <- . <- cham.close <- cham.open <-
+    deadband <- start.time <- obs.start <- POSIX.time <- plotID <-
+    Date <- CO2dry_ppm <- NULL
 
   # Find how many rows need to be skipped
   skip.rows <- as.numeric(which(read.delim(inputfile) == "Type"))[1]
@@ -121,15 +121,13 @@ LI8100_import <- function(inputfile, date.format = "ymd",
     # Calculate cham.close, cham.open, flag and correct negative values of Etime
     mutate(cham.close = POSIX.time[which(Etime == 0)],
            cham.open = last(POSIX.time),
-           obs.start = min(POSIX.time),
-           Etime.min = as.numeric(obs.start - cham.close, units = "secs") - deadband,
-           Etime = seq(unique(Etime.min), n() + unique(Etime.min) -1)) %>%
+           obs.start = min(POSIX.time)) %>%
     ungroup() %>%
     mutate(DATE = substr(POSIX.time, 0, 10),
            chamID = paste(plotID, Obs, sep = "_"),
            start.time = cham.close + deadband,
-           flag = if_else(between(POSIX.time, start.time, cham.open), 1, 0)) %>%
-    select(!c(Etime.min))
+           Etime = as.numeric(POSIX.time - start.time, units = "secs"),
+           flag = if_else(between(POSIX.time, start.time, cham.open), 1, 0))
 
   # Save cleaned data file
   if(save == TRUE){
