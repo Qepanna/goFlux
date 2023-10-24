@@ -348,7 +348,7 @@ If the number of observation is under a certain threshold
 (`warn.length = 60`), a warning will be given after clicking on the
 start and end points as such:
 
-    ## Warning message: Observation length for UniqueID: 733_C_C is 59 observations
+    ## Warning message: Number of observations for UniqueID: 733_C_C is 59 observations
 
 Otherwise, if the number of observation satisfies this threshold, then
 the following message is given instead:
@@ -381,12 +381,6 @@ The final output, before flux calculation requires: UniqueID, Etime,
 flag, Vtot (or Vcham and offset), Area, Pcham, Tcham, H2O_ppm and other
 gases.
 
-``` r
-# Additional auxiliary data required for flux calculation.
-example_LGR_manID <- example_LGR_manID %>%
-  left_join(auxfile %>% select(UniqueID, Area, Vtot, Tcham, Pcham))
-```
-
 ### Flux calculation
 
 The hardest part is now behind you. All that’s left is to run the flux
@@ -406,7 +400,7 @@ H2O_results <- goFlux(example_LGR_manID, "H2O_ppm")
 
 # Use best.flux to select the best flux estimates (LM or HM)
 # based on a list of criteria
-criteria <- c("g.factor", "kappa", "MDF", "R2", "SE.rel")
+criteria <- c("MAE", "g.factor", "kappa", "MDF", "SE.rel")
 
 CO2_flux_res <- best.flux(CO2_results, criteria)
 CH4_flux_res <- best.flux(CH4_results, criteria)

@@ -3,55 +3,60 @@
 #' This automatic selection of the best flux estimate (linear or non-linear) is
 #' based on objective criteria and non-arbitrary thresholds.
 #'
-#' @param flux.result data.frame; output from the function `goFlux()`.
+#' @param flux.result data.frame; output from the function \code{\link[GoFluxYourself]{goFlux}}.
 #' @param criteria character vector; criteria used to asses the goodness of fit of the
 #'                 linear and non-linear flux estimates. Must be at least one the following:
-#'                 `criteria = c("RMSE", "g.factor", "kappa", "MDF", "p-value", "r2", "intercept", "SE.rel")`.
+#'                 \code{criteria = c("MAE", "g.factor", "kappa", "MDF", "p-value", "intercept", "SE.rel")}.
 #'                 Default is all of them.
 #' @param intercept.lim numerical vector of length 2; inferior and superior
-#'                      limits of the intercept (initial concentration). Same
-#'                      units as gastype.
-#' @param SE.rel numerical value; maximal standard error accepted (\%) on flux
-#'               estimate. The default setting is 5\%.
+#'                      limits of the intercept (initial concentration; C0).
+#'                      Must be the same units as \code{gastype}.
+#' @param SE.rel numerical value; maximal relative standard error accepted (\%)
+#'               on flux estimate. The default is 5\%.
 #' @param g.limit numerical value; maximal limit of the the g-factor, which is the
-#'                ratio between the non-linear flux estimate (`HM.flux()`) and the
-#'                linear flux estimate (`LM.flux()`). Recommended thresholds for
-#'                the g-factor are 4 (flexible), 2 (medium), or 1.25 (conservative).
-#'                Default limit `g.limit = 2`.
+#'                ratio between the non-linear flux estimate
+#'                (\code{\link[GoFluxYourself]{HM.flux}}) and the linear flux
+#'                estimate (\code{\link[GoFluxYourself]{LM.flux}}). Recommended
+#'                thresholds for the g-factor are 4 (flexible), 2 (medium), or
+#'                1.25 (conservative). The default limit is \code{g.limit = 2}.
 #' @param k.ratio numerical value; maximal limit of the ratio between kappa and
 #'                the kappa-max. kappa-max is the maximal curvature (kappa)
 #'                of the non-linear regression (Hutchinson and Mosier model)
-#'                allowed for a each flux measurements. With `k.ratio`, one can
-#'                chose to select the LM flux estimate instead of the non-linear
-#'                flux estimate by giving a percentage of kappa-max. Default
-#'                setting is `k.ratio = 1`.
+#'                allowed for a each flux measurements. With \code{k.ratio}, one
+#'                can chose to select the LM flux estimate instead of the
+#'                non-linear flux estimate by giving a percentage of kappa-max.
+#'                Default is \code{k.ratio = 1}.
 #' @param p.val numerical value; a limit for a statistically non-zero flux.
 #'              The default threshold is p-value < 0.05.
-#' @param r2 numerical value; a maximal limit under which a warning is returned
-#'           for quality checking. The default value is `r2 < 0.6`.
+#' @param RMSE If \code{RMSE = TRUE}, use Root Mean Square Error (RMSE) instead
+#'             of Mean Absolute Error (MAE).
 #'
 #' @details
-#' The function `k.max()` calculates the maximal curvature (kappa) of the non-linear
-#' model (Hutchinson and Mosier) allowed for each flux measurements. k.max
-#' is calculated based on the minimal detectable flux (MDF), the linear
-#' flux estimate and the measurement time. The unit of the kappa-max is s-1.
+#' The function \code{\link[GoFluxYourself]{k.max}} calculates the maximal
+#' curvature (kappa) of the non-linear model (Hutchinson and Mosier) allowed for
+#' each flux measurements. k.max is calculated based on the minimal detectable
+#' flux (MDF), the linear flux estimate (LM.flux) and the measurement time. The
+#' unit of kappa-max is \ifelse{html}{\out{s<sup>-1</sup>}}{\eqn{s^{-1}}{ASCII}}.
 #'
-#' The function `MDF()` calculates the minimal detectable flux (MDF) based on
-#' instrument precision, measurements time, and the number of measurement points.
+#' The function \code{\link[GoFluxYourself]{MDF}} calculates the minimal
+#' detectable flux (MDF) based on instrument precision and measurements time.
 #'
-#' Another criteria, which is calculated automatically with the function `best.flux()`,
-#' is the g-factor (`g.factor()`), which is the ratio between the HM flux estimate
-#' and the LM flux estimate. The threshold for the g-factor should be 4 (flexible),
-#' 2 (medium), or 1.25 (conservative). Default limit is set to 2.
+#' Another criteria, which is calculated automatically with the function
+#' \code{\link[GoFluxYourself]{best.flux}}, is the g-factor
+#' (\code{\link[GoFluxYourself]{g.factor}}), which is the ratio between the HM
+#' flux estimate and the LM flux estimate. The threshold for the g-factor
+#' should be 4 (flexible), 2 (medium), or 1.25 (conservative).
 #'
-#' @returns a data.frame
+#' @returns a data.frame identical to the input \code{flux.result} with the
+#'          additional columns \code{HM.diagnose}, \code{LM.diagnose},
+#'          \code{best.flux}, \code{model} and \code{quality.check}.
 #'
 #' @include GoFluxYourself-package.R
 #'
 #' @examples
 #' data(example_LGR_manID)
 #' example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
-#' criteria <- c("g.factor", "kappa", "MDF", "r2", "SE.rel")
+#' criteria <- c("g.factor", "kappa", "MDF", "SE.rel")
 #' example_LGR_res <- best.flux(example_LGR_flux, "CO2dry_ppm", criteria)
 #'
 #' @seealso Look up the functions \code{\link[GoFluxYourself]{MDF}},
@@ -67,21 +72,21 @@
 #' @export
 #'
 best.flux <- function(flux.result,
-                      criteria = c("RMSE", "g.factor", "kappa", "MDF", "p-value",
-                                   "r2", "intercept", "SE.rel"),
+                      criteria = c("MAE", "g.factor", "kappa", "MDF",
+                                   "p-value", "intercept", "SE.rel"),
                       intercept.lim = NULL, SE.rel = 5, g.limit = 2,
-                      p.val = 0.05, r2 = 0.6, k.ratio = 1) {
+                      p.val = 0.05, k.ratio = 1, RMSE = FALSE) {
 
-  def.criteria <- c("RMSE", "g.factor", "kappa", "MDF", "p-value", "r2", "intercept", "SE.rel")
+  def.criteria <- c("MAE", "g.factor", "kappa", "MDF", "p-value", "intercept", "SE.rel")
   if (!any(grepl(paste(def.criteria, collapse = "|"), criteria))) {
-    warning("'criteria' must contain one of the following: 'g.factor', 'kappa', 'MDF', 'p-value', 'r2', 'intercept', 'SE.rel'",
+    warning("'criteria' must contain one of the following: 'MAE', 'g.factor', 'kappa', 'MDF', 'p-value', 'intercept', 'SE.rel'",
             call. = F)
   }
 
   # Assign NULL to variables without binding
-  g.fact <- HM.diagnose <- HM.RMSE <- prec <- model <- quality.check <- HM.k <- LM.p.val <-
-    LM.diagnose <- HM.se.rel <- LM.se.rel <- HM.C0 <- LM.C0 <- HM.r2 <-
-    LM.r2 <- LM.Ci <- LM.se <- HM.se <- MDF <- NULL
+  g.fact <- HM.diagnose <- HM.RMSE <- prec <- model <- quality.check <- HM.k <-
+    LM.p.val <- LM.diagnose <- HM.se.rel <- LM.se.rel <- HM.C0 <- LM.C0 <-
+    LM.Ci <- LM.se <- HM.se <- MDF <- HM.MAE <- NULL
 
   # Assume that the best flux is HM.flux and leave *.diagnose empty
   best.flux <- flux.result %>%
@@ -89,8 +94,8 @@ best.flux <- function(flux.result,
            model = "HM", quality.check = "")
 
   ## RMSE ####
-  # Reflects the instrument precision. Use that as a threshold?
-  if (any(grepl("RMSE", criteria))) {
+  # Reflects the instrument precision.
+  if (any(grepl("MAE", criteria)) & isTRUE(RMSE)) {
 
     rmse.diagnostic <- paste("Noisy measurement (RMSE)")
 
@@ -104,6 +109,25 @@ best.flux <- function(flux.result,
              quality.check = ifelse(HM.RMSE > prec, ifelse(
                quality.check == "", "RMSE",
                paste(quality.check, "RMSE", sep = " | ")),
+               quality.check))
+  }
+
+  ## MAE ####
+  # Reflects the instrument precision.
+  if (any(grepl("MAE", criteria)) & !isTRUE(RMSE)) {
+
+    MAE.diagnostic <- paste("Noisy measurement (MAE)")
+
+    best.flux <- best.flux %>%
+      mutate(HM.diagnose = ifelse(HM.MAE > prec, ifelse(
+        HM.diagnose == "", MAE.diagnostic,
+        paste(HM.diagnose, MAE.diagnostic, sep = " | ")),
+        HM.diagnose)) %>%
+      mutate(best.flux = ifelse(HM.MAE > prec, LM.flux, best.flux),
+             model = ifelse(HM.MAE > prec, "LM", model),
+             quality.check = ifelse(HM.MAE > prec, ifelse(
+               quality.check == "", "MAE",
+               paste(quality.check, "MAE", sep = " | ")),
                quality.check))
   }
 
@@ -199,23 +223,6 @@ best.flux <- function(flux.result,
 
   # Quality check ####
   # The quality of the measurements needs to be verified graphically
-
-  ## r2 ####
-  if (any(grepl("r2", criteria))) {
-
-    LM.r2.quality = paste("Check plot (LM.r2 < ", r2, ")", sep = "")
-    HM.r2.quality = paste("Check plot (HM.r2 < ", r2, ")", sep = "")
-
-    best.flux <- best.flux %>%
-      mutate(quality.check = ifelse(abs(LM.r2) < r2,
-                                    ifelse(quality.check == "", LM.r2.quality,
-                                           paste(quality.check, LM.r2.quality, sep = " | ")),
-                                    quality.check),
-             quality.check = ifelse(abs(HM.r2) < r2,
-                                    ifelse(quality.check == "", HM.r2.quality,
-                                           paste(quality.check, HM.r2.quality, sep = " | ")),
-                                    quality.check))
-  }
 
   ## Intercept ####
   # Limits must have a minimum and a maximum value

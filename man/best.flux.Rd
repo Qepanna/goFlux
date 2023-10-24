@@ -6,76 +6,80 @@
 \usage{
 best.flux(
   flux.result,
-  criteria = c("RMSE", "g.factor", "kappa", "MDF", "p-value", "r2", "intercept",
-    "SE.rel"),
+  criteria = c("MAE", "g.factor", "kappa", "MDF", "p-value", "intercept", "SE.rel"),
   intercept.lim = NULL,
   SE.rel = 5,
   g.limit = 2,
   p.val = 0.05,
-  r2 = 0.6,
-  k.ratio = 1
+  k.ratio = 1,
+  RMSE = FALSE
 )
 }
 \arguments{
-\item{flux.result}{data.frame; output from the function `goFlux()`.}
+\item{flux.result}{data.frame; output from the function \code{\link[GoFluxYourself]{goFlux}}.}
 
 \item{criteria}{character vector; criteria used to asses the goodness of fit of the
 linear and non-linear flux estimates. Must be at least one the following:
-`criteria = c("RMSE", "g.factor", "kappa", "MDF", "p-value", "r2", "intercept", "SE.rel")`.
+\code{criteria = c("MAE", "g.factor", "kappa", "MDF", "p-value", "intercept", "SE.rel")}.
 Default is all of them.}
 
 \item{intercept.lim}{numerical vector of length 2; inferior and superior
-limits of the intercept (initial concentration). Same
-units as gastype.}
+limits of the intercept (initial concentration; C0).
+Must be the same units as \code{gastype}.}
 
-\item{SE.rel}{numerical value; maximal standard error accepted (\%) on flux
-estimate. The default setting is 5\%.}
+\item{SE.rel}{numerical value; maximal relative standard error accepted (\%)
+on flux estimate. The default is 5\%.}
 
 \item{g.limit}{numerical value; maximal limit of the the g-factor, which is the
-ratio between the non-linear flux estimate (`HM.flux()`) and the
-linear flux estimate (`LM.flux()`). Recommended thresholds for
-the g-factor are 4 (flexible), 2 (medium), or 1.25 (conservative).
-Default limit `g.limit = 2`.}
+ratio between the non-linear flux estimate
+(\code{\link[GoFluxYourself]{HM.flux}}) and the linear flux
+estimate (\code{\link[GoFluxYourself]{LM.flux}}). Recommended
+thresholds for the g-factor are 4 (flexible), 2 (medium), or
+1.25 (conservative). The default limit is \code{g.limit = 2}.}
 
 \item{p.val}{numerical value; a limit for a statistically non-zero flux.
 The default threshold is p-value < 0.05.}
 
-\item{r2}{numerical value; a maximal limit under which a warning is returned
-for quality checking. The default value is `r2 < 0.6`.}
-
 \item{k.ratio}{numerical value; maximal limit of the ratio between kappa and
 the kappa-max. kappa-max is the maximal curvature (kappa)
 of the non-linear regression (Hutchinson and Mosier model)
-allowed for a each flux measurements. With `k.ratio`, one can
-chose to select the LM flux estimate instead of the non-linear
-flux estimate by giving a percentage of kappa-max. Default
-setting is `k.ratio = 1`.}
+allowed for a each flux measurements. With \code{k.ratio}, one
+can chose to select the LM flux estimate instead of the
+non-linear flux estimate by giving a percentage of kappa-max.
+Default is \code{k.ratio = 1}.}
+
+\item{RMSE}{If \code{RMSE = TRUE}, use Root Mean Square Error (RMSE) instead
+of Mean Absolute Error (MAE).}
 }
 \value{
-a data.frame
+a data.frame identical to the input \code{flux.result} with the
+         additional columns \code{HM.diagnose}, \code{LM.diagnose},
+         \code{best.flux}, \code{model} and \code{quality.check}.
 }
 \description{
 This automatic selection of the best flux estimate (linear or non-linear) is
 based on objective criteria and non-arbitrary thresholds.
 }
 \details{
-The function `k.max()` calculates the maximal curvature (kappa) of the non-linear
-model (Hutchinson and Mosier) allowed for each flux measurements. k.max
-is calculated based on the minimal detectable flux (MDF), the linear
-flux estimate and the measurement time. The unit of the kappa-max is s-1.
+The function \code{\link[GoFluxYourself]{k.max}} calculates the maximal
+curvature (kappa) of the non-linear model (Hutchinson and Mosier) allowed for
+each flux measurements. k.max is calculated based on the minimal detectable
+flux (MDF), the linear flux estimate (LM.flux) and the measurement time. The
+unit of kappa-max is \ifelse{html}{\out{s<sup>-1</sup>}}{\eqn{s^{-1}}{ASCII}}.
 
-The function `MDF()` calculates the minimal detectable flux (MDF) based on
-instrument precision, measurements time, and the number of measurement points.
+The function \code{\link[GoFluxYourself]{MDF}} calculates the minimal
+detectable flux (MDF) based on instrument precision and measurements time.
 
-Another criteria, which is calculated automatically with the function `best.flux()`,
-is the g-factor (`g.factor()`), which is the ratio between the HM flux estimate
-and the LM flux estimate. The threshold for the g-factor should be 4 (flexible),
-2 (medium), or 1.25 (conservative). Default limit is set to 2.
+Another criteria, which is calculated automatically with the function
+\code{\link[GoFluxYourself]{best.flux}}, is the g-factor
+(\code{\link[GoFluxYourself]{g.factor}}), which is the ratio between the HM
+flux estimate and the LM flux estimate. The threshold for the g-factor
+should be 4 (flexible), 2 (medium), or 1.25 (conservative).
 }
 \examples{
 data(example_LGR_manID)
 example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
-criteria <- c("g.factor", "kappa", "MDF", "r2", "SE.rel")
+criteria <- c("g.factor", "kappa", "MDF", "SE.rel")
 example_LGR_res <- best.flux(example_LGR_flux, "CO2dry_ppm", criteria)
 
 }
