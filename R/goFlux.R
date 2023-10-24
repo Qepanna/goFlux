@@ -74,6 +74,12 @@
 #'               \code{\link[GoFluxYourself]{k.max}} and
 #'               \code{\link[GoFluxYourself]{HM.flux}}
 #'               for more information. Default setting is \code{k.mult = 1}.
+#' @param warn.length numerical; minimum amount of observations accepted (number
+#'                    of data points). With nowadays portable greenhouse gas
+#'                    analyzers, the frequency of measurement is 1 measurement
+#'                    per second. Therefore, the amount of observation is equal
+#'                    to the chamber closure time length (seconds). Default is
+#'                    one minute (60 seconds).
 #'
 #' @details
 #' Flux estimate units are
@@ -133,7 +139,10 @@
 #'
 goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
                    Area = NULL, offset = NULL, Vtot = NULL, Vcham = NULL,
-                   Pcham = NULL, Tcham = NULL, k.mult = 1) {
+                   Pcham = NULL, Tcham = NULL, k.mult = 1, warn.length = 60) {
+
+  # Check arguments
+  if(!is.numeric(warn.length)) stop("'warn.length' must be of class numeric")
 
   # Assign NULL to variables without binding
   H2O_ppm <- H2O_mol <- Etime <- flag <- NULL
@@ -196,25 +205,23 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
       ungroup() %>% distinct(UniqueID, Etime, .keep_all = TRUE) %>%
       # Split dataset by UniqueID
       group_split(UniqueID) %>% as.list()
-  } else
-
-    if (gastype == "H2O_ppm") {
-      data_split <- dataframe %>%
-        select(UniqueID, Etime, Vtot, Pcham, Area, Tcham,
-               flag, all_of(H2O_col)) %>%
-        # Rename H2O_col
-        rename(H2O_ppm = all_of(H2O_col)) %>%
-        # Remove bad measurements (flag == 0)
-        filter(flag == 1) %>%
-        # Use drop_na() to remove NAs
-        drop_na(matches(gastype)) %>% group_by(UniqueID) %>%
-        # Interpolate missing values for chamber pressure and temperature
-        fill(Pcham, Tcham, .direction = "up") %>%
-        # Remove duplicates of Etime
-        ungroup() %>% distinct(UniqueID, Etime, .keep_all = TRUE) %>%
-        # Split dataset by UniqueID
-        group_split(UniqueID) %>% as.list()
-    }
+  } else if (gastype == "H2O_ppm") {
+    data_split <- dataframe %>%
+      select(UniqueID, Etime, Vtot, Pcham, Area, Tcham,
+             flag, all_of(H2O_col)) %>%
+      # Rename H2O_col
+      rename(H2O_ppm = all_of(H2O_col)) %>%
+      # Remove bad measurements (flag == 0)
+      filter(flag == 1) %>%
+      # Use drop_na() to remove NAs
+      drop_na(matches(gastype)) %>% group_by(UniqueID) %>%
+      # Interpolate missing values for chamber pressure and temperature
+      fill(Pcham, Tcham, .direction = "up") %>%
+      # Remove duplicates of Etime
+      ungroup() %>% distinct(UniqueID, Etime, .keep_all = TRUE) %>%
+      # Split dataset by UniqueID
+      group_split(UniqueID) %>% as.list()
+  }
 
   # Instrument precision (by gastype)
   # If prec = NULL, the default parameters are set to the LI-7810 for CH4 and CO2,
@@ -250,6 +257,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     UniqueID <- unique(data_split[[f]]$UniqueID)
     flux.term <- first(data_split[[f]]$flux.term)
     MDF <- first(data_split[[f]]$MDF)
+    nb.obs <- nrow(na.omit(data_split[[f]][, gastype]))
 
     # Extract gas measurement (by gastype)
     gas.meas <- Reduce("c", data_split[[f]][, gastype])
@@ -284,10 +292,11 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     # Flux results and G factor
     flux.res.ls[[f]] <- cbind.data.frame(
       UniqueID, LM.res, HM.res, MDF, prec, flux.term, k.max = kappa.max*k.mult,
-      g.fact = g.factor(HM.res$HM.flux, LM.res$LM.flux))
+      g.fact = g.factor(HM.res$HM.flux, LM.res$LM.flux), nb.obs)
 
     # Update progress bar
     setTxtProgressBar(pb, f)
+
   }
 
   # Unlist flux results
@@ -295,6 +304,12 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
 
   # Close progress bar
   close(pb)
+
+  for (f in 1:nrow(flux_results)) {
+    if (flux_results$nb.obs[f] < warn.length) {
+      warning("Number of observations for UniqueID: ", flux_results$UniqueID[f],
+              " is ", flux_results$nb.obs[f], " observations", call. = FALSE)}
+  }
 
   # Return results
   return(flux_results)
