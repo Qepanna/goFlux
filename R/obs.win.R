@@ -9,11 +9,13 @@
 #'                Must be one of the following: "CO2dry_ppm", "CH4dry_ppb",
 #'                "N2Odry_ppb" or "H2O_ppm". Default is "CO2dry_ppm".
 #' @param auxfile data.frame; auxiliary data frame containing the columns
-#'                'start.time' and 'UniqueID.' 'start.time' must contain a date
+#'                'start.time' and 'UniqueID'. 'start.time' must contain a date
 #'                and be in POSIXct format. The time zone must be the same as
 #'                the POSIX.time in the 'inputfile'. The default time zone for the
 #'                import functions is "UTC". A file from the Smart Chamber
-#'                (LI-8200) can be used as an auxiliary file in this case.
+#'                (LI-8200) can be used as an auxiliary file. In that case,
+#'                'chamID' will be used instead of 'UniqueID', if UniqueID
+#'                cannot be found.
 #' @param obs.length numerical; chamber closure time (seconds). Default is NULL.
 #'                   If 'obs.length' is not provided, a column \code{obs.length}
 #'                   should be contained in the 'auxfile' or the 'inputfile'.

@@ -10,6 +10,7 @@
 #'                  \code{Vtot}, \code{Area}, \code{Pcham}, \code{Tcham} and
 #'                  \code{flag} (see the parameters \code{Vtot}, \code{Area},
 #'                  \code{Pcham} and \code{Tcham} below for more details).
+#'                  \code{chamID} may be used instead of \code{UniqueID}.
 #' @param gastype character string; specifies which column should be used for the
 #'                flux calculations. Must be one of the following: "CO2dry_ppm",
 #'                "CH4dry_ppb", "N2Odry_ppb" or "H2O_ppm".
@@ -65,7 +66,7 @@
 #' @param Tcham numerical value; temperature inside the chamber (Celcius).
 #'              Alternatively, provide the column \code{Tcham} in dataframe if
 #'              \code{Tcham} is different between samples. If \code{Tcham} is
-#'              not provided, normal air temperature (15 \code{print('\u00B0')} test"°C") is used.
+#'              not provided, normal air temperature (15°C) is used.
 #' @param k.mult numerical value; a multiplier for the allowed kappa-max.
 #'               kappa-max is the maximal curvature (kappa) of the non-linear
 #'               regression (Hutchinson and Mosier model) allowed for a each
@@ -171,6 +172,10 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
   if (!any(grepl("Tcham", names(dataframe)))) {
     dataframe <- dataframe %>% mutate(Tcham = 15)
   }
+
+  # Rename chamID to UniqueID
+  if (any(grepl("chamID", names(dataframe)))){
+    dataframe <- dataframe %>% mutate(UniqueID = chamID)}
 
   # Clean and subset data (per gastype)
   if (gastype != "H2O_ppm") {
