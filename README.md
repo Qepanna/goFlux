@@ -3,6 +3,13 @@
 
 # GoFluxYourself: A user-friendly way to calculate GHG fluxes yourself, regardless of user experience<img src="man/figures/GoFluxYourself.png" align="right" width="200"/>
 
+#### BETA VERSION
+
+The package is ready to use, but errors may still occur. Please report
+any issues to the maintainer, Karelle Rheault (<karh@ign.ku.dk>),
+including script and raw data if necessary. Thank you for helping me in
+the development of this tool! 🙏
+
 ### One Package to rule them all
 
 Non-steady state chambers are widely used for measuring soil greenhouse
@@ -208,6 +215,13 @@ and save the plots as pdf using `flux2pdf()`.
 
 Here is a simple example on how to use the package with a single raw
 file from LGR gas analyzers.
+
+> BETA VERSION
+>
+> The package is ready to use, but errors may still occur. Please report
+> any issues to the maintainer, Karelle Rheault (<karh@ign.ku.dk>),
+> including script and raw data if necessary. Thank you for helping me
+> in the development of this tool! 🙏
 
 ### Installation
 
