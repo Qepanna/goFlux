@@ -6,13 +6,15 @@
 \usage{
 best.flux(
   flux.result,
-  criteria = c("MAE", "g.factor", "kappa", "MDF", "p-value", "intercept", "SE.rel"),
+  criteria = c("MAE", "g.factor", "kappa", "MDF", "nb.obs", "p-value", "intercept",
+    "SE.rel"),
   intercept.lim = NULL,
   SE.rel = 5,
   g.limit = 2,
   p.val = 0.05,
   k.ratio = 1,
-  RMSE = FALSE
+  RMSE = FALSE,
+  warn.length = 60
 )
 }
 \arguments{
@@ -20,7 +22,7 @@ best.flux(
 
 \item{criteria}{character vector; criteria used to asses the goodness of fit of the
 linear and non-linear flux estimates. Must be at least one the following:
-\code{criteria = c("MAE", "g.factor", "kappa", "MDF", "p-value", "intercept", "SE.rel")}.
+\code{criteria = c("MAE", "g.factor", "kappa", "MDF", "nb.obs", "p-value", "intercept", "SE.rel")}.
 Default is all of them.}
 
 \item{intercept.lim}{numerical vector of length 2; inferior and superior
@@ -48,8 +50,15 @@ can chose to select the LM flux estimate instead of the
 non-linear flux estimate by giving a percentage of kappa-max.
 Default is \code{k.ratio = 1}.}
 
-\item{RMSE}{If \code{RMSE = TRUE}, use Root Mean Square Error (RMSE) instead
-of Mean Absolute Error (MAE).}
+\item{RMSE}{logical; If \code{RMSE = TRUE}, use Root Mean Square Error (RMSE)
+instead of Mean Absolute Error (MAE).}
+
+\item{warn.length}{numerical; minimum amount of observations accepted (nb.obs).
+With nowadays portable greenhouse gas analyzers, the
+frequency of measurement is usually one measurement per
+second. Therefore, for a default setting of
+\code{warn.length = 60}, the chamber closure time
+should be approximately one minute (60 seconds).}
 }
 \value{
 a data.frame identical to the input \code{flux.result} with the

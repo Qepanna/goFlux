@@ -6,7 +6,7 @@
 #' @param flux.result data.frame; output from the function \code{\link[GoFluxYourself]{goFlux}}.
 #' @param criteria character vector; criteria used to asses the goodness of fit of the
 #'                 linear and non-linear flux estimates. Must be at least one the following:
-#'                 \code{criteria = c("MAE", "g.factor", "kappa", "MDF", "p-value", "intercept", "SE.rel")}.
+#'                 \code{criteria = c("MAE", "g.factor", "kappa", "MDF", "nb.obs", "p-value", "intercept", "SE.rel")}.
 #'                 Default is all of them.
 #' @param intercept.lim numerical vector of length 2; inferior and superior
 #'                      limits of the intercept (initial concentration; C0).
@@ -28,8 +28,14 @@
 #'                Default is \code{k.ratio = 1}.
 #' @param p.val numerical value; a limit for a statistically non-zero flux.
 #'              The default threshold is p-value < 0.05.
-#' @param RMSE If \code{RMSE = TRUE}, use Root Mean Square Error (RMSE) instead
-#'             of Mean Absolute Error (MAE).
+#' @param RMSE logical; If \code{RMSE = TRUE}, use Root Mean Square Error (RMSE)
+#'             instead of Mean Absolute Error (MAE).
+#' @param warn.length numerical; minimum amount of observations accepted (nb.obs).
+#'                    With nowadays portable greenhouse gas analyzers, the
+#'                    frequency of measurement is usually one measurement per
+#'                    second. Therefore, for a default setting of
+#'                    \code{warn.length = 60}, the chamber closure time
+#'                    should be approximately one minute (60 seconds).
 #'
 #' @details
 #' The function \code{\link[GoFluxYourself]{k.max}} calculates the maximal
@@ -72,21 +78,21 @@
 #' @export
 #'
 best.flux <- function(flux.result,
-                      criteria = c("MAE", "g.factor", "kappa", "MDF",
+                      criteria = c("MAE", "g.factor", "kappa", "MDF", "nb.obs",
                                    "p-value", "intercept", "SE.rel"),
                       intercept.lim = NULL, SE.rel = 5, g.limit = 2,
-                      p.val = 0.05, k.ratio = 1, RMSE = FALSE) {
+                      p.val = 0.05, k.ratio = 1, RMSE = FALSE, warn.length = 60) {
 
-  def.criteria <- c("MAE", "g.factor", "kappa", "MDF", "p-value", "intercept", "SE.rel")
+  def.criteria <- c("MAE", "g.factor", "kappa", "MDF", "nb.obs", "p-value", "intercept", "SE.rel")
   if (!any(grepl(paste(def.criteria, collapse = "|"), criteria))) {
-    warning("'criteria' must contain one of the following: 'MAE', 'g.factor', 'kappa', 'MDF', 'p-value', 'intercept', 'SE.rel'",
+    warning("'criteria' must contain one of the following: 'MAE', 'g.factor', 'kappa', 'MDF', 'nb.obs', 'p-value', 'intercept', 'SE.rel'",
             call. = F)
   }
 
   # Assign NULL to variables without binding
   g.fact <- HM.diagnose <- HM.RMSE <- prec <- model <- quality.check <- HM.k <-
     LM.p.val <- LM.diagnose <- HM.se.rel <- LM.se.rel <- HM.C0 <- LM.C0 <-
-    LM.Ci <- LM.se <- HM.se <- MDF <- HM.MAE <- NULL
+    LM.Ci <- LM.se <- HM.se <- MDF <- HM.MAE <- nb.obs <- NULL
 
   # Assume that the best flux is HM.flux and leave *.diagnose empty
   best.flux <- flux.result %>%
@@ -263,7 +269,17 @@ best.flux <- function(flux.result,
                                     ifelse(quality.check == "", HM.SE.quality,
                                            paste(quality.check, HM.SE.quality, sep = " | ")),
                                     quality.check))
-    }
+  }
+
+  ## Number of observations ####
+
+  nb.obs.quality <- paste("nb.obs <", warn.length)
+
+  best.flux <- best.flux %>%
+    mutate(quality.check = ifelse(nb.obs < warn.length,
+                                  ifelse(quality.check == "", nb.obs.quality,
+                                         paste(quality.check, nb.obs.quality, sep = " | ")),
+                                  quality.check))
 
   return(best.flux)
 }
