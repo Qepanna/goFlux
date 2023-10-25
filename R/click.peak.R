@@ -123,10 +123,13 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
   time.meas <- Reduce("c", flux.unique[, "POSIX.time"])
 
   # Graph limits
-  yaxis.limit.max <- (max(flux.meas, na.rm = TRUE) + 0.01*max(flux.meas, na.rm = TRUE)) %>%
-    ifelse(. > plot.lim[2], plot.lim[2], .)
-  yaxis.limit.min <- (min(flux.meas, na.rm = TRUE) - 0.01*max(flux.meas, na.rm = TRUE)) %>%
-    ifelse(. < plot.lim[1], plot.lim[1], .)
+  ymax <- max(flux.meas, na.rm = TRUE)
+  ymin <- min(flux.meas, na.rm = TRUE)
+  ydiff <- ymax - ymin
+
+  ylim <- c(ymin - ydiff*0.05, ymax + ydiff*0.05)
+  ylim.min <- ifelse(ylim[1] < plot.lim[1], plot.lim[1], ylim[1])
+  ylim.max <- ifelse(ylim[2] > plot.lim[2], plot.lim[2], ylim[2])
 
   # Open plot in a new window to avoid problems with the identify function
   dev.new(noRStudioGD = TRUE, width = 14, height = 8)
@@ -135,7 +138,7 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
   plot(flux.meas ~ time.meas,
        main = paste(unique(flux.unique$UniqueID)),
        xlab = "Time", ylab = gastype, xaxt = 'n',
-       ylim = c(yaxis.limit.min, yaxis.limit.max))
+       ylim = c(ylim.min, ylim.max))
 
   # Force axis.POSIXct to use the right time zone
   time.zone <- attr(time.meas, "tzone")
@@ -177,18 +180,20 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
   xmult <- (xmax + abs(xmin))/30
 
   # yaxis in validation plot: zoom on the selected values
-  ymax <- flux.corr %>% filter(flag == 1) %>% select(all_of(gastype)) %>% max()
-  ymin <- flux.corr %>% filter(flag == 1) %>% select(all_of(gastype)) %>% min()
+  ymax2 <- flux.corr %>% filter(flag == 1) %>% select(all_of(gastype)) %>% max()
+  ymin2 <- flux.corr %>% filter(flag == 1) %>% select(all_of(gastype)) %>% min()
+  ydiff2 <- ymax2 - ymin2
 
-  yaxis.max <- ifelse(ymax+0.05*ymax > yaxis.limit.max, yaxis.limit.max, ymax+0.05*ymax)
-  yaxis.min <- ifelse(ymin-0.05*ymax < yaxis.limit.min, yaxis.limit.min, ymin-0.05*ymax)
+  ylim2 <- c(ymin2 - ydiff2, ymax2 + ydiff2)
+  ylim.min2 <- ifelse(ylim2[1] < ylim.min, ylim.min, ylim2[1])
+  ylim.max2 <- ifelse(ylim2[2] > ylim.max, ylim.max, ylim2[2])
 
   # Inspect the full data set to see if it looks OK
   dev.new(noRStudioGD = TRUE, width = 14, height = 8)
   plot(flux.meas ~ flux.corr$Etime, col = flux.corr$flag+1,
        main = paste(unique(flux.corr$UniqueID)),
        xlab = "Etime", ylab = gastype, xaxp = c(xmin, xmax, xmult),
-       ylim = c(yaxis.min, yaxis.max))
+       ylim = c(ylim.min2, ylim.max2))
 
   # Wait a few seconds before closing the window to inspect the plot
   if (!is.null(sleep) | sleep > 0) sleeploop(sleep)
