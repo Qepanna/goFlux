@@ -31,7 +31,7 @@ Description
 \examples{
 data(example_LGR_manID)
 example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
-criteria <- c("g.factor", "kappa", "MDF", "r2", "SE.rel")
+criteria <- c("MAE", "g.factor", "kappa", "MDF", "SE.rel")
 example_LGR_res <- best.flux(example_LGR_flux, criteria)
 example_LGR_plots <- flux.plot(example_LGR_res, example_LGR_manID, "CO2dry_ppm")
 
