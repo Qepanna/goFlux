@@ -91,22 +91,31 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30) {
 
     # Plot limits
     obs.length <- max(na.omit(data_corr[[f]]$Etime))
-    xmax <- max(na.omit(data_split[[f]]$Etime)) %>%
-      ifelse(. > obs.length + shoulder, obs.length + shoulder, .)
-    xmin <- min(na.omit(data_split[[f]]$Etime)) %>%
-      ifelse(. < -shoulder, -shoulder, .)
-    xdiff <- xmax - xmin
-    seq.x <- seq.rep(0.87, -0.12, 3, 6)
 
     if(any(grepl("nb.obs", quality.check))){
+
+      xmax <- max(na.omit(data_split[[f]]$Etime))
+      xmin <- min(na.omit(data_split[[f]]$Etime))
+      xdiff <- xmax - xmin
+
       ymax <- max(na.omit(data_split[[f]][, gastype]))
       ymin <- min(na.omit(data_split[[f]][, gastype]))
       ydiff <- ymax - ymin
+
     } else {
+
+      xmax <- max(na.omit(data_split[[f]]$Etime)) %>%
+        ifelse(. > obs.length + shoulder, obs.length + shoulder, .)
+      xmin <- min(na.omit(data_split[[f]]$Etime)) %>%
+        ifelse(. < -shoulder, -shoulder, .)
+      xdiff <- xmax - xmin
+
       ymax <- max(na.omit(data_corr[[f]][, gastype]))
       ymin <- min(na.omit(data_corr[[f]][, gastype]))
       ydiff <- ymax - ymin
     }
+
+    seq.x <- seq.rep(0.87, -0.12, 3, 6)
     seq.y <- seq.rep(0.21, -0.07, 6, 3, rep.seq = T)
 
     # Content of legend on plot
