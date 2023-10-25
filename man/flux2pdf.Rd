@@ -28,7 +28,7 @@ onto the same page.
 \examples{
 data(example_LGR_manID)
 example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
-criteria <- c("g.factor", "kappa", "MDF", "SE.rel")
+criteria <- c("MAE", "g.factor", "kappa", "MDF", "SE.rel")
 example_LGR_res <- best.flux(example_LGR_flux)
 example_LGR_plots <- flux.plot(example_LGR_res, example_LGR_manID, "CO2dry_ppm")
 flux2pdf(example_LGR_plots)
