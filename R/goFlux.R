@@ -166,7 +166,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
   if(any(grepl(gastype, names(dataframe))) & !is.numeric(dataframe[,gastype])){
     stop("The column that matches 'gastype' in 'dataframe' must be of class numeric")}
   ## a column that matches H2O_col
-  if(missing(H2O_col)) stop("'H2O_col' is required")
+  if(is.null(H2O_col)) stop("'H2O_col' is required")
   if(!is.null(H2O_col) & !is.character(H2O_col)) stop("'H2O_col' must be a character string")
   if(!any(grepl(H2O_col, names(dataframe)))){
     stop("'dataframe' must contain a column that matches 'H2O_col'")}
