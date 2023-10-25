@@ -26,7 +26,7 @@
 #' @examples
 #' data(example_LGR_manID)
 #' example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
-#' criteria <- c("g.factor", "kappa", "MDF", "r2", "SE.rel")
+#' criteria <- c("MAE", "g.factor", "kappa", "MDF", "SE.rel")
 #' example_LGR_res <- best.flux(example_LGR_flux, criteria)
 #' example_LGR_plots <- flux.plot(example_LGR_res, example_LGR_manID, "CO2dry_ppm")
 #'
@@ -75,6 +75,20 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30) {
   pboptions(char = "=")
   plot_list <- pblapply(seq_along(data_split), function(f) {
 
+    # Output from best.flux
+    if(any(grepl("quality.check", names(data_split[[f]])))){
+      quality.check <- unique(data_split[[f]]$quality.check)}
+    if(any(grepl("model", names(data_split[[f]])))){
+      model <- unique(data_split[[f]]$model)}
+    if(any(grepl("best.flux", names(data_split[[f]])))){
+      best.flux <- unique(data_split[[f]]$best.flux)}
+    if(any(grepl("LM.diagnose", names(data_split[[f]])))){
+      LM.diagnose <- unique(data_split[[f]]$LM.diagnose)}
+    if(any(grepl("HM.diagnose", names(data_split[[f]])))){
+      HM.diagnose <- unique(data_split[[f]]$HM.diagnose)}
+    if(any(grepl("nb.obs", names(data_split[[f]])))){
+      nb.obs <- unique(data_split[[f]]$nb.obs)}
+
     # Plot limits
     obs.length <- max(na.omit(data_corr[[f]]$Etime))
     xmax <- max(na.omit(data_split[[f]]$Etime)) %>%
@@ -84,9 +98,15 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30) {
     xdiff <- xmax - xmin
     seq.x <- seq.rep(0.87, -0.12, 3, 6)
 
-    ymax <- max(na.omit(data_corr[[f]][, gastype]))
-    ymin <- min(na.omit(data_corr[[f]][, gastype]))
-    ydiff <- ymax - ymin
+    if(any(grepl("nb.obs", quality.check))){
+      ymax <- max(na.omit(data_split[[f]][, gastype]))
+      ymin <- min(na.omit(data_split[[f]][, gastype]))
+      ydiff <- ymax - ymin
+    } else {
+      ymax <- max(na.omit(data_corr[[f]][, gastype]))
+      ymin <- min(na.omit(data_corr[[f]][, gastype]))
+      ydiff <- ymax - ymin
+    }
     seq.y <- seq.rep(0.21, -0.07, 6, 3, rep.seq = T)
 
     # Content of legend on plot
