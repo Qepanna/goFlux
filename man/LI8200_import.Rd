@@ -19,7 +19,7 @@ in the current working directory. If save = FALSE, returns the file
 in the Console, or load in the Environment if assigned to an object.}
 }
 \value{
-a data frame
+a data frame containing raw data from the LI-COR Smart Chamber LI-8200.
 }
 \description{
 Imports single raw data files from the LI-COR smart chamber (LI-8200)

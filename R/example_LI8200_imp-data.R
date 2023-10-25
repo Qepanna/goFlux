@@ -1,7 +1,8 @@
 #' Example gas measurements data from LI-COR instruments
 #'
 #' Raw data from the LI-8200 greenhouse gas analyzer that has
-#' been processed by the function LI8200_import of this package.
+#' been processed by the function \code{\link[GoFluxYourself]{LI8200_import}}
+#' of this package.
 #'
 #' @docType data
 #'

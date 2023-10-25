@@ -27,8 +27,7 @@ GAIA_import(
 )
 }
 \arguments{
-\item{inputfile}{character string; the name of a file with the extension .csv,
-including path.}
+\item{inputfile}{character string; the name of a file with the extension .csv}
 
 \item{date.format}{character string; chose one of the following: "dmy", "ymd",
 or "mdy". Default is "ymd", as it is the date format from
@@ -73,12 +72,20 @@ H2O1.col must be the same instrument as CO2.col and CH4.col, and
 H2O2.col must be the same instrument as N2O.col.}
 }
 \value{
-a data frame
+a data frame containing raw data from the automated chamber
+         ECOFlux (GAIA2TECH)
 }
 \description{
 Imports single raw gas measurement files from the automated chamber
 ECOFlux (GAIA2TECH) with the extension .csv
 (LI-7810: CO2, CH4 and H2O / LI7820: N2O and H2O)
+}
+\details{
+This function has been designed for the automated chamber ECOFlux (GAIA2TECH)
+synced with up to 9 chambers and two GHG analyzers from LI-COR (LI-7810: CO2,
+CH4 and H2O / LI7820: N2O and H2O). If this function could be useful for you,
+but does not meet your needs, please contact the maintainer of this package
+for potential adaptations.
 }
 \examples{
 # Examples on how to use:

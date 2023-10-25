@@ -11,9 +11,10 @@ An object of class \code{"data.frame"}
 data(example_LGR_manID)
 }
 \description{
-Processed data from the micro-GGA Los Gastos Reasearch greenhouse gas
-analyzer after manual indentification of measurements with the functions
-obs.win() and click.peak.loop() of this package.
+Processed data from the micro-GGA Los Gatos Research greenhouse gas
+analyzer after manual identification of measurements with the functions
+\code{\link[GoFluxYourself]{obs.win}} and
+\code{\link[GoFluxYourself]{click.peak.loop}} of this package.
 }
 \examples{
 data(example_LGR_manID)

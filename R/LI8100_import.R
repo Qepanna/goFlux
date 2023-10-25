@@ -14,7 +14,8 @@
 #' @param save logical; if save = TRUE, saves the file as RData in a RData folder
 #'             in the current working directory. If save = FALSE, returns the file
 #'             in the Console, or load in the Environment if assigned to an object.
-#' @returns a data frame
+#'
+#' @returns a data frame containing raw data from LI-COR GHG analyzer LI-8100.
 #'
 #' @include GoFluxYourself-package.R
 #'

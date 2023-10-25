@@ -23,7 +23,7 @@ in the current working directory. If save = FALSE, returns the file
 in the Console, or load in the Environment if assigned to an object.}
 }
 \value{
-a data frame
+a data frame containing raw data from Picarro G2508 GHG analyzer.
 }
 \description{
 Imports single raw gas measurement files from the Picarro G2508 with the

@@ -14,7 +14,7 @@
 #' @param save logical; if save = TRUE, saves the file as RData in a RData folder
 #'             in the current working directory. If save = FALSE, returns the file
 #'             in the Console, or load in the Environment if assigned to an object.
-#' @returns a data frame
+#' @returns a data frame containing raw data from LI-COR GHG analyzer LI-6400.
 #'
 #' @include GoFluxYourself-package.R
 #'
@@ -56,7 +56,7 @@ LI6400_import <- function(inputfile, date.format = "mdy",
   cham.close <- cham.open <- POSIX.time <- chamID <- DATE <- TIME <- H2O_mmol <-
     Etime <- CO2dry_ppm <- Meas.type <- plotID <- H2OS <- Cdry <- Press <-
     Tair <- Mode <- ETime <- HHMMSS <- Meas.type..NEE.ER. <- Plot. <- Obs <-
-    V4 <- V1 <- NULL
+    V4 <- V1 <- start.time <- NULL
 
   # Find how many rows need to be skipped
   skip.rows <- tryapply(seq(1:30), function(i) {

@@ -23,7 +23,7 @@ in the current working directory. If save = FALSE, returns the file
 in the Console, or load in the Environment if assigned to an object.}
 }
 \value{
-a data frame
+a data frame containing raw data from LI-COR GHG analyzer LI-7820.
 }
 \description{
 Imports single raw gas measurement files from the LI-COR 7820

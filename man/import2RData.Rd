@@ -7,28 +7,28 @@
 import2RData(path, instrument, date.format, timezone = "UTC")
 }
 \arguments{
-\item{path}{Character string. A folder path containing all files to be imported.
+\item{path}{character string; a folder path containing all files to be imported.
 Ideally, the folder should only contain the files to be imported.}
 
-\item{instrument}{Character string. Specify which instrument was used to generate
+\item{instrument}{character string; specifies which instrument was used to generate
 the files contained in the folder path. Chose one of the
 following: "LGR", "G2508", "GAIA", "LI-6400", "LI-7810",
 "LI-7820", "LI-8100", or "LI-8200".}
 
-\item{date.format}{Date format. Chose one of the following: "dmy", "ymd", or "mdy".}
+\item{date.format}{date format; chose one of the following: "dmy", "ymd", or "mdy".}
 
-\item{timezone}{a time zone in which to import the data to POSIXct format.
-Default is "UTC". Note about time zone: I recommend using
-the time zone "UTC" to avoid any issue related to summer
-time and winter time changes.}
+\item{timezone}{character string; a time zone in which to import the data to
+POSIXct format. Default is "UTC". Note about time zone: it is
+recommended to use the time zone "UTC" to avoid any issue
+related to summer time and winter time changes.}
 }
 \value{
 a data frame saved as RData in a newly created folder, RData, into
-your working directory.
+the working directory.
 }
 \description{
 Imports all raw gas measurement files contained in a folder.
-Adapted to multiple greenhouse gas analyzers:
+Adapted to multiple greenhouse gas analyzers and other instruments:
 \itemize{
 \item LI-COR: LI-6400, LI-7810, LI-7820, LI-8100, LI-8200 (smart chamber)
 \item Los Gatos Research instruments: (e.g. UGGA and m-GGA)

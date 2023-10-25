@@ -12,7 +12,8 @@ data(example_LI7810_imp)
 }
 \description{
 Raw data from the LI-7810 greenhouse gas analyzer that has
-been processed by the function LI7810_import of this package.
+been processed by the function \code{\link[GoFluxYourself]{LI7810_import}}
+of this package.
 }
 \examples{
 data(example_LI7810_imp)

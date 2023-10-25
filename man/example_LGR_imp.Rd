@@ -11,8 +11,9 @@ An object of class \code{"data.frame"}
 data(example_LGR_imp)
 }
 \description{
-Raw data from the micro-GGA Los Gastos Reasearch greenhouse gas analyzer
-that has been processed by the function LGR_import of this package.
+Raw data from the micro-GGA Los Gatos Research greenhouse gas analyzer that
+has been processed by the function \code{\link[GoFluxYourself]{LGR_import}}
+of this package.
 }
 \examples{
 data(example_LGR_imp)
