@@ -9,25 +9,26 @@
 #'                Must be one of the following: "CO2dry_ppm", "CH4dry_ppb",
 #'                "N2Odry_ppb" or "H2O_ppm". Default is "CO2dry_ppm".
 #' @param auxfile data.frame; auxiliary data frame containing the columns
-#'                'start.time' and 'UniqueID'. 'start.time' must contain a date
-#'                and be in POSIXct format. The time zone must be the same as
-#'                the POSIX.time in the 'inputfile'. The default time zone for the
-#'                import functions is "UTC". A file from the Smart Chamber
-#'                (LI-8200) can be used as an auxiliary file. In that case,
-#'                'chamID' will be used instead of 'UniqueID', if UniqueID
-#'                cannot be found.
+#'                \code{start.time} and \code{UniqueID}. \code{start.time} must
+#'                contain a date and be in POSIXct format. The time zone must be
+#'                the same as the POSIX.time in \code{inputfile}. The default
+#'                time zone for the import functions is "UTC". A data frame from
+#'                the Smart Chamber (LI-8200) can be used as an auxiliary file.
+#'                In that case, \code{chamID} will be used instead of \code{UniqueID},
+#'                if \code{UniqueID} cannot be found.
 #' @param obs.length numerical; chamber closure time (seconds). Default is NULL.
-#'                   If 'obs.length' is not provided, a column \code{obs.length}
-#'                   should be contained in the 'auxfile' or the 'inputfile'.
-#'                   Alternatively, 'obs.length' will be calculated from
+#'                   If \code{obs.length} is not provided, a column \code{obs.length}
+#'                   should be contained in \code{auxfile} or \code{inputfile}.
+#'                   Alternatively, \code{obs.length} will be calculated from
 #'                   \code{start.time} and \code{cham.open} or \code{end.time}
-#'                   if found in the 'inputfile' or the 'auxfile'.
-#'
+#'                   if found in \code{auxfile} or \code{inputfile}.
 #' @param shoulder numerical; time before and after measurement in observation
 #'                 window (seconds). Default is 120 seconds.
 #'
 #' @returns a list of data frame, split by UniqueID, merging \code{inputfile},
-#'          and \code{auxfile}.
+#'          and \code{auxfile}. Additionally, adds some time (shoulder) before
+#'          and after the chamber closure time to help identify the best window
+#'          of measurement with the function \code{\link[GoFluxYourself]{click.peak}}.
 #'
 #' @include GoFluxYourself-package.R
 #'
@@ -37,7 +38,7 @@
 #'          \code{\link[GoFluxYourself]{click.peak}} for a single measurement.
 #'
 #' @examples
-#' # Examples on how to use it in multiple situations:
+#' # How to use in multiple situations:
 #' # Note that gastype = "CO2dry_ppm" is the default setting
 #' library(dplyr)
 #'

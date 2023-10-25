@@ -22,7 +22,7 @@
 #'             \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
 #'             \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
 #'             \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
-#'             are based on the LI-COR instruments:
+#'             are based on the LI-COR instruments (LI-7810 and LI-7820):
 #'             \itemize{
 #'               \item \ifelse{html}{\out{CO<sub>2</sub> = 3.5 ppm;}}{\eqn{CO[2] = 3.5 ppm;}{ASCII}}
 #'               \item \ifelse{html}{\out{CH<sub>4</sub> = 0.6 ppb;}}{\eqn{CH[4] = 0.6 ppb;}{ASCII}}
@@ -44,49 +44,49 @@
 #'             }
 #' @param Area numerical value; area of the soil surface inside the chamber
 #'             \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}.
-#'             Alternatively, provide the column \code{Area} in dataframe if
-#'             \code{Area} is different between samples.
+#'             Alternatively, provide the column \code{Area} in \code{dataframe}
+#'             if \code{Area} is different between samples.
 #' @param Vtot numerical value; total volume inside the chamber, tubes, instruments,
-#'             etc. (L). Alternatively, provide the column \code{Vtot} in dataframe
-#'             if \code{Vtot} is different between samples. If \code{Vtot} is
-#'             missing, the function will calculate it from \code{Area},
-#'             \code{Vcham} and \code{offset}.
+#'             etc. (L). Alternatively, provide the column \code{Vtot} in
+#'             \code{dataframe} if \code{Vtot} is different between samples. If
+#'             \code{Vtot} is missing, the function will calculate it from
+#'             \code{Area}, \code{Vcham} and \code{offset}.
 #' @param Vcham (optional) numerical value; volume inside the chamber, tubes and
 #'              instruments (L). Alternatively, provide the column \code{Vcham}
-#'              in dataframe if \code{Vcham} is different between samples.
+#'              in \code{dataframe} if \code{Vcham} is different between samples.
 #'              \code{Vhcam} is only used if \code{Vtot} is missing.
 #' @param offset (optional) numerical value; height between the soil surface and
 #'               the chamber (cm). Alternatively, provide the column \code{offset}
-#'               in dataframe if \code{offset} is different between samples.
+#'               in \code{dataframe} if \code{offset} is different between samples.
 #'               \code{offset} is only used if \code{Vtot} is missing.
 #' @param Pcham numerical value; pressure inside the chamber (kPa).
-#'              Alternatively, provide the column \code{Pcham} in dataframe if
-#'              \code{Pcham} is different between samples. If \code{Pcham} is
+#'              Alternatively, provide the column \code{Pcham} in \code{dataframe}
+#'              if \code{Pcham} is different between samples. If \code{Pcham} is
 #'              not provided, normal atmospheric pressure (101.325 kPa) is used.
-#' @param Tcham numerical value; temperature inside the chamber (Celcius).
-#'              Alternatively, provide the column \code{Tcham} in dataframe if
-#'              \code{Tcham} is different between samples. If \code{Tcham} is
+#' @param Tcham numerical value; temperature inside the chamber (Celsius).
+#'              Alternatively, provide the column \code{Tcham} in \code{dataframe}
+#'              if \code{Tcham} is different between samples. If \code{Tcham} is
 #'              not provided, normal air temperature (15°C) is used.
 #' @param k.mult numerical value; a multiplier for the allowed kappa-max.
 #'               kappa-max is the maximal curvature (kappa) of the non-linear
 #'               regression (Hutchinson and Mosier model) allowed for a each
 #'               flux measurement. See the functions
 #'               \code{\link[GoFluxYourself]{k.max}} and
-#'               \code{\link[GoFluxYourself]{HM.flux}}
-#'               for more information. Default setting is \code{k.mult = 1}.
+#'               \code{\link[GoFluxYourself]{HM.flux}} for more information.
+#'               Default setting is no multiplier (\code{k.mult = 1}).
 #' @param warn.length numerical; minimum amount of observations accepted (number
 #'                    of data points). With nowadays portable greenhouse gas
-#'                    analyzers, the frequency of measurement is 1 measurement
-#'                    per second. Therefore, the amount of observation is equal
-#'                    to the chamber closure time length (seconds). Default is
-#'                    one minute (60 seconds).
+#'                    analyzers, the frequency of measurement is usually one
+#'                    measurement per second. Therefore, for a default setting
+#'                    of \code{warn.length = 60}, the chamber closure time
+#'                    should be approximately one minute (60 seconds).
 #'
 #' @details
 #' Flux estimate units are
-#' \ifelse{html}{\out{nmol/m<sup>2</sup>s}}{\eqn{nmol/m^{2}s}{ASCII}}
-#' (if initial concentration is ppm, e.g. CO2dry_ppm) and
 #' \ifelse{html}{\out{µmol/m<sup>2</sup>s}}{\eqn{µmol/m^{2}s}{ASCII}}
-#' (if initial concentration is ppb, e.g. CH4dry_ppm).
+#' (if initial concentration is ppm, e.g. CO2dry_ppm) and
+#' \ifelse{html}{\out{nmol/m<sup>2</sup>s}}{\eqn{nmol/m^{2}s}{ASCII}}
+#' (if initial concentration is ppb, e.g. CH4dry_ppb).
 #'
 #' The function \code{\link[GoFluxYourself]{k.max}} calculates the maximal
 #' curvature (kappa) of the non-linear model (Hutchinson and Mosier;
@@ -100,17 +100,21 @@
 #' The function \code{\link[GoFluxYourself]{MDF}} calculates the minimal detectable
 #' flux (MDF) based on instrument precision and measurement time.
 #'
-#' @returns Returns a data frame with 24 columns: a UniqueID per measurement,
-#'          9 columns for the linear model results (flux, C0, Ci, slope, root
-#'          mean square error (RMSE), standard error (se), relative se (se.rel),
+#' @returns Returns a data frame with 26 columns: a UniqueID per measurement,
+#'          10 columns for the linear model results (linear flux estimate, initial
+#'          gas concentration (C0), final gas concentration (Ci), slope of linear
+#'          regression, mean absolute error (MAE), root mean square error (RMSE),
+#'          standard error (se), relative se (se.rel),
 #'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and p-value),
-#'          9 columns for the non-linear model results (flux, C0, Ci, slope, root
-#'          mean square error (RMSE), standard error (se), relative se (se.rel),
-#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and kappa), as
-#'          well as the minimal detectable flux (MDF; \code{\link[GoFluxYourself]{MDF}}),
-#'          the precision of the instrument (prec), the flux term
-#'          (\code{\link[GoFluxYourself]{flux.term}}), kappa-max
-#'          (\code{\link[GoFluxYourself]{k.max}}) and the g factor
+#'          10 columns for the non-linear model results (non-linear flux estimate,
+#'          initial gas concentration (C0), final gas concentration (Ci), slope
+#'          at \code{t=0}, mean absolute error (MAE), root mean square error
+#'          (RMSE), standard error (se), relative se (se.rel),
+#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}},
+#'          and curvature (kappa), as well as the minimal detectable flux (MDF;
+#'          \code{\link[GoFluxYourself]{MDF}}), the precision of the instrument
+#'          (prec), the flux term (\code{\link[GoFluxYourself]{flux.term}}),
+#'          kappa-max (\code{\link[GoFluxYourself]{k.max}}) and the g factor
 #'          (\code{\link[GoFluxYourself]{g.factor}}).
 #'
 #' @include GoFluxYourself-package.R
@@ -131,9 +135,9 @@
 #'
 #' @examples
 #' data(example_LGR_manID)
-#' CO2_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
-#' CH4_flux <- goFlux(example_LGR_manID, "CH4dry_ppb")
-#' H2O_flux <- goFlux(example_LGR_manID, "H2O_ppm")
+#' CO2_flux <- goFlux(example_LGR_manID, "CO2dry_ppm", prec = 0.35)
+#' CH4_flux <- goFlux(example_LGR_manID, "CH4dry_ppb", prec = 0.9)
+#' H2O_flux <- goFlux(example_LGR_manID, "H2O_ppm", prec = 200)
 #'
 #' @export
 #'
@@ -145,7 +149,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
   if(!is.numeric(warn.length)) stop("'warn.length' must be of class numeric")
 
   # Assign NULL to variables without binding
-  H2O_ppm <- H2O_mol <- Etime <- flag <- NULL
+  H2O_ppm <- H2O_mol <- Etime <- flag <- chamID <- NULL
 
   # Use provided values for Area, offset, Vcham, Vtot, Pcham and Tcham
   # if they are missing from dataframe

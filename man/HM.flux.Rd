@@ -19,38 +19,59 @@ HM.flux(
 
 \item{time.meas}{numerical vector containing time stamps (seconds)}
 
-\item{flux.term}{numerical value; flux term calculated with the function `flux.term()`}
+\item{flux.term}{numerical value; flux term calculated with the function
+\code{\link[GoFluxYourself]{flux.term}}}
 
 \item{k.max}{numerical; kappa-max is the maximal curvature allowed in the
-Hutchinson and Mosier model. Calculated with the `k.max()` function.}
+Hutchinson and Mosier model. Calculated with the
+\code{\link[GoFluxYourself]{k.max}} function.}
 
-\item{Ci}{numerical; gas concentration after i seconds (ppm or ppb). For typical
-forest soil conditions, use these estimates for the following gastypes:
-"CO2dry_ppm": Ci = 1000 ppm; "CH4dry_ppb": Ci = 1800 ppb;
-"N2Odry_ppb": Ci = 500 ppb; "H2O_ppm": Ci = 20000 ppm.}
+\item{Ci}{numerical; gas concentration after \emph{i} seconds (ppm or ppb).
+For typical forest soil conditions, use these estimates for the
+following \code{gastypes}:
+\itemize{
+    \item "CO2dry_ppm": \code{Ci = 1000 ppm}
+    \item "CH4dry_ppb": \code{Ci = 1800 ppb}
+    \item "N2Odry_ppb": \code{Ci = 500 ppb}
+    \item "H2O_ppm": \code{Ci = 20000 ppm}
+  }}
 
 \item{C0}{numerical; initial gas concentration at time 0 second (ppm or ppb)
-For typical forest soil conditions, use these estimates for the following
-gastypes: "CO2dry_ppm": C0 = 380 ppm; "CH4dry_ppb": C0 = 2200 ppb;
-"N2Odry_ppb": C0 = 250 ppb; "H2O_ppm": C0 = 10000 ppm.}
+For typical forest soil conditions, use these estimates for the
+following \code{gastypes}:
+\itemize{
+    \item "CO2dry_ppm": \code{C0 = 380 ppm}
+    \item "CH4dry_ppb": \code{C0 = 2200 ppb}
+    \item "N2Odry_ppb": \code{C0 = 250 ppb}
+    \item "H2O_ppm": \code{C0 = 10000 ppm}
+  }}
 
-\item{k.mult}{numerical; a multiplier for the allowed k.max. Default is
-k.mult = 1.}
-
-\item{k}{numerical; kappa gives the curvature of the regression line (s-1).
-The default parameter for kappa is k = 0.005 s-1. k = 0.005 is the
-minimal value of kappa if LM.flux = MDF and t = 180 secs.}
+\item{k.mult}{numerical; a multiplier for the allowed k.max. Default is no
+multiplier (\code{k.mult = 1}).}
 }
 \value{
-a data.frame
+Returns a data frame with 10 columns: non-linear flux estimate,
+         initial gas concentration (C0), final gas concentration (Ci), slope
+         at \code{t=0}, mean absolute error (MAE), root mean square error
+         (RMSE), standard error (se), relative se (se.rel),
+         \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}},
+         and curvature (kappa).
 }
 \description{
 Estimates a gas flux with a non-linear regression, the Hutchinson and Mosier
-model, and then extracts values from the model fit, calculates standard error,
-r2, p-value and Root Mean Squared Error (RMSE).
+model, and then extracts values from the model fit.
+}
+\details{
+Flux estimate units are
+\ifelse{html}{\out{µmol/m<sup>2</sup>s}}{\eqn{µmol/m^{2}s}{ASCII}}
+(if initial concentration is ppm, e.g. CO2dry_ppm) and
+\ifelse{html}{\out{nmol/m<sup>2</sup>s}}{\eqn{nmol/m^{2}s}{ASCII}}
+(if initial concentration is ppb, e.g. CH4dry_ppb).
 }
 \references{
-Hüppi et al. (2018). Restricting the nonlinearity parameter in soil greenhouse gas flux calculation for more reliable flux estimates. *PloS one*, 13(7), e0200876.
+Hüppi et al. (2018). Restricting the nonlinearity parameter in
+soil greenhouse gas flux calculation for more reliable flux estimates.
+\emph{PloS one}, 13(7), e0200876.
 }
 \seealso{
 Look up the functions \code{\link[GoFluxYourself]{flux.term}} and

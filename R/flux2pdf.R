@@ -3,14 +3,15 @@
 #' Save a list of plots to a pdf file, and combine plots sharing a UniqueID
 #' onto the same page.
 #'
-#' @param plot.list a list of plots; output from the function `flux.plot()`.
+#' @param plot.list a list of plots; output from the function
+#'                  \code{\link[GoFluxYourself]{flux.plot}}.
 #' @param outfile a character string indicating the full name of the pdf
 #'                output file (including the path). Default is to save the pdf
 #'                in the working directory, with the name of the plot.list.
 #' @param width numerical value; width of the pdf page. Default is 11.6 inches.
 #' @param height numerical value; height of the pdf page. Default is 8.2 inches.
 #'
-#' @return a pdf file
+#' @return a pdf file containing all plots from plot.list, sorted by UniqueID.
 #'
 #' @include GoFluxYourself-package.R
 #'
@@ -22,7 +23,7 @@
 #' @examples
 #' data(example_LGR_manID)
 #' example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
-#' criteria <- c("g.factor", "kappa", "MDF", "r2", "SE.rel")
+#' criteria <- c("g.factor", "kappa", "MDF", "SE.rel")
 #' example_LGR_res <- best.flux(example_LGR_flux)
 #' example_LGR_plots <- flux.plot(example_LGR_res, example_LGR_manID, "CO2dry_ppm")
 #' flux2pdf(example_LGR_plots)

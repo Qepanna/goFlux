@@ -1,19 +1,30 @@
 #' Linear model for flux calculation
 #'
 #' Estimates a gas flux with a linear regression, and then extracts values from
-#' the linear fit, calculates standard error, r~2~, p-value and Root Mean Squared
-#' Error (RMSE).
+#' the linear fit.
 #'
 #' @param gas.meas numerical vector containing gas measurements (ppm or ppb)
 #' @param time.meas numerical vector containing time stamps (seconds)
-#' @param flux.term numerical value; flux term calculated with the function `flux.term()`
+#' @param flux.term numerical value; flux term calculated with the function
+#'                  \code{\link[GoFluxYourself]{flux.term}}
 #'
 #' @seealso Look up the function \code{\link[GoFluxYourself]{flux.term}} of this
 #'          package for more information about this parameter.
 #' @seealso See also the function \code{\link[GoFluxYourself]{HM.flux}}
 #'          for information about the non-linear regression model used in this package.
 #'
-#' @return a data.frame
+#' @returns Returns a data frame with 10 columns: linear flux estimate, initial
+#'          gas concentration (C0), final gas concentration (Ci), slope of linear
+#'          regression, mean absolute error (MAE), root mean square error (RMSE),
+#'          standard error (se), relative se (se.rel),
+#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and p-value.
+#'
+#' @details
+#' Flux estimate units are
+#' \ifelse{html}{\out{µmol/m<sup>2</sup>s}}{\eqn{µmol/m^{2}s}{ASCII}}
+#' (if initial concentration is ppm, e.g. CO2dry_ppm) and
+#' \ifelse{html}{\out{nmol/m<sup>2</sup>s}}{\eqn{nmol/m^{2}s}{ASCII}}
+#' (if initial concentration is ppb, e.g. CH4dry_ppb).
 #'
 #' @include GoFluxYourself-package.R
 #'

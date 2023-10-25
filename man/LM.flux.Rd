@@ -11,15 +11,26 @@ LM.flux(gas.meas, time.meas, flux.term)
 
 \item{time.meas}{numerical vector containing time stamps (seconds)}
 
-\item{flux.term}{numerical value; flux term calculated with the function `flux.term()`}
+\item{flux.term}{numerical value; flux term calculated with the function
+\code{\link[GoFluxYourself]{flux.term}}}
 }
 \value{
-a data.frame
+Returns a data frame with 10 columns: linear flux estimate, initial
+         gas concentration (C0), final gas concentration (Ci), slope of linear
+         regression, mean absolute error (MAE), root mean square error (RMSE),
+         standard error (se), relative se (se.rel),
+         \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and p-value.
 }
 \description{
 Estimates a gas flux with a linear regression, and then extracts values from
-the linear fit, calculates standard error, r~2~, p-value and Root Mean Squared
-Error (RMSE).
+the linear fit.
+}
+\details{
+Flux estimate units are
+\ifelse{html}{\out{µmol/m<sup>2</sup>s}}{\eqn{µmol/m^{2}s}{ASCII}}
+(if initial concentration is ppm, e.g. CO2dry_ppm) and
+\ifelse{html}{\out{nmol/m<sup>2</sup>s}}{\eqn{nmol/m^{2}s}{ASCII}}
+(if initial concentration is ppb, e.g. CH4dry_ppb).
 }
 \seealso{
 Look up the function \code{\link[GoFluxYourself]{flux.term}} of this

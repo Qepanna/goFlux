@@ -2,10 +2,12 @@
 #'
 #' Description
 #'
-#' @param flux.results a data.frame; output from the function `best.flux()`.
-#' @param dataframe a data.frame containing gas measurements (see gastype below),
-#'                  and the following: UniqueID, Etime and flag (same dataframe
-#'                  as used with the function `goFlux()`).
+#' @param flux.results a data.frame; output from the function
+#'                     \code{\link[GoFluxYourself]{best.flux}}
+#' @param dataframe a data.frame containing gas measurements (see \code{gastype}
+#'                  below) and the following columns: \code{UniqueID}, \code{Etime}
+#'                  and \code{flag} (same \code{dataframe} as used with the function
+#'                  \code{\link[GoFluxYourself]{goFlux}}).
 #' @param gastype character string; specifies which column was used for the
 #'                flux calculations. Must be one of the following: "CO2dry_ppm",
 #'                "CH4dry_ppb", "N2Odry_ppb" or "H2O_ppm".

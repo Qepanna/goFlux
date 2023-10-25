@@ -1,10 +1,10 @@
 #' Manual identification of peaks on gas measurements
 #'
 #' Identify the start and the end of a measurement by clicking on them in a
-#' scatter plot. Requires start time and UniqueID. To use in a loop with
-#' multiple measurements, first use the function \code{\link[GoFluxYourself]{obs.win}}
-#' to identify the observation window of each measurement and then use the wrapper
-#' function \code{\link[GoFluxYourself]{click.peak.loop}} with
+#' scatter plot. To use in a loop with multiple measurements, first use the
+#' function \code{\link[GoFluxYourself]{obs.win}} to identify the observation
+#' window of each measurement and then use the wrapper function
+#' \code{\link[GoFluxYourself]{click.peak.loop}} with
 #' \code{\link[base]{lapply}} (see example below).
 #'
 #' @param flux.unique data.frame; output from the function \code{obs.win()}.
@@ -27,16 +27,22 @@
 #'                 and 1000ppm is the maximum plotted concentration, which correspond
 #'                 to a maximal accumulated concentration in the chamber before
 #'                 considering it an outlier (e.g. caused by breath or gas bubble).
+#'                 For other gases, you may use the following suggested values:
+#'                 \itemize{
+#'               \item "CH4dry_ppb": \code{plot.lim = c(2200, 1800)}
+#'               \item "N2Odry_ppb": \code{plot.lim = c(250, 500)}
+#'               \item "H2O_ppm": \code{plot.lim = c(10000, 20000)}
+#'             }
 #' @param warn.length numerical; minimum amount of observations accepted (number
 #'                    of data points). With nowadays portable greenhouse gas
-#'                    analyzers, the frequency of measurement is 1 measurement
-#'                    per second. Therefore, the amount of observation is equal
-#'                    to the chamber closure time length (seconds). Default is
-#'                    one minute (60 seconds).
+#'                    analyzers, the frequency of measurement is usually one
+#'                    measurement per second. Therefore, for a default setting
+#'                    of \code{warn.length = 60}, the chamber closure time
+#'                    should be approximately one minute (60 seconds).
 #'
-#' @returns a list of data.frame, split by UniqueID, identical to the input
-#'          \code{flux.unique}, with the additional columns \code{flag},
-#'          \code{Etime}, \code{start.time_corr} and \code{end.time_corr}.
+#' @returns a data.frame, identical to the input \code{flux.unique}, with the
+#'          additional columns \code{flag}, \code{Etime}, \code{start.time_corr},
+#'          \code{end.time_corr} and \code{obs.length_corr}.
 #'
 #' @include GoFluxYourself-package.R
 #'
@@ -46,7 +52,7 @@
 #'          \code{\link[GoFluxYourself]{obs.win}} to prepare a list of data.frame.
 #'
 #' @examples
-#' # Examples on how to use it in multiple situations:
+#' # How to use in multiple situations:
 #' # Note that gastype = "CO2dry_ppm" is the default setting
 #' library(dplyr)
 #'

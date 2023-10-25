@@ -11,6 +11,8 @@
 #'
 #' @return a numerical sequence
 #'
+#' @seealso \code{\link[base]{seq}} \code{\link[base]{rep}}
+#'
 #' @keywords internal
 #'
 seq.rep <- function(from, by, n.rep, length.seq, rep.seq = F) {

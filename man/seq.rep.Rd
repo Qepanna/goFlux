@@ -24,4 +24,7 @@ a numerical sequence
 \description{
 A wrapper function that merges seq() and rep().
 }
+\seealso{
+\code{\link[base]{seq}} \code{\link[base]{rep}}
+}
 \keyword{internal}

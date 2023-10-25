@@ -9,10 +9,11 @@ g.factor(HM.flux, LM.flux)
 \arguments{
 \item{HM.flux}{a numerical value; flux estimate from a non-linear
 regression model (e.g. Hutchinson and Mosier). Calculated with
-the `HM.flux()` function of this package.}
+the \code{\link[GoFluxYourself]{HM.flux}} function of this package.}
 
 \item{LM.flux}{a numerical value; flux estimate from a linear regression
-model. Calculated with the `LM.flux()` function of this package.}
+model. Calculated with the \code{\link[GoFluxYourself]{LM.flux}}
+function of this package.}
 }
 \value{
 a numerical value
@@ -23,11 +24,16 @@ regression model (e.g. Hutchinson and Mosier) and a linear regression model.
 The g-factor should be <4 (flexible threshold), <2 (medium), or <1.25 (conservative).
 }
 \references{
-Hüppi et al. (2018). Restricting the nonlinearity parameter in soil greenhouse gas flux calculation for more reliable flux estimates. *PloS one*, 13(7), e0200876.
+Hüppi et al. (2018). Restricting the nonlinearity parameter in
+soil greenhouse gas flux calculation for more reliable flux estimates.
+\emph{PloS one}, 13(7), e0200876.
 }
 \seealso{
 Look up the functions \code{\link[GoFluxYourself]{HM.flux}} and
          \code{\link[GoFluxYourself]{LM.flux}} of this package for more
          information about these parameters.
+
+The g-factor is used in the function \code{\link[GoFluxYourself]{best.flux}}
+         to select the best flux estimate.
 }
 \keyword{internal}

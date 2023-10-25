@@ -7,11 +7,13 @@
 flux.plot(flux.results, dataframe, gastype, shoulder = 30)
 }
 \arguments{
-\item{flux.results}{a data.frame; output from the function `best.flux()`.}
+\item{flux.results}{a data.frame; output from the function
+\code{\link[GoFluxYourself]{best.flux}}}
 
-\item{dataframe}{a data.frame containing gas measurements (see gastype below),
-and the following: UniqueID, Etime and flag (same dataframe
-as used with the function `goFlux()`).}
+\item{dataframe}{a data.frame containing gas measurements (see \code{gastype}
+below) and the following columns: \code{UniqueID}, \code{Etime}
+and \code{flag} (same \code{dataframe} as used with the function
+\code{\link[GoFluxYourself]{goFlux}}).}
 
 \item{gastype}{character string; specifies which column was used for the
 flux calculations. Must be one of the following: "CO2dry_ppm",
