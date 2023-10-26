@@ -50,8 +50,10 @@ can chose to select the LM flux estimate instead of the
 non-linear flux estimate by giving a percentage of kappa-max.
 Default is \code{k.ratio = 1}.}
 
-\item{RMSE}{logical; If \code{RMSE = TRUE}, use Root Mean Square Error (RMSE)
-instead of Mean Absolute Error (MAE).}
+\item{RMSE}{logical; if\code{RMSE = TRUE}, use Root Mean Square Error (RMSE)
+instead of Mean Absolute Error (MAE). RMSE is more sensitive to
+outliers than MAE. Use RMSE to be more conservative (selects LM
+over HM more often).}
 
 \item{warn.length}{numerical; minimum amount of observations accepted (nb.obs).
 With nowadays portable greenhouse gas analyzers, the
@@ -89,7 +91,7 @@ should be 4 (flexible), 2 (medium), or 1.25 (conservative).
 data(example_LGR_manID)
 example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
 criteria <- c("g.factor", "kappa", "MDF", "SE.rel")
-example_LGR_res <- best.flux(example_LGR_flux, "CO2dry_ppm", criteria)
+example_LGR_res <- best.flux(example_LGR_flux, criteria)
 
 }
 \seealso{
