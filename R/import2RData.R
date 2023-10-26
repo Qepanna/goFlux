@@ -71,6 +71,22 @@
 #'
 import2RData <- function(path, instrument, date.format, timezone = "UTC"){
 
+  # Check arguments ####
+  if(missing(path)) stop("'path' is required")
+  if(!is.null(path) & !is.character(path)) stop("'path' must be a character string")
+  if(missing(instrument)) stop("'instrument' is required")
+  if(length(instrument) != 1) stop("'instrument' must be of length 1")
+  if(!any(grepl(paste("\\<", instrument, "\\>", sep = ""),
+                c("LGR", "G2508", "GAIA", "LI-6400", "LI-7810", "LI-7820", "LI-8100", "LI-8200")))){
+    stop("'instrument' must be of class character and one of the following: 'LGR', 'G2508', 'GAIA', 'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100', 'LI-8200'")}
+  if(!missing(date.format)){
+    if(length(date.format) != 1) stop("'date.format' must be of length 1")
+    if(!any(grepl(paste("\\<", date.format, "\\>", sep = ""), c("ymd", "dmy", "mdy")))){
+      stop("'date.format' must be of class character and one of the following: 'ymd', 'dmy' or 'mdy'")}}
+  if (!is.character(timezone)) stop("'timezone' must be of class character")
+
+  # FUNCTION STARTS ####
+
   # Progress bar options
   pboptions(char = "=")
 

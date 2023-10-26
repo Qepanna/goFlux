@@ -24,7 +24,7 @@
 #' data(example_LGR_manID)
 #' example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
 #' criteria <- c("MAE", "g.factor", "kappa", "MDF", "SE.rel")
-#' example_LGR_res <- best.flux(example_LGR_flux)
+#' example_LGR_res <- best.flux(example_LGR_flux, criteria)
 #' example_LGR_plots <- flux.plot(example_LGR_res, example_LGR_manID, "CO2dry_ppm")
 #' flux2pdf(example_LGR_plots)
 #'
@@ -33,9 +33,27 @@
 flux2pdf <- function(plot.list, outfile = NULL,
                      width = 11.6, height = 8.2) {
 
-  # Assign NULL to variables without binding
+  # Check arguments
+  ## plot.list
+  if(missing(plot.list)) stop("'plot.list' is required") else {
+    if(!is.list(plot.list)) stop("'plot.list' must be of class list") else {
+      if(length(grep("ggplot", sapply(plot.list, class))) != length(plot.list)){
+        stop("all elements of 'plot.list' must be of class 'gg, ggplot'")
+      }
+    }
+  }
+  ## outfile
+  if(!is.null(outfile)){
+    if(!is.character(outfile)) stop("'outfile' must be of class character")
+  }
+  ## width and height
+  if(!is.numeric(width)) stop("'width' must be of class numeric")
+  if(!is.numeric(height)) stop("'height' must be of class numeric")
+
+  # Assign NULL to variables without binding ####
   . <- NULL
 
+  # FUNCTION STARTS ####
   group_plot.list <- list.group(plot.list, .$plot_env$UniqueID)
 
   pboptions(char = "=")

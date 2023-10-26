@@ -10,9 +10,9 @@
 #' @param x a numerical sequence that indicates objects in a list. Must be used
 #'          with lapply after the function \code{\link[GoFluxYourself]{obs.win}}.
 #'          See examples below to see how to use with lapply.
-#' @param flux.unique data.frame; output from the function \code{obs.win()}.
-#'                    Must contain the columns \code{gastype} (see below),
-#'                    \code{POSIX.time} and \code{UniqueID}.
+#' @param flux.unique a list of data.frame; output from the function
+#'                    \code{obs.win()}. Must contain the columns \code{gastype}
+#'                    (see below), \code{POSIX.time} and \code{UniqueID}.
 #' @param gastype character string; specifies which gas should be displayed on the
 #'                plot to manually select start time and end time of measurements.
 #'                Must be one of the following: "CO2dry_ppm", "CH4dry_ppb",
@@ -95,6 +95,38 @@
 #'
 click.peak.loop <- function(x, flux.unique, gastype = "CO2dry_ppm", sleep = 3,
                             plot.lim = c(380,1000), warn.length = 60) {
+
+  # Check arguments
+  ## x
+  if(missing(x)) stop("'x' is required") else {
+    if(!is.numeric(x)) stop("'x' must be of class numeric")
+  }
+  ## flux.unique
+  if(missing(flux.unique)) stop("'flux.unique' is required") else {
+    if(!is.list(flux.unique)) {
+      stop("'flux.unique' must be of class list")} else {
+        if(all(grepl("data.frame", sapply(flux.unique, class)))){
+          stop("all elements of 'flux.unique' must be of class data.frame")}
+      }
+  }
+
+  ## gastype
+  if(is.null(gastype)) stop("'gastype' is required")
+  if(!is.null(gastype) & !is.character(gastype)) stop("'gastype' must be a character string")
+  if(!any(grepl(paste("\\<", gastype, "\\>", sep = ""),
+                c("CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb", "H2O_ppm")))){
+    stop("'gastype' must be one of the following: 'CO2dry_ppm', 'CH4dry_ppb', 'N2Odry_ppb' or 'H2O_ppm'")}
+
+  ## sleep
+  if(!is.numeric(sleep)) stop("'sleep' must be of class numeric")
+  if(sleep > 10) stop("'sleep' must be shorter than 10 seconds")
+  if(sleep < 0) stop("'sleep' cannot be negative")
+
+  ## plot.lim and warn.length
+  if(!is.numeric(plot.lim) | length(plot.lim) != 2){
+    stop("'plot.lim' must be numeric and of length 2")}
+  if(!is.numeric(warn.length)) {stop("'warn.length' must be of class numeric")
+  } else {if(warn.length <= 0) stop("'warn.length' must be greater than 0")}
 
   # Catch warnings from click.peak function to print after loop
   warn <- character(0)

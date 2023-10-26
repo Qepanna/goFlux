@@ -18,9 +18,9 @@ click.peak.loop(
 with lapply after the function \code{\link[GoFluxYourself]{obs.win}}.
 See examples below to see how to use with lapply.}
 
-\item{flux.unique}{data.frame; output from the function \code{obs.win()}.
-Must contain the columns \code{gastype} (see below),
-\code{POSIX.time} and \code{UniqueID}.}
+\item{flux.unique}{a list of data.frame; output from the function
+\code{obs.win()}. Must contain the columns \code{gastype}
+(see below), \code{POSIX.time} and \code{UniqueID}.}
 
 \item{gastype}{character string; specifies which gas should be displayed on the
 plot to manually select start time and end time of measurements.

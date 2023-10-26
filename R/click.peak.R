@@ -82,32 +82,46 @@
 #' @export
 #'
 click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
-                       plot.lim = c(380,1000), warn.length = 60) {
+                       plot.lim = c(380,1000), warn.length = 60){
 
-  # Check arguments
-  if (missing(flux.unique)) stop("'flux.unique' is required")
-  if(!is.null(flux.unique) & !is.data.frame(flux.unique)) stop("'flux.unique' must be of class data.frame")
-  if (!any(grepl("UniqueID", names(flux.unique)))) {
+  # Check arguments ####
+  if(!is.numeric(plot.lim) | length(plot.lim) != 2){
+    stop("'plot.lim' must be numeric and of length 2")}
+  if(!is.numeric(warn.length)) {stop("'warn.length' must be of class numeric")
+  } else {if(warn.length <= 0) stop("'warn.length' must be greater than 0")}
+
+  ## Check flux.unique ####
+  if(missing(flux.unique)) stop("'flux.unique' is required")
+  if(!is.null(flux.unique) & !is.data.frame(flux.unique)){
+    stop("'flux.unique' must be of class data.frame")}
+
+  ### UniqueID ####
+  if(!any(grepl("\\<UniqueID\\>", names(flux.unique)))){
     stop("'UniqueID' is required and was not found in 'flux.unique'")}
-  if (!any(grepl("POSIX.time", names(flux.unique)))) {
-    stop("'POSIX.time' is required and was not found in 'flux.unique'")}
-  if (!any(grepl("UniqueID", names(flux.unique)))) {
-    stop("'UniqueID' is required and was not found in 'flux.unique'")}
-  if (!any(grepl("CO2dry_ppm", names(flux.unique))) &
-      !any(grepl("CH4dry_ppb", names(flux.unique))) &
-      !any(grepl("N2Odry_ppb", names(flux.unique))) &
-      !any(grepl("H2O_ppm", names(flux.unique)))) {
-    stop("'flux.unique' must contain one of the following gastypes: 'CO2dry_ppm', 'CH4dry_ppb', 'N2Odry_ppb' or 'H2O_ppm'")}
-  if (!any(grepl(gastype, c("CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb", "H2O_ppm")))) {
-    stop("'gastype' must be of class character and one of the following: 'CO2dry_ppm', 'CH4dry_ppb', 'N2Odry_ppb' or 'H2O_ppm'")}
+
+  ### POSIX.time ####
+  if(!any(grepl("\\<POSIX.time\\>", names(flux.unique)))){
+    stop("'POSIX.time' is required and was not found in 'flux.unique'")
+  } else if(!is.POSIXct(flux.unique$POSIX.time)){
+    stop("'POSIX.time' in 'flux.unique' must be of class POSIXct")}
+
+  ### gastype and match in flux.unique ####
+  if(is.null(gastype)) stop("'gastype' is required") else {
+    if(!is.character(gastype)) stop("'gastype' must be a character string")}
+  if(!any(grepl(paste("\\<", gastype, "\\>", sep = ""),
+                c("CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb", "H2O_ppm")))){
+    stop("'gastype' must be one of the following: 'CO2dry_ppm', 'CH4dry_ppb', 'N2Odry_ppb' or 'H2O_ppm'")}
+  if(!any(grepl(paste("\\<", gastype, "\\>", sep = ""), names(flux.unique)))){
+    stop("'flux.unique' must contain a column that matches 'gastype'")
+  } else if(!is.numeric(Reduce("c", flux.unique[, gastype]))){
+    stop("The column that matches 'gastype' in 'flux.unique' must be of class numeric")}
+
+  ## sleep ####
   if(!is.numeric(sleep)) stop("'sleep' must be of class numeric")
   if(sleep > 10) stop("'sleep' must be shorter than 10 seconds")
   if(sleep < 0) stop("'sleep' cannot be negative")
-  if(!is.numeric(plot.lim) | length(plot.lim) != 2) {
-    stop("'plot.lim' must be numeric and of length 2")}
-  if(!is.numeric(warn.length)) stop("'warn.length' must be of class numeric")
 
-  # Assign NULL to variables without binding
+  # Assign NULL to variables without binding ####
   flag <- . <- POSIX.time <- NULL
 
   # Function that takes a break for a few seconds between each loop
@@ -117,6 +131,8 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
     Sys.sleep(x)
     proc.time() - p # The CPU usage should be negligible
   }
+
+  # FUNCTION STARTS ####
 
   # Extract data from data.frame
   flux.meas <- Reduce("c", flux.unique[, gastype])
@@ -156,7 +172,7 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
   dev.off()
 
   # Assign fictional values to rownum for the function check to work
-  if (length(rownum) < 2) {rownum <- c(1,2)}
+  if(length(rownum) < 2){rownum <- c(1,2)}
 
   start.time_corr <- time.meas[rownum[1]]
   end.time_corr <- time.meas[rownum[2]]
@@ -196,11 +212,11 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
        ylim = c(ylim.min2, ylim.max2))
 
   # Wait a few seconds before closing the window to inspect the plot
-  if (!is.null(sleep) | sleep > 0) sleeploop(sleep)
+  if(!is.null(sleep) | sleep > 0) sleeploop(sleep)
   dev.off()
 
   # Print warning if nb.obs < warn.length (default 60 observations)
-  if (nrow(filter(flux.corr, flag == 1)) < warn.length) {
+  if(nrow(filter(flux.corr, flag == 1)) < warn.length){
     warning("Number of observations for UniqueID: ", unique(flux.corr$UniqueID),
             " is ", nrow(filter(flux.corr, flag == 1)), " observations",
             call. = FALSE)
