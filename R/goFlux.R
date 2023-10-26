@@ -145,57 +145,66 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
                    Area = NULL, offset = NULL, Vtot = NULL, Vcham = NULL,
                    Pcham = NULL, Tcham = NULL, k.mult = 1, warn.length = 60) {
 
-  # Check arguments
+  # Check arguments ####
   if(!is.null(prec) & !is.numeric(prec)) stop("'prec' must be of class numeric")
   if(!is.numeric(k.mult)) stop("'k.mult' must be of class numeric")
   if(!dplyr::between(k.mult, 0, 10) | k.mult <= 0){
     stop("'k.mult' cannot be negative and must be smaller or equal to 10")}
-  if(!is.numeric(warn.length)) stop("'warn.length' must be of class numeric")
+  if(!is.numeric(warn.length)) {stop("'warn.length' must be of class numeric")
+  } else {if(warn.length <= 0) stop("'warn.length' must be greater than 0")}
 
-  # Check dataframe for all necessary columns:
+  ## Check dataframe ####
   if(missing(dataframe)) stop("'dataframe' is required")
   if(!is.null(dataframe) & !is.data.frame(dataframe)){
     stop("'dataframe' must be of class data.frame")}
-  ## a column that matches gastype
+
+  ### gastype and match in dataframe ####
   if(missing(gastype)) stop("'gastype' is required")
   if(!is.null(gastype) & !is.character(gastype)) stop("'gastype' must be a character string")
-  if(!any(grepl(gastype, c("CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb", "H2O_ppm")))){
+  if(!any(grepl(paste("\\<", gastype, "\\>", sep = ""),
+                c("CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb", "H2O_ppm")))){
     stop("'gastype' must be one of the following: 'CO2dry_ppm', 'CH4dry_ppb', 'N2Odry_ppb' or 'H2O_ppm'")}
-  if(!any(grepl(gastype, names(dataframe)))){
+  if(!any(grepl(paste("\\<", gastype, "\\>", sep = ""), names(dataframe)))){
     stop("'dataframe' must contain a column that matches 'gastype'")}
-  if(any(grepl(gastype, names(dataframe))) & !is.numeric(dataframe[,gastype])){
+  if(any(grepl(paste("\\<", gastype, "\\>", sep = ""), names(dataframe))) &
+     !is.numeric(dataframe[,gastype])){
     stop("The column that matches 'gastype' in 'dataframe' must be of class numeric")}
-  ## a column that matches H2O_col
+
+  ### H2O_col and match in dataframe ####
   if(is.null(H2O_col)) stop("'H2O_col' is required")
   if(!is.null(H2O_col) & !is.character(H2O_col)) stop("'H2O_col' must be a character string")
-  if(!any(grepl(H2O_col, names(dataframe)))){
+  if(!any(grepl(paste("\\<", H2O_col, "\\>", sep = ""), names(dataframe)))){
     stop("'dataframe' must contain a column that matches 'H2O_col'")}
-  if(any(grepl(H2O_col, names(dataframe))) & !is.numeric(dataframe[,H2O_col])){
+  if(any(grepl(paste("\\<", H2O_col, "\\>", sep = ""), names(dataframe))) &
+     !is.numeric(dataframe[,H2O_col])){
     stop("The column that matches 'H2O_col' in 'dataframe' must be of class numeric")}
-  ## UniqueID (or chamID)
+
+  ### UniqueID (or chamID) ####
   if(!any(grepl(paste(c("\\<UniqueID\\>", "\\<chamID\\>"), collapse = "|"), names(dataframe)))){
     stop("'dataframe' must contain 'UniqueID'")}
-  ## Etime and flag
+
+  ### Etime and flag ####
   if(!any(grepl("\\<Etime\\>", names(dataframe)))) stop("'dataframe' must contain 'Etime'")
   if(any(grepl("\\<Etime\\>", names(dataframe))) & !is.numeric(dataframe$Etime)){
     stop("'Etime' in 'dataframe' must be of class numeric (or integer)")}
   if(!any(grepl("\\<flag\\>", names(dataframe)))) stop("'dataframe' must contain 'flag'")
   if(any(grepl("\\<flag\\>", names(dataframe))) & !is.numeric(dataframe$flag)){
     stop("'flag' in 'dataframe' must be of class numeric (or integer)")}
-  ## Vtot (or Vcham + offset)
+
+  ### Vtot (or Vcham + offset) ####
   ### if Vtot is an argument
   if(!is.null(Vtot)){
     if(!is.numeric(Vtot)) stop("'Vtot' must be of class numeric")
     ### if Vtot is not an argument
   } else {
     #### look for it in dataframe
-    if(!any(grepl("Vtot", names(dataframe)))){
+    if(!any(grepl("\\<Vtot\\>", names(dataframe)))){
       #### if not found, look for alternative arguments
       ##### Vcham
       if(!is.null(Vcham)){ # if Vcham is an argument
         if(!is.numeric(Vcham)) stop("'Vcham' must be of class numeric")
       } else { # if Vcham is not an argument, look in dataframe
-        if(!any(grepl("Vcham", names(dataframe)))){
+        if(!any(grepl("\\<Vcham\\>", names(dataframe)))){
           stop("'Vtot' missing. Alternative argument 'Vcham' also missing.")
         } else { # Vcham in dataframe must be numeric
             if(!is.numeric(dataframe$Vcham)) {
@@ -206,7 +215,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
       if(!is.null(offset)){ # if offset is an argument
         if(!is.numeric(offset)) stop("'offset' must be of class numeric")
       } else { # if offset is not an argument, look in dataframe
-        if(!any(grepl("offset", names(dataframe)))){
+        if(!any(grepl("\\<offset\\>", names(dataframe)))){
           stop("'Vtot' missing. Alternative argument 'offset' also missing.")
         } else { # offset in dataframe must be numeric
           if(!is.numeric(dataframe$offset)) {
@@ -219,45 +228,50 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
         stop("'Vtot' in 'dataframe' must be of class numeric")}
     }
   }
-  ## Area
+
+  ### Area ####
   ### if Area is an argument
   if(!is.null(Area)){
     if(!is.numeric(Area)) stop("'Area' must be of class numeric")
     ### if Area is not an argument
   } else {
     #### look for it in dataframe
-    if(any(grepl("Area", names(dataframe)))){
+    if(any(grepl("\\<Area\\>", names(dataframe)))){
       if(!is.numeric(dataframe$Area)){
         stop("'Area' in 'dataframe' must be of class numeric")}
     } else stop("'Area' missing")
   }
-  ## Pcham
+
+  ### Pcham ####
   ### if Pcham is an argument
   if(!is.null(Pcham)){
     if(!is.numeric(Pcham)) stop("'Pcham' must be of class numeric")
     ### if Pcham is not an argument
   } else {
     #### look for it in dataframe
-    if(any(grepl("Pcham", names(dataframe)))){
+    if(any(grepl("\\<Pcham\\>", names(dataframe)))){
       if(!is.numeric(dataframe$Pcham)){
         stop("'Pcham' in 'dataframe' must be of class numeric")}
     }
   }
-  ## Tcham
+
+  ### Tcham ####
   ### if Tcham is an argument
   if(!is.null(Tcham)){
     if(!is.numeric(Tcham)) stop("'Tcham' must be of class numeric")
     ### if Tcham is not an argument
   } else {
     #### look for it in dataframe
-    if(any(grepl("Tcham", names(dataframe)))){
+    if(any(grepl("\\<Tcham\\>", names(dataframe)))){
       if(!is.numeric(dataframe$Tcham)){
         stop("'Tcham' in 'dataframe' must be of class numeric")}
     }
   }
 
-  # Assign NULL to variables without binding
+  # Assign NULL to variables without binding ####
   H2O_ppm <- H2O_mol <- Etime <- flag <- chamID <- NULL
+
+  # FUNCTION STARTS ####
 
   # Use provided values for Area, offset, Vcham, Vtot, Pcham and Tcham
   # if they are missing from dataframe
@@ -281,21 +295,21 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
   }
 
   # Calculate Vtot if absent from dataframe
-  if (!any(grepl("Vtot", names(dataframe)))) {
+  if (!any(grepl("\\<Vtot\\>", names(dataframe)))) {
     dataframe <- dataframe %>% mutate(Vtot = Vcham + (Area * offset))
   }
 
   # Use normal atmospheric pressure and ambient temperature
   # if Pcham and Tcham are missing from dataframe
-  if (!any(grepl("Pcham", names(dataframe)))) {
+  if (!any(grepl("\\<Pcham\\>", names(dataframe)))) {
     dataframe <- dataframe %>% mutate(Pcham = 101.325)
   }
-  if (!any(grepl("Tcham", names(dataframe)))) {
+  if (!any(grepl("\\<Tcham\\>", names(dataframe)))) {
     dataframe <- dataframe %>% mutate(Tcham = 15)
   }
 
   # Rename chamID to UniqueID
-  if (any(grepl("chamID", names(dataframe)))){
+  if (any(grepl("\\<chamID\\>", names(dataframe)))){
     dataframe <- dataframe %>% mutate(UniqueID = chamID)}
 
   # Clean and subset data (per gastype)

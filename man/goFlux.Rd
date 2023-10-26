@@ -95,11 +95,11 @@ not provided, normal air temperature (15°C) is used.}
 
 \item{k.mult}{numerical value; a multiplier for the allowed kappa-max.
 kappa-max is the maximal curvature (kappa) of the non-linear
-regression (Hutchinson and Mosier model) allowed for a each
-flux measurement. See the functions
-\code{\link[GoFluxYourself]{k.max}} and
-\code{\link[GoFluxYourself]{HM.flux}} for more information.
-Default setting is no multiplier (\code{k.mult = 1}).}
+regression (Hutchinson and Mosier model) allowed for a each flux
+measurement. See the functions \code{\link[GoFluxYourself]{k.max}}
+and \code{\link[GoFluxYourself]{HM.flux}} for more information.
+Default setting is no multiplier (\code{k.mult = 1}). \code{k.mult}
+cannot be negative and must be smaller or equal to 10.}
 
 \item{warn.length}{numerical; minimum amount of observations accepted (number
 of data points). With nowadays portable greenhouse gas
