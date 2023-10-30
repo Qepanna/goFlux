@@ -456,7 +456,7 @@ best.flux <- function(flux.result,
   }
 
   ### Number of observations ####
-
+  if(any(grepl("\\<nb.obs\\>", criteria))) {
   nb.obs.quality <- paste("nb.obs <", warn.length)
 
   best.flux <- best.flux %>%
@@ -464,6 +464,7 @@ best.flux <- function(flux.result,
                                   ifelse(quality.check == "", nb.obs.quality,
                                          paste(quality.check, nb.obs.quality, sep = " | ")),
                                   quality.check))
+  }
 
   return(best.flux)
 }
