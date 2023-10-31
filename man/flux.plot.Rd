@@ -65,7 +65,7 @@ for incubated soil samples. In such a case, write
 
 \item{flux.term.unit}{character string; units for the flux term to be displayed
 on the plots. By default, the units are
-\ifelse{html}{\out{µmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{µmol m^{-2}s^{-1}}{ASCII}}:
+\ifelse{html}{\out{mol m<sup>-2</sup>}}{\eqn{mol m^{-2}}{ASCII}}:
 \code{flux.term.unit = "mol~m^-2"}}
 
 \item{best.model}{logical; if \code{best.model = TRUE}, display a star sign
@@ -84,14 +84,14 @@ The plots are custumizable.
 In \code{plot.legend}, one may chose to display up to 5 additional parameters
 in a legend above the plots. Some parameters are displayed for both the linear
 model (\code{\link[GoFluxYourself]{HM.flux}}) and the non-linear model
-(\code{\link[GoFluxYourself]{HM.flux}}): Mean Absolute Error (MAE),
-Root Mean Square Error (RMSE), Standard Error (SE), relative Standard Error
-(SE.rel), and coefficient of determination (r2). The p-value (LM.p.val) is
-displayed for the linear model only. The kappa (HM.k), kappa-max
-(\code{\link[GoFluxYourself]{k.max}}), kappa ratio (k.ratio) and g-factor
-(\code{\link[GoFluxYourself]{g.factor}}) are displayed for the Hutchinson and
-Mosier model only. One may chose to display no additional parameter with
-\code{plot.legend = NULL}.
+(\code{\link[GoFluxYourself]{HM.flux}}): Mean Absolute Error (\code{MAE}),
+Root Mean Square Error (\code{RMSE}), Standard Error (\code{SE}), relative
+Standard Error (\code{SErel}), and coefficient of determination (\code{r2}).
+The p-value (\code{LM.p.val}) is displayed for the linear model only. The kappa
+(\code{HM.k}), kappa-max (\code{\link[GoFluxYourself]{k.max}}), kappa ratio
+(\code{k.ratio}) and g-factor (\code{\link[GoFluxYourself]{g.factor}}) are
+displayed for the Hutchinson and Mosier model only. One may chose to display
+no additional parameter with \code{plot.legend = NULL}.
 
 In \code{plot.display}, one may chose to display some parameters on the plot:
 The initial and final gas concentrations (\code{C0} and \code{Ci}) for both
@@ -119,7 +119,8 @@ To convert the units to
 \ifelse{html}{\out{µmol kg<sup>-1</sup>h<sup>-1</sup>}}{\eqn{µmol kg^{-1}h^{-1}}{ASCII}}
 instead, one would need to multiply the flux results by 3600 to convert from
 seconds to hours. To print non-ASCII characters use Unicode. For example, to
-print the Greek letter "mu" \eqn{µ}, use the Unicode \code{\\u03BC}.
+print the Greek letter "mu" (\eqn{µ}), use the Unicode \code{\\u03BC}:
+\code{flux.unit = "\\u03BCmol~kg^-1*h^-1"}.
 }
 \examples{
 data(example_LGR_manID)
