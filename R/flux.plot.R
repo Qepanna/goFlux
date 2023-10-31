@@ -787,7 +787,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
       quality.check.display <- annotate(
         "text", x = seq(xmin, xmax, length.out=9)[2], colour = "black",
         y = ymin - ydiff*min(seq.y)*0.9, hjust = 0, parse = TRUE, size = 3.2,
-        label = paste("'Quality check:'", paste("'", quality, "'")))
+        label = paste("'Quality check:'~", paste("'", quality, "'")))
     }
 
     # Content of plot
