@@ -100,6 +100,19 @@
 #' The function \code{\link[GoFluxYourself]{MDF}} calculates the minimal detectable
 #' flux (MDF) based on instrument precision and measurement time.
 #'
+#' The argument \code{Area} is in \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}},
+#' but the output units from \code{goFlux()} are in
+#' \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This means that there is a factor
+#' of 10000 to convert from \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}
+#' to \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This is important
+#' to take into account if one would provide something else than an Area in
+#' \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to the function.
+#' For example, with incubated soil samples, one may provide an amount of soil
+#' (kg) instead of an Area. To get the right units in that case, multiply the
+#' kilograms of soil by 10000 to remove the conversion from
+#' \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to
+#' \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}.
+#'
 #' @returns Returns a data frame with 26 columns: a UniqueID per measurement,
 #'          10 columns for the linear model results (linear flux estimate, initial
 #'          gas concentration (C0), final gas concentration (Ci), slope of linear
