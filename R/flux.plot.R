@@ -87,8 +87,8 @@
 #' To convert the units to
 #' \ifelse{html}{\out{µmol kg<sup>-1</sup>h<sup>-1</sup>}}{\eqn{µmol kg^{-1}h^{-1}}{ASCII}}
 #' instead, one would need to multiply the flux results by 3600 to convert from
-#' seconds to hours. To print non-ASCII characters use unicodes. For example, to
-#' print the greek letter "mu", use the unicode "\u03BC".
+#' seconds to hours. To print non-ASCII characters use Unicode. For example, to
+#' print the Greek letter "mu" \eqn{µ}, use the Unicode \code{\\u03BC}.
 #'
 #' @return a list of plots, one per UniqueID
 #'
@@ -114,7 +114,7 @@
 #' example_LGR_res <- best.flux(example_LGR_flux, criteria)
 #' example_LGR_plots <- flux.plot(
 #'   flux.results = example_LGR_res, dataframe = example_LGR_manID,
-#'   gastype = "CO2dry_ppm", quality.check = FALSE,
+#'   gastype = "CO2dry_ppm", quality.check = TRUE,
 #'   plot.legend = c("MAE", "RMSE", "k.ratio", "g.factor", "SErel"),
 #'   plot.display = c("Ci", "C0", "MDF", "prec", "nb.obs", "flux.term"))
 #'
@@ -784,7 +784,8 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
       quality.check.display <- annotate(
         "text", x = seq(xmin, xmax, length.out=9)[2], colour = "black",
         y = ymin - ydiff*min(seq.y)*0.9, hjust = 0, parse = TRUE, size = 3.2,
-        label = paste("'Quality check:'~", if_else(quality == "", "''", quality)))
+        label = paste("'Quality check:'",
+                      if_else(quality == "", "''", paste("'", quality, "'"))))
     }
 
     # Content of plot

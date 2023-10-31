@@ -59,9 +59,9 @@ By default, the units are
 \ifelse{html}{\out{nmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{nmol m^{-2}s^{-1}}{ASCII}}
 (if initial concentration is ppb, e.g. CH4dry_ppb). \cr
 For example, one may want to use
-\ifelse{html}{\out{µmol kg<sup>-1</sup>h<sup>-1</sup>}}{\eqn{µmol kg^{-1}h^{-1}}{ASCII}}
+\ifelse{html}{\out{nmol kg<sup>-1</sup>h<sup>-1</sup>}}{\eqn{µmol kg^{-1}h^{-1}}{ASCII}}
 for incubated soil samples. In such a case, write
-\code{flux.unit = "μmol~kg^-1*h^-1"}.}
+\code{flux.unit = "nmol~kg^-1*h^-1"}.}
 
 \item{flux.term.unit}{character string; units for the flux term to be displayed
 on the plots. By default, the units are
@@ -118,7 +118,8 @@ were used to calculate the fluxes (see the details section of the function
 To convert the units to
 \ifelse{html}{\out{µmol kg<sup>-1</sup>h<sup>-1</sup>}}{\eqn{µmol kg^{-1}h^{-1}}{ASCII}}
 instead, one would need to multiply the flux results by 3600 to convert from
-seconds to hours.
+seconds to hours. To print non-ASCII characters use Unicode. For example, to
+print the Greek letter "mu" \eqn{µ}, use the Unicode \code{\\u03BC}.
 }
 \examples{
 data(example_LGR_manID)
@@ -127,7 +128,7 @@ criteria <- c("MAE", "g.factor", "MDF", "SE.rel")
 example_LGR_res <- best.flux(example_LGR_flux, criteria)
 example_LGR_plots <- flux.plot(
   flux.results = example_LGR_res, dataframe = example_LGR_manID,
-  gastype = "CO2dry_ppm", quality.check = FALSE,
+  gastype = "CO2dry_ppm", quality.check = TRUE,
   plot.legend = c("MAE", "RMSE", "k.ratio", "g.factor", "SErel"),
   plot.display = c("Ci", "C0", "MDF", "prec", "nb.obs", "flux.term"))
 
