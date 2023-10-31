@@ -181,14 +181,21 @@ using the `best.flux()` function:
   applicable to the linear flux. Under a defined *p-value*, the linear
   flux estimate is deemed non-significant, i. e., no flux. The default
   threshold is `p.val = 0.05`.
-- **Root Mean Square Error (RMSE)**: This criteria is used to warned
-  against “noisy” measurements. RMSE reflects the instrument precision.
-  Therefore, the instrument precision is used in the `best.flux()`
-  function as a threshold for RMSE. If RMSE is larger than the
-  instrument precision, then the LM flux estimate is returned instead of
-  the HM flux estimate. In addition, a warning is given in the column
-  “quality.check” saying “Noisy measurement (RMSE)”.
-- **Mean Absolute Error (MAE)**: more to come about MAE…
+- **Mean Absolute Error (MAE)**: If MAE is chosen as a criteria in
+  `best.flux()`, the model with the smallest MAE is chosen. Furthermore,
+  this criteria is used to warned against “noisy” measurements: In a
+  theoretical situation where the concentration inside the chamber is
+  strictly diffusional and deviate from diffusion under non-steady
+  state, a parameter such as MAE or RMSE reflects the instrument
+  precision. Therefore, the instrument precision is used in the
+  `best.flux()` function as a threshold for these parameters. If MAE is
+  larger than the instrument precision, a warning is given in the column
+  “quality.check” saying “Noisy measurement (MAE)”. MAE and RMSE cannot
+  both be selected.
+- **Root Mean Square Error (RMSE)**: RMSE functions exactly like MAE.
+  The difference between the two is that RMSE is much more sensitive to
+  outliers. MAE will always return a smaller value than RMSE. MAE and
+  RMSE cannot both be selected.
 - **Relative Standard Error**: The delta method is used to propagate the
   total error of the flux calculation (`deltamethod()` from the `msm`
   package). The standard error is then divided by the flux estimate to
