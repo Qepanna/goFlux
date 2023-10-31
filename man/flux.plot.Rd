@@ -4,7 +4,18 @@
 \alias{flux.plot}
 \title{Plots for quality checking of GHG flux measurements}
 \usage{
-flux.plot(flux.results, dataframe, gastype, shoulder = 30)
+flux.plot(
+  flux.results,
+  dataframe,
+  gastype,
+  shoulder = 30,
+  plot.legend = c("MAE", "RMSE"),
+  plot.display = c("MDF", "prec"),
+  quality.check = TRUE,
+  flux.unit = NULL,
+  flux.term.unit = NULL,
+  best.model = TRUE
+)
 }
 \arguments{
 \item{flux.results}{a data.frame; output from the function
@@ -21,24 +32,117 @@ flux calculations. Must be one of the following: "CO2dry_ppm",
 
 \item{shoulder}{numerical value; time before and after measurement in observation
 window (seconds). Default is 30 seconds.}
+
+\item{plot.legend}{character vector; specifies which parameters should be
+displayed in a legend above each plot. "flux" is always
+displayed. A maximum of 6 parameters can be displayed in
+the legend (including "flux"). Chose up to five extra
+parameters from the following: "MAE", "RMSE", "SE.rel",
+"SE", "r2", "LM.p.val", "HM.k", "k.max", "k.ratio" and
+"g.factor". Default is \code{plot.legend = c("MAE", "RMSE")}.}
+
+\item{plot.display}{character vector; specifies which parameters should be
+displayed on the plot. Chose from the following: "C0",
+"Ci", "cham.close", "cham.open", "crop", "MDF", "nb.obs",
+"flux.term" and "prec". Default is
+\code{plot.display = c("cham.close", "cham.open")}.}
+
+\item{quality.check}{logical; if \code{quality.check = TRUE}, the column
+\code{quality.check} (output from the function
+\code{\link[GoFluxYourself]{best.flux}}) is displayed
+below the plot.}
+
+\item{flux.unit}{character string; flux units to be displayed on the plots.
+By default, the units are
+\ifelse{html}{\out{µmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{µmol m^{-2}s^{-1}}{ASCII}}
+(if initial concentration is ppm, e.g. CO2dry_ppm) and
+\ifelse{html}{\out{nmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{nmol m^{-2}s^{-1}}{ASCII}}
+(if initial concentration is ppb, e.g. CH4dry_ppb). \cr
+For example, one may want to use
+\ifelse{html}{\out{µmol kg<sup>-1</sup>h<sup>-1</sup>}}{\eqn{µmol kg^{-1}h^{-1}}{ASCII}}
+for incubated soil samples. In such a case, write
+\code{flux.unit = "μmol~kg^-1*h^-1"}.}
+
+\item{flux.term.unit}{character string; units for the flux term to be displayed
+on the plots. By default, the units are
+\ifelse{html}{\out{µmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{µmol m^{-2}s^{-1}}{ASCII}}:
+\code{flux.term.unit = "mol~m^-2"}}
+
+\item{best.model}{logical; if \code{best.model = TRUE}, display a star sign
+next to the best model selected by the function
+\code{\link[GoFluxYourself]{best.flux}}.}
 }
 \value{
 a list of plots, one per UniqueID
 }
 \description{
-Description
+Returns a list plots, drawn from flux restults (output from the functions
+\code{\link[GoFluxYourself]{goFlux}} and \code{\link[GoFluxYourself]{best.flux}}).
+The plots are custumizable.
+}
+\details{
+In \code{plot.legend}, one may chose to display up to 5 additional parameters
+in a legend above the plots. Some parameters are displayed for both the linear
+model (\code{\link[GoFluxYourself]{HM.flux}}) and the non-linear model
+(\code{\link[GoFluxYourself]{HM.flux}}): Mean Absolute Error (MAE),
+Root Mean Square Error (RMSE), Standard Error (SE), relative Standard Error
+(SE.rel), and coefficient of determination (r2). The p-value (LM.p.val) is
+displayed for the linear model only. The kappa (HM.k), kappa-max
+(\code{\link[GoFluxYourself]{k.max}}), kappa ratio (k.ratio) and g-factor
+(\code{\link[GoFluxYourself]{g.factor}}) are displayed for the Hutchinson and
+Mosier model only. One may chose to display no additional parameter with
+\code{plot.legend = NULL}.
+
+In \code{plot.display}, one may chose to display some parameters on the plot:
+The initial and final gas concentrations (\code{C0} and \code{Ci}) for both
+models, the number of observations (\code{nb.obs}) flagged, the Minimal
+Detectable Flux (\code{\link[GoFluxYourself]{MDF}}), the flux term
+(\code{\link[GoFluxYourself]{flux.term}}), the instrument precision (prec),
+the chamber closure (\code{cham.close}) and opening (\code{cham.open})
+(indicated with a green star), and the data points between chamber closure
+and opening that have been removed (\code{crop}) (indicated in light red).
+For manual chamber measurements, because there is no automatic chamber closure
+and opening, no green stars can be displayed. In addition, \code{crop} is
+only relevant if data points have been removed with the function
+\code{crop.meas()} (this function is not available yet).
+One may chose to display none of these parameters with \code{plot.display = NULL}.
+The order in which \code{prec}, \code{flux.term}, \code{MDF} and \code{nb.obs}
+are put in \code{plot.display = c()} decides the order in which they are
+displayed at the bottom of the plot.
+
+In \code{flux.unit}, remember to multiply the flux results with an appropriate
+factor to convert the results from a unit to another. If kilograms of soil
+were used to calculate the fluxes (see the details section of the function
+\code{\link[GoFluxYourself]{goFlux}}), the units would be
+\ifelse{html}{\out{µmol kg<sup>-1</sup>h<sup>-1</sup>}}{\eqn{µmol kg^{-1}s^{-1}}{ASCII}}.
+To convert the units to
+\ifelse{html}{\out{µmol kg<sup>-1</sup>h<sup>-1</sup>}}{\eqn{µmol kg^{-1}h^{-1}}{ASCII}}
+instead, one would need to multiply the flux results by 3600 to convert from
+seconds to hours.
 }
 \examples{
 data(example_LGR_manID)
 example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
-criteria <- c("MAE", "g.factor", "kappa", "MDF", "SE.rel")
+criteria <- c("MAE", "g.factor", "MDF", "SE.rel")
 example_LGR_res <- best.flux(example_LGR_flux, criteria)
-example_LGR_plots <- flux.plot(example_LGR_res, example_LGR_manID, "CO2dry_ppm")
+example_LGR_plots <- flux.plot(
+  flux.results = example_LGR_res, dataframe = example_LGR_manID,
+  gastype = "CO2dry_ppm", quality.check = FALSE,
+  plot.legend = c("MAE", "RMSE", "k.ratio", "g.factor", "SErel"),
+  plot.display = c("Ci", "C0", "MDF", "prec", "nb.obs", "flux.term"))
 
 }
 \seealso{
-See also the function \code{\link[GoFluxYourself]{goFlux}},
+See also the functions \code{\link[GoFluxYourself]{goFlux}},
          \code{\link[GoFluxYourself]{best.flux}} and
          \code{\link[GoFluxYourself]{flux2pdf}}
          for more information about usage.
+
+Look up the functions \code{\link[GoFluxYourself]{g.factor}},
+         \code{\link[GoFluxYourself]{k.max}},
+         \code{\link[GoFluxYourself]{MDF}},
+         \code{\link[GoFluxYourself]{flux.term}},
+         \code{\link[GoFluxYourself]{LM.flux}} and
+         \code{\link[GoFluxYourself]{HM.flux}} for more information about
+         these parameters.
 }
