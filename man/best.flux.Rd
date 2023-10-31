@@ -6,14 +6,12 @@
 \usage{
 best.flux(
   flux.result,
-  criteria = c("MAE", "g.factor", "kappa", "MDF", "nb.obs", "p-value", "intercept",
-    "SE.rel"),
+  criteria = c("MAE", "g.factor", "kappa", "MDF", "nb.obs", "intercept", "SE.rel"),
   intercept.lim = NULL,
   SE.rel = 5,
   g.limit = 2,
   p.val = 0.05,
   k.ratio = 1,
-  RMSE = FALSE,
   warn.length = 60
 )
 }
@@ -22,8 +20,12 @@ best.flux(
 
 \item{criteria}{character vector; criteria used to asses the goodness of fit of the
 linear and non-linear flux estimates. Must be at least one the following:
-\code{criteria = c("MAE", "g.factor", "kappa", "MDF", "nb.obs", "p-value", "intercept", "SE.rel")}.
-Default is all of them.}
+\code{criteria = c("MAE", "RMSE", "g.factor", "kappa", "MDF",
+"nb.obs", "p-value", "intercept", "SE.rel")}. "MAE" and "RMSE"
+cannot both be selected. RMSE is more sensitive to outliers
+than MAE. Select RMSE to identify more measurements with small
+deviations (a warning is given in the column \code{quality.check}
+saying "Noisy measurement").}
 
 \item{intercept.lim}{numerical vector of length 2; inferior and superior
 limits of the intercept (initial concentration; C0).
@@ -49,11 +51,6 @@ allowed for a each flux measurements. With \code{k.ratio}, one
 can chose to select the LM flux estimate instead of the
 non-linear flux estimate by giving a percentage of kappa-max.
 Default is \code{k.ratio = 1}.}
-
-\item{RMSE}{logical; if\code{RMSE = TRUE}, use Root Mean Square Error (RMSE)
-instead of Mean Absolute Error (MAE). RMSE is more sensitive to
-outliers than MAE. Use RMSE to be more conservative (selects LM
-over HM more often).}
 
 \item{warn.length}{numerical; minimum amount of observations accepted (nb.obs).
 With nowadays portable greenhouse gas analyzers, the
@@ -90,7 +87,7 @@ should be 4 (flexible), 2 (medium), or 1.25 (conservative).
 \examples{
 data(example_LGR_manID)
 example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
-criteria <- c("g.factor", "kappa", "MDF", "SE.rel")
+criteria <- c("MAE", "g.factor", "MDF", "SE.rel")
 example_LGR_res <- best.flux(example_LGR_flux, criteria)
 
 }

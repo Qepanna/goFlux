@@ -6,8 +6,12 @@
 #' @param flux.result data.frame; output from the function \code{\link[GoFluxYourself]{goFlux}}.
 #' @param criteria character vector; criteria used to asses the goodness of fit of the
 #'                 linear and non-linear flux estimates. Must be at least one the following:
-#'                 \code{criteria = c("MAE", "g.factor", "kappa", "MDF", "nb.obs", "p-value", "intercept", "SE.rel")}.
-#'                 Default is all of them.
+#'                 \code{criteria = c("MAE", "RMSE", "g.factor", "kappa", "MDF",
+#'                 "nb.obs", "p-value", "intercept", "SE.rel")}. "MAE" and "RMSE"
+#'                 cannot both be selected. RMSE is more sensitive to outliers
+#'                 than MAE. Select RMSE to identify more measurements with small
+#'                 deviations (a warning is given in the column \code{quality.check}
+#'                 saying "Noisy measurement").
 #' @param intercept.lim numerical vector of length 2; inferior and superior
 #'                      limits of the intercept (initial concentration; C0).
 #'                      Must be the same units as \code{gastype}.
@@ -28,10 +32,6 @@
 #'                Default is \code{k.ratio = 1}.
 #' @param p.val numerical value; a limit for a statistically non-zero flux.
 #'              The default threshold is p-value < 0.05.
-#' @param RMSE logical; if\code{RMSE = TRUE}, use Root Mean Square Error (RMSE)
-#'             instead of Mean Absolute Error (MAE). RMSE is more sensitive to
-#'             outliers than MAE. Use RMSE to be more conservative (selects LM
-#'             over HM more often).
 #' @param warn.length numerical; minimum amount of observations accepted (nb.obs).
 #'                    With nowadays portable greenhouse gas analyzers, the
 #'                    frequency of measurement is usually one measurement per
@@ -64,7 +64,7 @@
 #' @examples
 #' data(example_LGR_manID)
 #' example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
-#' criteria <- c("g.factor", "kappa", "MDF", "SE.rel")
+#' criteria <- c("MAE", "g.factor", "MDF", "SE.rel")
 #' example_LGR_res <- best.flux(example_LGR_flux, criteria)
 #'
 #' @seealso Look up the functions \code{\link[GoFluxYourself]{MDF}},
@@ -81,18 +81,18 @@
 #'
 best.flux <- function(flux.result,
                       criteria = c("MAE", "g.factor", "kappa", "MDF", "nb.obs",
-                                   "p-value", "intercept", "SE.rel"),
+                                   "intercept", "SE.rel"),
                       intercept.lim = NULL, SE.rel = 5, g.limit = 2,
-                      p.val = 0.05, k.ratio = 1, RMSE = FALSE, warn.length = 60) {
+                      p.val = 0.05, k.ratio = 1, warn.length = 60) {
 
   # Check arguments ####
   if(missing(flux.result)) stop("'flux.result' is required")
   if(!is.null(flux.result) & !is.data.frame(flux.result)){
     stop("'flux.result' must be of class 'dataframe'")}
-  if(!any(grepl(paste(c("\\<MAE\\>", "\\<g.factor\\>", "\\<kappa\\>",
+  if(!any(grepl(paste(c("\\<MAE\\>", "\\<RMSE\\>", "\\<g.factor\\>", "\\<kappa\\>",
                         "\\<MDF\\>", "\\<nb.obs\\>", "\\<p-value\\>",
                         "intercept", "SE.rel"), collapse = "|"), criteria))){
-    stop("'criteria' must contain at least one of the following: 'MAE', 'g.factor', 'kappa', 'MDF', 'nb.obs', 'p-value', 'intercept', 'SE.rel'")}
+    stop("'criteria' must contain at least one of the following: 'MAE', 'RMSE', 'g.factor', 'kappa', 'MDF', 'nb.obs', 'p-value', 'intercept', 'SE.rel'")}
 
   ## Check intercept.lim ####
   if(any(grepl("\\<intercept\\>", criteria)) & !is.null(intercept.lim)){
@@ -235,9 +235,10 @@ best.flux <- function(flux.result,
     }
   }
   ## Check MAE / RMSE ####
-  if(RMSE != TRUE & RMSE != FALSE) stop("'RMSE' must be TRUE or FALSE")
-  if(any(grepl("\\<MAE\\>", criteria))){
-    if(!isTRUE(RMSE)){
+  if(any(grepl("\\<MAE\\>", criteria)) & any(grepl("\\<RMSE\\>", criteria))) {
+    stop("'MAE' and 'RMSE' cannot both be selected.")
+  } else {
+    if(any(grepl("\\<MAE\\>", criteria))){
       MAE.require <- c("\\<LM.flux\\>", "\\<HM.MAE\\>", "\\<prec\\>")
       if(length(grep(paste(MAE.require, collapse = "|"), names(flux.result))) != 3){
         if(!any(grepl("\\<LM.flux\\>", names(flux.result)))){
@@ -253,7 +254,7 @@ best.flux <- function(flux.result,
         } else if(!is.numeric(flux.result$prec)){
           stop("'prec' in 'flux.result' must be of class numeric")}
       }
-    } else {
+    } else if(any(grepl("\\<RMSE\\>", criteria))){
       RMSE.require <- c("\\<LM.flux\\>", "\\<HM.RMSE\\>", "\\<prec\\>")
       if(length(grep(paste(RMSE.require, collapse = "|"), names(flux.result))) != 3){
         if(!any(grepl("\\<LM.flux\\>", names(flux.result)))){
@@ -274,7 +275,8 @@ best.flux <- function(flux.result,
   # Assign NULL to variables without binding ####
   g.fact <- HM.diagnose <- HM.RMSE <- prec <- model <- quality.check <- HM.k <-
     LM.p.val <- LM.diagnose <- HM.se.rel <- LM.se.rel <- HM.C0 <- LM.C0 <-
-    LM.Ci <- LM.se <- HM.se <- MDF <- HM.MAE <- nb.obs <- NULL
+    LM.Ci <- LM.se <- HM.se <- MDF <- HM.MAE <- nb.obs <- LM.RMSE <-
+    LM.MAE <- NULL
 
   # FUNCTION START ####
 
@@ -283,41 +285,92 @@ best.flux <- function(flux.result,
     mutate(HM.diagnose = "", LM.diagnose = "", best.flux = HM.flux,
            model = "HM", quality.check = "")
 
+  ## NA ####
+  # If HM.flux is NA, use LM.flux
+  NA.diagnostic <- paste("No calculated flux (NA)")
+  LM.NA.diagnostic <- paste("LM.flux is NA")
+  HM.NA.diagnostic <- paste("HM.flux is NA")
+
+  best.flux <- best.flux %>%
+    mutate(HM.diagnose = ifelse(is.na(HM.flux), ifelse(
+      HM.diagnose == "", HM.NA.diagnostic,
+      paste(HM.diagnose, HM.NA.diagnostic, sep = " | ")),
+      HM.diagnose)) %>%
+    mutate(LM.diagnose = ifelse(is.na(LM.flux), ifelse(
+      LM.diagnose == "", LM.NA.diagnostic,
+      paste(LM.diagnose, LM.NA.diagnostic, sep = " | ")),
+      LM.diagnose)) %>%
+    mutate(best.flux = ifelse(is.na(HM.flux),
+                              ifelse(is.na(LM.flux), NA, LM.flux), best.flux),
+           model = ifelse(is.na(HM.flux),
+                          ifelse(is.na(LM.flux), NA, "LM"), model),
+           quality.check = ifelse(
+             # If HM.flux is not NA
+             !is.na(HM.flux), ifelse(
+               # And LM.flux is not NA
+               !is.na(LM.flux), quality.check,
+               # Or LM.flux is NA
+               ifelse(
+                 quality.check == "", LM.NA.diagnostic,
+                 paste(quality.check, LM.NA.diagnostic, sep = " | "))),
+             # If HM.flux is NA
+             ifelse(
+               # And LM.flux is not NA
+               !is.na(LM.flux), ifelse(
+                 quality.check == "", HM.NA.diagnostic,
+                 paste(quality.check, HM.NA.diagnostic, sep = " | ")),
+               # Or LM.flux is NA
+               ifelse(
+                 quality.check == "", NA.diagnostic,
+                 paste(quality.check, NA.diagnostic, sep = " | ")))))
+
   ## RMSE ####
   # Reflects the instrument precision. Sensitive to outliers.
-  if(any(grepl("\\<MAE\\>", criteria)) & isTRUE(RMSE)) {
+  if(any(grepl("\\<RMSE\\>", criteria))) {
 
-    rmse.diagnostic <- paste("Noisy measurement (RMSE)")
+    RMSE.diagnostic <- paste("Noisy measurement (RMSE)")
+    LM.RMSE.diagnostic <- paste("Noise (LM.RMSE)")
+    HM.RMSE.diagnostic <- paste("Noise (HM.RMSE)")
 
     best.flux <- best.flux %>%
       mutate(HM.diagnose = ifelse(HM.RMSE > prec, ifelse(
-        HM.diagnose == "", rmse.diagnostic,
-        paste(HM.diagnose, rmse.diagnostic, sep = " | ")),
+        HM.diagnose == "", HM.RMSE.diagnostic,
+        paste(HM.diagnose, HM.RMSE.diagnostic, sep = " | ")),
         HM.diagnose)) %>%
-      mutate(best.flux = ifelse(HM.RMSE > prec, LM.flux, best.flux),
-             model = ifelse(HM.RMSE > prec, "LM", model),
-             quality.check = ifelse(HM.RMSE > prec, ifelse(
-               quality.check == "", "RMSE",
-               paste(quality.check, "RMSE", sep = " | ")),
+      mutate(LM.diagnose = ifelse(LM.RMSE > prec, ifelse(
+        LM.diagnose == "", LM.RMSE.diagnostic,
+        paste(LM.diagnose, LM.RMSE.diagnostic, sep = " | ")),
+        LM.diagnose)) %>%
+      mutate(best.flux = ifelse(HM.RMSE > LM.RMSE, LM.flux, best.flux),
+             model = ifelse(HM.RMSE > LM.RMSE, "LM", model),
+             quality.check = ifelse(HM.RMSE > LM.RMSE, ifelse(
+               quality.check == "", RMSE.diagnostic,
+               paste(quality.check, RMSE.diagnostic, sep = " | ")),
                quality.check))
   }
 
   ## MAE ####
   # Reflects the instrument precision.
-  if(any(grepl("\\<MAE\\>", criteria)) & !isTRUE(RMSE)) {
+  if(any(grepl("\\<MAE\\>", criteria))) {
 
     MAE.diagnostic <- paste("Noisy measurement (MAE)")
+    LM.MAE.diagnostic <- paste("Noise (LM.MAE)")
+    HM.MAE.diagnostic <- paste("Noise (HM.MAE)")
 
     best.flux <- best.flux %>%
       mutate(HM.diagnose = ifelse(HM.MAE > prec, ifelse(
-        HM.diagnose == "", MAE.diagnostic,
-        paste(HM.diagnose, MAE.diagnostic, sep = " | ")),
+        HM.diagnose == "", HM.MAE.diagnostic,
+        paste(HM.diagnose, HM.MAE.diagnostic, sep = " | ")),
         HM.diagnose)) %>%
-      mutate(best.flux = ifelse(HM.MAE > prec, LM.flux, best.flux),
-             model = ifelse(HM.MAE > prec, "LM", model),
-             quality.check = ifelse(HM.MAE > prec, ifelse(
-               quality.check == "", "MAE",
-               paste(quality.check, "MAE", sep = " | ")),
+      mutate(LM.diagnose = ifelse(LM.MAE > prec, ifelse(
+        LM.diagnose == "", LM.MAE.diagnostic,
+        paste(LM.diagnose, LM.MAE.diagnostic, sep = " | ")),
+        LM.diagnose)) %>%
+      mutate(best.flux = ifelse(HM.MAE > LM.MAE, LM.flux, best.flux),
+             model = ifelse(HM.MAE > LM.MAE, "LM", model),
+             quality.check = ifelse(HM.MAE > LM.MAE, ifelse(
+               quality.check == "", MAE.diagnostic,
+               paste(quality.check, MAE.diagnostic, sep = " | ")),
                quality.check))
   }
 
