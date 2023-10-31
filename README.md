@@ -247,7 +247,7 @@ remotes::install_github("Qepanna/GoFluxYourself")
 ```
 
 The functioning of the package depends on many other packages
-(`data.table`, `dplyr`, `ggnewscale`, `ggplot2`, `graphics`,
+(`data.table`, `dplyr`, `ggnewscale`, `ggplot2`, `ggstar`, `graphics`,
 `grDevices`, `grid`, `gridExtra`, `lubridate`, `minpack.lm`, `msm`,
 `pbapply`, `plyr`, `purrr`, `rjson`, `rlist`, `SimDesign`, `stats`,
 `tibble`, `tidyr`, `utils`), which will be installed when installing
@@ -401,26 +401,33 @@ non-arbitrary thresholds, and plot the results for visual inspection.
 ?best.flux
 
 # Calculate fluxes for all gas types
-CO2_results <- goFlux(example_LGR_manID, "CO2dry_ppm")
-CH4_results <- goFlux(example_LGR_manID, "CH4dry_ppb")
-H2O_results <- goFlux(example_LGR_manID, "H2O_ppm")
+CO2_flux <- goFlux(example_LGR_manID, "CO2dry_ppm", prec = 0.3)
+CH4_flux <- goFlux(example_LGR_manID, "CH4dry_ppb", prec = 1.4)
+H2O_flux <- goFlux(example_LGR_manID, "H2O_ppm", prec = 50)
 
 # Use best.flux to select the best flux estimates (LM or HM)
 # based on a list of criteria
-criteria <- c("MAE", "g.factor", "kappa", "MDF", "SE.rel")
-
-CO2_flux_res <- best.flux(CO2_results, criteria)
-CH4_flux_res <- best.flux(CH4_results, criteria)
-H2O_flux_res <- best.flux(H2O_results, criteria)
+CO2_flux_res <- best.flux(CO2_flux, criteria = c("MAE", "g.factor", "MDF"))
+CH4_flux_res <- best.flux(CH4_flux, criteria = c("MAE", "g.factor", "MDF"))
+H2O_flux_res <- best.flux(H2O_flux, criteria = c("MAE", "MDF"))
 
 # Plots results ----------------------------------------------------------------
 ?flux.plot
 ?flux2pdf
 
-# Make a list of plots of all measurements, for each gastype
-CO2_flux_plots <- flux.plot(CO2_flux_res, example_LGR_manID, "CO2dry_ppm")
-CH4_flux_plots <- flux.plot(CH4_flux_res, example_LGR_manID, "CH4dry_ppb")
-H2O_flux_plots <- flux.plot(H2O_flux_res, example_LGR_manID, "H2O_ppm")
+# Make a list of plots of all measurements, for each gastype.
+# With the function flux.plot, all parameters can be displayed.
+# You can chose what parameters to display on the plots.
+plot.legend = c("MAE", "RMSE", "k.ratio", "g.factor", "SErel")
+plot.display = c("MDF", "prec", "nb.obs", "flux.term")
+quality.check = TRUE
+
+CO2_flux_plots <- flux.plot(CO2_flux_res, example_LGR_manID, "CO2dry_ppm",
+                            shoulder=20, plot.legend, plot.display, quality.check)
+CH4_flux_plots <- flux.plot(CH4_flux_res, example_LGR_manID, "CH4dry_ppb",
+                            shoulder=20, plot.legend, plot.display, quality.check)
+H2O_flux_plots <- flux.plot(H2O_flux_res, example_LGR_manID, "H2O_ppm",
+                            shoulder=20, plot.legend, plot.display, quality.check)
 
 # Combine plot lists into one list
 flux_plot.ls <- c(CO2_flux_plots, CH4_flux_plots, H2O_flux_plots)
