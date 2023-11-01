@@ -146,7 +146,7 @@ using the `best.flux()` function:
 - **Assumed non-linearity**: If all criteria are respected, the best
   flux estimate is assumed to be the non-linear estimate from the
   Hutchinson and Mosier model.
-- **G-factor**: the g-factor is the ratio between the result of a
+- **G-factor**: The g-factor is the ratio between the result of a
   non-linear flux calculation model (e.g. Hutchinson and Mosier; HM) and
   the result of a linear flux calculation model ([Hüppi et al.,
   2018](https://doi.org/10.1371/journal.pone.0200876)). With the
@@ -159,10 +159,11 @@ using the `best.flux()` function:
 - **Minimal Detectable Flux**: The minimal detectable flux (MDF) is
   based on instrument precision and measurements time ([Christiansen et
   al., 2015](https://doi.org/10.1016/j.agrformet.2015.06.004)). Under
-  the MDF, the flux estimate is considered null, but the function will
-  not return a 0 to avoid heteroscedasticity of variances. There will
-  simply be a comment in the columns “LM.diagnose” or “HM.diagnose”
-  saying that there is “No detectable flux (MDF)”.
+  the MDF, there is no detectable flux, but the function will not return
+  a 0 to avoid heteroscedasticity of variances. There will simply be a
+  comment in the columns “quality.check”, “LM.diagnose” or “HM.diagnose”
+  saying that there is “No detectable flux (MDF)”. No best flux estimate
+  is chosen based on MDF.
 - **Kappa max**: The parameter kappa determines the curvature of the
   non-linear regression in the Hutchinson and Mosier model. A large
   kappa, returns a strong curvature. A maximum threshold for this
@@ -172,26 +173,31 @@ using the `best.flux()` function:
   units of the kappa-max is s<sup>-1</sup>. This limit of kappa-max is
   included in the `goFlux()` function, so that the non-linear flux
   estimate cannot exceed this maximum curvature. In the function
-  best.flux(), one can choose the linear flux estimate over the
+  `best.flux()`, one can choose the linear flux estimate over the
   non-linear flux estimate based on the ratio between kappa and
   kappa-max. The ratio is expressed as a percentage, where 1 indicates
-  HM.k = k.max, and 0.5 indicates HM.k = 0.5\*k.max. The default setting
-  is `k.ratio = 1`.
+  `HM.k = k.max`, and 0.5 indicates `HM.k = 0.5*k.max`. The default
+  setting is `k.ratio = 1`.
 - **Statistically significant flux (*p-value*)**: This criteria is only
   applicable to the linear flux. Under a defined *p-value*, the linear
-  flux estimate is deemed non-significant, i. e., no flux. The default
-  threshold is `p.val = 0.05`.
-- **Mean Absolute Error (MAE)**: If MAE is chosen as a criteria in
-  `best.flux()`, the model with the smallest MAE is chosen. Furthermore,
-  this criteria is used to warned against “noisy” measurements: In a
-  theoretical situation where the concentration inside the chamber is
-  strictly diffusional and deviate from diffusion under non-steady
-  state, a parameter such as MAE or RMSE reflects the instrument
-  precision. Therefore, the instrument precision is used in the
-  `best.flux()` function as a threshold for these parameters. If MAE is
-  larger than the instrument precision, a warning is given in the column
-  “quality.check” saying “Noisy measurement (MAE)”. MAE and RMSE cannot
-  both be selected.
+  flux estimate is deemed non-significant, i. e., no detectable flux.
+  The default threshold is `p.val = 0.05`. No best flux estimate is
+  chosen based on *p-value*. If `LM.p.val < p.val`, a warning is given
+  in the columns “quality.check” and “LM.diagnose”: “No detect. LM.flux
+  (p-val)”.
+- **Mean Absolute Error (MAE)**: This criteria is used to warned against
+  “noisy” measurements: In a theoretical situation where the
+  concentration inside the chamber is strictly diffusional and deviate
+  from diffusion under non-steady state, a parameter such as MAE or RMSE
+  reflects the instrument precision. Therefore, the instrument precision
+  is used in the `best.flux()` function as a threshold for these
+  parameters. If MAE is chosen as a criteria in `best.flux()`, the model
+  with the smallest MAE is chosen, unless both of them are smaller than
+  the instrument precision. In that case, the non-linear flux estimate
+  is always chosen by default. If MAE is larger than the instrument
+  precision, a warning is given in the columns “quality.check”,
+  “LM.diagnose” or “HM.diagnose” saying “Noisy measurement (MAE)”. MAE
+  and RMSE cannot both be selected.
 - **Root Mean Square Error (RMSE)**: RMSE functions exactly like MAE.
   The difference between the two is that RMSE is much more sensitive to
   outliers. MAE will always return a smaller value than RMSE. MAE and
@@ -200,19 +206,29 @@ using the `best.flux()` function:
   total error of the flux calculation (`deltamethod()` from the `msm`
   package). The standard error is then divided by the flux estimate to
   obtain the relative standard error (%). This criteria is used as a
-  warning of a potentially “bad measurement”. No best flux estimate is
-  chosen based on SE.rel, but a warning will be given in the column
-  “quality.check” saying “Check plot (SE \> 5%)”, for example. The
-  default threshold is `SE.rel = 5`.
+  warning of a potentially “bad measurement”. The default threshold is
+  `SErel = 5`. Like MAE and RMSE, the smallest relative standard error
+  between `LM.se.rel` and `HM.se.rel` selects for the best flux
+  estimate, unless they are both under the threshold. In that case, the
+  non-linear flux estimate is always chosen by default. If `LM.se.rel`
+  and `HM.se.rel` are larger than the threshold, a warning is given in
+  the columns “quality.check”, “LM.diagnose” or “HM.diagnose” saying
+  “Noisy measurement (SE rel.)”.
 - **Intercept**: If the initial gas concentration (*C<sub>0</sub>*)
-  calculated for the non-linear flux estimate is more or less than 20%
-  of the linear regression’s intercept, then a warning is issued in the
-  “quality.check” column saying “Intercept out of bounds (HM)”.
-  Alternatively, one can provide boundaries for the intercept, for
-  example: `intercept.lim = c(380, 420)` for a true *C<sub>0</sub>* of
-  400 ppm. If no limits are provided, only the non-linear regression’s
-  intercept can be tested. If a limit is provided, both intercepts are
-  tested.
+  calculated for the flux estimates are more or less than 20% of the
+  initial gas concentration at the start of the measurement, a warning
+  is issued in the columns “quality.check”, “LM.diagnose” or
+  “HM.diagnose” saying “Intercept out of bounds”. Alternatively, one can
+  provide boundaries for the intercept, for example:
+  `intercept.lim = c(380, 420)` for a true *C<sub>0</sub>* of 400 ppm.
+- **Number of observations**: Minimum amount of observations accepted
+  (`nb.obs`). With nowadays portable greenhouse gas analyzers, the
+  frequency of measurement is usually one measurement per second.
+  Therefore, for a default setting of `warn.length = 60`, the chamber
+  closure time should be approximately one minute (60 seconds). If the
+  number of observations is smaller than the threshold, a warning is
+  issued in the column “quality.check” saying “nb.obs \< 60”, for
+  example.
 
 Finally, after finding the best flux estimates, one can plot the results
 and visually inspect the measurements using the function `flux.plot()`
