@@ -6,9 +6,9 @@
 \usage{
 best.flux(
   flux.result,
-  criteria = c("MAE", "g.factor", "kappa", "MDF", "nb.obs", "intercept", "SE.rel"),
+  criteria = c("MAE", "g.factor", "kappa", "MDF", "nb.obs", "intercept", "SErel"),
   intercept.lim = NULL,
-  SE.rel = 5,
+  SErel = 5,
   g.limit = 2,
   p.val = 0.05,
   k.ratio = 1,
@@ -21,7 +21,7 @@ best.flux(
 \item{criteria}{character vector; criteria used to asses the goodness of fit of the
 linear and non-linear flux estimates. Must be at least one the following:
 \code{criteria = c("MAE", "RMSE", "g.factor", "kappa", "MDF",
-"nb.obs", "p-value", "intercept", "SE.rel")}. "MAE" and "RMSE"
+"nb.obs", "p-value", "intercept", "SErel")}. "MAE" and "RMSE"
 cannot both be selected. RMSE is more sensitive to outliers
 than MAE. Select RMSE to identify more measurements with small
 deviations (a warning is given in the column \code{quality.check}
@@ -31,7 +31,7 @@ saying "Noisy measurement").}
 limits of the intercept (initial concentration; C0).
 Must be the same units as \code{gastype}.}
 
-\item{SE.rel}{numerical value; maximal relative standard error accepted (\%)
+\item{SErel}{numerical value; maximal relative standard error accepted (\%)
 on flux estimate. The default is 5\%.}
 
 \item{g.limit}{numerical value; maximal limit of the the g-factor, which is the
@@ -87,7 +87,7 @@ should be 4 (flexible), 2 (medium), or 1.25 (conservative).
 \examples{
 data(example_LGR_manID)
 example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
-criteria <- c("MAE", "g.factor", "MDF", "SE.rel")
+criteria <- c("MAE", "g.factor", "MDF", "SErel", "intercept")
 example_LGR_res <- best.flux(example_LGR_flux, criteria)
 
 }
