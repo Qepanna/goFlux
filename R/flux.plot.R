@@ -19,7 +19,7 @@
 #'                    displayed in a legend above each plot. "flux" is always
 #'                    displayed. A maximum of 6 parameters can be displayed in
 #'                    the legend (including "flux"). Chose up to five extra
-#'                    parameters from the following: "MAE", "RMSE", "SE.rel",
+#'                    parameters from the following: "MAE", "RMSE", "SErel",
 #'                    "SE", "r2", "LM.p.val", "HM.k", "k.max", "k.ratio" and
 #'                    "g.factor". Default is \code{plot.legend = c("MAE", "RMSE")}.
 #' @param plot.display character vector; specifies which parameters should be
@@ -113,7 +113,7 @@
 #' @examples
 #' data(example_LGR_manID)
 #' example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
-#' criteria <- c("MAE", "g.factor", "MDF", "SE.rel")
+#' criteria <- c("MAE", "g.factor", "MDF", "SErel")
 #' example_LGR_res <- best.flux(example_LGR_flux, criteria)
 #' example_LGR_plots <- flux.plot(
 #'   flux.results = example_LGR_res, dataframe = example_LGR_manID,
@@ -218,7 +218,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
     stop("'HM.k' in 'flux.results' must be of class numeric")}
 
   ## Check plot.legend ####
-  plot.legend.all <- c("MAE", "RMSE", "SE.rel", "SE", "r2", "LM.p.val", "HM.k",
+  plot.legend.all <- c("MAE", "RMSE", "SErel", "SE", "r2", "LM.p.val", "HM.k",
                        "k.max", "k.ratio", "g.factor", "best.model")
   if(!is.null(plot.legend)){
     if(!is.character(plot.legend)){
@@ -227,7 +227,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
       stop("in 'plot.legend': A maximum of 5 additional parameters can be displayed above the plot.")
     } else if(!any(grepl(paste(paste("\\<", plot.legend.all, "\\>", sep = ""),
                                collapse = "|"), plot.legend))){
-      stop("if 'plot.legend' is not NULL, it must contain at least one of the following: 'MAE', 'RMSE', 'SE.rel', 'SE', 'r2', 'LM.p.val', 'HM.k', 'k.max', 'k.ratio', 'g.factor', 'best.model'")
+      stop("if 'plot.legend' is not NULL, it must contain at least one of the following: 'MAE', 'RMSE', 'SErel', 'SE', 'r2', 'LM.p.val', 'HM.k', 'k.max', 'k.ratio', 'g.factor', 'best.model'")
     }
     ### MAE ####
     if(any(grepl("\\<MAE\\>", plot.legend))){
@@ -251,14 +251,14 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
       } else if(!is.numeric(flux.results$HM.RMSE)){
         stop("'HM.RMSE' in 'flux.results' must be of class numeric")}
     }
-    ### SE.rel ####
+    ### SErel ####
     if(any(grepl("\\<SErel\\>", plot.legend))){
       if(!any(grepl("\\<LM.se.rel\\>", names(flux.results)))){
-        stop("'SE.rel' selected in 'plot.legend', but 'LM.se.rel' missing in 'flux.results'")
+        stop("'SErel' selected in 'plot.legend', but 'LM.se.rel' missing in 'flux.results'")
       } else if(!is.numeric(flux.results$LM.se.rel)){
         stop("'LM.se.rel' in 'flux.results' must be of class numeric")}
       if(!any(grepl("\\<HM.se.rel\\>", names(flux.results)))){
-        stop("'SE.rel' selected in 'plot.legend', but 'HM.se.rel' missing in 'flux.results'")
+        stop("'SErel' selected in 'plot.legend', but 'HM.se.rel' missing in 'flux.results'")
       } else if(!is.numeric(flux.results$HM.se.rel)){
         stop("'HM.se.rel' in 'flux.results' must be of class numeric")}
     }
@@ -571,7 +571,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
       HM.RMSE <- signif(unique(data_corr[[f]]$HM.RMSE), 2)
       legend.RMSE <- cbind.data.frame(content = c("RMSE", LM.RMSE, HM.RMSE, ""))
     }
-    ### SE.rel ####
+    ### SErel ####
     if(any(grepl("\\<SErel\\>", plot.legend))){
       LM.se.rel <- round(unique(data_corr[[f]]$LM.se.rel), 1)
       HM.se.rel <- round(unique(data_corr[[f]]$HM.se.rel), 1)

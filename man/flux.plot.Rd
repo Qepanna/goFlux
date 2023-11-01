@@ -37,7 +37,7 @@ window (seconds). Default is 30 seconds.}
 displayed in a legend above each plot. "flux" is always
 displayed. A maximum of 6 parameters can be displayed in
 the legend (including "flux"). Chose up to five extra
-parameters from the following: "MAE", "RMSE", "SE.rel",
+parameters from the following: "MAE", "RMSE", "SErel",
 "SE", "r2", "LM.p.val", "HM.k", "k.max", "k.ratio" and
 "g.factor". Default is \code{plot.legend = c("MAE", "RMSE")}.}
 
@@ -73,12 +73,14 @@ next to the best model selected by the function
 \code{\link[GoFluxYourself]{best.flux}}.}
 }
 \value{
-a list of plots, one per UniqueID
+a list of plots, one per UniqueID, drawn from flux restults (output
+from the functions #' \code{\link[GoFluxYourself]{goFlux}} and
+\code{\link[GoFluxYourself]{best.flux}}).
 }
 \description{
 Returns a list plots, drawn from flux restults (output from the functions
 \code{\link[GoFluxYourself]{goFlux}} and \code{\link[GoFluxYourself]{best.flux}}).
-The plots are custumizable.
+The plots are customizable.
 }
 \details{
 In \code{plot.legend}, one may chose to display up to 5 additional parameters
@@ -125,7 +127,7 @@ print the Greek letter "mu" (\eqn{µ}), use the Unicode \code{\\u03BC}:
 \examples{
 data(example_LGR_manID)
 example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
-criteria <- c("MAE", "g.factor", "MDF", "SE.rel")
+criteria <- c("MAE", "g.factor", "MDF", "SErel")
 example_LGR_res <- best.flux(example_LGR_flux, criteria)
 example_LGR_plots <- flux.plot(
   flux.results = example_LGR_res, dataframe = example_LGR_manID,
