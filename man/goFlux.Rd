@@ -110,21 +110,27 @@ should be approximately one minute (60 seconds).}
 }
 \value{
 Returns a data frame with 26 columns: a UniqueID per measurement,
-         10 columns for the linear model results (linear flux estimate, initial
-         gas concentration (C0), final gas concentration (Ci), slope of linear
-         regression, mean absolute error (MAE), root mean square error (RMSE),
-         standard error (se), relative se (se.rel),
-         \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and p-value),
-         10 columns for the non-linear model results (non-linear flux estimate,
-         initial gas concentration (C0), final gas concentration (Ci), slope
-         at \code{t=0}, mean absolute error (MAE), root mean square error
-         (RMSE), standard error (se), relative se (se.rel),
-         \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}},
-         and curvature (kappa), as well as the minimal detectable flux (MDF;
-         \code{\link[GoFluxYourself]{MDF}}), the precision of the instrument
-         (prec), the flux term (\code{\link[GoFluxYourself]{flux.term}}),
-         kappa-max (\code{\link[GoFluxYourself]{k.max}}) and the g factor
-         (\code{\link[GoFluxYourself]{g.factor}}).
+         10 columns for the linear model results (linear flux estimate
+         (\code{LM.flux}), initial gas concentration (\code{LM.C0}), final
+         gas concentration (\code{LM.Ci}), slope of linear regression
+         (\code{LM.slope}), mean absolute error ((\code{LM.MAE})), root mean
+         square error ((\code{LM.RMSE})), standard error ((\code{LM.se})),
+         relative se ((\code{LM.se.rel})),
+         \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and p-value
+         ((\code{LM.p.val}))), 10 columns for the non-linear model results
+         (non-linear flux estimate (\code{HM.flux}), initial gas concentration
+         (\code{HM.C0}), final gas concentration (\code{HM.Ci}), slope
+         at \code{t=0} (\code{HM.slope}), mean absolute error (\code{HM.MAE}),
+         root mean square error (\code{HM.RMSE}), standard error (\code{HM.se}),
+         relative se (\code{HM.se.rel}),
+         \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and curvature
+         (kappa; \code{HM.k}), as well as the minimal detectable flux
+         (\code{\link[GoFluxYourself]{MDF}}), the precision of the instrument
+         (\code{prec}), the flux term (\code{\link[GoFluxYourself]{flux.term}}),
+         kappa-max (\code{\link[GoFluxYourself]{k.max}}), the g factor
+         (\code{\link[GoFluxYourself]{g.factor}}), the number of observations
+         used (\code{nb.obs}) and the true initial gas concentration
+         (\code{C0}) and final gas concentration (\code{Ci}).
 }
 \description{
 A wrapper function to calculate GHG fluxes from static chamber measurements.

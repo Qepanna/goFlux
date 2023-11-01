@@ -114,21 +114,27 @@
 #' \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}.
 #'
 #' @returns Returns a data frame with 26 columns: a UniqueID per measurement,
-#'          10 columns for the linear model results (linear flux estimate, initial
-#'          gas concentration (C0), final gas concentration (Ci), slope of linear
-#'          regression, mean absolute error (MAE), root mean square error (RMSE),
-#'          standard error (se), relative se (se.rel),
-#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and p-value),
-#'          10 columns for the non-linear model results (non-linear flux estimate,
-#'          initial gas concentration (C0), final gas concentration (Ci), slope
-#'          at \code{t=0}, mean absolute error (MAE), root mean square error
-#'          (RMSE), standard error (se), relative se (se.rel),
-#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}},
-#'          and curvature (kappa), as well as the minimal detectable flux (MDF;
-#'          \code{\link[GoFluxYourself]{MDF}}), the precision of the instrument
-#'          (prec), the flux term (\code{\link[GoFluxYourself]{flux.term}}),
-#'          kappa-max (\code{\link[GoFluxYourself]{k.max}}) and the g factor
-#'          (\code{\link[GoFluxYourself]{g.factor}}).
+#'          10 columns for the linear model results (linear flux estimate
+#'          (\code{LM.flux}), initial gas concentration (\code{LM.C0}), final
+#'          gas concentration (\code{LM.Ci}), slope of linear regression
+#'          (\code{LM.slope}), mean absolute error ((\code{LM.MAE})), root mean
+#'          square error ((\code{LM.RMSE})), standard error ((\code{LM.se})),
+#'          relative se ((\code{LM.se.rel})),
+#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and p-value
+#'          ((\code{LM.p.val}))), 10 columns for the non-linear model results
+#'          (non-linear flux estimate (\code{HM.flux}), initial gas concentration
+#'          (\code{HM.C0}), final gas concentration (\code{HM.Ci}), slope
+#'          at \code{t=0} (\code{HM.slope}), mean absolute error (\code{HM.MAE}),
+#'          root mean square error (\code{HM.RMSE}), standard error (\code{HM.se}),
+#'          relative se (\code{HM.se.rel}),
+#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and curvature
+#'          (kappa; \code{HM.k}), as well as the minimal detectable flux
+#'          (\code{\link[GoFluxYourself]{MDF}}), the precision of the instrument
+#'          (\code{prec}), the flux term (\code{\link[GoFluxYourself]{flux.term}}),
+#'          kappa-max (\code{\link[GoFluxYourself]{k.max}}), the g factor
+#'          (\code{\link[GoFluxYourself]{g.factor}}), the number of observations
+#'          used (\code{nb.obs}) and the true initial gas concentration
+#'          (\code{C0}) and final gas concentration (\code{Ci}).
 #'
 #' @include GoFluxYourself-package.R
 #' @include flux.term.R
@@ -156,14 +162,14 @@
 #'
 goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
                    Area = NULL, offset = NULL, Vtot = NULL, Vcham = NULL,
-                   Pcham = NULL, Tcham = NULL, k.mult = 1, warn.length = 60) {
+                   Pcham = NULL, Tcham = NULL, k.mult = 1, warn.length = 60){
 
   # Check arguments ####
   if(!is.null(prec) & !is.numeric(prec)) stop("'prec' must be of class numeric")
   if(!is.numeric(k.mult)) stop("'k.mult' must be of class numeric")
   if(!dplyr::between(k.mult, 0, 10) | k.mult <= 0){
     stop("'k.mult' cannot be negative and must be smaller or equal to 10")}
-  if(!is.numeric(warn.length)) {stop("'warn.length' must be of class numeric")
+  if(!is.numeric(warn.length)){stop("'warn.length' must be of class numeric")
   } else {if(warn.length <= 0) stop("'warn.length' must be greater than 0")}
 
   ## Check dataframe ####
@@ -220,7 +226,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
         if(!any(grepl("\\<Vcham\\>", names(dataframe)))){
           stop("'Vtot' missing. Alternative argument 'Vcham' also missing.")
         } else { # Vcham in dataframe must be numeric
-            if(!is.numeric(dataframe$Vcham)) {
+            if(!is.numeric(dataframe$Vcham)){
               stop("'Vcham' in 'dataframe' must be of class numeric")}
           }
       }
@@ -231,7 +237,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
         if(!any(grepl("\\<offset\\>", names(dataframe)))){
           stop("'Vtot' missing. Alternative argument 'offset' also missing.")
         } else { # offset in dataframe must be numeric
-          if(!is.numeric(dataframe$offset)) {
+          if(!is.numeric(dataframe$offset)){
             stop("'offset' in 'dataframe' must be of class numeric")}
         }
       }
@@ -288,45 +294,45 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
 
   # Use provided values for Area, offset, Vcham, Vtot, Pcham and Tcham
   # if they are missing from dataframe
-  if (!is.null(Area)) {
+  if(!is.null(Area)){
     dataframe <- dataframe %>% mutate(Area = Area)
   }
-  if (!is.null(offset)) {
+  if(!is.null(offset)){
     dataframe <- dataframe %>% mutate(offset = offset)
   }
-  if (!is.null(Vcham)) {
+  if(!is.null(Vcham)){
     dataframe <- dataframe %>% mutate(Vcham = Vcham)
   }
-  if (!is.null(Vtot)) {
+  if(!is.null(Vtot)){
     dataframe <- dataframe %>% mutate(Vtot = Vtot)
   }
-  if (!is.null(Pcham)) {
+  if(!is.null(Pcham)){
     dataframe <- dataframe %>% mutate(Pcham = Pcham)
   }
-  if ((!is.null(Tcham))) {
+  if((!is.null(Tcham))){
     dataframe <- dataframe %>% mutate(Tcham = Tcham)
   }
 
   # Calculate Vtot if absent from dataframe
-  if (!any(grepl("\\<Vtot\\>", names(dataframe)))) {
+  if(!any(grepl("\\<Vtot\\>", names(dataframe)))){
     dataframe <- dataframe %>% mutate(Vtot = Vcham + (Area * offset))
   }
 
   # Use normal atmospheric pressure and ambient temperature
   # if Pcham and Tcham are missing from dataframe
-  if (!any(grepl("\\<Pcham\\>", names(dataframe)))) {
+  if(!any(grepl("\\<Pcham\\>", names(dataframe)))){
     dataframe <- dataframe %>% mutate(Pcham = 101.325)
   }
-  if (!any(grepl("\\<Tcham\\>", names(dataframe)))) {
+  if(!any(grepl("\\<Tcham\\>", names(dataframe)))){
     dataframe <- dataframe %>% mutate(Tcham = 15)
   }
 
   # Rename chamID to UniqueID
-  if (any(grepl("\\<chamID\\>", names(dataframe)))){
+  if(any(grepl("\\<chamID\\>", names(dataframe)))){
     dataframe <- dataframe %>% mutate(UniqueID = chamID)}
 
   # Clean and subset data (per gastype)
-  if (gastype != "H2O_ppm") {
+  if(gastype != "H2O_ppm"){
     data_split <- dataframe %>%
       # Rename H2O_col
       rename(H2O_ppm = all_of(H2O_col)) %>%
@@ -334,46 +340,42 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
       mutate(H2O_mol = H2O_ppm / (1000*1000)) %>%
       select(UniqueID, H2O_mol, Etime, Vtot, Pcham, Area, Tcham,
              flag, matches(gastype)) %>%
-      # Remove bad measurements (flag == 0)
+      # Filter flag == 1
       filter(flag == 1) %>%
       # Use drop_na() to remove NAs
       drop_na(matches(gastype)) %>% group_by(UniqueID) %>%
       # Interpolate missing values for chamber pressure and temperature
       fill(Pcham, Tcham, .direction = "up") %>%
-      # Remove duplicates of Etime
-      ungroup() %>% distinct(UniqueID, Etime, .keep_all = TRUE) %>%
       # Split dataset by UniqueID
-      group_split(UniqueID) %>% as.list()
-  } else if (gastype == "H2O_ppm") {
+      group_split() %>% as.list()
+  } else if(gastype == "H2O_ppm"){
     data_split <- dataframe %>%
       select(UniqueID, Etime, Vtot, Pcham, Area, Tcham,
              flag, all_of(H2O_col)) %>%
       # Rename H2O_col
       rename(H2O_ppm = all_of(H2O_col)) %>%
-      # Remove bad measurements (flag == 0)
+      # Filter flag == 1
       filter(flag == 1) %>%
       # Use drop_na() to remove NAs
       drop_na(matches(gastype)) %>% group_by(UniqueID) %>%
       # Interpolate missing values for chamber pressure and temperature
       fill(Pcham, Tcham, .direction = "up") %>%
-      # Remove duplicates of Etime
-      ungroup() %>% distinct(UniqueID, Etime, .keep_all = TRUE) %>%
       # Split dataset by UniqueID
-      group_split(UniqueID) %>% as.list()
+      group_split() %>% as.list()
   }
 
   # Instrument precision (by gastype)
   # If prec = NULL, the default parameters are set to the LI-7810 for CH4 and CO2,
   # or the LI-7820 for N2O. Both instruments have the same precision for H2O.
-  if (is.null(prec)) {
+  if(is.null(prec)){
     prec <- ifelse(gastype == "CO2dry_ppm", 3.5,
                    ifelse(gastype == "CH4dry_ppb", 0.6,
                           ifelse(gastype == "N2Odry_ppb", 0.4,
                                  ifelse(gastype == "H2O_ppm", 45, NA))))
-  } else { prec = prec }
+  }
 
   # Calculate auxiliary variables: flux term and minimal detectable flux
-  for (f in 1:length(data_split)) {
+  for (f in 1:length(data_split)){
 
     H2O_flux.term <- ifelse(gastype == "H2O_ppm", 0, first(data_split[[f]]$H2O_mol))
 
@@ -390,12 +392,12 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
   pb = txtProgressBar(min = 0, max = length(data_split), initial = 0, style = 3)
 
   # Flux calculation
-  for (f in 1:length(data_split)) {
+  for (f in 1:length(data_split)){
 
-    # Extract auxiliary variables: flux term, minimal detectable flux and UniqueID
-    UniqueID <- unique(data_split[[f]]$UniqueID)
-    flux.term <- first(data_split[[f]]$flux.term)
-    MDF <- first(data_split[[f]]$MDF)
+    # Extract auxiliary variables
+    UniqueID <- unique(na.omit(data_split[[f]]$UniqueID))
+    flux.term <- unique(na.omit(data_split[[f]]$flux.term))
+    MDF <- unique(na.omit(data_split[[f]]$MDF))
     nb.obs <- nrow(na.omit(data_split[[f]][, gastype]))
 
     # Extract gas measurement (by gastype)
@@ -414,24 +416,26 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     Ci.lim.flux <- c(Ci.flux-C.diff.flux*0.2, Ci.flux+C.diff.flux*0.2)
 
     # Calculate C0 and Ci and their boundaries based on raw data
-    C0.raw <- first(gas.meas)
-    Ci.raw <- last(gas.meas)
+    C0 <- first(gas.meas)
+    Ci <- last(gas.meas)
 
     # Chose the right C0 and Ci
-    Ci <- if_else(between(Ci.raw, Ci.lim.flux[1], Ci.lim.flux[2]), Ci.raw, Ci.flux)
-    C0 <- if_else(between(C0.raw, C0.lim.flux[1], C0.lim.flux[2]), C0.raw, C0.flux)
+    Ci.best <- if_else(between(Ci, Ci.lim.flux[1], Ci.lim.flux[2]), Ci, Ci.flux)
+    C0.best <- if_else(between(C0, C0.lim.flux[1], C0.lim.flux[2]), C0, C0.flux)
 
     # Calculate kappa thresholds based on MDF, LM.flux and Etime
     kappa.max <- k.max(MDF, LM.res$LM.flux, (max(data_split[[f]]$Etime)+1))
 
     # Hutchinson and Mosier
     HM.res <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
-                      flux.term = flux.term, Ci = Ci, C0 = C0, k.max = kappa.max)
+                      flux.term = flux.term, Ci = Ci.best, C0 = C0.best,
+                      k.max = kappa.max)
 
-    # Flux results and G factor
+    # Flux results
     flux.res.ls[[f]] <- cbind.data.frame(
-      UniqueID, LM.res, HM.res, MDF, prec, flux.term, k.max = kappa.max*k.mult,
-      g.fact = g.factor(HM.res$HM.flux, LM.res$LM.flux), nb.obs)
+      UniqueID, LM.res, HM.res, C0, Ci, MDF, prec,
+      flux.term, nb.obs, k.max = kappa.max*k.mult,
+      g.fact = g.factor(HM.res$HM.flux, LM.res$LM.flux))
 
     # Update progress bar
     setTxtProgressBar(pb, f)
@@ -444,8 +448,8 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
   # Close progress bar
   close(pb)
 
-  for (f in 1:nrow(flux_results)) {
-    if (flux_results$nb.obs[f] < warn.length) {
+  for (f in 1:nrow(flux_results)){
+    if(flux_results$nb.obs[f] < warn.length){
       warning("Number of observations for UniqueID: ", flux_results$UniqueID[f],
               " is ", flux_results$nb.obs[f], " observations", call. = FALSE)}
   }
