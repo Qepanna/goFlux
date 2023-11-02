@@ -187,7 +187,7 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
   if (is.null(auxfile)){
     # Rename chamID to UniqueID
     if (any(grepl("\\<chamID\\>", names(inputfile)))){
-      inputfile <- inputfile %>% mutate(UniqueID = chamID) %>%
+      inputfile <- inputfile %>% mutate(UniqueID = paste(chamID, DATE)) %>%
         # Convert milliseconds to seconds, for compatibility
         mutate(start.time = as.POSIXct(round(start.time, "secs")))
     }
@@ -195,7 +195,7 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
   } else {
     # Rename chamID to UniqueID
     if (any(grepl("\\<chamID\\>", names(auxfile)))){
-      auxfile <- auxfile %>% mutate(UniqueID = chamID)
+      auxfile <- auxfile %>% mutate(UniqueID = paste(chamID, DATE))
     }
     aux.data <- auxfile %>% select(UniqueID, start.time) %>% distinct()
   }
