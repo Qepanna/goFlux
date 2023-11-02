@@ -597,7 +597,7 @@ best.flux <- function(flux.result,
   NA.LM.diagnostic <- "LM.flux is NA"
   NA.HM.diagnostic <- "HM.flux is NA"
 
-  best.flux.df <- best.flux.df %>%
+  best.flux.clean <- best.flux.df %>%
     # If HM.flux is NA, use LM.flux
     mutate(best.flux = if_else(is.na(HM.flux) & !is.na(LM.flux),
                                LM.flux, best.flux),
@@ -618,5 +618,5 @@ best.flux <- function(flux.result,
     mutate(quality.check = if_else(is.na(LM.flux) & is.na(HM.flux),
                                    NA.quality, quality.check))
 
-  return(best.flux.df)
+  return(best.flux.clean)
 }
