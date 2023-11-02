@@ -28,8 +28,14 @@ deviations (a warning is given in the column \code{quality.check}
 saying "Noisy measurement").}
 
 \item{intercept.lim}{numerical vector of length 2; inferior and superior
-limits of the intercept (initial concentration; C0).
-Must be the same units as \code{gastype}.}
+limits of the intercept (initial concentration;
+\ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}}).
+Must be the same units as \code{gastype}. If
+\code{intercept.lim = NULL}, the limits are calculated
+from the true values of
+\ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}} and
+\ifelse{html}{\out{C<sub>i</sub>}}{\eqn{C[i]}{ASCII}}
+for each measurement.}
 
 \item{SErel}{numerical value; maximal relative standard error accepted (\%)
 on flux estimate. The default is 5\%.}

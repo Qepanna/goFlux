@@ -13,8 +13,14 @@
 #'                 deviations (a warning is given in the column \code{quality.check}
 #'                 saying "Noisy measurement").
 #' @param intercept.lim numerical vector of length 2; inferior and superior
-#'                      limits of the intercept (initial concentration; C0).
-#'                      Must be the same units as \code{gastype}.
+#'                      limits of the intercept (initial concentration;
+#'                      \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}}).
+#'                      Must be the same units as \code{gastype}. If
+#'                      \code{intercept.lim = NULL}, the limits are calculated
+#'                      from the true values of
+#'                      \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}} and
+#'                      \ifelse{html}{\out{C<sub>i</sub>}}{\eqn{C[i]}{ASCII}}
+#'                      for each measurement.
 #' @param SErel numerical value; maximal relative standard error accepted (\%)
 #'               on flux estimate. The default is 5\%.
 #' @param g.limit numerical value; maximal limit of the the g-factor, which is the
@@ -289,209 +295,95 @@ best.flux <- function(flux.result,
   g.fact <- HM.diagnose <- HM.RMSE <- prec <- model <- quality.check <- HM.k <-
     LM.p.val <- LM.diagnose <- HM.se.rel <- LM.se.rel <- HM.C0 <- LM.C0 <-
     LM.Ci <- LM.se <- HM.se <- MDF <- HM.MAE <- nb.obs <- LM.RMSE <-
-    LM.MAE <- UniqueID <- . <- NULL
+    LM.MAE <- UniqueID <- . <- C0 <- Ci <- C0.min <- C0.max <- NULL
 
   # FUNCTION START ####
 
   # Assume that the best flux is HM.flux and leave *.diagnose empty
   best.flux.df <- flux.result %>%
     mutate(HM.diagnose = "", LM.diagnose = "", best.flux = HM.flux,
-           model = "HM", quality.check = "") %>%
-    group_by(UniqueID) %>% group_split()
-
-  ## NA ####
-  # If HM.flux is NA, use LM.flux
-  best.flux.NA <- function(x, best.flux.df) {
-
-    # best.flux variables
-    LM.flux <- best.flux.df[[x]]$LM.flux
-    HM.flux <- best.flux.df[[x]]$HM.flux
-    best.flux <- best.flux.df[[x]]$best.flux
-    model <- best.flux.df[[x]]$model
-    HM.diagnose <- best.flux.df[[x]]$HM.diagnose
-    LM.diagnose <- best.flux.df[[x]]$LM.diagnose
-    quality.check <- best.flux.df[[x]]$quality.check
-
-    # If HM.flux is NA, use LM.flux
-    if(is.na(HM.flux)){
-      if(!is.na(LM.flux)){
-        best.flux <- LM.flux
-        model <- "LM"
-      }
-      # IF LM.flux is also NA, return NA
-      if(is.na(LM.flux)){
-        best.flux <- NA
-        model <- NA
-      }
-    }
-    # diagnostic & quality
-    quality <- "flux is NA"
-    LM.diagnostic <- "LM.flux is NA"
-    HM.diagnostic <- "HM.flux is NA"
-
-    if(is.na(LM.flux)){
-      LM.diagnose <- ifelse(
-        LM.diagnose == "", LM.diagnostic,
-        paste(LM.diagnose, LM.diagnostic, sep = " | "))
-    }
-    if(is.na(HM.flux)){
-      HM.diagnose <- ifelse(
-        HM.diagnose == "", HM.diagnostic,
-        paste(HM.diagnose, HM.diagnostic, sep = " | "))
-    }
-    if(is.na(LM.flux) & is.na(HM.flux)){
-      quality.check <- ifelse(
-        quality.check == "", quality,
-        paste(quality.check, quality, sep = " | "))
-    }
-
-    # Update best.flux.df
-    best.flux.df.NA <- best.flux.df[[x]] %>%
-      mutate(HM.diagnose = HM.diagnose, LM.diagnose = LM.diagnose,
-             best.flux = best.flux, model = model,
-             quality.check = quality.check)
-
-    return(best.flux.df.NA)
-  }
-
-  best.flux.df <- lapply(seq_along(best.flux.df), best.flux.NA, best.flux.df)
+           model = "HM", quality.check = "")
 
   ## RMSE ####
   # Reflects the instrument precision. Sensitive to outliers.
   if(any(grepl("\\<RMSE\\>", criteria))) {
 
-    best.flux.RMSE <- function(x, best.flux.df) {
+    RMSE.quality <- "Noise (LM.RMSE & HM.RMSE)"
+    RMSE.LM.diagnostic <- "Noisy measurement (LM.RMSE)"
+    RMSE.HM.diagnostic <- "Noisy measurement (HM.RMSE)"
 
-      # best.flux variables
-      LM.flux <- best.flux.df[[x]]$LM.flux
-      best.flux <- best.flux.df[[x]]$best.flux
-      model <- best.flux.df[[x]]$model
-      HM.diagnose <- best.flux.df[[x]]$HM.diagnose
-      LM.diagnose <- best.flux.df[[x]]$LM.diagnose
-      quality.check <- best.flux.df[[x]]$quality.check
-
-      # RMSE variables
-      HM.RMSE <- signif(best.flux.df[[x]]$HM.RMSE, 1)
-      LM.RMSE <- signif(best.flux.df[[x]]$LM.RMSE, 1)
-      prec <- best.flux.df[[x]]$prec
-
+    best.flux.df <- best.flux.df %>%
       # If HM.RMSE <= prec, use HM.flux
       # else, if HM.RMSE > prec, but HM.RMSE <= LM.RMSE, still use HM.flux
       # else, use LM.flux
-      if(isTRUE(HM.RMSE > prec & HM.RMSE > LM.RMSE)){
-        best.flux <- LM.flux
-        model <- "LM"
-      }
-      # diagnostic & quality
-      quality <- "Noise (LM.RMSE & HM.RMSE)"
-      LM.diagnostic <- "Noisy measurement (LM.RMSE)"
-      HM.diagnostic <- "Noisy measurement (HM.RMSE)"
-
-      if(isTRUE(LM.RMSE > prec)){
-        LM.diagnose <- ifelse(
-          LM.diagnose == "", LM.diagnostic,
-          paste(LM.diagnose, LM.diagnostic, sep = " | "))
-      }
-      if(isTRUE(HM.RMSE > prec)){
-        HM.diagnose <- ifelse(
-          HM.diagnose == "", HM.diagnostic,
-          paste(HM.diagnose, HM.diagnostic, sep = " | "))
-      }
-      if(isTRUE(LM.RMSE > prec & HM.RMSE > prec)){
-        quality.check <- ifelse(
-          quality.check == "", quality,
-          paste(quality.check, quality, sep = " | "))
-      }
-      if(isTRUE(LM.RMSE > prec & HM.RMSE <= prec)){
-        HM.diagnose <- ifelse(
-          HM.diagnose == "", LM.diagnostic,
-          paste(HM.diagnose, LM.diagnostic, sep = " | "))
-      }
-      if(isTRUE(LM.RMSE <= prec & HM.RMSE > prec)){
-        HM.diagnose <- ifelse(
-          HM.diagnose == "", HM.diagnostic,
-          paste(HM.diagnose, HM.diagnostic, sep = " | "))
-      }
-
-      # Update best.flux.df
-      best.flux.df.RMSE <- best.flux.df[[x]] %>%
-        mutate(HM.diagnose = HM.diagnose, LM.diagnose = LM.diagnose,
-               best.flux = best.flux, model = model,
-               quality.check = quality.check)
-
-      return(best.flux.df.RMSE)
-    }
-
-    best.flux.df <- lapply(seq_along(best.flux.df), best.flux.RMSE, best.flux.df)
+      mutate(best.flux = if_else(HM.RMSE > prec & HM.RMSE > LM.RMSE,
+                                 LM.flux, best.flux),
+             model = if_else(HM.RMSE > prec & HM.RMSE > LM.RMSE,
+                             "LM", model)) %>%
+      # If LM.RMSE > prec
+      mutate(LM.diagnose = if_else(LM.RMSE > prec, ifelse(
+        LM.diagnose == "", RMSE.LM.diagnostic,
+        paste(LM.diagnose, RMSE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
+      # If HM.RMSE > prec
+      mutate(HM.diagnose = if_else(HM.RMSE > prec, ifelse(
+        HM.diagnose == "", RMSE.HM.diagnostic,
+        paste(HM.diagnose, RMSE.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
+      # If LM.RMSE > prec & HM.RMSE > prec
+      mutate(quality.check = if_else(
+        LM.RMSE > prec & HM.RMSE > prec, ifelse(
+          quality.check == "", RMSE.quality,
+          paste(quality.check, RMSE.quality, sep = " | ")), quality.check)) %>%
+      # If LM.RMSE > prec & HM.RMSE <= prec
+      mutate(HM.diagnose = if_else(
+        LM.RMSE > prec & HM.RMSE <= prec, ifelse(
+          HM.diagnose == "", RMSE.LM.diagnostic,
+          paste(HM.diagnose, RMSE.LM.diagnostic, sep = " | ")), HM.diagnose)) %>%
+      # If LM.RMSE <= prec & HM.RMSE > prec
+      mutate(HM.diagnose = if_else(
+        LM.RMSE <= prec & HM.RMSE > prec, ifelse(
+          HM.diagnose == "", RMSE.HM.diagnostic,
+          paste(HM.diagnose, RMSE.HM.diagnostic, sep = " | ")), HM.diagnose))
   }
 
   ## MAE ####
   # Reflects the instrument precision.
   if(any(grepl("\\<MAE\\>", criteria))) {
 
-    best.flux.MAE <- function(x, best.flux.df) {
+    MAE.quality <- "Noise (LM.MAE & HM.MAE)"
+    MAE.LM.diagnostic <- "Noisy measurement (LM.MAE)"
+    MAE.HM.diagnostic <- "Noisy measurement (HM.MAE)"
 
-      # best.flux variables
-      LM.flux <- best.flux.df[[x]]$LM.flux
-      best.flux <- best.flux.df[[x]]$best.flux
-      model <- best.flux.df[[x]]$model
-      HM.diagnose <- best.flux.df[[x]]$HM.diagnose
-      LM.diagnose <- best.flux.df[[x]]$LM.diagnose
-      quality.check <- best.flux.df[[x]]$quality.check
-
-      # MAE variables
-      HM.MAE <- signif(best.flux.df[[x]]$HM.MAE, 1)
-      LM.MAE <- signif(best.flux.df[[x]]$LM.MAE, 1)
-      prec <- best.flux.df[[x]]$prec
-
+    best.flux.df <- best.flux.df %>%
       # If HM.MAE <= prec, use HM.flux
       # else, if HM.MAE > prec, but HM.MAE <= LM.MAE, still use HM.flux
       # else, use LM.flux
-      if(isTRUE(HM.MAE > prec & HM.MAE > LM.MAE)){
-        best.flux <- LM.flux
-        model <- "LM"
-      }
-      # diagnostic & quality
-      quality <- "Noise (LM.MAE & HM.MAE)"
-      LM.diagnostic <- "Noisy measurement (LM.MAE)"
-      HM.diagnostic <- "Noisy measurement (HM.MAE)"
-
-      if(isTRUE(LM.MAE > prec)){
-        LM.diagnose <- ifelse(
-          LM.diagnose == "", LM.diagnostic,
-          paste(LM.diagnose, LM.diagnostic, sep = " | "))
-      }
-      if(isTRUE(HM.MAE > prec)){
-        HM.diagnose <- ifelse(
-          HM.diagnose == "", HM.diagnostic,
-          paste(HM.diagnose, HM.diagnostic, sep = " | "))
-      }
-      if(isTRUE(LM.MAE > prec & HM.MAE > prec)){
-        quality.check <- ifelse(
-          quality.check == "", quality,
-          paste(quality.check, quality, sep = " | "))
-      }
-      if(isTRUE(LM.MAE > prec & HM.MAE <= prec)){
-        HM.diagnose <- ifelse(
-          HM.diagnose == "", LM.diagnostic,
-          paste(HM.diagnose, LM.diagnostic, sep = " | "))
-      }
-      if(isTRUE(LM.MAE <= prec & HM.MAE > prec)){
-        HM.diagnose <- ifelse(
-          HM.diagnose == "", HM.diagnostic,
-          paste(HM.diagnose, HM.diagnostic, sep = " | "))
-      }
-
-      # Update best.flux.df
-      best.flux.df.MAE <- best.flux.df[[x]] %>%
-        mutate(HM.diagnose = HM.diagnose, LM.diagnose = LM.diagnose,
-               best.flux = best.flux, model = model,
-               quality.check = quality.check)
-
-      return(best.flux.df.MAE)
-    }
-
-    best.flux.df <- lapply(seq_along(best.flux.df), best.flux.MAE, best.flux.df)
+      mutate(best.flux = if_else(HM.MAE > prec & HM.MAE > LM.MAE,
+                                 LM.flux, best.flux),
+             model = if_else(HM.MAE > prec & HM.MAE > LM.MAE,
+                             "LM", model)) %>%
+      # If LM.MAE > prec
+      mutate(LM.diagnose = if_else(LM.MAE > prec, ifelse(
+        LM.diagnose == "", MAE.LM.diagnostic,
+        paste(LM.diagnose, MAE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
+      # If HM.MAE > prec
+      mutate(HM.diagnose = if_else(HM.MAE > prec, ifelse(
+        HM.diagnose == "", MAE.HM.diagnostic,
+        paste(HM.diagnose, MAE.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
+      # If LM.MAE > prec & HM.MAE > prec
+      mutate(quality.check = if_else(
+        LM.MAE > prec & HM.MAE > prec, ifelse(
+          quality.check == "", MAE.quality,
+          paste(quality.check, MAE.quality, sep = " | ")), quality.check)) %>%
+      # If LM.MAE > prec & HM.MAE <= prec
+      mutate(HM.diagnose = if_else(
+        LM.MAE > prec & HM.MAE <= prec, ifelse(
+          HM.diagnose == "", MAE.LM.diagnostic,
+          paste(HM.diagnose, MAE.LM.diagnostic, sep = " | ")), HM.diagnose)) %>%
+      # If LM.MAE <= prec & HM.MAE > prec
+      mutate(HM.diagnose = if_else(
+        LM.MAE <= prec & HM.MAE > prec, ifelse(
+          HM.diagnose == "", MAE.HM.diagnostic,
+          paste(HM.diagnose, MAE.HM.diagnostic, sep = " | ")), HM.diagnose))
   }
 
   ## SErel ####
@@ -500,202 +392,104 @@ best.flux <- function(flux.result,
 
   if(any(grepl("\\<SErel\\>", criteria))) {
 
-    best.flux.SErel <- function(x, best.flux.df, SErel) {
+    SErel.quality <- paste("SE rel. > ", SErel, "%", sep = "")
+    SErel.LM.diagnostic <- paste("Noisy meas. (LM.se.rel > ", SErel, "%)", sep = "")
+    SErel.HM.diagnostic <- paste("Noisy meas. (HM.se.rel > ", SErel, "%)", sep = "")
 
-      # best.flux variables
-      LM.flux <- best.flux.df[[x]]$LM.flux
-      best.flux <- best.flux.df[[x]]$best.flux
-      model <- best.flux.df[[x]]$model
-      HM.diagnose <- best.flux.df[[x]]$HM.diagnose
-      LM.diagnose <- best.flux.df[[x]]$LM.diagnose
-      quality.check <- best.flux.df[[x]]$quality.check
-
-      # SErel variables
-      HM.se.rel <- signif(best.flux.df[[x]]$HM.se.rel, 1)
-      LM.se.rel <- signif(best.flux.df[[x]]$LM.se.rel, 1)
-
+    best.flux.df <- best.flux.df %>%
       # If HM.se.rel <= SErel, use HM.flux
       # else, if HM.se.rel > SErel, but HM.se.rel <= LM.se.rel, still use HM.flux
       # else, use LM.flux
-      if(isTRUE(HM.se.rel > SErel & HM.se.rel > LM.se.rel)){
-        best.flux <- LM.flux
-        model <- "LM"
-      }
-      # diagnostic & quality
-      quality <- paste("SE rel. > ", SErel, "%)", sep = "")
-      LM.diagnostic <- paste("Noisy meas. (LM.se.rel > ", SErel, "%)", sep = "")
-      HM.diagnostic <- paste("Noisy meas. (HM.se.rel > ", SErel, "%)", sep = "")
-
-      if(isTRUE(LM.se.rel > SErel)){
-        LM.diagnose <- ifelse(
-          LM.diagnose == "", LM.diagnostic,
-          paste(LM.diagnose, LM.diagnostic, sep = " | "))
-      }
-      if(isTRUE(HM.se.rel > SErel)){
-        HM.diagnose <- ifelse(
-          HM.diagnose == "", HM.diagnostic,
-          paste(HM.diagnose, HM.diagnostic, sep = " | "))
-      }
-      if(isTRUE(LM.se.rel > SErel & HM.se.rel > SErel)){
-        quality.check <- ifelse(
-          quality.check == "", quality,
-          paste(quality.check, quality, sep = " | "))
-      }
-      if(isTRUE(LM.se.rel > SErel & HM.se.rel <= SErel)){
-        HM.diagnose <- ifelse(
-          HM.diagnose == "", LM.diagnostic,
-          paste(HM.diagnose, LM.diagnostic, sep = " | "))
-      }
-      if(isTRUE(LM.se.rel <= SErel & HM.se.rel > SErel)){
-        HM.diagnose <- ifelse(
-          HM.diagnose == "", HM.diagnostic,
-          paste(HM.diagnose, HM.diagnostic, sep = " | "))
-      }
-
-      # Update best.flux.df
-      best.flux.df.SErel <- best.flux.df[[x]] %>%
-        mutate(HM.diagnose = HM.diagnose, LM.diagnose = LM.diagnose,
-               best.flux = best.flux, model = model,
-               quality.check = quality.check)
-
-      return(best.flux.df.SErel)
-    }
-
-    best.flux.df <- lapply(seq_along(best.flux.df), best.flux.SErel,
-                           best.flux.df, SErel)
+      mutate(best.flux = if_else(HM.se.rel > SErel & HM.se.rel > LM.se.rel,
+                                 LM.flux, best.flux),
+             model = if_else(HM.se.rel > SErel & HM.se.rel > LM.se.rel,
+                             "LM", model)) %>%
+      # If LM.se.rel > SErel
+      mutate(LM.diagnose = if_else(LM.se.rel > SErel, ifelse(
+        LM.diagnose == "", SErel.LM.diagnostic,
+        paste(LM.diagnose, SErel.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
+      # If HM.se.rel > SErel
+      mutate(HM.diagnose = if_else(HM.se.rel > SErel, ifelse(
+        HM.diagnose == "", SErel.HM.diagnostic,
+        paste(HM.diagnose, SErel.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
+      # If LM.se.rel > SErel & HM.se.rel > SErel
+      mutate(quality.check = if_else(
+        LM.se.rel > SErel & HM.se.rel > SErel, ifelse(
+          quality.check == "", SErel.quality,
+          paste(quality.check, SErel.quality, sep = " | ")), quality.check)) %>%
+      # If LM.se.rel > SErel & HM.se.rel <= SErel
+      mutate(HM.diagnose = if_else(
+        LM.se.rel > SErel & HM.se.rel <= SErel, ifelse(
+          HM.diagnose == "", SErel.LM.diagnostic,
+          paste(HM.diagnose, SErel.LM.diagnostic, sep = " | ")), HM.diagnose)) %>%
+      # If LM.se.rel <= SErel & HM.se.rel > SErel
+      mutate(HM.diagnose = if_else(
+        LM.se.rel <= SErel & HM.se.rel > SErel, ifelse(
+          HM.diagnose == "", SErel.HM.diagnostic,
+          paste(HM.diagnose, SErel.HM.diagnostic, sep = " | ")), HM.diagnose))
   }
 
   ## G factor ####
   # Ratio between HM/LM. Default is 2
   if(any(grepl("\\<g.factor\\>", criteria))) {
 
-    best.flux.g.fact <- function(x, best.flux.df, g.limit) {
+    g.quality <- paste("g-factor > ", g.limit, sep = "")
+    g.diagnostic <- paste("Overestimation of flux (g-factor > ", g.limit, ")", sep = "")
 
-      # best.flux variables
-      LM.flux <- best.flux.df[[x]]$LM.flux
-      best.flux <- best.flux.df[[x]]$best.flux
-      model <- best.flux.df[[x]]$model
-      HM.diagnose <- best.flux.df[[x]]$HM.diagnose
-      quality.check <- best.flux.df[[x]]$quality.check
-
-      # g-factor variables
-      g.fact <- best.flux.df[[x]]$g.fact
-
+    best.flux.df <- best.flux.df %>%
       # If g.fact <= g.limit, use HM.flux
       # else, use LM.flux
-      if(isTRUE(g.fact > g.limit)){
-        best.flux <- LM.flux
-        model <- "LM"
-      }
-      # diagnostic & quality
-      quality <- paste("g-factor > ", g.limit, sep = "")
-      diagnostic <- paste("Overestimation of flux (g-factor > ", g.limit, ")", sep = "")
-
-      if(isTRUE(g.fact > g.limit)){
-        HM.diagnose <- ifelse(
-          HM.diagnose == "", diagnostic,
-          paste(HM.diagnose, diagnostic, sep = " | "))
-        quality.check <- ifelse(
-          quality.check == "", quality,
-          paste(quality.check, quality, sep = " | "))
-      }
-
-      # Update best.flux.df
-      best.flux.df.g <- best.flux.df[[x]] %>%
-        mutate(HM.diagnose = HM.diagnose, best.flux = best.flux,
-               model = model, quality.check = quality.check)
-
-      return(best.flux.df.g)
-    }
-
-    best.flux.df <- lapply(seq_along(best.flux.df), best.flux.g.fact,
-                           best.flux.df, g.limit)
+      mutate(best.flux = if_else(g.fact > g.limit, LM.flux, best.flux),
+             model = if_else(g.fact > g.limit, "LM", model)) %>%
+      # If g.fact > g.limit
+      mutate(HM.diagnose = if_else(g.fact > g.limit, ifelse(
+        HM.diagnose == "", g.diagnostic,
+        paste(HM.diagnose, g.diagnostic, sep = " | ")), HM.diagnose)) %>%
+      # If g.fact > g.limit
+      mutate(quality.check = if_else(g.fact > g.limit, ifelse(
+        quality.check == "", g.quality,
+        paste(quality.check, g.quality, sep = " | ")), quality.check))
   }
 
   ## kappa max ####
   # Maximal curvature allowed in non-linear regression (Hutchinson and Mosier)
   if(any(grepl("\\<kappa\\>", criteria))) {
 
-    best.flux.kappa <- function(x, best.flux.df, k.ratio) {
+    k.quality <- paste("kappa ratio > ", k.ratio*100, "%", sep = "")
+    k.diagnostic <- paste("Exaggerated curvature (kappa ratio > ",
+                          k.ratio, sep = "")
 
-      # best.flux variables
-      LM.flux <- best.flux.df[[x]]$LM.flux
-      best.flux <- best.flux.df[[x]]$best.flux
-      model <- best.flux.df[[x]]$model
-      HM.diagnose <- best.flux.df[[x]]$HM.diagnose
-      quality.check <- best.flux.df[[x]]$quality.check
-
-      # kappa variables
-      HM.k <- best.flux.df[[x]]$HM.k
-      k.max <- best.flux.df[[x]]$k.max
-
+    best.flux.df <- best.flux.df %>%
       # If abs(HM.k/k.max) <= k.ratio, use HM.flux
       # else, use LM.flux
-      if(isTRUE(abs(HM.k/k.max) > k.ratio)){
-        best.flux <- LM.flux
-        model <- "LM"
-      }
-      # diagnostic & quality
-      quality <- paste("kappa ratio > ", k.ratio*100, "%", sep = "")
-      diagnostic <- paste("Exaggerated curvature (kappa ratio > ",
-                          k.ratio*100, "%)", sep = "")
-
-      if(isTRUE(abs(HM.k/k.max) > k.ratio)){
-        HM.diagnose <- ifelse(
-          HM.diagnose == "", diagnostic,
-          paste(HM.diagnose, diagnostic, sep = " | "))
-        quality.check <- ifelse(
-          quality.check == "", quality,
-          paste(quality.check, quality, sep = " | "))
-      }
-
-      # Update best.flux.df
-      best.flux.df.k <- best.flux.df[[x]] %>%
-        mutate(HM.diagnose = HM.diagnose, best.flux = best.flux,
-               model = model, quality.check = quality.check)
-
-      return(best.flux.df.k)
-    }
-
-    best.flux.df <- lapply(seq_along(best.flux.df), best.flux.kappa,
-                           best.flux.df, k.ratio)
+      mutate(best.flux = if_else(abs(HM.k/k.max) > k.ratio, LM.flux, best.flux),
+             model = if_else(abs(HM.k/k.max) > k.ratio, "LM", model)) %>%
+      # If abs(HM.k/k.max) > k.ratio
+      mutate(HM.diagnose = if_else(abs(HM.k/k.max) > k.ratio, ifelse(
+        HM.diagnose == "", k.diagnostic,
+        paste(HM.diagnose, k.diagnostic, sep = " | ")), HM.diagnose)) %>%
+      # If abs(HM.k/k.max) > k.ratio
+      mutate(quality.check = if_else(abs(HM.k/k.max) > k.ratio, ifelse(
+        quality.check == "", k.quality,
+        paste(quality.check, k.quality, sep = " | ")), quality.check))
   }
 
   ## p-value ####
   # Statistical limit of detectable flux. Default is p-value < 0.05
   if(any(grepl("\\<p-value\\>", criteria))) {
 
-    best.flux.p.val <- function(x, best.flux.df, p.val) {
+    p.quality <- "No detect. LM.flux (p-val)"
+    p.diagnostic <- paste("No detectable flux (p-value > ", p.val, ")", sep = "")
 
-      # best.flux variables
-      LM.diagnose <- best.flux.df[[x]]$LM.diagnose
-      quality.check <- best.flux.df[[x]]$quality.check
-
-      # LM p-value
-      LM.p.val <- best.flux.df[[x]]$LM.p.val
-
-      # diagnostic & quality
-      quality <- "No detect. LM.flux (p-val)"
-      diagnostic <- paste("No detectable flux (p-value > ", p.val, ")", sep = "")
-
-      if(isTRUE(LM.p.val > p.val)){
-        LM.diagnose <- ifelse(
-          LM.diagnose == "", diagnostic,
-          paste(LM.diagnose, diagnostic, sep = " | "))
-        quality.check <- ifelse(
-          quality.check == "", quality,
-          paste(quality.check, quality, sep = " | "))
-      }
-
-      # Update best.flux.df
-      best.flux.df.p <- best.flux.df[[x]] %>%
-        mutate(LM.diagnose = LM.diagnose, quality.check = quality.check)
-
-      return(best.flux.df.p)
-    }
-
-    best.flux.df <- lapply(seq_along(best.flux.df), best.flux.p.val,
-                           best.flux.df, p.val)
+    best.flux.df <- best.flux.df %>%
+      # If LM.p.val > p.val
+      mutate(LM.diagnose = if_else(LM.p.val > p.val, ifelse(
+        LM.diagnose == "", p.diagnostic,
+        paste(LM.diagnose, p.diagnostic, sep = " | ")), LM.diagnose)) %>%
+      # If LM.p.val > p.val
+      mutate(quality.check = if_else(LM.p.val > p.val, ifelse(
+        quality.check == "", p.quality,
+        paste(quality.check, p.quality, sep = " | ")), quality.check))
   }
 
   ## MDF ####
@@ -703,158 +497,126 @@ best.flux <- function(flux.result,
   # Based on instrument precision.
   if(any(grepl("\\<MDF\\>", criteria))) {
 
-    best.flux.MDF <- function(x, best.flux.df) {
+    MDF.quality <- "No detectable flux (MDF)"
+    MDF.LM.diagnostic <- "No detectable LM.flux (MDF)"
+    MDF.HM.diagnostic <- "No detectable HM.flux (MDF)"
 
-      # best.flux variables
-      LM.flux <- best.flux.df[[x]]$LM.flux
-      HM.flux <- best.flux.df[[x]]$HM.flux
-      best.flux <- best.flux.df[[x]]$best.flux
-      model <- best.flux.df[[x]]$model
-      HM.diagnose <- best.flux.df[[x]]$HM.diagnose
-      LM.diagnose <- best.flux.df[[x]]$LM.diagnose
-      quality.check <- best.flux.df[[x]]$quality.check
-
-      # MDF
-      MDF <- best.flux.df[[x]]$MDF
-
+    best.flux.df <- best.flux.df %>%
       # If HM.flux => MDF, use HM.flux
       # else, if HM.flux < MDF, but LM.flux < MDF also, still use HM.flux
       # else, use LM.flux
-      if(isTRUE(abs(HM.flux) < MDF & abs(LM.flux) >= MDF)){
-        best.flux <- LM.flux
-        model <- "LM"
-      }
-      # diagnostic & quality
-      quality <- "No detectable flux (MDF)"
-      LM.diagnostic <- "No detectable LM.flux (MDF)"
-      HM.diagnostic <- "No detectable HM.flux (MDF)"
-
-      if(isTRUE(abs(LM.flux) < MDF)){
-        LM.diagnose <- ifelse(
-          LM.diagnose == "", LM.diagnostic,
-          paste(LM.diagnose, LM.diagnostic, sep = " | "))
-      }
-      if(isTRUE(abs(HM.flux) < MDF)){
-        HM.diagnose <- ifelse(
-          HM.diagnose == "", HM.diagnostic,
-          paste(HM.diagnose, HM.diagnostic, sep = " | "))
-      }
-      if(isTRUE(abs(HM.flux) < MDF & abs(LM.flux) < MDF)){
-        quality.check <- ifelse(
-          quality.check == "", quality,
-          paste(quality.check, quality, sep = " | "))
-      }
-      if(isTRUE(abs(HM.flux) < MDF & abs(LM.flux) >= MDF)){
-        quality.check <- ifelse(
-          quality.check == "", HM.diagnostic,
-          paste(quality.check, HM.diagnostic, sep = " | "))
-      }
-
-      # Update best.flux.df
-      best.flux.df.MDF <- best.flux.df[[x]] %>%
-        mutate(HM.diagnose = HM.diagnose, LM.diagnose = LM.diagnose,
-               best.flux = best.flux, model = model,
-               quality.check = quality.check)
-
-      return(best.flux.df.MDF)
-    }
-
-    best.flux.df <- lapply(seq_along(best.flux.df), best.flux.MDF, best.flux.df)
+      mutate(best.flux = if_else(abs(HM.flux) < MDF & abs(LM.flux) >= MDF,
+                                 LM.flux, best.flux),
+             model = if_else(abs(HM.flux) < MDF & abs(LM.flux) >= MDF,
+                             "LM", model)) %>%
+      # If abs(LM.flux) < MDF
+      mutate(LM.diagnose = if_else(abs(LM.flux) < MDF, ifelse(
+        LM.diagnose == "", MDF.LM.diagnostic,
+        paste(LM.diagnose, MDF.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
+      # If abs(HM.flux) < MDF
+      mutate(HM.diagnose = if_else(abs(HM.flux) < MDF, ifelse(
+        HM.diagnose == "", MDF.HM.diagnostic,
+        paste(HM.diagnose, MDF.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
+      # If abs(HM.flux) < MDF & abs(LM.flux) < MDF
+      mutate(quality.check = if_else(abs(HM.flux) < MDF & abs(LM.flux) < MDF, ifelse(
+        quality.check == "", MDF.quality,
+        paste(quality.check, MDF.quality, sep = " | ")), quality.check)) %>%
+      # If abs(HM.flux) < MDF & abs(LM.flux) >= MDF
+      mutate(quality.check = if_else(abs(HM.flux) < MDF & abs(LM.flux) >= MDF, ifelse(
+        quality.check == "", MDF.HM.diagnostic,
+        paste(quality.check, MDF.HM.diagnostic, sep = " | ")), quality.check))
   }
 
   ## Intercept ####
   # Limits must have a minimum and a maximum value
   if(any(grepl("\\<intercept\\>", criteria))){
 
-    best.flux.C0 <- function(x, best.flux.df, intercept.lim) {
+    C0.quality <- "Intercept (LM & HM)"
+    C0.LM.diagnostic <- "Intercept out of bounds (LM)"
+    C0.HM.diagnostic <- "Intercept out of bounds (HM)"
 
-      # best.flux variables
-      HM.diagnose <- best.flux.df[[x]]$HM.diagnose
-      LM.diagnose <- best.flux.df[[x]]$LM.diagnose
-      quality.check <- best.flux.df[[x]]$quality.check
-
-      # intercept variables
-      HM.C0 <- best.flux.df[[x]]$HM.C0
-      LM.C0 <- best.flux.df[[x]]$LM.C0
-      if(is.null(intercept.lim)){
-        C0 <- best.flux.df[[x]]$C0
-        Ci <- best.flux.df[[x]]$Ci
-        intercept.lim <- c(C0-(abs(Ci-C0)*0.2), C0+(abs(Ci-C0)*0.2))}
-
-      # diagnostic & quality
-      quality <- "Intercept (LM & HM)"
-      LM.diagnostic <- "Intercept out of bounds (LM)"
-      HM.diagnostic <- "Intercept out of bounds (HM)"
-
-      if(!isTRUE(between(HM.C0, intercept.lim[1], intercept.lim[2]))){
-        HM.diagnose <- ifelse(
-          HM.diagnose == "", HM.diagnostic,
-          paste(HM.diagnose, HM.diagnostic, sep = " | "))
-        if(!isTRUE(between(LM.C0, intercept.lim[1], intercept.lim[2]))){
-          quality.check <- ifelse(
-            quality.check == "", quality,
-            paste(quality.check, quality, sep = " | "))
-        } else {
-          quality.check <- ifelse(
-            quality.check == "", HM.diagnostic,
-            paste(quality.check, HM.diagnostic, sep = " | "))
-        }
-      }
-      if(!isTRUE(between(LM.C0, intercept.lim[1], intercept.lim[2]))){
-        LM.diagnose <- ifelse(
-          LM.diagnose == "", LM.diagnostic,
-          paste(LM.diagnose, LM.diagnostic, sep = " | "))
-        if(isTRUE(between(HM.C0, intercept.lim[1], intercept.lim[2]))){
-          quality.check <- ifelse(
-            quality.check == "", LM.diagnostic,
-            paste(quality.check, LM.diagnostic, sep = " | "))
-        }
-      }
-
-      # Update best.flux.df
-      best.flux.df.C0 <- best.flux.df[[x]] %>%
-        mutate(HM.diagnose = HM.diagnose, LM.diagnose = LM.diagnose,
-               quality.check = quality.check)
-
-      return(best.flux.df.C0)
+    if(!is.null(intercept.lim)){
+      best.flux.df <- best.flux.df %>%
+        mutate(C0.min = intercept.lim[1],
+               C0.max = intercept.lim[2])
+    } else {
+      best.flux.df <- best.flux.df %>%
+        mutate(C0.min = C0-(abs(Ci-C0)*0.1),
+               C0.max = C0+(abs(Ci-C0)*0.1))
     }
 
-    best.flux.df <- lapply(seq_along(best.flux.df), best.flux.C0,
-                           best.flux.df, intercept.lim)
+    best.flux.df <- best.flux.df %>%
+      # If only HM.C0 is out of bounds
+      mutate(
+        HM.diagnose = if_else(
+          !between(HM.C0, C0.min, C0.max) &
+            between(LM.C0, C0.min, C0.max), ifelse(
+              HM.diagnose == "", C0.HM.diagnostic,
+              paste(HM.diagnose, C0.HM.diagnostic, sep = " | ")), HM.diagnose),
+        quality.check = if_else(
+          !between(HM.C0, C0.min, C0.max) &
+            between(LM.C0, C0.min, C0.max), ifelse(
+              quality.check == "", C0.HM.diagnostic,
+              paste(quality.check, C0.HM.diagnostic, sep = " | ")), quality.check)) %>%
+      # If only LM.C0 is out of bounds
+      mutate(
+        LM.diagnose = if_else(
+          !between(LM.C0, C0.min, C0.max) &
+            between(HM.C0, C0.min, C0.max), ifelse(
+              LM.diagnose == "", C0.LM.diagnostic,
+              paste(LM.diagnose, C0.LM.diagnostic, sep = " | ")), LM.diagnose),
+        quality.check = if_else(
+          !between(LM.C0, C0.min, C0.max) &
+            between(HM.C0, C0.min, C0.max), ifelse(
+              quality.check == "", C0.LM.diagnostic,
+              paste(quality.check, C0.LM.diagnostic, sep = " | ")), quality.check)) %>%
+      # If both intercepts are out of bounds
+      mutate(quality.check = if_else(
+        !between(LM.C0, C0.min, C0.max) &
+          !between(HM.C0, C0.min, C0.max), ifelse(
+            quality.check == "", C0.quality,
+            paste(quality.check, C0.quality, sep = " | ")), quality.check)) %>%
+      # Remove intercept limits from best.flux.df
+      select(!c(C0.min, C0.max))
   }
 
   ## Number of observations ####
   if(any(grepl("\\<nb.obs\\>", criteria))) {
 
-    best.flux.obs <- function(x, best.flux.df, warn.length) {
+    obs.quality <- paste("nb.obs <", warn.length)
 
-      # best.flux variables
-      quality.check <- best.flux.df[[x]]$quality.check
-
-      # nb.obs
-      nb.obs <- best.flux.df[[x]]$nb.obs
-
-      # diagnostic & quality
-      quality <- paste("nb.obs <", warn.length)
-
-      if(isTRUE(nb.obs < warn.length)){
-        quality.check <- ifelse(
-          quality.check == "", quality,
-          paste(quality.check, quality, sep = " | "))
-      }
-
-      # Update best.flux.df
-      best.flux.df.obs <- best.flux.df[[x]] %>%
-        mutate(quality.check = quality.check)
-
-      return(best.flux.df.obs)
-    }
-
-    best.flux.df <- lapply(seq_along(best.flux.df), best.flux.obs,
-                           best.flux.df, warn.length)
+    best.flux.df <- best.flux.df %>%
+      # If nb.obs < warn.length
+      mutate(quality.check = if_else(nb.obs < warn.length, ifelse(
+        quality.check == "", obs.quality,
+        paste(quality.check, obs.quality, sep = " | ")), quality.check))
   }
 
-  best.flux.df <- best.flux.df %>% map_df(., ~as.data.frame(.x))
+  ## NA ####
+  NA.quality <- "fluxes are NA"
+  NA.LM.diagnostic <- "LM.flux is NA"
+  NA.HM.diagnostic <- "HM.flux is NA"
+
+  best.flux.df <- best.flux.df %>%
+    # If HM.flux is NA, use LM.flux
+    mutate(best.flux = if_else(is.na(HM.flux) & !is.na(LM.flux),
+                               LM.flux, best.flux),
+           model = if_else(is.na(HM.flux) & !is.na(LM.flux),
+                           "LM", model)) %>%
+    # If LM.flux is also NA, return NA
+    mutate(best.flux = if_else(is.na(HM.flux) & is.na(LM.flux),
+                               NA, best.flux),
+           model = if_else(is.na(HM.flux) & is.na(LM.flux),
+                           NA, model)) %>%
+    # If HM.flux is NA
+    mutate(HM.diagnose = if_else(is.na(HM.flux), NA.HM.diagnostic, HM.diagnose),
+           quality.check = if_else(is.na(HM.flux) & !is.na(LM.flux),
+                                   NA.HM.diagnostic, quality.check)) %>%
+    # If LM.flux is NA
+    mutate(LM.diagnose = if_else(is.na(LM.flux), NA.LM.diagnostic, LM.diagnose)) %>%
+    # If both are NA
+    mutate(quality.check = if_else(is.na(LM.flux) & is.na(HM.flux),
+                                   NA.quality, quality.check))
 
   return(best.flux.df)
 }
