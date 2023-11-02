@@ -215,12 +215,13 @@ using the `best.flux()` function:
   the columns “quality.check”, “LM.diagnose” or “HM.diagnose” saying
   “Noisy measurement (SE rel.)”.
 - **Intercept**: If the initial gas concentration (*C<sub>0</sub>*)
-  calculated for the flux estimates are more or less than 20% of the
-  initial gas concentration at the start of the measurement, a warning
-  is issued in the columns “quality.check”, “LM.diagnose” or
-  “HM.diagnose” saying “Intercept out of bounds”. Alternatively, one can
-  provide boundaries for the intercept, for example:
-  `intercept.lim = c(380, 420)` for a true *C<sub>0</sub>* of 400 ppm.
+  calculated for the flux estimates are more or less than 10% of the
+  difference between *C<sub>0</sub>* and the final gas concentration at
+  the end of the measurement (*C<sub>i</sub>*), a warning is issued in
+  the columns “quality.check”, “LM.diagnose” or “HM.diagnose” saying
+  “Intercept out of bounds”. Alternatively, one can provide boundaries
+  for the intercept, for example: `intercept.lim = c(380, 420)` for a
+  true *C<sub>0</sub>* of 400 ppm.
 - **Number of observations**: Minimum amount of observations accepted
   (`nb.obs`). With nowadays portable greenhouse gas analyzers, the
   frequency of measurement is usually one measurement per second.
