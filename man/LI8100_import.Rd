@@ -9,9 +9,10 @@ LI8100_import(inputfile, date.format = "ymd", timezone = "UTC", save = FALSE)
 \arguments{
 \item{inputfile}{character string; the name of a file with the extension .81x}
 
-\item{date.format}{character string; chose one of the following: "dmy", "ymd",
-or "mdy". Default is "ymd", as it is the date format from
-the example data file provided.}
+\item{date.format}{date format; the date format used in the raw data file.
+Chose one of the following: "dmy", "ymd", or "mdy". Default
+is "ymd", as it is the date format from the example data
+file provided.}
 
 \item{timezone}{character string; a time zone in which to import the data to
 POSIXct format. Default is "UTC". Note about time zone: it is
@@ -28,6 +29,11 @@ a data frame containing raw data from LI-COR GHG analyzer LI-8100.
 \description{
 Imports single raw gas measurement files from the LI-COR 8100
 (CO2 and H2O GHG analyzer)
+}
+\details{
+In \code{date.format}, the date format refers to a date found in the raw data
+file, not the date format in the file name. For the instrument LI-8100, the
+date is found in the column "Date".
 }
 \examples{
 # Load file from downloaded package

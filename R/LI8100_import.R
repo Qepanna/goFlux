@@ -4,9 +4,10 @@
 #' (CO2 and H2O GHG analyzer)
 #'
 #' @param inputfile character string; the name of a file with the extension .81x
-#' @param date.format character string; chose one of the following: "dmy", "ymd",
-#'                    or "mdy". Default is "ymd", as it is the date format from
-#'                    the example data file provided.
+#' @param date.format date format; the date format used in the raw data file.
+#'                    Chose one of the following: "dmy", "ymd", or "mdy". Default
+#'                    is "ymd", as it is the date format from the example data
+#'                    file provided.
 #' @param timezone character string; a time zone in which to import the data to
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
 #'                 recommended to use the time zone "UTC" to avoid any issue
@@ -16,6 +17,11 @@
 #'             in the Console, or load in the Environment if assigned to an object.
 #'
 #' @returns a data frame containing raw data from LI-COR GHG analyzer LI-8100.
+#'
+#' @details
+#' In \code{date.format}, the date format refers to a date found in the raw data
+#' file, not the date format in the file name. For the instrument LI-8100, the
+#' date is found in the column "Date".
 #'
 #' @include GoFluxYourself-package.R
 #'
@@ -57,7 +63,7 @@ LI8100_import <- function(inputfile, date.format = "ymd",
   Type <- Etime <- Tcham <- Pressure <- H2O <- Cdry <- V1 <- V2 <- V3 <-
     V4 <- H2O_mmol <- DATE_TIME <- Obs <- . <- cham.close <- cham.open <-
     deadband <- start.time <- obs.start <- POSIX.time <- plotID <-
-    Date <- CO2dry_ppm <- NULL
+    Date <- CO2dry_ppm <- POSIX.warning <- NULL
 
   # Find how many rows need to be skipped
   skip.rows <- as.numeric(which(read.delim(inputfile) == "Type"))[1]
@@ -82,15 +88,21 @@ LI8100_import <- function(inputfile, date.format = "ymd",
     mutate(Obs = rleid(cumsum(Obs < 0)))
 
   # Create a new column containing date and time (POSIX format)
-  if(date.format == "dmy"){
-    data.raw$POSIX.time <- as.POSIXct(dmy_hms(data.raw$DATE_TIME, tz = timezone))
-  }
-  if(date.format == "mdy"){
-    data.raw$POSIX.time <- as.POSIXct(mdy_hms(data.raw$DATE_TIME, tz = timezone))
-  }
-  if(date.format == "ymd"){
-    data.raw$POSIX.time <- as.POSIXct(data.raw$DATE_TIME, tz = timezone)
-  }
+  tryCatch(
+    {if(date.format == "dmy"){
+      try.POSIX <- as.POSIXct(dmy_hms(data.raw$DATE_TIME, tz = timezone))
+    } else if(date.format == "mdy"){
+      try.POSIX <- as.POSIXct(mdy_hms(data.raw$DATE_TIME, tz = timezone))
+    } else if(date.format == "ymd"){
+      try.POSIX <- as.POSIXct(ymd_hms(data.raw$DATE_TIME, tz = timezone))
+    }}, warning = function(w) {POSIX.warning <<- "date.format.error"}
+  )
+
+  if(isTRUE(POSIX.warning == "date.format.error")){
+    stop(paste("An error occured while converting DATE and TIME into POSIX.time.",
+               "Verify that 'date.format' corresponds to the column 'DATE' in",
+               "the raw data file. Here is a sample:", data.raw$DATE[1]))
+  } else data.raw$POSIX.time <- try.POSIX
 
   # Import metadata from LI8100 (.81x)
   meta <- read.delim(inputfile, header = F) %>% select(c(1:2)) %>%

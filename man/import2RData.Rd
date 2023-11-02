@@ -8,14 +8,17 @@ import2RData(path, instrument, date.format, timezone = "UTC")
 }
 \arguments{
 \item{path}{character string; a folder path containing all files to be imported.
-Ideally, the folder should only contain the files to be imported.}
+Ideally, to avoid any errors, the folder should only contain the
+files to be imported.}
 
 \item{instrument}{character string; specifies which instrument was used to generate
 the files contained in the folder path. Chose one of the
 following: "LGR", "G2508", "GAIA", "LI-6400", "LI-7810",
-"LI-7820", "LI-8100", or "LI-8200".}
+"LI-7820", "LI-8100", or "LI-8200". For more information
+about an instrument, see the section "See also" below.}
 
-\item{date.format}{date format; chose one of the following: "dmy", "ymd", or "mdy".}
+\item{date.format}{date format; the date format used in the raw data file.
+Chose one of the following: "dmy", "ymd", or "mdy".}
 
 \item{timezone}{character string; a time zone in which to import the data to
 POSIXct format. Default is "UTC". Note about time zone: it is
@@ -36,6 +39,22 @@ Adapted to multiple greenhouse gas analyzers and other instruments:
 \item Picarro: G2508
 }
 }
+\details{
+In \code{date.format}, the date format refers to a date found in the raw data
+file, not the date format in the file name. For most instruments, the date is
+one of the columns in the raw data file:
+\itemize{
+\item G2508: column DATE
+\item GAIA: column Titles:
+\item LGR: column Time
+\item LI-7810: column DATE
+\item LI-7820: column DATE
+\item LI-8100: column Date
+}
+For the instrument LI-6400, the date is found in one of the first lines in
+a format containing abbreviations, for example "Thr Aug 6 2020", which would
+be the date format "mdy".
+}
 \examples{
 # Examples on how to use it with all instruments.
 # The default time zone "UTC" is used in all cases.
@@ -50,7 +69,7 @@ import2RData(path = "inst/extdata/G2508", instrument = "G2508", date.format = "y
 import2RData(path = "inst/extdata/GAIA", instrument = "GAIA", date.format = "ymd")
 
 # with LI-COR instruments
-import2RData(path = "inst/extdata/LI6400", instrument = "LI-6400", date.format = "ymd")
+import2RData(path = "inst/extdata/LI6400", instrument = "LI-6400", date.format = "mdy")
 import2RData(path = "inst/extdata/LI7810", instrument = "LI-7810", date.format = "ymd")
 import2RData(path = "inst/extdata/LI7820", instrument = "LI-7820", date.format = "ymd")
 import2RData(path = "inst/extdata/LI8100", instrument = "LI-8100", date.format = "ymd")

@@ -4,9 +4,10 @@
 #' (CO2, CH4 and H2O GHG analyzer)
 #'
 #' @param inputfile character string; the name of a file with the extension .data
-#' @param date.format character string; chose one of the following: "dmy", "ymd",
-#'                    or "mdy". Default is "ymd", as it is the date format from
-#'                    the example data file provided.
+#' @param date.format date format; the date format used in the raw data file.
+#'                    Chose one of the following: "dmy", "ymd", or "mdy". Default
+#'                    is "ymd", as it is the date format from the example data
+#'                    file provided.
 #' @param timezone character string; a time zone in which to import the data to
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
 #'                 recommended to use the time zone "UTC" to avoid any issue
@@ -15,6 +16,11 @@
 #'             in the current working directory. If save = FALSE, returns the file
 #'             in the Console, or load in the Environment if assigned to an object.
 #' @returns a data frame containing raw data from LI-COR GHG analyzer LI-7810.
+#'
+#' @details
+#' In \code{date.format}, the date format refers to a date found in the raw data
+#' file, not the date format in the file name. For the instrument LI-7810, the
+#' date is found in the column "DATE".
 #'
 #' @include GoFluxYourself-package.R
 #'
@@ -54,7 +60,7 @@ LI7810_import <- function(inputfile, date.format = "ymd",
 
   # Assign NULL to variables without binding
   H2O_ppm <- H2O <- CH4 <- CO2 <- TIME <- DATE <- DATAH <-
-    CH4dry_ppb <- CO2dry_ppm <- NULL
+    CH4dry_ppb <- CO2dry_ppm <- POSIX.warning <- NULL
 
   # Find how many rows need to be skipped
   skip.rows <- as.numeric(which(read.delim(inputfile, nrows = 20) == "DATAH",
@@ -74,18 +80,21 @@ LI7810_import <- function(inputfile, date.format = "ymd",
     filter(H2O_ppm > 0)
 
   # Create a new column containing date and time (POSIX format)
-  if(date.format == "dmy"){
-    data.raw$POSIX.time <- as.POSIXct(
-      dmy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone))
-  }
-  if(date.format == "mdy"){
-    data.raw$POSIX.time <- as.POSIXct(
-      mdy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone))
-  }
-  if(date.format == "ymd"){
-    data.raw$POSIX.time <- as.POSIXct(
-      ymd_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone))
-  }
+  tryCatch(
+    {if(date.format == "dmy"){
+      try.POSIX <- as.POSIXct(dmy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone))
+    } else if(date.format == "mdy"){
+      try.POSIX <- as.POSIXct(mdy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone))
+    } else if(date.format == "ymd"){
+      try.POSIX <- as.POSIXct(ymd_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone))
+    }}, warning = function(w) {POSIX.warning <<- "date.format.error"}
+  )
+
+  if(isTRUE(POSIX.warning == "date.format.error")){
+    stop(paste("An error occured while converting DATE and TIME into POSIX.time.",
+               "Verify that 'date.format' corresponds to the column 'DATE' in",
+               "the raw data file. Here is a sample:", data.raw$DATE[1]))
+  } else data.raw$POSIX.time <- try.POSIX
 
   # Save cleaned data file
   if(save == TRUE){

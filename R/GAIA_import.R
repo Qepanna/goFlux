@@ -5,9 +5,10 @@
 #' (LI-7810: CO2, CH4 and H2O / LI7820: N2O and H2O)
 #'
 #' @param inputfile character string; the name of a file with the extension .csv
-#' @param date.format character string; chose one of the following: "dmy", "ymd",
-#'                    or "mdy". Default is "ymd", as it is the date format from
-#'                    the example data file provided.
+#' @param date.format date format; the date format used in the raw data file.
+#'                    Chose one of the following: "dmy", "ymd", or "mdy". Default
+#'                    is "ymd", as it is the date format from the example data
+#'                    file provided.
 #' @param timezone character string; a time zone in which to import the data to
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
 #'                 recommended to use the time zone "UTC" to avoid any issue
@@ -48,6 +49,10 @@
 #' CH4 and H2O / LI7820: N2O and H2O). If this function could be useful for you,
 #' but does not meet your needs, please contact the maintainer of this package
 #' for potential adaptations.
+#'
+#' In \code{date.format}, the date format refers to a date found in the raw data
+#' file, not the date format in the file name. For the instrument GAIA the
+#' date is found in the column "Titles:".
 #'
 #' @include GoFluxYourself-package.R
 #'
@@ -118,7 +123,7 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   POSIX.time <- activ.cham <- DATE_TIME <- start.time <- . <- SEQUENCE <-
     Titles. <- Obs <- cham.probe <- chamID <- obs.start <- rbind.fill <-
     cham.close <- cham.open <- H2O_ppm_LI7820 <- N2Odry_ppb <-
-    H2O_ppm_LI7810 <- CH4dry_ppb <- CO2dry_ppm <- NULL
+    H2O_ppm_LI7810 <- CH4dry_ppb <- CO2dry_ppm <- POSIX.warning <- NULL
 
   # Import raw data file from GAIA (.csv)
   data.raw <- read.delim(inputfile, skip = 1, colClasses = "character") %>%
@@ -234,21 +239,26 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   }
 
   # Create a new column containing date and time (POSIX format)
-  op <- options()
-  options(digits.secs=6)
-  if(date.format == "dmy"){
-    data.raw$POSIX.time <- as.POSIXct(dmy_hms(data.raw$DATE_TIME, tz = timezone),
-                                      format = "%Y-%m-%d %H:%M:%OS")
-  }
-  if(date.format == "mdy"){
-    data.raw$POSIX.time <- as.POSIXct(mdy_hms(data.raw$DATE_TIME, tz = timezone),
-                                      format = "%Y-%m-%d %H:%M:%OS")
-  }
-  if(date.format == "ymd"){
-    data.raw$POSIX.time <- as.POSIXct(ymd_hms(data.raw$DATE_TIME, tz = timezone),
-                                      format = "%Y-%m-%d %H:%M:%OS")
-  }
-  options(op)
+  tryCatch(
+    {op <- options()
+    options(digits.secs=6)
+    if(date.format == "dmy"){
+      try.POSIX <- as.POSIXct(dmy_hms(data.raw$DATE_TIME, tz = timezone),
+                              format = "%Y-%m-%d %H:%M:%OS")
+    } else if(date.format == "mdy"){
+      try.POSIX <- as.POSIXct(mdy_hms(data.raw$DATE_TIME, tz = timezone),
+                              format = "%Y-%m-%d %H:%M:%OS")
+    } else if(date.format == "ymd"){
+      try.POSIX <- as.POSIXct(ymd_hms(data.raw$DATE_TIME, tz = timezone),
+                              format = "%Y-%m-%d %H:%M:%OS")}
+    options(op)}, warning = function(w) {POSIX.warning <<- "date.format.error"}
+  )
+
+  if(isTRUE(POSIX.warning == "date.format.error")){
+    stop(paste("An error occured while converting DATE and TIME into POSIX.time.",
+               "Verify that 'date.format' corresponds to the column 'DATE' in",
+               "the raw data file. Here is a sample:", data.raw$DATE[1]))
+  } else data.raw$POSIX.time <- try.POSIX
 
   # Add other useful variables (DATE, flag)
   data.raw <- data.raw %>%

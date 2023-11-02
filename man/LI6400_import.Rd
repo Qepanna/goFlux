@@ -9,9 +9,10 @@ LI6400_import(inputfile, date.format = "mdy", timezone = "UTC", save = FALSE)
 \arguments{
 \item{inputfile}{character string; the name of a file with the extension .txt}
 
-\item{date.format}{character string; chose one of the following: "dmy", "ymd",
-or "mdy". Default is "ymd", as it is the date format from
-the example data file provided.}
+\item{date.format}{date format; the date format used in the raw data file.
+Chose one of the following: "dmy", "ymd", or "mdy". Default
+is "mdy", as it is the date format from the example data
+file provided.}
 
 \item{timezone}{character string; a time zone in which to import the data to
 POSIXct format. Default is "UTC". Note about time zone: it is
@@ -28,6 +29,12 @@ a data frame containing raw data from LI-COR GHG analyzer LI-6400.
 \description{
 Imports single raw gas measurement files from the LI-COR 6400
 (CO2 and H2O GHG analyzer)
+}
+\details{
+In \code{date.format}, the date format refers to a date found in the raw data
+file, not the date format in the file name. For the instrument LI-6400, the
+date is found in one of the first lines in a format containing abbreviations,
+for example "Thr Aug 6 2020", which would be the date format "mdy".
 }
 \examples{
 # Load file from downloaded package

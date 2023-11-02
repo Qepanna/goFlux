@@ -4,9 +4,10 @@
 #' (UGGA and m-GGA) from Los Gatos Research (CO2, CH4 and H2O) with the extension .txt
 #'
 #' @param inputfile character string; the name of a file with the extension .txt
-#' @param date.format character string; chose one of the following: "dmy", "ymd",
-#'                    or "mdy". Default is "ymd", as it is the date format from
-#'                    the example data file provided.
+#' @param date.format date format; the date format used in the raw data file.
+#'                    Chose one of the following: "dmy", "ymd", or "mdy". Default
+#'                    is "dmy", as it is the date format from the example data
+#'                    file provided.
 #' @param timezone character string; a time zone in which to import the data to
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
 #'                 recommended to use the time zone "UTC" to avoid any issue
@@ -17,6 +18,11 @@
 #' @returns a data frame containing raw data from LGR GHG analyzer.
 #'
 #' @include GoFluxYourself-package.R
+#'
+#' @details
+#' In \code{date.format}, the date format refers to a date found in the raw data
+#' file, not the date format in the file name. For the instrument G2508, the date
+#' is found in the column "Time".
 #'
 #' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
@@ -53,7 +59,7 @@ LGR_import <- function(inputfile, date.format = "dmy",
 
   # Assign NULL to variables without binding
   POSIX.time <- DATE_TIME <- H2O_ppm <- CH4dry_ppb <- Time <- . <-
-    CH4dry_ppm <- CO2dry_ppm <- NULL
+    CH4dry_ppm <- CO2dry_ppm <- POSIX.warning <- NULL
 
   # Load data file
   data.raw <- read.delim(inputfile, skip = 1, sep = ",") %>%
@@ -76,21 +82,26 @@ LGR_import <- function(inputfile, date.format = "dmy",
     mutate(DATE_TIME = gsub("/", "-", sub(" ", "" , DATE_TIME)))
 
   # Create a new column containing date and time (POSIX format)
-  op <- options()
-  options(digits.secs=6)
-  if(date.format == "dmy"){
-    data.raw$POSIX.time <- as.POSIXct(dmy_hms(data.raw$DATE_TIME, tz = timezone),
-                                      format = "%Y-%m-%d %H:%M:%OS")
-  }
-  if(date.format == "mdy"){
-    data.raw$POSIX.time <- as.POSIXct(mdy_hms(data.raw$DATE_TIME, tz = timezone),
-                                      format = "%Y-%m-%d %H:%M:%OS")
-  }
-  if(date.format == "ymd"){
-    data.raw$POSIX.time <- as.POSIXct(ymd_hms(data.raw$DATE_TIME, tz = timezone),
-                                      format = "%Y-%m-%d %H:%M:%OS")
-  }
-  options(op)
+  tryCatch(
+    {op <- options()
+    options(digits.secs=6)
+    if(date.format == "dmy"){
+      try.POSIX <- as.POSIXct(dmy_hms(data.raw$DATE_TIME, tz = timezone),
+                              format = "%Y-%m-%d %H:%M:%OS")
+    } else if(date.format == "mdy"){
+      try.POSIX <- as.POSIXct(mdy_hms(data.raw$DATE_TIME, tz = timezone),
+                              format = "%Y-%m-%d %H:%M:%OS")
+    } else if(date.format == "ymd"){
+      try.POSIX <- as.POSIXct(ymd_hms(data.raw$DATE_TIME, tz = timezone),
+                              format = "%Y-%m-%d %H:%M:%OS")}
+    options(op)}, warning = function(w) {POSIX.warning <<- "date.format.error"}
+  )
+
+  if(isTRUE(POSIX.warning == "date.format.error")){
+    stop(paste("An error occured while converting DATE and TIME into POSIX.time.",
+               "Verify that 'date.format' corresponds to the column 'DATE' in",
+               "the raw data file. Here is a sample:", data.raw$DATE[1]))
+  } else data.raw$POSIX.time <- try.POSIX
 
   # Add a column for DATE alone
   data.raw <- data.raw %>% mutate(DATE = substr(POSIX.time, 0, 10))

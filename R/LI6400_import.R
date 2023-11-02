@@ -4,9 +4,10 @@
 #' (CO2 and H2O GHG analyzer)
 #'
 #' @param inputfile character string; the name of a file with the extension .txt
-#' @param date.format character string; chose one of the following: "dmy", "ymd",
-#'                    or "mdy". Default is "ymd", as it is the date format from
-#'                    the example data file provided.
+#' @param date.format date format; the date format used in the raw data file.
+#'                    Chose one of the following: "dmy", "ymd", or "mdy". Default
+#'                    is "mdy", as it is the date format from the example data
+#'                    file provided.
 #' @param timezone character string; a time zone in which to import the data to
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
 #'                 recommended to use the time zone "UTC" to avoid any issue
@@ -15,6 +16,12 @@
 #'             in the current working directory. If save = FALSE, returns the file
 #'             in the Console, or load in the Environment if assigned to an object.
 #' @returns a data frame containing raw data from LI-COR GHG analyzer LI-6400.
+#'
+#' @details
+#' In \code{date.format}, the date format refers to a date found in the raw data
+#' file, not the date format in the file name. For the instrument LI-6400, the
+#' date is found in one of the first lines in a format containing abbreviations,
+#' for example "Thr Aug 6 2020", which would be the date format "mdy".
 #'
 #' @include GoFluxYourself-package.R
 #'
@@ -56,7 +63,7 @@ LI6400_import <- function(inputfile, date.format = "mdy",
   cham.close <- cham.open <- POSIX.time <- chamID <- DATE <- TIME <- H2O_mmol <-
     Etime <- CO2dry_ppm <- Meas.type <- plotID <- H2OS <- Cdry <- Press <-
     Tair <- Mode <- ETime <- HHMMSS <- Meas.type..NEE.ER. <- Plot. <- Obs <-
-    V4 <- V1 <- start.time <- NULL
+    V4 <- V1 <- start.time <- met.date.warning <- NULL
 
   # Find how many rows need to be skipped
   skip.rows <- tryapply(seq(1:30), function(i) {
@@ -69,15 +76,21 @@ LI6400_import <- function(inputfile, date.format = "mdy",
     filter(V1 == "Const=" | V4 == "")
 
   # Extract date from metadata
-  if (date.format == "dmy") {
-    met.date <- dmy(substr(metadata[2,1], 5, nchar(metadata[2,1])-9), tz = timezone)
-  }
-  if (date.format == "mdy") {
-    met.date <- mdy(substr(metadata[2,1], 5, nchar(metadata[2,1])-9), tz = timezone)
-  }
-  if (date.format == "ymd") {
-    met.date <- ymd(substr(metadata[2,1], 5, nchar(metadata[2,1])-9), tz = timezone)
-  }
+  tryCatch(
+    {if (date.format == "dmy") {
+      try.met.date <- dmy(substr(metadata[2,1], 5, nchar(metadata[2,1])-9), tz = timezone)
+    } else if (date.format == "mdy") {
+      try.met.date <- mdy(substr(metadata[2,1], 5, nchar(metadata[2,1])-9), tz = timezone)
+    } else if (date.format == "ymd") {
+      try.met.date <- ymd(substr(metadata[2,1], 5, nchar(metadata[2,1])-9), tz = timezone)
+    }}, warning = function(w) {met.date.warning <<- "date.format.error"}
+  )
+
+  if(isTRUE(met.date.warning == "date.format.error")){
+    stop(paste("An error occured while converting DATE and TIME into POSIX.time.",
+               "Verify that 'date.format' corresponds to the column 'DATE' in",
+               "the raw data file. Here is a sample:", data.raw$DATE[1]))
+  } else met.date <- try.met.date
 
   # Import raw data file from LI6400 (.txt)
   data.raw <- read.delim(inputfile, skip = skip.rows) %>%
