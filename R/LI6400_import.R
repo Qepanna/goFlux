@@ -89,7 +89,8 @@ LI6400_import <- function(inputfile, date.format = "mdy",
   if(isTRUE(met.date.warning == "date.format.error")){
     stop(paste("An error occured while converting DATE and TIME into POSIX.time.",
                "Verify that 'date.format' corresponds to the column 'DATE' in",
-               "the raw data file. Here is a sample:", data.raw$DATE[1]))
+               "the raw data file. Here is a sample:",
+               substr(metadata[2,1], 5, nchar(metadata[2,1])-9)[1]))
   } else met.date <- try.met.date
 
   # Import raw data file from LI6400 (.txt)
@@ -105,6 +106,8 @@ LI6400_import <- function(inputfile, date.format = "mdy",
     filter(!CO2dry_ppm == "") %>% filter(!Obs == "Obs") %>%
     # Convert column class automatically
     type.convert(as.is = TRUE) %>%
+    # plotID must be as.character
+    mutate(plotID = as.character(plotID)) %>%
     # Remove Mode == 2 (indicates when a measurement ends)
     filter(!Mode == 2) %>%
     # As the LICOR only saves rows when you have passed all promts after
