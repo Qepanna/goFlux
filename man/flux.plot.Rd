@@ -14,7 +14,8 @@ flux.plot(
   quality.check = TRUE,
   flux.unit = NULL,
   flux.term.unit = NULL,
-  best.model = TRUE
+  best.model = TRUE,
+  p.val.disp = "round"
 )
 }
 \arguments{
@@ -71,6 +72,10 @@ on the plots. By default, the units are
 \item{best.model}{logical; if \code{best.model = TRUE}, display a star sign
 next to the best model selected by the function
 \code{\link[GoFluxYourself]{best.flux}}.}
+
+\item{p.val.disp}{character string; how should the p-value be displayed in the
+legend above the plot. Chose one of the following: "star",
+"round", "value".}
 }
 \value{
 a list of plots, one per UniqueID, drawn from flux restults (output
@@ -123,6 +128,13 @@ instead, one would need to multiply the flux results by 3600 to convert from
 seconds to hours. To print non-ASCII characters use Unicode. For example, to
 print the Greek letter "mu" (\eqn{µ}), use the Unicode \code{\\u03BC}:
 \code{flux.unit = "\\u03BCmol~kg^-1*h^-1"}.
+
+In \code{p.val.disp}, if \code{p.val.disp = "star"}, the p-values will be
+displayed as star symbols (asterisks) as follows: ***, ** or * for p-values
+of p < 0.001, p < 0.01 and p < 0.05, respectively. If \code{p.val.disp = "round"},
+the p-values are rounded to p < 0.001, p < 0.01 and p < 0.05. If
+\code{p.val.disp = "value"}, the actual values are displayed, rounded to two
+significant numbers.
 }
 \examples{
 data(example_LGR_manID)

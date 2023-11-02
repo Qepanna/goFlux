@@ -48,6 +48,9 @@
 #' @param best.model logical; if \code{best.model = TRUE}, display a star sign
 #'                   next to the best model selected by the function
 #'                   \code{\link[GoFluxYourself]{best.flux}}.
+#' @param p.val.disp character string; how should the p-value be displayed in the
+#'                   legend above the plot. Chose one of the following: "star",
+#'                   "round", "value".
 #'
 #' @details
 #' In \code{plot.legend}, one may chose to display up to 5 additional parameters
@@ -91,6 +94,13 @@
 #' print the Greek letter "mu" (\eqn{µ}), use the Unicode \code{\\u03BC}:
 #' \code{flux.unit = "\\u03BCmol~kg^-1*h^-1"}.
 #'
+#' In \code{p.val.disp}, if \code{p.val.disp = "star"}, the p-values will be
+#' displayed as star symbols (asterisks) as follows: ***, ** or * for p-values
+#' of p < 0.001, p < 0.01 and p < 0.05, respectively. If \code{p.val.disp = "round"},
+#' the p-values are rounded to p < 0.001, p < 0.01 and p < 0.05. If
+#' \code{p.val.disp = "value"}, the actual values are displayed, rounded to two
+#' significant numbers.
+#'
 #' @return a list of plots, one per UniqueID, drawn from flux restults (output
 #' from the functions #' \code{\link[GoFluxYourself]{goFlux}} and
 #' \code{\link[GoFluxYourself]{best.flux}}).
@@ -127,7 +137,8 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
                       plot.legend = c("MAE", "RMSE"),
                       plot.display = c("MDF", "prec"),
                       quality.check = TRUE, flux.unit = NULL,
-                      flux.term.unit = NULL, best.model = TRUE) {
+                      flux.term.unit = NULL, best.model = TRUE,
+                      p.val.disp = "round") {
 
   # Check arguments ####
   if(is.null(shoulder)) stop("'shoulder' is required") else{
@@ -415,11 +426,19 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
     } else if(!is.character(flux.results$model)){
       stop("'model' in 'flux.results' must be of class character")}
   }
-  ## flux.term and flux units
+  ## flux.term and flux units ####
   if(!is.null(flux.unit)){
     if(!is.character(flux.unit)) stop("'flux.unit' must be of class character")}
   if(!is.null(flux.term.unit)){
     if(!is.character(flux.term.unit)) stop("'flux.term.unit' must be of class character")}
+
+  ## p.val.disp ####
+  if(is.null(p.val.disp)) {stop("'p.val.disp' cannot be NULL")
+  } else if(!is.character(p.val.disp)){
+    stop("'p.val.disp' must be of class character")} else {
+      if(!any(grepl(paste("\\<", p.val.disp, "\\>", sep = ""), c("star", "round", "value")))){
+        stop("'p.val.disp' must be one of the following: 'star', 'round' or 'value'")}
+    }
 
   # Assign NULL to variables without binding ####
   UniqueID <- HM.Ci <- HM.C0 <- HM.k <- . <- flag <- start.Etime <-
@@ -586,7 +605,12 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
     }
     ### LM.p.val ####
     if(any(grepl("\\<LM.p.val\\>", plot.legend))){
-      LM.p.val <- p.val.round(unique(data_corr[[f]]$LM.p.val))
+      if(any(grepl("\\<round\\>", p.val.disp))){
+        LM.p.val <- p.val.round(unique(data_corr[[f]]$LM.p.val))}
+      if(any(grepl("\\<star\\>", p.val.disp))){
+        LM.p.val <- p.val.star(unique(data_corr[[f]]$LM.p.val))}
+      if(any(grepl("\\<value\\>", p.val.disp))){
+        LM.p.val <- signif(unique(data_corr[[f]]$LM.p.val), 2)}
       legend.LM.p.val <- cbind.data.frame(content = c("'p-value'", LM.p.val, "", ""))
     }
     ### r2 ####
