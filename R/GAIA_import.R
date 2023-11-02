@@ -257,7 +257,7 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   if(isTRUE(POSIX.warning == "date.format.error")){
     stop(paste("An error occured while converting DATE and TIME into POSIX.time.",
                "Verify that 'date.format' corresponds to the column 'DATE' in",
-               "the raw data file. Here is a sample:", data.raw$DATE[1]))
+               "the raw data file. Here is a sample:", data.raw$DATE_TIME[1]))
   } else data.raw$POSIX.time <- try.POSIX
 
   # Add other useful variables (DATE, flag)
