@@ -81,7 +81,6 @@
 #' @importFrom stats vcov
 #' @importFrom tibble add_column
 #' @importFrom tidyr drop_na
-#' @importFrom tidyr fill
 #' @importFrom tidyr pivot_longer
 #' @importFrom utils read.delim
 #' @importFrom utils setTxtProgressBar
