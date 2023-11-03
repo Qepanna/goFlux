@@ -329,7 +329,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
 
   # Rename chamID to UniqueID
   if(any(grepl("\\<chamID\\>", names(dataframe)))){
-    dataframe <- dataframe %>% mutate(UniqueID = chamID)}
+    dataframe <- dataframe %>% mutate(UniqueID = paste(chamID, DATE))}
 
   # Clean and subset data (per gastype)
   if(gastype != "H2O_ppm"){
@@ -342,12 +342,10 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
              flag, matches(gastype)) %>%
       # Filter flag == 1
       filter(flag == 1) %>%
-      # Use drop_na() to remove NAs
-      drop_na(matches(gastype)) %>% group_by(UniqueID) %>%
-      # Interpolate missing values for chamber pressure and temperature
-      fill(Pcham, Tcham, .direction = "up") %>%
+      # Use drop_na() to remove NAs in gastype
+      drop_na(matches(gastype)) %>%
       # Split dataset by UniqueID
-      group_split() %>% as.list()
+      group_by(UniqueID) %>% group_split() %>% as.list()
   } else if(gastype == "H2O_ppm"){
     data_split <- dataframe %>%
       select(UniqueID, Etime, Vtot, Pcham, Area, Tcham,
@@ -356,12 +354,10 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
       rename(H2O_ppm = all_of(H2O_col)) %>%
       # Filter flag == 1
       filter(flag == 1) %>%
-      # Use drop_na() to remove NAs
-      drop_na(matches(gastype)) %>% group_by(UniqueID) %>%
-      # Interpolate missing values for chamber pressure and temperature
-      fill(Pcham, Tcham, .direction = "up") %>%
+      # Use drop_na() to remove NAs in gastype
+      drop_na(matches(gastype)) %>%
       # Split dataset by UniqueID
-      group_split() %>% as.list()
+      group_by(UniqueID) %>% group_split() %>% as.list()
   }
 
   # Instrument precision (by gastype)
@@ -380,8 +376,9 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     H2O_flux.term <- ifelse(gastype == "H2O_ppm", 0, first(data_split[[f]]$H2O_mol))
 
     data_split[[f]] <- data_split[[f]] %>%
-      mutate(flux.term = flux.term(first(Vtot), first(Pcham), first(Area),
-                                   first(Tcham), H2O_flux.term),
+      mutate(flux.term = flux.term(first(na.omit(Vtot)), first(na.omit(Pcham)),
+                                   first(na.omit(Area)), first(na.omit(Tcham)),
+                                   H2O_flux.term),
              MDF = MDF(prec, (max(Etime)+1), flux.term))
   }
 
