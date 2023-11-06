@@ -4,7 +4,13 @@
 \alias{LI6400_import}
 \title{Import function for LI-COR GHG analyzer LI-6400}
 \usage{
-LI6400_import(inputfile, date.format = "mdy", timezone = "UTC", save = FALSE)
+LI6400_import(
+  inputfile,
+  date.format = "mdy",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE
+)
 }
 \arguments{
 \item{inputfile}{character string; the name of a file with the extension .txt}
@@ -22,6 +28,10 @@ related to summer time and winter time changes.}
 \item{save}{logical; if save = TRUE, saves the file as RData in a RData folder
 in the current working directory. If save = FALSE, returns the file
 in the Console, or load in the Environment if assigned to an object.}
+
+\item{keep_all}{logical; if \code{keep_all = TRUE}, keep all columns from raw
+file. The default is \code{keep_all = FALSE}, and columns that
+are not necessary for gas flux calculation are removed.}
 }
 \value{
 a data frame containing raw data from LI-COR GHG analyzer LI-6400.
@@ -36,6 +46,16 @@ In \code{date.format}, the date format refers to a date found in the raw data
 file, not the date format in the file name. For the instrument LI-6400, the
 date is found in one of the first lines in a format containing abbreviations,
 for example "Thr Aug 6 2020", which would be the date format "mdy".
+
+Note that this function was designed for the following default units:
+\itemize{
+  \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
+  \item mmol/mol for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
+  \item kPa for pressure
+  \item Celsius for temperature}
+If your instrument uses different units, either convert the units after import,
+change the settings on your instrument, or contact the maintainer of this
+package for support.
 }
 \examples{
 # Load file from downloaded package

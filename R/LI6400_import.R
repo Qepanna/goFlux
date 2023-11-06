@@ -16,6 +16,10 @@
 #' @param save logical; if save = TRUE, saves the file as RData in a RData folder
 #'             in the current working directory. If save = FALSE, returns the file
 #'             in the Console, or load in the Environment if assigned to an object.
+#' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from raw
+#'                 file. The default is \code{keep_all = FALSE}, and columns that
+#'                 are not necessary for gas flux calculation are removed.
+#'
 #' @returns a data frame containing raw data from LI-COR GHG analyzer LI-6400.
 #'
 #' @details
@@ -23,6 +27,16 @@
 #' file, not the date format in the file name. For the instrument LI-6400, the
 #' date is found in one of the first lines in a format containing abbreviations,
 #' for example "Thr Aug 6 2020", which would be the date format "mdy".
+#'
+#' Note that this function was designed for the following default units:
+#' \itemize{
+#'   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
+#'   \item mmol/mol for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
+#'   \item kPa for pressure
+#'   \item Celsius for temperature}
+#' If your instrument uses different units, either convert the units after import,
+#' change the settings on your instrument, or contact the maintainer of this
+#' package for support.
 #'
 #' @include GoFluxYourself-package.R
 #'
@@ -49,8 +63,8 @@
 #'
 #' @export
 #'
-LI6400_import <- function(inputfile, date.format = "mdy",
-                          timezone = "UTC", save = FALSE){
+LI6400_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
+                          save = FALSE, keep_all = FALSE){
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")
@@ -60,12 +74,14 @@ LI6400_import <- function(inputfile, date.format = "mdy",
     stop("'date.format' must be of class character and one of the following: 'ymd', 'dmy' or 'mdy'")}
   if (!is.character(timezone)) stop("'timezone' must be of class character")
   if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
+  if (keep_all != TRUE & keep_all != FALSE) stop("'keep_all' must be TRUE or FALSE")
 
   # Assign NULL to variables without binding
   cham.close <- cham.open <- POSIX.time <- chamID <- DATE <- TIME <- H2O_mmol <-
     Etime <- CO2dry_ppm <- Meas.type <- plotID <- H2OS <- Cdry <- Press <-
     Tair <- Mode <- ETime <- HHMMSS <- Meas.type..NEE.ER. <- Plot. <- Obs <-
-    V4 <- V1 <- start.time <- met.date.warning <- NULL
+    V4 <- V1 <- start.time <- met.date.warning <- flag <- offset <- Vcham <-
+    Area <- Pcham <- Tcham <- H2O_ppm <- TCham <- NULL
 
   # Find how many rows need to be skipped
   skip.rows <- tryapply(seq(1:30), function(i) {
@@ -90,7 +106,7 @@ LI6400_import <- function(inputfile, date.format = "mdy",
 
   if(isTRUE(met.date.warning == "date.format.error")){
     stop(paste("An error occured while converting DATE and TIME into POSIX.time.",
-               "Verify that 'date.format' corresponds to the column 'DATE' in",
+               "Verify that 'date.format' corresponds in",
                "the raw data file. Here is a sample:",
                substr(metadata[2,1], 5, nchar(metadata[2,1])-9)[1]))
   } else met.date <- try.met.date
@@ -98,12 +114,11 @@ LI6400_import <- function(inputfile, date.format = "mdy",
   # Import raw data file from LI6400 (.txt)
   data.raw <- read.delim(inputfile, skip = skip.rows) %>%
     # Select useful columns and standardize column names
-    select(Obs, plotID = Plot., Meas.type = Meas.type..NEE.ER.,
-           TIME = HHMMSS, Etime = ETime, Mode,
-           Tcham = Tair, Pcham = Press,
-           CO2dry_ppm = Cdry, H2O_mmol = H2OS) %>%
+    rename(plotID = Plot., Meas.type = Meas.type..NEE.ER., TIME = HHMMSS,
+           Etime = ETime, Tcham = Tair, Pcham = Press, CO2dry_ppm = Cdry,
+           H2O_mmol = H2OS) %>% select(!TCham) %>%
     # Create a unique chamber ID
-    mutate(chamID = paste(plotID, Meas.type, sep = "_")) %>%
+    mutate(chamID = paste(Obs, plotID, Meas.type, sep = "_")) %>%
     # Remove comments
     filter(!CO2dry_ppm == "") %>% filter(!Obs == "Obs") %>%
     # Convert column class automatically
@@ -111,7 +126,7 @@ LI6400_import <- function(inputfile, date.format = "mdy",
     # plotID must be as.character
     mutate(plotID = as.character(plotID)) %>%
     # Remove Mode == 2 (indicates when a measurement ends)
-    filter(!Mode == 2) %>%
+    filter(!Mode == 2) %>% select(!Mode) %>%
     # As the LICOR only saves rows when you have passed all promts after
     # pressing start, Etime below 4 seconds is not possible.
     filter(Etime > 4) %>%
@@ -120,26 +135,29 @@ LI6400_import <- function(inputfile, date.format = "mdy",
     filter(H2O_mmol > 0) %>%
     # Convert mmol into ppm for H2O
     mutate(H2O_ppm = H2O_mmol*1000) %>%
-    # Remove rows with duplicated times
-    # distinct(TIME, .keep_all = TRUE) %>%
     # Create new columns containing date and time (POSIX format)
     mutate(DATE = met.date,
            POSIX.time = as.POSIXct(paste(DATE, TIME), tz = timezone)) %>%
-    # Remove unnecessary columns
-    select(!c(Obs, Mode)) %>%
     # Extract other useful information from metadata
     mutate(Area = as.numeric(metadata[which(metadata[,3] == "Area")[1],4]),
            Vcham = as.numeric(metadata[which(metadata[,3] == "Vtot")[1],4]),
            offset = as.numeric(metadata[which(metadata[,3] == "Offset")[1],4])) %>%
     # Add time related variables (POSIX.time)
     group_by(chamID) %>%
-    mutate(cham.close = first(POSIX.time),
+    mutate(cham.close = min(na.omit(POSIX.time)),
            start.time = cham.close,
-           cham.open = last(POSIX.time),
+           cham.open = max(na.omit(POSIX.time)),
            Etime = as.numeric(POSIX.time - start.time, units = "secs")) %>%
     ungroup() %>%
     # Add flag
     mutate(flag = 1)
+
+  # Keep only useful columns for gas flux calculation
+  if(keep_all == FALSE){
+    data.raw <- data.raw %>%
+      select(POSIX.time, DATE, TIME, chamID, Meas.type, CO2dry_ppm, H2O_ppm,
+             Tcham, Pcham, Area, Vcham, offset, Obs, plotID, Etime, flag,
+             start.time, cham.close, cham.open)}
 
   # Save cleaned data file
   if(save == TRUE){
