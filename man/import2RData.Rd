@@ -11,11 +11,12 @@ import2RData(path, instrument, date.format, timezone = "UTC")
 Ideally, to avoid any errors, the folder should only contain the
 files to be imported.}
 
-\item{instrument}{character string; specifies which instrument was used to generate
-the files contained in the folder path. Chose one of the
-following: "LGR", "G2508", "GAIA", "LI-6400", "LI-7810",
-"LI-7820", "LI-8100", or "LI-8200". For more information
-about an instrument, see the section "See also" below.}
+\item{instrument}{character string; specifies which instrument was used to
+generate the files contained in the folder path. Chose one
+of the following: "DX4015", "LGR", "G2508", "GAIA", "LI-6400",
+"LI-7810", "LI-7820", "LI-8100", or "LI-8200". For more
+information about an instrument, see the section "See also"
+below.}
 
 \item{date.format}{date format; the date format used in the raw data file.
 Chose one of the following: "dmy", "ymd", or "mdy".}
@@ -37,6 +38,7 @@ Adapted to multiple greenhouse gas analyzers and other instruments:
 \item Los Gatos Research instruments: (e.g. UGGA and m-GGA)
 \item GAIA2TECH (DMR) automated chamber ECOFlux
 \item Picarro: G2508
+\item Gasmet: DX4015
 }
 }
 \details{
@@ -44,6 +46,7 @@ In \code{date.format}, the date format refers to a date found in the raw data
 file, not the date format in the file name. For most instruments, the date is
 one of the columns in the raw data file:
 \itemize{
+\item DX4015: column Date
 \item G2508: column DATE
 \item GAIA: column Titles:
 \item LGR: column Time
@@ -59,14 +62,17 @@ be the date format "mdy".
 # Examples on how to use it with all instruments.
 # The default time zone "UTC" is used in all cases.
 
-# with Los Gatos Research instruments (e.g. UGGA or m-GGA)
-import2RData(path = "inst/extdata/LGR", instrument = "LGR", date.format = "dmy")
+# with the Gasmet instrument DX4015
+import2RData(path = "inst/extdata/DX4015", instrument = "DX4015", date.format = "ymd")
 
 # with the Picarro instrument G2508
 import2RData(path = "inst/extdata/G2508", instrument = "G2508", date.format = "ymd")
 
 # with the automated chamber ECOFlux (GAIA2TECH)
 import2RData(path = "inst/extdata/GAIA", instrument = "GAIA", date.format = "ymd")
+
+# with Los Gatos Research instruments (e.g. UGGA or m-GGA)
+import2RData(path = "inst/extdata/LGR", instrument = "LGR", date.format = "dmy")
 
 # with LI-COR instruments
 import2RData(path = "inst/extdata/LI6400", instrument = "LI-6400", date.format = "mdy")
@@ -84,6 +90,7 @@ Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
 to import multiple files from the same folder path using any instrument.
 
 Import functions for individual instruments:
+\code{\link[GoFluxYourself]{DX4015_import}},
 \code{\link[GoFluxYourself]{G2508_import}},
 \code{\link[GoFluxYourself]{GAIA_import}},
 \code{\link[GoFluxYourself]{LGR_import}},
