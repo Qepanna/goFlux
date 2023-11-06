@@ -1,7 +1,8 @@
 #' Import function for LI-COR GHG analyzer LI-6400
 #'
 #' Imports single raw gas measurement files from the LI-COR 6400
-#' (CO2 and H2O GHG analyzer)
+#' (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} GHG analyzer)
 #'
 #' @param inputfile character string; the name of a file with the extension .txt
 #' @param date.format date format; the date format used in the raw data file.

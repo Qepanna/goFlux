@@ -28,7 +28,10 @@ a data frame containing raw data from Picarro G2508 GHG analyzer.
 }
 \description{
 Imports single raw gas measurement files from the Picarro G2508 with the
-extension .dat (CO2, CH4, N2O, and H2O GHG analyzer)
+extension .dat (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
+\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}, and
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} GHG analyzer)
 }
 \details{
 In \code{date.format}, the date format refers to a date found in the raw data

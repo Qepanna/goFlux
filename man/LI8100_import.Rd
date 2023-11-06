@@ -28,7 +28,8 @@ a data frame containing raw data from LI-COR GHG analyzer LI-8100.
 }
 \description{
 Imports single raw gas measurement files from the LI-COR 8100
-(CO2 and H2O GHG analyzer)
+(\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} GHG analyzer)
 }
 \details{
 In \code{date.format}, the date format refers to a date found in the raw data

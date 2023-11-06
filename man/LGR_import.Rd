@@ -28,7 +28,10 @@ a data frame containing raw data from LGR GHG analyzer.
 }
 \description{
 Imports single raw gas measurement files from the ultra-portable GHG analyzers
-(UGGA and m-GGA) from Los Gatos Research (CO2, CH4 and H2O) with the extension .txt
+(UGGA and m-GGA) from Los Gatos Research
+(\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}) with the extension .txt
 }
 \details{
 In \code{date.format}, the date format refers to a date found in the raw data

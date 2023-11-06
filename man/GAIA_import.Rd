@@ -69,8 +69,9 @@ columns with the pattern "_PAR" will be merged together.}
 
 \item{CO2.col, CH4.col, H2O1.col, N2O.col, H2O2.col}{character string; a pattern
 to match the columns containing the corresponding gas measurements.
-H2O1.col must be the same instrument as CO2.col and CH4.col, and
-H2O2.col must be the same instrument as N2O.col.}
+\code{H2O1.col} must be the same instrument as \code{CO2.col} and
+\code{CH4.col}, and \code{H2O2.col} must be the same instrument as
+\code{N2O.col}.}
 }
 \value{
 a data frame containing raw data from the automated chamber
@@ -79,14 +80,22 @@ a data frame containing raw data from the automated chamber
 \description{
 Imports single raw gas measurement files from the automated chamber
 ECOFlux (GAIA2TECH) with the extension .csv
-(LI-7810: CO2, CH4 and H2O / LI7820: N2O and H2O)
+(LI-7810: \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} / LI7820:
+\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 }
 \details{
 This function has been designed for the automated chamber ECOFlux (GAIA2TECH)
-synced with up to 9 chambers and two GHG analyzers from LI-COR (LI-7810: CO2,
-CH4 and H2O / LI7820: N2O and H2O). If this function could be useful for you,
-but does not meet your needs, please contact the maintainer of this package
-for potential adaptations.
+synced with up to 9 chambers and two GHG analyzers from LI-COR (LI-7810:
+\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} / LI7820:
+\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}). If this function
+could be useful for you, but does not meet your needs, please contact the
+maintainer of this package for potential adaptations.
 
 In \code{date.format}, the date format refers to a date found in the raw data
 file, not the date format in the file name. For the instrument GAIA the

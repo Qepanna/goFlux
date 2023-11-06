@@ -1,7 +1,8 @@
 #' Import function for LI-COR GHG analyzer LI-7820
 #'
 #' Imports single raw gas measurement files from the LI-COR 7820
-#' (N2O and H2O GHG analyzer)
+#' (\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} GHG analyzer)
 #'
 #' @param inputfile character string; the name of a file with the extension .data
 #' @param date.format date format; the date format used in the raw data file.

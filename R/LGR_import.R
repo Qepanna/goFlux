@@ -1,7 +1,10 @@
 #' Import function for Los Gatos Research GHG analyzers
 #'
 #' Imports single raw gas measurement files from the ultra-portable GHG analyzers
-#' (UGGA and m-GGA) from Los Gatos Research (CO2, CH4 and H2O) with the extension .txt
+#' (UGGA and m-GGA) from Los Gatos Research
+#' (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+#' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}) with the extension .txt
 #'
 #' @param inputfile character string; the name of a file with the extension .txt
 #' @param date.format date format; the date format used in the raw data file.
