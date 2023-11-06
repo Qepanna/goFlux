@@ -288,7 +288,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
   }
 
   # Assign NULL to variables without binding ####
-  H2O_ppm <- H2O_mol <- Etime <- flag <- chamID <- NULL
+  H2O_ppm <- H2O_mol <- Etime <- flag <- chamID <- DATE <- NULL
 
   # FUNCTION STARTS ####
 
