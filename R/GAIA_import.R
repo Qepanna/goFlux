@@ -63,6 +63,23 @@
 #' file, not the date format in the file name. For the instrument GAIA the
 #' date is found in the column "Titles:".
 #'
+#' Note that this function was designed for the following default units:
+#' \itemize{
+#'   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
+#'   \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
+#'   \item ppb for \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
+#'   \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}
+#'   \item kPa for pressure
+#'   \item volumetric water content (\%) for soil moisture
+#'   \item Celsius for temperature}
+#' If your instrument uses different units, either convert the units after import,
+#' change the settings on your instrument, or contact the maintainer of this
+#' package for support.
+#'
+#' As opposed to the other import functions, there is no option to "keep_all" with
+#' this instrument. If you would like to import additional data using this
+#' function, please contact the maintainer of this package for support.
+#'
 #' @include GoFluxYourself-package.R
 #'
 #' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
@@ -127,7 +144,6 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   if (!is.character(Tsoil.col)) stop("'Tsoil.col' must be of class character")
   if (!is.character(SWC.col)) stop("'SWC.col' must be of class character")
   if (!is.character(CH.col)) stop("'CH.col' must be of class character")
-
 
   # Assign NULL to variables without binding
   POSIX.time <- activ.cham <- DATE_TIME <- start.time <- . <- SEQUENCE <-
