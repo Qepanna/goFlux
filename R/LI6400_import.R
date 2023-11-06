@@ -33,6 +33,7 @@
 #'   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
 #'   \item mmol/mol for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
 #'   \item kPa for pressure
+#'   \item \ifelse{html}{\out{cm<sup>3</sup>}}{\eqn{cm^3}{ASCII}} for volumes
 #'   \item Celsius for temperature}
 #' If your instrument uses different units, either convert the units after import,
 #' change the settings on your instrument, or contact the maintainer of this
@@ -111,53 +112,96 @@ LI6400_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
                substr(metadata[2,1], 5, nchar(metadata[2,1])-9)[1]))
   } else met.date <- try.met.date
 
-  # Import raw data file from LI6400 (.txt)
-  data.raw <- read.delim(inputfile, skip = skip.rows) %>%
-    # Select useful columns and standardize column names
-    rename(plotID = Plot., Meas.type = Meas.type..NEE.ER., TIME = HHMMSS,
-           Etime = ETime, Tcham = Tair, Pcham = Press, CO2dry_ppm = Cdry,
-           H2O_mmol = H2OS) %>% select(!TCham) %>%
-    # Create a unique chamber ID
-    mutate(chamID = paste(Obs, plotID, Meas.type, sep = "_")) %>%
-    # Remove comments
-    filter(!CO2dry_ppm == "") %>% filter(!Obs == "Obs") %>%
-    # Convert column class automatically
-    type.convert(as.is = TRUE) %>%
-    # plotID must be as.character
-    mutate(plotID = as.character(plotID)) %>%
-    # Remove Mode == 2 (indicates when a measurement ends)
-    filter(!Mode == 2) %>% select(!Mode) %>%
-    # As the LICOR only saves rows when you have passed all promts after
-    # pressing start, Etime below 4 seconds is not possible.
-    filter(Etime > 4) %>%
-    # Remove NAs and negative gas measurements, if any
-    filter(CO2dry_ppm > 0) %>%
-    filter(H2O_mmol > 0) %>%
-    # Convert mmol into ppm for H2O
-    mutate(H2O_ppm = H2O_mmol*1000) %>%
-    # Create new columns containing date and time (POSIX format)
-    mutate(DATE = met.date,
-           POSIX.time = as.POSIXct(paste(DATE, TIME), tz = timezone)) %>%
-    # Extract other useful information from metadata
-    mutate(Area = as.numeric(metadata[which(metadata[,3] == "Area")[1],4]),
-           Vcham = as.numeric(metadata[which(metadata[,3] == "Vtot")[1],4]),
-           offset = as.numeric(metadata[which(metadata[,3] == "Offset")[1],4])) %>%
-    # Add time related variables (POSIX.time)
-    group_by(chamID) %>%
-    mutate(cham.close = min(na.omit(POSIX.time)),
-           start.time = cham.close,
-           cham.open = max(na.omit(POSIX.time)),
-           Etime = as.numeric(POSIX.time - start.time, units = "secs")) %>%
-    ungroup() %>%
-    # Add flag
-    mutate(flag = 1)
-
+  if(keep_all == TRUE){
+    # Import raw data file from LI6400 (.txt)
+    data.raw <- read.delim(inputfile, skip = skip.rows) %>%
+      # Standardize column names
+      rename(plotID = Plot., Meas.type = Meas.type..NEE.ER., TIME = HHMMSS,
+             Etime = ETime, Tcham = Tair, Pcham = Press, CO2dry_ppm = Cdry,
+             H2O_mmol = H2OS) %>% select(!TCham) %>%
+      # Create a unique chamber ID
+      mutate(chamID = paste(Obs, plotID, Meas.type, sep = "_")) %>%
+      # Remove comments
+      filter(!CO2dry_ppm == "") %>% filter(!Obs == "Obs") %>%
+      # Convert column class automatically
+      type.convert(as.is = TRUE) %>%
+      # plotID must be as.character
+      mutate(plotID = as.character(plotID)) %>%
+      # Remove Mode == 2 (indicates when a measurement ends)
+      filter(!Mode == 2) %>% select(!Mode) %>%
+      # As the LICOR only saves rows when you have passed all prompts after
+      # pressing start, Etime below 4 seconds is not possible.
+      filter(Etime > 4) %>%
+      # Remove NAs and negative gas measurements, if any
+      filter(CO2dry_ppm > 0) %>%
+      filter(H2O_mmol > 0) %>%
+      # Convert mmol into ppm for H2O
+      mutate(H2O_ppm = H2O_mmol*1000) %>%
+      # Create new columns containing date and time (POSIX format)
+      mutate(DATE = met.date,
+             POSIX.time = as.POSIXct(paste(DATE, TIME), tz = timezone)) %>%
+      # Extract other useful information from metadata
+      mutate(Area = as.numeric(metadata[which(metadata[,3] == "Area")[1],4]),
+             Vcham = as.numeric(metadata[which(metadata[,3] == "Vtot")[1],4]),
+             offset = as.numeric(metadata[which(metadata[,3] == "Offset")[1],4])) %>%
+      # Convert Vcham from cm3 to L
+      mutate(Vcham = Vcham/1000) %>%
+      # Add time related variables (POSIX.time)
+      group_by(chamID) %>%
+      mutate(cham.close = min(na.omit(POSIX.time)),
+             start.time = cham.close,
+             cham.open = max(na.omit(POSIX.time)),
+             Etime = as.numeric(POSIX.time - start.time, units = "secs")) %>%
+      ungroup() %>%
+      # Add flag
+      mutate(flag = 1)
+  }
   # Keep only useful columns for gas flux calculation
   if(keep_all == FALSE){
-    data.raw <- data.raw %>%
-      select(POSIX.time, DATE, TIME, chamID, Meas.type, CO2dry_ppm, H2O_ppm,
-             Tcham, Pcham, Area, Vcham, offset, Obs, plotID, Etime, flag,
-             start.time, cham.close, cham.open)}
+    # Import raw data file from LI6400 (.txt)
+    data.raw <- read.delim(inputfile, skip = skip.rows) %>%
+      # Select useful columns and standardize column names
+      select(Obs, plotID = Plot., Meas.type = Meas.type..NEE.ER.,
+             TIME = HHMMSS, Etime = ETime, Mode,
+             Tcham = Tair, Pcham = Press,
+             CO2dry_ppm = Cdry, H2O_mmol = H2OS) %>%
+      # Create a unique chamber ID
+      mutate(chamID = paste(Obs, plotID, Meas.type, sep = "_")) %>%
+      # Remove comments
+      filter(!CO2dry_ppm == "") %>% filter(!Obs == "Obs") %>%
+      # Convert column class automatically
+      type.convert(as.is = TRUE) %>%
+      # plotID must be as.character
+      mutate(plotID = as.character(plotID)) %>%
+      # Remove Mode == 2 (indicates when a measurement ends)
+      filter(!Mode == 2) %>% select(!Mode) %>%
+      # As the LICOR only saves rows when you have passed all prompts after
+      # pressing start, Etime below 4 seconds is not possible.
+      filter(Etime > 4) %>%
+      # Remove NAs and negative gas measurements, if any
+      filter(CO2dry_ppm > 0) %>%
+      filter(H2O_mmol > 0) %>%
+      # Convert mmol into ppm for H2O
+      mutate(H2O_ppm = H2O_mmol*1000) %>%
+      # Create new columns containing date and time (POSIX format)
+      mutate(DATE = met.date,
+             POSIX.time = as.POSIXct(paste(DATE, TIME), tz = timezone)) %>%
+      # Extract other useful information from metadata
+      mutate(Area = as.numeric(metadata[which(metadata[,3] == "Area")[1],4]),
+             Vcham = as.numeric(metadata[which(metadata[,3] == "Vtot")[1],4]),
+             offset = as.numeric(metadata[which(metadata[,3] == "Offset")[1],4])) %>%
+      # Convert Vcham from cm3 to L
+      mutate(Vcham = Vcham/1000) %>%
+      # Add time related variables (POSIX.time)
+      group_by(chamID) %>%
+      mutate(cham.close = first(na.omit(POSIX.time)),
+             start.time = cham.close,
+             cham.open = last(na.omit(POSIX.time)),
+             Etime = as.numeric(POSIX.time - start.time, units = "secs")) %>%
+      ungroup() %>%
+      # Add flag
+      mutate(flag = 1)
+  }
 
   # Save cleaned data file
   if(save == TRUE){
