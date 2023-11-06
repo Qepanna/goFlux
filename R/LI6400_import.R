@@ -120,7 +120,7 @@ LI6400_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
              Etime = ETime, Tcham = Tair, Pcham = Press, CO2dry_ppm = Cdry,
              H2O_mmol = H2OS) %>% select(!TCham) %>%
       # Create a unique chamber ID
-      mutate(chamID = paste(Obs, plotID, Meas.type, sep = "_")) %>%
+      mutate(chamID = paste(plotID, Meas.type, sep = "_")) %>%
       # Remove comments
       filter(!CO2dry_ppm == "") %>% filter(!Obs == "Obs") %>%
       # Convert column class automatically
@@ -138,7 +138,7 @@ LI6400_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
       # Convert mmol into ppm for H2O
       mutate(H2O_ppm = H2O_mmol*1000) %>%
       # Create new columns containing date and time (POSIX format)
-      mutate(DATE = met.date,
+      mutate(DATE = as.character(met.date),
              POSIX.time = as.POSIXct(paste(DATE, TIME), tz = timezone)) %>%
       # Extract other useful information from metadata
       mutate(Area = as.numeric(metadata[which(metadata[,3] == "Area")[1],4]),
@@ -166,7 +166,7 @@ LI6400_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
              Tcham = Tair, Pcham = Press,
              CO2dry_ppm = Cdry, H2O_mmol = H2OS) %>%
       # Create a unique chamber ID
-      mutate(chamID = paste(Obs, plotID, Meas.type, sep = "_")) %>%
+      mutate(chamID = paste(plotID, Meas.type, sep = "_")) %>%
       # Remove comments
       filter(!CO2dry_ppm == "") %>% filter(!Obs == "Obs") %>%
       # Convert column class automatically
@@ -184,7 +184,7 @@ LI6400_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
       # Convert mmol into ppm for H2O
       mutate(H2O_ppm = H2O_mmol*1000) %>%
       # Create new columns containing date and time (POSIX format)
-      mutate(DATE = met.date,
+      mutate(DATE = as.character(met.date),
              POSIX.time = as.POSIXct(paste(DATE, TIME), tz = timezone)) %>%
       # Extract other useful information from metadata
       mutate(Area = as.numeric(metadata[which(metadata[,3] == "Area")[1],4]),
