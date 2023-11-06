@@ -42,7 +42,7 @@ is found in the column "Date".
 }
 \examples{
 # Examples on how to use:
-file.path <- system.file("extdata/DX4015", "DX4015.TXT", package = "GoFluxYourself")
+file.path <- system.file("extdata", "DX4015/DX4015.TXT", package = "GoFluxYourself")
 
 DX4015_imp <- DX4015_import(inputfile = file.path)
 

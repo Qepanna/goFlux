@@ -68,6 +68,7 @@
 #' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso Import functions for individual instruments:
+#'          \code{\link[GoFluxYourself]{DX4015_import}},
 #'          \code{\link[GoFluxYourself]{G2508_import}},
 #'          \code{\link[GoFluxYourself]{LGR_import}},
 #'          \code{\link[GoFluxYourself]{LI6400_import}},
