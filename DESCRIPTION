@@ -15,6 +15,7 @@ Depends:
 RoxygenNote: 7.2.3
 Collate: 
     'GoFluxYourself-package.R'
+    'DX4015_import.R'
     'G2508_import.R'
     'GAIA_import.R'
     'HM.flux.R'
@@ -43,4 +44,4 @@ Collate:
     'import2RData.R'
     'obs.win.R'
     'seq.rep.R'
-Imports: data.table, dplyr, ggnewscale, ggplot2, ggstar, graphics, grDevices, grid, gridExtra, lubridate, minpack.lm, msm, pbapply, plyr, purrr, rjson, rlist, SimDesign, stats, tibble, tidyr, utils
+Imports: data.table, dplyr, ggnewscale, ggplot2, ggstar, graphics, grDevices, grid, gridExtra, lubridate, minpack.lm, msm, pbapply, plyr, purrr, rjson, rlist, SimDesign, stats, stringr, tibble, tidyr, utils
