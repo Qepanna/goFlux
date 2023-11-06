@@ -42,7 +42,8 @@
 #' }
 #' For the instrument LI-6400, the date is found in one of the first lines in
 #' a format containing abbreviations, for example "Thr Aug 6 2020", which would
-#' be the date format "mdy".
+#' be the date format "mdy". For the instrument LI-8200, the date is found under
+#' one of the measurement, next to "Date":.
 #'
 #' @include GoFluxYourself-package.R
 #' @include DX4015_import.R
@@ -91,8 +92,8 @@
 #' import2RData(path = "inst/extdata/LI8100", instrument = "LI-8100", date.format = "ymd")
 #'
 #' # with the LI-COR smart chamber (LI-8200)
-#' # with this instrument, date.format is not a useful parameter.
-#' import2RData(path = "inst/extdata/LI8200", instrument = "LI-8200")
+#' # with this instrument, "keep_all" is not a valid argument.
+#' import2RData(path = "inst/extdata/LI8200", instrument = "LI-8200", date.format = "ymd")
 #'
 #' @export
 #'

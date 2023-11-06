@@ -4,10 +4,15 @@
 \alias{LI8200_import}
 \title{Import function for LI-COR smart chamber (LI-8200)}
 \usage{
-LI8200_import(inputfile, timezone = "UTC", save = FALSE)
+LI8200_import(inputfile, date.format = "ymd", timezone = "UTC", save = FALSE)
 }
 \arguments{
 \item{inputfile}{character string; the name of a file with the extension .json}
+
+\item{date.format}{date format; the date format used in the raw data file.
+Chose one of the following: "dmy", "ymd", or "mdy". Default
+is "ymd", as it is the date format from the example data
+file provided.}
 
 \item{timezone}{character string; a time zone in which to import the data to
 POSIXct format. Default is "UTC". Note about time zone: it is
@@ -23,6 +28,31 @@ a data frame containing raw data from the LI-COR Smart Chamber LI-8200.
 }
 \description{
 Imports single raw data files from the LI-COR smart chamber (LI-8200)
+}
+\details{
+In \code{date.format}, the date format refers to a date found in the raw data
+file, not the date format in the file name. For the instrument LI-8200, the
+date is found under one of the measurement, next to "Date":.
+
+Note that this function was designed for the following default units:
+\itemize{
+  \item seconds for DeadBand
+  \item cm for Area and Offset
+  \item mmol/mol for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
+  \item litters for volumes
+  \item kPa for pressure
+  \item Celsius for temperature}
+If your instrument uses different units, either convert the units after import,
+change the settings on your instrument, or contact the maintainer of this
+package for support.
+
+In addition, soil temperature and moisture are read with a HydraProbe
+connected to the Smart Chamber. If you are using a different setup, please
+contact the maintainer of this package for support.
+
+As opposed to the other import functions, there is no option to "keep_all" with
+the Smart Chamber. If you would like to import additional data using this
+function, please contact the maintainer of this package for support.
 }
 \examples{
 # Load file from downloaded package

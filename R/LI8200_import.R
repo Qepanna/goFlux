@@ -3,6 +3,10 @@
 #' Imports single raw data files from the LI-COR smart chamber (LI-8200)
 #'
 #' @param inputfile character string; the name of a file with the extension .json
+#' @param date.format date format; the date format used in the raw data file.
+#'                    Chose one of the following: "dmy", "ymd", or "mdy". Default
+#'                    is "ymd", as it is the date format from the example data
+#'                    file provided.
 #' @param timezone character string; a time zone in which to import the data to
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
 #'                 recommended to use the time zone "UTC" to avoid any issue
@@ -12,6 +16,31 @@
 #'             in the Console, or load in the Environment if assigned to an object.
 #'
 #' @returns a data frame containing raw data from the LI-COR Smart Chamber LI-8200.
+#'
+#' @details
+#' In \code{date.format}, the date format refers to a date found in the raw data
+#' file, not the date format in the file name. For the instrument LI-8200, the
+#' date is found under one of the measurement, next to "Date":.
+#'
+#' Note that this function was designed for the following default units:
+#' \itemize{
+#'   \item seconds for DeadBand
+#'   \item cm for Area and Offset
+#'   \item mmol/mol for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
+#'   \item litters for volumes
+#'   \item kPa for pressure
+#'   \item Celsius for temperature}
+#' If your instrument uses different units, either convert the units after import,
+#' change the settings on your instrument, or contact the maintainer of this
+#' package for support.
+#'
+#' In addition, soil temperature and moisture are read with a HydraProbe
+#' connected to the Smart Chamber. If you are using a different setup, please
+#' contact the maintainer of this package for support.
+#'
+#' As opposed to the other import functions, there is no option to "keep_all" with
+#' the Smart Chamber. If you would like to import additional data using this
+#' function, please contact the maintainer of this package for support.
 #'
 #' @include GoFluxYourself-package.R
 #'
@@ -38,19 +67,23 @@
 #'
 #' @export
 #'
-LI8200_import <- function(inputfile, timezone = "UTC", save = FALSE){
+LI8200_import <- function(inputfile, date.format = "ymd",
+                          timezone = "UTC", save = FALSE){
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")
   if (!is.character(inputfile)) stop("'inputfile' must be of class character")
   if (!is.character(timezone)) stop("'timezone' must be of class character")
   if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
+  if (length(date.format) != 1) stop("'date.format' must be of length 1")
+  if (!any(grepl(date.format, c("ymd", "dmy", "mdy")))) {
+    stop("'date.format' must be of class character and one of the following: 'ymd', 'dmy' or 'mdy'")}
 
   # Assign NULL to variables without binding
   h2o <- cham.close <- deadband <- POSIX.time <- plotID <- n2o <- Etime <-
     ch4 <- co2 <- H2O_ppm <- chamber_t <- chamber_p <- Vcham <- Area <-
     soilp_m <- . <- soilp_t <- DATE <- cham.open <- start.time <-
-    N2Odry_ppb <- CH4dry_ppb <- CO2dry_ppm <- NULL
+    N2Odry_ppb <- CH4dry_ppb <- CO2dry_ppm <- POSIX.warning <- NULL
 
   # Load data file
   data.raw.ls <- fromJSON(file = inputfile)
@@ -117,10 +150,28 @@ LI8200_import <- function(inputfile, timezone = "UTC", save = FALSE){
     left_join(as.data.frame(metadata), by = "Obs")%>%
     add_column(!!!cols[!names(cols) %in% names(.)]) %>%
     # Convert H2O_mmol/mol into H2O_ppm
-    mutate(H2O_ppm = h2o*1000) %>%
+    mutate(H2O_ppm = h2o*1000)
+
+  # Convert time to POSIXct format
+  tryCatch(
+    {if(date.format == "dmy"){
+      try.POSIX <- as.POSIXct(dmy_hms(data.raw$cham.close, tz = timezone))
+    } else if(date.format == "mdy"){
+      try.POSIX <- as.POSIXct(mdy_hms(data.raw$cham.close, tz = timezone))
+    } else if(date.format == "ymd"){
+      try.POSIX <- as.POSIXct(ymd_hms(data.raw$cham.close, tz = timezone))
+    }}, warning = function(w) {POSIX.warning <<- "date.format.error"}
+  )
+
+  if(isTRUE(POSIX.warning == "date.format.error")){
+    stop(paste("An error occured while converting DATE and TIME into POSIX.time.",
+               "Verify that 'date.format' corresponds to the column 'Date' in",
+               "the raw data file. Here is a sample:", data.raw$cham.close[1]))
+  } else data.raw$cham.close <- try.POSIX
+
+  data.raw <- data.raw %>%
     # Create a column for POSIX time
-    mutate(cham.close = as.POSIXct(cham.close, tz = timezone),
-           POSIX.time = cham.close + timestamp,
+    mutate(POSIX.time = cham.close + timestamp,
            Etime = timestamp - deadband,
            DATE = substr(POSIX.time, 0, 10)) %>%
     # Select and rename useful columns
