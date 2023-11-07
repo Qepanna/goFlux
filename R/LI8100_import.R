@@ -16,6 +16,9 @@
 #' @param save logical; if save = TRUE, saves the file as RData in a RData folder
 #'             in the current working directory. If save = FALSE, returns the file
 #'             in the Console, or load in the Environment if assigned to an object.
+#' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from raw
+#'                 file. The default is \code{keep_all = FALSE}, and columns that
+#'                 are not necessary for gas flux calculation are removed.
 #'
 #' @returns a data frame containing raw data from LI-COR GHG analyzer LI-8100.
 #'
@@ -23,6 +26,15 @@
 #' In \code{date.format}, the date format refers to a date found in the raw data
 #' file, not the date format in the file name. For the instrument LI-8100, the
 #' date is found in the column "Date".
+#'
+#' Note that this function was designed for the following default units:
+#' \itemize{
+#'   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
+#'   \item mmol/mol for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
+#'   \item Celsius for temperature}
+#' If your instrument uses different units, either convert the units after import,
+#' change the settings on your instrument, or contact the maintainer of this
+#' package for support.
 #'
 #' @include GoFluxYourself-package.R
 #'
@@ -42,15 +54,15 @@
 #'
 #' @examples
 #' # Load file from downloaded package
-#' file.path <- system.file("extdata", "LI8100/example_LI8100.81x", package = "GoFluxYourself")
+#' file.path <- system.file("extdata", "LI8100/LI8100.81x", package = "GoFluxYourself")
 #'
 #' # Run function
 #' LI8100.data <- LI8100_import(inputfile = file.path)
 #'
 #' @export
 #'
-LI8100_import <- function(inputfile, date.format = "ymd",
-                          timezone = "UTC", save = FALSE) {
+LI8100_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
+                          save = FALSE, keep_all = FALSE) {
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")
@@ -60,12 +72,13 @@ LI8100_import <- function(inputfile, date.format = "ymd",
     stop("'date.format' must be of class character and one of the following: 'ymd', 'dmy' or 'mdy'")}
   if (!is.character(timezone)) stop("'timezone' must be of class character")
   if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
+  if (keep_all != TRUE & keep_all != FALSE) stop("'keep_all' must be TRUE or FALSE")
 
   # Assign NULL to variables without binding
   Type <- Etime <- Tcham <- Pressure <- H2O <- Cdry <- V1 <- V2 <- V3 <-
     V4 <- H2O_mmol <- DATE_TIME <- Obs <- . <- cham.close <- cham.open <-
     deadband <- start.time <- obs.start <- POSIX.time <- plotID <-
-    Date <- CO2dry_ppm <- POSIX.warning <- NULL
+    Date <- CO2dry_ppm <- POSIX.warning <- H2O_ppm <- Pcham <- NULL
 
   # Find how many rows need to be skipped
   skip.rows <- as.numeric(which(read.delim(inputfile) == "Type"))[1]
@@ -74,20 +87,25 @@ LI8100_import <- function(inputfile, date.format = "ymd",
   data.raw <- read.delim(inputfile, skip = skip.rows) %>%
     # Keep only Type == 1, as everything else is metadata
     filter(Type == "1") %>%
-    # Select useful columns and standardize column names
-    select(Etime, DATE_TIME = Date, Tcham, Pcham = Pressure,
-           H2O_mmol = H2O, CO2dry_ppm = Cdry, V1, V2, V3, V4) %>%
+    # Standardize column names
+    rename(DATE_TIME = Date, Pcham = Pressure, H2O_mmol = H2O, CO2dry_ppm = Cdry) %>%
     # Convert column class automatically
     type.convert(as.is = TRUE) %>%
     # Remove NAs and negative gas measurements, if any
     filter(CO2dry_ppm > 0) %>%
     filter(H2O_mmol > 0) %>%
     # Convert mmol into ppm for H2O
-    mutate(H2O_ppm = H2O_mmol*1000) %>% select(!c(H2O_mmol)) %>%
+    mutate(H2O_ppm = H2O_mmol*1000) %>%
     # Detect new observations
     arrange(DATE_TIME) %>%
     mutate(Obs = ifelse(is.na(Etime - lag(Etime)), 0, Etime - lag(Etime))) %>%
     mutate(Obs = rleid(cumsum(Obs < 0)))
+
+  # Keep only useful columns for gas flux calculation
+  if(keep_all == FALSE){
+    data.raw <- data.raw %>%
+      select(Obs, DATE_TIME, Etime, H2O_ppm, CO2dry_ppm,
+             Tcham, Pcham, V1, V2, V3, V4)}
 
   # Create a new column containing date and time (POSIX format)
   tryCatch(
@@ -135,8 +153,8 @@ LI8100_import <- function(inputfile, date.format = "ymd",
     left_join(metadata, by = "Obs") %>% group_by(Obs) %>%
     # Calculate cham.close, cham.open, flag and correct negative values of Etime
     mutate(cham.close = POSIX.time[which(Etime == 0)],
-           cham.open = last(POSIX.time),
-           obs.start = min(POSIX.time)) %>%
+           cham.open = max(na.omit(POSIX.time)),
+           obs.start = min(na.omit(POSIX.time))) %>%
     ungroup() %>%
     mutate(DATE = substr(POSIX.time, 0, 10),
            chamID = paste(plotID, Obs, sep = "_"),

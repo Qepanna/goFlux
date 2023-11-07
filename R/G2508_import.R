@@ -18,12 +18,28 @@
 #' @param save logical; if save = TRUE, saves the file as RData in a RData folder
 #'             in the current working directory. If save = FALSE, returns the file
 #'             in the Console, or load in the Environment if assigned to an object.
+#' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from raw
+#'                 file. The default is \code{keep_all = FALSE}, and columns that
+#'                 are not necessary for gas flux calculation are removed.
+#'
 #' @returns a data frame containing raw data from Picarro G2508 GHG analyzer.
 #'
 #' @details
 #' In \code{date.format}, the date format refers to a date found in the raw data
 #' file, not the date format in the file name. For the instrument G2508, the date
 #' is found in the column "DATE".
+#'
+#' Note that this function was designed for the following default units:
+#' \itemize{
+#'   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+#'   \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
+#'   \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+#'   \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
+#'   \item Torr for pressure
+#'   \item Celsius for temperature}
+#' If your instrument uses different units, either convert the units after import,
+#' change the settings on your instrument, or contact the maintainer of this
+#' package for support.
 #'
 #' @include GoFluxYourself-package.R
 #'
@@ -43,16 +59,15 @@
 #'
 #' @examples
 #' # Load file from downloaded package
-#' file.path <- system.file("extdata", "G2508/2022/08/01/example_G2508.dat",
-#'                          package = "GoFluxYourself")
+#' file.path <- system.file("extdata", "G2508/2022/08/01/G2508.dat", package = "GoFluxYourself")
 #'
 #' # Run function
 #' G2508.data <- G2508_import(inputfile = file.path)
 #'
 #' @export
 #'
-G2508_import <- function(inputfile, date.format = "ymd",
-                         timezone = "UTC", save = FALSE){
+G2508_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
+                         save = FALSE, keep_all = FALSE){
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")
@@ -62,32 +77,37 @@ G2508_import <- function(inputfile, date.format = "ymd",
     stop("'date.format' must be of class character and one of the following: 'ymd', 'dmy' or 'mdy'")}
   if (!is.character(timezone)) stop("'timezone' must be of class character")
   if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
+  if (keep_all != TRUE & keep_all != FALSE) stop("'keep_all' must be TRUE or FALSE")
 
   # Assign NULL to variables without binding
   ALARM_STATUS <- H2O <- N2O_dry30s <- N2O_dry <- CH4_dry <- CavityPressure <-
     CO2_dry <- TIME <- DATE <- WarmBoxTemp <- EtalonTemp <- DasTemp <-
     CavityTemp <- Amb_P <- N2Odry_ppb <- CH4dry_ppb <- H2O_ppm <-
-    POSIX.warning <- NULL
+    POSIX.warning <- N2Odry_30s_ppb <- CO2dry_ppm <- CH4dry_ppm <-
+    N2Odry_30s_ppm <- N2Odry_ppm <- H2O_mmol <- NULL
 
   # Import raw data file from G2508 (.dat)
   data.raw <- read.delim(inputfile, sep = "") %>%
-    # Select useful columns and standardize column names
-    select(ALARM_STATUS, Amb_P, CavityPressure, CavityTemp, DasTemp, EtalonTemp,
-           WarmBoxTemp, DATE, TIME, CO2dry_ppm = CO2_dry, CH4_dry,
-           N2O_dry, N2O_dry30s, H2O) %>%
+    # Standardize column names
+    rename(CO2dry_ppm = CO2_dry, CH4dry_ppm = CH4_dry, N2Odry_ppm = N2O_dry,
+           N2Odry_30s_ppm = N2O_dry30s, H2O_mmol = H2O) %>%
     # Convert column class automatically
     type.convert(as.is = TRUE) %>%
     # Convert mmol into ppm for H2O and ppm into ppb for N2O and CH4
-    mutate(H2O_ppm = H2O*1000,
-           N2Odry_ppb = N2O_dry*1000,
-           N2Odry_30s_ppb = N2O_dry30s*1000,
-           CH4dry_ppb = CH4_dry*1000) %>%
-    # Remove unnecessary columns
-    select(!c(CH4_dry, N2O_dry, N2O_dry30s, H2O)) %>%
+    mutate(H2O_ppm = H2O_mmol*1000,
+           N2Odry_ppb = N2Odry_ppm*1000,
+           N2Odry_30s_ppb = N2Odry_30s_ppm*1000,
+           CH4dry_ppb = CH4dry_ppm*1000) %>%
     # Remove NAs and negative gas measurements, if any
     filter(N2Odry_ppb > 0) %>%
     filter(CH4dry_ppb > 0) %>%
     filter(H2O_ppm > 0)
+
+  # Keep only useful columns for gas flux calculation
+  if(keep_all == FALSE){
+    data.raw <- data.raw %>%
+      select(DATE, TIME, CO2dry_ppm, CH4dry_ppb, N2Odry_ppb, N2Odry_30s_ppb,
+             H2O_ppm)}
 
   # Create a new column containing date and time (POSIX format)
   tryCatch(

@@ -18,6 +18,10 @@
 #' @param save logical; if save = TRUE, saves the file as RData in a RData folder
 #'             in the current working directory. If save = FALSE, returns the file
 #'             in the Console, or load in the Environment if assigned to an object.
+#' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from raw
+#'                 file. The default is \code{keep_all = FALSE}, and columns that
+#'                 are not necessary for gas flux calculation are removed.
+#'
 #' @returns a data frame containing raw data from LGR GHG analyzer.
 #'
 #' @include GoFluxYourself-package.R
@@ -26,6 +30,17 @@
 #' In \code{date.format}, the date format refers to a date found in the raw data
 #' file, not the date format in the file name. For the instrument G2508, the date
 #' is found in the column "Time".
+#'
+#' Note that this function was designed for the following default units:
+#' \itemize{
+#'   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+#'   \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
+#'   \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
+#'   \item Torr for pressure
+#'   \item Celsius for temperature}
+#' If your instrument uses different units, either convert the units after import,
+#' change the settings on your instrument, or contact the maintainer of this
+#' package for support.
 #'
 #' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
@@ -43,14 +58,14 @@
 #'
 #' @examples
 #' # Examples on how to use:
-#' file.path <- system.file("extdata", "LGR/example_LGR.txt", package = "GoFluxYourself")
+#' file.path <- system.file("extdata", "LGR/LGR.txt", package = "GoFluxYourself")
 #'
 #' LGR.data <- LGR_import(inputfile = file.path)
 #'
 #' @export
 #'
-LGR_import <- function(inputfile, date.format = "dmy",
-                       timezone = "UTC", save = FALSE){
+LGR_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
+                       save = FALSE, keep_all = FALSE){
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")
@@ -60,6 +75,7 @@ LGR_import <- function(inputfile, date.format = "dmy",
     stop("'date.format' must be of class character and one of the following: 'ymd', 'dmy' or 'mdy'")}
   if (!is.character(timezone)) stop("'timezone' must be of class character")
   if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
+  if (keep_all != TRUE & keep_all != FALSE) stop("'keep_all' must be TRUE or FALSE")
 
   # Assign NULL to variables without binding
   POSIX.time <- DATE_TIME <- H2O_ppm <- CH4dry_ppb <- Time <- . <-
@@ -80,10 +96,13 @@ LGR_import <- function(inputfile, date.format = "dmy",
     filter(CO2dry_ppm > 0) %>%
     filter(CH4dry_ppb > 0) %>%
     filter(H2O_ppm > 0) %>%
-    # Keep only useful columns
-    select(DATE_TIME = Time, CO2dry_ppm, CH4dry_ppb, H2O_ppm) %>%
     # Replace characters in Time ("/" -> "-") and remove first space
-    mutate(DATE_TIME = gsub("/", "-", sub(" ", "" , DATE_TIME)))
+    mutate(DATE_TIME = gsub("/", "-", sub(" ", "" , Time)))
+
+  # Keep only useful columns for gas flux calculation
+  if(keep_all == FALSE){
+    data.raw <- data.raw %>%
+      select(DATE_TIME, CO2dry_ppm, CH4dry_ppb, H2O_ppm)}
 
   # Create a new column containing date and time (POSIX format)
   tryCatch(

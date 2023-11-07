@@ -4,7 +4,13 @@
 \alias{G2508_import}
 \title{Import function for Picarro G2508 GHG analyzer}
 \usage{
-G2508_import(inputfile, date.format = "ymd", timezone = "UTC", save = FALSE)
+G2508_import(
+  inputfile,
+  date.format = "ymd",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE
+)
 }
 \arguments{
 \item{inputfile}{character string; the name of a file with the extension .dat}
@@ -22,6 +28,10 @@ related to summer time and winter time changes.}
 \item{save}{logical; if save = TRUE, saves the file as RData in a RData folder
 in the current working directory. If save = FALSE, returns the file
 in the Console, or load in the Environment if assigned to an object.}
+
+\item{keep_all}{logical; if \code{keep_all = TRUE}, keep all columns from raw
+file. The default is \code{keep_all = FALSE}, and columns that
+are not necessary for gas flux calculation are removed.}
 }
 \value{
 a data frame containing raw data from Picarro G2508 GHG analyzer.
@@ -37,11 +47,22 @@ extension .dat (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 In \code{date.format}, the date format refers to a date found in the raw data
 file, not the date format in the file name. For the instrument G2508, the date
 is found in the column "DATE".
+
+Note that this function was designed for the following default units:
+\itemize{
+  \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+  \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
+  \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+  \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
+  \item Torr for pressure
+  \item Celsius for temperature}
+If your instrument uses different units, either convert the units after import,
+change the settings on your instrument, or contact the maintainer of this
+package for support.
 }
 \examples{
 # Load file from downloaded package
-file.path <- system.file("extdata", "G2508/2022/08/01/example_G2508.dat",
-                         package = "GoFluxYourself")
+file.path <- system.file("extdata", "G2508/2022/08/01/G2508.dat", package = "GoFluxYourself")
 
 # Run function
 G2508.data <- G2508_import(inputfile = file.path)

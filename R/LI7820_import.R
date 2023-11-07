@@ -16,12 +16,26 @@
 #' @param save logical; if save = TRUE, saves the file as RData in a RData folder
 #'             in the current working directory. If save = FALSE, returns the file
 #'             in the Console, or load in the Environment if assigned to an object.
+#' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from raw
+#'                 file. The default is \code{keep_all = FALSE}, and columns that
+#'                 are not necessary for gas flux calculation are removed.
+#'
 #' @returns a data frame containing raw data from LI-COR GHG analyzer LI-7820.
 #'
 #' @details
 #' In \code{date.format}, the date format refers to a date found in the raw data
 #' file, not the date format in the file name. For the instrument LI-7820, the
 #' date is found in the column "DATE".
+#'
+#' Note that this function was designed for the following default units:
+#' \itemize{
+#'   \item ppm for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
+#'   \item ppb for \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}
+#'   \item kPa for pressure
+#'   \item Celsius for temperature}
+#' If your instrument uses different units, either convert the units after import,
+#' change the settings on your instrument, or contact the maintainer of this
+#' package for support.
 #'
 #' @include GoFluxYourself-package.R
 #'
@@ -41,15 +55,15 @@
 #'
 #' @examples
 #' # Load file from downloaded package
-#' file.path <- system.file("extdata", "LI7820/example_LI7820.data", package = "GoFluxYourself")
+#' file.path <- system.file("extdata", "LI7820/LI7820.data", package = "GoFluxYourself")
 #'
 #' # Run function
 #' LI7820.data <- LI7820_import(inputfile = file.path)
 #'
 #' @export
 #'
-LI7820_import <- function(inputfile, date.format = "ymd",
-                          timezone = "UTC", save = FALSE){
+LI7820_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
+                          save = FALSE, keep_all = FALSE){
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")
@@ -59,10 +73,11 @@ LI7820_import <- function(inputfile, date.format = "ymd",
     stop("'date.format' must be of class character and one of the following: 'ymd', 'dmy' or 'mdy'")}
   if (!is.character(timezone)) stop("'timezone' must be of class character")
   if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
+  if (keep_all != TRUE & keep_all != FALSE) stop("'keep_all' must be TRUE or FALSE")
 
   # Assign NULL to variables without binding
   H2O_ppm <- H2O <- N2O <- TIME <- DATE <- DATAH <- N2Odry_ppb <-
-    POSIX.warning <- NULL
+    REMARK <- POSIX.warning <- NULL
 
   # Find how many rows need to be skipped
   skip.rows <- as.numeric(which(read.delim(inputfile, nrows = 20) == "DATAH",
@@ -71,14 +86,20 @@ LI7820_import <- function(inputfile, date.format = "ymd",
   # Import raw data file from LI7820 (.data)
   data.raw <- read.delim(inputfile, skip = skip.rows) %>%
     # Remove the row "DATAU"
-    filter(!DATAH == 'DATAU') %>%
-    # Keep only usefyl columns and standardize column names
-    select(DATE, TIME, N2Odry_ppb = N2O, H2O_ppm = H2O) %>%
+    filter(!DATAH == 'DATAU') %>% select(!DATAH) %>%
     # Convert column class automatically
     type.convert(as.is = TRUE) %>%
+    mutate(REMARK = as.character(REMARK)) %>%
+    # Standardize column names
+    rename(N2Odry_ppb = N2O, H2O_ppm = H2O) %>%
     # Remove NAs and negative gas measurements, if any
     filter(N2Odry_ppb > 0) %>%
     filter(H2O_ppm > 0)
+
+  # Keep only useful columns for gas flux calculation
+  if(keep_all == FALSE){
+    data.raw <- data.raw %>%
+      select(DATE, TIME, N2Odry_ppb, H2O_ppm)}
 
   # Create a new column containing date and time (POSIX format)
   tryCatch(

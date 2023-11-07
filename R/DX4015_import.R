@@ -17,9 +17,13 @@
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
 #'                 recommended to use the time zone "UTC" to avoid any issue
 #'                 related to summer time and winter time changes.
-#' @param save logical; if save = TRUE, saves the file as RData in a RData folder
+#' @param save logical; if \code{save = TRUE}, saves the file as RData in a RData folder
 #'             in the current working directory. If save = FALSE, returns the file
 #'             in the Console, or load in the Environment if assigned to an object.
+#' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from raw
+#'                 file. The default is \code{keep_all = FALSE}, and columns that
+#'                 are not necessary for gas flux calculation are removed.
+#'
 #' @returns a data frame containing raw data from the Gasmet DX4015 gas analyzer.
 #'
 #' @include GoFluxYourself-package.R
@@ -28,6 +32,19 @@
 #' In \code{date.format}, the date format refers to a date found in the raw data
 #' file, not the date format in the file name. For the instrument DX4015, the date
 #' is found in the column "Date".
+#'
+#' Note that this function was designed for the following default units:
+#' \itemize{
+#'   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+#'   CO, \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
+#'   \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+#'   \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}
+#'   \item vol-\% for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
+#'   \item mbar for pressure
+#'   \item Celsius for temperature}
+#' If your instrument uses different units, either convert the units after import,
+#' change the settings on your instrument, or contact the maintainer of this
+#' package for support.
 #'
 #' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
@@ -45,14 +62,14 @@
 #'
 #' @examples
 #' # Examples on how to use:
-#' file.path <- system.file("extdata/DX4015", "DX4015.TXT", package = "GoFluxYourself")
+#' file.path <- system.file("extdata", "DX4015/DX4015.TXT", package = "GoFluxYourself")
 #'
 #' DX4015_imp <- DX4015_import(inputfile = file.path)
 #'
 #' @export
 #'
-DX4015_import <- function(inputfile, date.format = "ymd",
-                          timezone = "UTC", save = FALSE){
+DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
+                          save = FALSE, keep_all = FALSE){
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")
@@ -62,30 +79,34 @@ DX4015_import <- function(inputfile, date.format = "ymd",
     stop("'date.format' must be of class character and one of the following: 'ymd', 'dmy' or 'mdy'")}
   if (!is.character(timezone)) stop("'timezone' must be of class character")
   if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
+  if (keep_all != TRUE & keep_all != FALSE) stop("'keep_all' must be TRUE or FALSE")
 
   # Assign NULL to variables without binding
   POSIX.warning <- Line <- SpectrumFile <- H2O_frac <- Time <- Date <-
     Ambient.pressure <- Status <- LibraryFile <- NH3dry_ppb <- N2Odry_ppb <-
     H2O_ppm <- CH4dry_ppb <- COdry_ppb <- CO2dry_ppm <- `H2O_vol-%` <-
-    COdry_ppm <- NH3dry_ppm <- N2Odry_ppm <- CH4dry_ppm <- . <- NULL
+    COdry_ppm <- NH3dry_ppm <- N2Odry_ppm <- CH4dry_ppm <- P_unit <- . <-
+    H2O_unit <- CO2_unit <- CH4_unit <- N2O_unit <- CO_unit <- NH3_unit <- NULL
 
   # Load data file
   data.raw <- read.delim(inputfile, colClasses = "character") %>%
-    # Remove useless data
-    select(!c(Line, SpectrumFile, LibraryFile, Status, Ambient.pressure,
-              contains(c("Residual", "temperature", "IFG")))) %>%
     # Modify column names for DATE and TIME
     rename(DATE = Date, TIME = Time) %>%
-    # Modify column names for gas units
+    # Modify column names for units
     rename(H2O_unit = which(names(.) == "Water.vapor.H2O") +1) %>%
     rename(CO2_unit = which(names(.) == "Carbon.dioxide.CO2") +1) %>%
     rename(CH4_unit = which(names(.) == "Methane.CH4") +1) %>%
     rename(N2O_unit = which(names(.) == "Nitrous.oxide.N2O") +1) %>%
     rename(CO_unit = which(names(.) == "Carbon.monoxide.CO") +1) %>%
     rename(NH3_unit = which(names(.) == "Ammonia.NH3") +1) %>%
+    rename(P_unit = which(names(.) == "Ambient.pressure") +1) %>%
+    rename(Int_temp_unit = which(names(.) == "Interferometer.temperature") +1) %>%
+    rename(Detect_temp_unit = which(names(.) == "Detector.temperature") +1) %>%
+    rename(IFG_peak_unit = which(names(.) == "IFG.peak.height") +1) %>%
+    # In Int_temp_unit and IFG_peak_unit, replace non ACSII characters
+    mutate_all(str_replace_all, "\uFFFDC", "Celsius") %>%
     # Modify column names for gas compensation (wet or dry fraction)
     rename(H2O_frac = which(names(.) == "Water.vapor.H2O") +2) %>%
-    select(!H2O_frac) %>%
     rename(CO2_frac = which(names(.) == "Carbon.dioxide.CO2") +2) %>%
     rename(CH4_frac = which(names(.) == "Methane.CH4") +2) %>%
     rename(N2O_frac = which(names(.) == "Nitrous.oxide.N2O") +2) %>%
@@ -93,7 +114,23 @@ DX4015_import <- function(inputfile, date.format = "ymd",
     rename(NH3_frac = which(names(.) == "Ammonia.NH3") +2) %>%
     # In "Compensation", wet means that the gases are compensated for water
     # vapor, meaning that "wet" stands for the dry fraction.
-    mutate_all(str_replace_all, "wet", "dry")
+    mutate_all(str_replace_all, "wet", "dry") %>%
+    # Modify column names for residual
+    rename(H2O_resid = which(names(.) == "Water.vapor.H2O") +3) %>%
+    rename(CO2_resid = which(names(.) == "Carbon.dioxide.CO2") +3) %>%
+    rename(CH4_resid = which(names(.) == "Methane.CH4") +3) %>%
+    rename(N2O_resid = which(names(.) == "Nitrous.oxide.N2O") +3) %>%
+    rename(CO_resid = which(names(.) == "Carbon.monoxide.CO") +3) %>%
+    rename(NH3_resid = which(names(.) == "Ammonia.NH3") +3) %>%
+    # Remove irrelevant columns
+    select(!contains(c("Compensation", "Residual", "Unit.")))
+
+  # Remove columns that are not used for gas flux calculations
+  if(keep_all == FALSE){
+    data.raw <- data.raw %>%
+      select(!c(Line, SpectrumFile, LibraryFile, Status, Ambient.pressure, P_unit,
+                contains(c("temperature", "_temp_", "IFG")))) %>%
+      select(!H2O_frac)}
 
   # Column names for gases
   H2O_col_name <- paste("H2O_", unique(na.omit(data.raw$H2O_unit)), sep = "")
@@ -117,15 +154,16 @@ DX4015_import <- function(inputfile, date.format = "ymd",
     setNames(gsub("Nitrous.oxide.N2O", N2O_col_name, names(.))) %>%
     setNames(gsub("Ammonia.NH3", NH3_col_name, names(.))) %>%
     # Remove unit and compensation columns
-    select(!contains(c("Unit", "Compensation", "frac"))) %>%
+    select(!c(H2O_unit, CO2_unit, CH4_unit, N2O_unit,
+              CO_unit, NH3_unit, contains(c("frac")))) %>%
     # Convert column class automatically
     type.convert(as.is = TRUE) %>%
     # Convert units
-    mutate(CH4dry_ppb = CH4dry_ppm*1000) %>% select(!CH4dry_ppm) %>%
-    mutate(N2Odry_ppb = N2Odry_ppm*1000) %>% select(!N2Odry_ppm) %>%
-    mutate(NH3dry_ppb = NH3dry_ppm*1000) %>% select(!NH3dry_ppm) %>%
-    mutate(COdry_ppb = COdry_ppm*1000) %>% select(!COdry_ppm) %>%
-    mutate(H2O_ppm = `H2O_vol-%`*10000) %>% select(!`H2O_vol-%`) %>%
+    mutate(CH4dry_ppb = CH4dry_ppm*1000) %>%
+    mutate(N2Odry_ppb = N2Odry_ppm*1000) %>%
+    mutate(NH3dry_ppb = NH3dry_ppm*1000) %>%
+    mutate(COdry_ppb = COdry_ppm*1000) %>%
+    mutate(H2O_ppm = `H2O_vol-%`*10000) %>%
     # Remove NAs and negative gas measurements, if any
     filter(CO2dry_ppm > 0) %>%
     filter(COdry_ppb > 0) %>%
@@ -133,6 +171,14 @@ DX4015_import <- function(inputfile, date.format = "ymd",
     filter(H2O_ppm > 0) %>%
     filter(N2Odry_ppb > 0) %>%
     filter(NH3dry_ppb > 0)
+
+  # Remove columns that are not used for gas flux calculations
+  if(keep_all == FALSE){
+    data.raw <- data.raw %>%
+      # Remove residuals
+      select(!contains("_resid")) %>%
+      # Remove columns with original gas units
+      select(!c(CH4dry_ppm, N2Odry_ppm, NH3dry_ppm, COdry_ppm, `H2O_vol-%`))}
 
   # Create a new column containing date and time (POSIX format)
   tryCatch(
@@ -152,7 +198,7 @@ DX4015_import <- function(inputfile, date.format = "ymd",
 
   if(isTRUE(POSIX.warning == "date.format.error")){
     stop(paste("An error occured while converting DATE and TIME into POSIX.time.",
-               "Verify that 'date.format' corresponds to the column 'DATE' in",
+               "Verify that 'date.format' corresponds to the column 'Date' in",
                "the raw data file. Here is a sample:", data.raw$DATE[1]))
   } else data.raw$POSIX.time <- try.POSIX
 
