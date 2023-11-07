@@ -14,15 +14,16 @@ the development of this tool! 🙏
 
 Non-steady state chambers are widely used for measuring soil greenhouse
 gas (GHG) fluxes, such as CO<sub>2</sub>, CH<sub>4</sub>,
-N<sub>2</sub>O, and water vapor (H<sub>2</sub>O). While linear
-regression (LM) is commonly used to estimate GHG fluxes, this method
-tends to underestimate the pre-deployment flux (*f*<sub>0</sub>).
-Indeed, a non-linearity is expected when gas concentration increases
-inside a closed chamber, due to changes in diffusion gradients between
-the soil and the air inside the chamber. In addition, lateral gas flow
-and leakage contribute to non-linearity. Many alternative to LM have
-been developed to try and provide a more accurate estimation of
-*f*<sub>0</sub>, for instance the method of [Hutchinson and Mosier (HM)
+N<sub>2</sub>O, NH<sub>3</sub>, CO, and water vapor (H<sub>2</sub>O).
+While linear regression (LM) is commonly used to estimate GHG fluxes,
+this method tends to underestimate the pre-deployment flux
+(*f*<sub>0</sub>). Indeed, a non-linearity is expected when gas
+concentration increases inside a closed chamber, due to changes in
+diffusion gradients between the soil and the air inside the chamber. In
+addition, lateral gas flow and leakage contribute to non-linearity. Many
+alternative to LM have been developed to try and provide a more accurate
+estimation of *f*<sub>0</sub>, for instance the method of [Hutchinson
+and Mosier (HM)
 (1981)](https://doi.org/10.2136/sssaj1981.03615995004500020017x), which
 was implemented in the [`HMR`](https://cran.r-project.org/package=HMR)
 package by [Pedersen et al.,
@@ -39,7 +40,7 @@ large amounts of data. A recent approach was developed by [Hüppi et al.,
 2018](https://doi.org/10.1371/journal.pone.0200876) to restrict the
 curvature in the HM model for a more reliable flux estimate. In the HM
 model, the curvature is controlled by the kappa parameter. Hüppi et
-al. suggested the use of the kappa.max to limit the maximal curvature
+al. suggest the use of the kappa.max to limit the maximal curvature
 allowed in the model (see their R package
 [`gasfluxes`](https://cran.r-project.org/package=gasfluxes), available
 on the CRAN). This procedure introduces less arbitrary decisions in the
@@ -70,14 +71,14 @@ raw data into R, chose the best model to calculate fluxes (LM, HM or no
 flux), quality check the results objectively and obtain high quality
 flux estimates. The package contains a wide range of functions that
 allows the user to import raw data from a variety of instruments
-(LI-COR, LGR, GAIA2TECH and Picarro); calculate fluxes from a variety of
-GHG (CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, and H<sub>2</sub>O)
-with both linear (LM) and non-linear (HM) flux calculation methods;
-align instruments clocks after data import; interactively identify
-measurements (start and end time) if there are no automatic chamber
-recordings (e.g. LI-COR smart chamber); plot measurements for easy
-visual inspection; and quality check the measurements based on objective
-criteria and non-arbitrary thresholds.
+(LI-COR, LGR, GAIA2TECH, Gasmet and Picarro); calculate fluxes from a
+variety of GHG (CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O,
+NH<sub>3</sub>, CO and H<sub>2</sub>O) with both linear (LM) and
+non-linear (HM) flux calculation methods; align instruments clocks after
+data import; interactively identify measurements (start and end time) if
+there are no automatic chamber recordings (e.g. LI-COR smart chamber);
+plot measurements for easy visual inspection; and quality check the
+measurements based on objective criteria and non-arbitrary thresholds.
 
 > *Three R packages for the Elven-kings under the CRAN,  
 > Seven for the Dwarf-lords in their halls of open software,  
@@ -120,6 +121,10 @@ raw data from a variety of instruments:
 - [**GAIATECH Automated ECOFlux
   chamber**](https://www.dmr.eu/technologies/gas-emission-measurements-eco2flux/automated-eco2flux-chamber/):
   for an easy import of data from any gas analyzer
+- [**Gasmet
+  DX4015**](https://www.gasmet.com/products/category/portable-gas-analyzers/dx4015/):
+  portable analyzer for humid conditions. Measures CO, CO<sub>2</sub>,
+  CH<sub>4</sub>, N<sub>2</sub>O, NH<sub>3</sub> and H<sub>2</sub>O.
 
 After import, the user can chose from two methods for identification of
 measurements:
@@ -135,9 +140,9 @@ measurements:
   the LI-COR Smart Chamber or the GAIATECH Automated ECOFlux chamber.
 
 The function `goFlux()` calculates fluxes from a variety of greenhouse
-gases (CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, and
-H<sub>2</sub>O) using both linear (LM) and non-linear (Hutchinson and
-Mosier) flux calculation methods.
+gases (CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, NH<sub>3</sub>,
+CO, and H<sub>2</sub>O) using both linear (LM) and non-linear
+(Hutchinson and Mosier) flux calculation methods.
 
 Following flux calculation, the user can select the best flux estimate
 (LM or HM) based on objective criteria and non-arbitrary thresholds,
@@ -267,9 +272,9 @@ The functioning of the package depends on many other packages
 (`data.table`, `dplyr`, `ggnewscale`, `ggplot2`, `ggstar`, `graphics`,
 `grDevices`, `grid`, `gridExtra`, `lubridate`, `minpack.lm`, `msm`,
 `pbapply`, `plyr`, `purrr`, `rjson`, `rlist`, `SimDesign`, `stats`,
-`tibble`, `tidyr`, `utils`), which will be installed when installing
-`GoFluxYourself`. If prompted, it is recommended to update any
-pre-installed packages.
+`stringr`, `tibble`, `tidyr`, `utils`), which will be installed when
+installing `GoFluxYourself`. If prompted, it is recommended to update
+any pre-installed packages.
 
 Troubleshoot problems with `install_github()`:
 
@@ -283,11 +288,11 @@ Troubleshoot problems with `install_github()`:
 library(GoFluxYourself)
 
 # Get the example raw file from the package
-file.path <- system.file("extdata", "LGR/example_LGR.txt", package = "GoFluxYourself")
+file.path <- system.file("extdata", "LGR/LGR.txt", package = "GoFluxYourself")
 
 # Import raw data from an LGR gas analyzer
 ?LGR_import
-example_LGR_imp <- LGR_import(inputfile = file.path)
+LGR_imp <- LGR_import(inputfile = file.path)
 ```
 
 Note that raw data can also be imported from a multitude of other
@@ -297,12 +302,14 @@ instruments, and example data files are provided for all of them:
 - Los Gatos Research instruments: (e.g. UGGA and m-GGA)
 - GAIA2TECH (DMR) automated chamber ECOFlux
 - Picarro: G2508
+- Gasmet: DX4015
 
 To import multiple files from a folder, use the wrapper function
 `import2RData()`.
 
 ``` r
 # Get help for import functions from the GoFluxYourself package
+?DX4015_import
 ?G2508_import
 ?GAIA_import
 ?LI6400_import
@@ -326,8 +333,7 @@ require(purrr)
 
 # The auxfile requires start.time and UniqueID
 # start.time must be in the format "%Y-%m-%d %H:%M:%S"
-aux.path <- system.file("extdata", "LGR/example_LGR_aux.txt", 
-                        package = "GoFluxYourself")
+aux.path <- system.file("extdata", "LGR/LGR_aux.txt", package = "GoFluxYourself")
 auxfile <- read.delim(aux.path) %>% 
   mutate(start.time = as.POSIXct(start.time, tz = "UTC"))
 ```
@@ -345,8 +351,8 @@ seconds before the `start.time` and 210 seconds after.
 ?obs.win
 
 # Define the measurements' window of observation
-example_LGR_ow <- obs.win(inputfile = example_LGR_imp, auxfile = auxfile,
-                          obs.length = 180, shoulder = 30)
+LGR_ow <- obs.win(inputfile = LGR_imp, auxfile = auxfile,
+                  obs.length = 180, shoulder = 30)
 ```
 
 ![](man/figures/click.peak1.png)
@@ -363,8 +369,7 @@ function `click.peak.loop()` with `lapply()` rather than using
 ?click.peak.loop
 
 # Manually identify measurements by clicking on the start and end points
-example_LGR_manID <- lapply(seq_along(example_LGR_ow), click.peak.loop, 
-                            flux.unique = example_LGR_ow) %>%
+LGR_manID <- lapply(seq_along(LGR_ow), click.peak.loop, flux.unique = LGR_ow) %>%
   map_df(., ~as.data.frame(.x))
 ```
 
@@ -418,9 +423,9 @@ non-arbitrary thresholds, and plot the results for visual inspection.
 ?best.flux
 
 # Calculate fluxes for all gas types
-CO2_flux <- goFlux(example_LGR_manID, "CO2dry_ppm", prec = 0.3)
-CH4_flux <- goFlux(example_LGR_manID, "CH4dry_ppb", prec = 1.4)
-H2O_flux <- goFlux(example_LGR_manID, "H2O_ppm", prec = 50)
+CO2_flux <- goFlux(LGR_manID, "CO2dry_ppm", prec = 0.3)
+CH4_flux <- goFlux(LGR_manID, "CH4dry_ppb", prec = 1.4)
+H2O_flux <- goFlux(LGR_manID, "H2O_ppm", prec = 50)
 
 # Use best.flux to select the best flux estimates (LM or HM)
 # based on a list of criteria
@@ -439,12 +444,12 @@ plot.legend = c("MAE", "RMSE", "k.ratio", "g.factor", "SErel")
 plot.display = c("MDF", "prec", "nb.obs", "flux.term")
 quality.check = TRUE
 
-CO2_flux_plots <- flux.plot(CO2_flux_res, example_LGR_manID, "CO2dry_ppm",
-                            shoulder=20, plot.legend, plot.display, quality.check)
-CH4_flux_plots <- flux.plot(CH4_flux_res, example_LGR_manID, "CH4dry_ppb",
-                            shoulder=20, plot.legend, plot.display, quality.check)
-H2O_flux_plots <- flux.plot(H2O_flux_res, example_LGR_manID, "H2O_ppm",
-                            shoulder=20, plot.legend, plot.display, quality.check)
+CO2_flux_plots <- flux.plot(CO2_flux_res, LGR_manID, "CO2dry_ppm", shoulder=20,
+                            plot.legend, plot.display, quality.check)
+CH4_flux_plots <- flux.plot(CH4_flux_res, LGR_manID, "CH4dry_ppb", shoulder=20,
+                            plot.legend, plot.display, quality.check)
+H2O_flux_plots <- flux.plot(H2O_flux_res, LGR_manID, "H2O_ppm", shoulder=20, 
+                            plot.legend, plot.display, quality.check)
 
 # Combine plot lists into one list
 flux_plot.ls <- c(CO2_flux_plots, CH4_flux_plots, H2O_flux_plots)
