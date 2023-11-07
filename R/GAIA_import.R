@@ -82,7 +82,7 @@
 #'
 #' @include GoFluxYourself-package.R
 #'
-#' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
+#' @seealso Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso Import functions for individual instruments:
 #'          \code{\link[GoFluxYourself]{DX4015_import}},
@@ -98,7 +98,7 @@
 #'
 #' @examples
 #' # Examples on how to use:
-#' file.path <- system.file("extdata", "GAIA/example_GAIA.csv", package = "GoFluxYourself")
+#' file.path <- system.file("extdata", "GAIA/GAIA.csv", package = "GoFluxYourself")
 #'
 #' GAIA.data <- GAIA_import(inputfile = file.path)
 #'

@@ -258,23 +258,29 @@ To install a package from GitHub, one must first install the package
 `remotes` from the CRAN:
 
 ``` r
-if (!require("remotes", quietly = TRUE))
-  install.packages("remotes")
+if (!require("remotes", quietly = TRUE)) install.packages("remotes")
 ```
 
-Then, install the `GoFluxYourself` package from GitHub:
+Then, install the `GoFluxYourself` package from GitHub. If it is not the
+first time you install the package, it must first be detached before
+being updated.
+
+> The package is actively being updated **every day**. To make sure that
+> you are using the latest version, re-install the package every time
+> you use it.
 
 ``` r
+try(detach("package:GoFluxYourself", unload = TRUE), silent = TRUE)
 remotes::install_github("Qepanna/GoFluxYourself")
 ```
 
+**If prompted, it is recommended to update any pre-installed packages.**
 The functioning of the package depends on many other packages
 (`data.table`, `dplyr`, `ggnewscale`, `ggplot2`, `ggstar`, `graphics`,
 `grDevices`, `grid`, `gridExtra`, `lubridate`, `minpack.lm`, `msm`,
 `pbapply`, `plyr`, `purrr`, `rjson`, `rlist`, `SimDesign`, `stats`,
 `stringr`, `tibble`, `tidyr`, `utils`), which will be installed when
-installing `GoFluxYourself`. If prompted, it is recommended to update
-any pre-installed packages.
+installing `GoFluxYourself`.
 
 Troubleshoot problems with `install_github()`:
 

@@ -9,7 +9,7 @@ HM.flux(
   time.meas,
   flux.term,
   k.max,
-  Ci = NULL,
+  Ct = NULL,
   C0 = NULL,
   k.mult = 1
 )
@@ -26,14 +26,14 @@ HM.flux(
 Hutchinson and Mosier model. Calculated with the
 \code{\link[GoFluxYourself]{k.max}} function.}
 
-\item{Ci}{numerical; gas concentration after \emph{i} seconds (ppm or ppb).
+\item{Ct}{numerical; gas concentration after \emph{t} seconds (ppm or ppb).
 For typical forest soil conditions, use these estimates for the
 following \code{gastypes}:
 \itemize{
-    \item "CO2dry_ppm": \code{Ci = 1000 ppm}
-    \item "CH4dry_ppb": \code{Ci = 1800 ppb}
-    \item "N2Odry_ppb": \code{Ci = 500 ppb}
-    \item "H2O_ppm": \code{Ci = 20000 ppm}
+    \item "CO2dry_ppm": \code{Ct = 1000 ppm}
+    \item "CH4dry_ppb": \code{Ct = 1800 ppb}
+    \item "N2Odry_ppb": \code{Ct = 500 ppb}
+    \item "H2O_ppm": \code{Ct = 20000 ppm}
   }}
 
 \item{C0}{numerical; initial gas concentration at time 0 second (ppm or ppb)
@@ -51,7 +51,7 @@ multiplier (\code{k.mult = 1}).}
 }
 \value{
 Returns a data frame with 10 columns: non-linear flux estimate,
-         initial gas concentration (C0), final gas concentration (Ci), slope
+         initial gas concentration (C0), final gas concentration (Ct), slope
          at \code{t=0}, mean absolute error (MAE), root mean square error
          (RMSE), standard error (se), relative se (se.rel),
          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}},

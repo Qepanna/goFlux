@@ -6,14 +6,11 @@
 #'
 #' @docType data
 #'
-#' @usage data(example_LGR_imp)
+#' @usage data(LGR_imp)
 #'
 #' @format An object of class \code{"data.frame"}
 #'
 #' @keywords datasets
 #'
-#' @examples
-#' data(example_LGR_imp)
-#' head(example_LGR_imp)
 #'
-"example_LGR_imp"
+"LGR_imp"

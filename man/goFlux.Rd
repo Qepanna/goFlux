@@ -112,7 +112,7 @@ should be approximately one minute (60 seconds).}
 Returns a data frame with 26 columns: a UniqueID per measurement,
          10 columns for the linear model results (linear flux estimate
          (\code{LM.flux}), initial gas concentration (\code{LM.C0}), final
-         gas concentration (\code{LM.Ci}), slope of linear regression
+         gas concentration (\code{LM.Ct}), slope of linear regression
          (\code{LM.slope}), mean absolute error ((\code{LM.MAE})), root mean
          square error ((\code{LM.RMSE})), standard error ((\code{LM.se})),
          relative se ((\code{LM.se.rel})),
@@ -130,7 +130,7 @@ Returns a data frame with 26 columns: a UniqueID per measurement,
          kappa-max (\code{\link[GoFluxYourself]{k.max}}), the g factor
          (\code{\link[GoFluxYourself]{g.factor}}), the number of observations
          used (\code{nb.obs}) and the true initial gas concentration
-         (\code{C0}) and final gas concentration (\code{Ci}).
+         (\code{C0}) and final gas concentration (\code{Ct}).
 }
 \description{
 A wrapper function to calculate GHG fluxes from static chamber measurements.
@@ -170,10 +170,10 @@ kilograms of soil by 10000 to remove the conversion from
 \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}.
 }
 \examples{
-data(example_LGR_manID)
-CO2_flux <- goFlux(example_LGR_manID, "CO2dry_ppm", prec = 0.3)
-CH4_flux <- goFlux(example_LGR_manID, "CH4dry_ppb", prec = 1.4)
-H2O_flux <- goFlux(example_LGR_manID, "H2O_ppm", prec = 50)
+data(LGR_manID)
+CO2_flux <- goFlux(LGR_manID, "CO2dry_ppm", prec = 0.3)
+CH4_flux <- goFlux(LGR_manID, "CH4dry_ppb", prec = 1.4)
+H2O_flux <- goFlux(LGR_manID, "H2O_ppm", prec = 50)
 
 }
 \seealso{

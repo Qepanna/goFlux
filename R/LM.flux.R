@@ -14,7 +14,7 @@
 #'          for information about the non-linear regression model used in this package.
 #'
 #' @returns Returns a data frame with 10 columns: linear flux estimate, initial
-#'          gas concentration (C0), final gas concentration (Ci), slope of linear
+#'          gas concentration (C0), final gas concentration (Ct), slope of linear
 #'          regression, mean absolute error (MAE), root mean square error (RMSE),
 #'          standard error (se), relative se (se.rel),
 #'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and p-value.
@@ -49,8 +49,8 @@ LM.flux <- function(gas.meas, time.meas, flux.term) {
   LM.C0 <- summary(LM)[[4]][1,1]
   LM.slope <- summary(LM)[[4]][2,1]
 
-  # Calculate LM.Ci
-  LM.Ci <- LM.slope * last(time.meas) + LM.C0
+  # Calculate LM.Ct
+  LM.Ct <- LM.slope * last(time.meas) + LM.C0
 
   # Multiply the slope of the model by the flux term. The flux term corrects
   # for water vapor at the start of the measurement, as well as total volume,
@@ -70,7 +70,7 @@ LM.flux <- function(gas.meas, time.meas, flux.term) {
   LM.MAE <- MAE(gas.meas, fitted(LM))
 
   # Store results in new data table
-  LM_results <- cbind.data.frame(LM.flux, LM.C0, LM.Ci, LM.slope, LM.se,
+  LM_results <- cbind.data.frame(LM.flux, LM.C0, LM.Ct, LM.slope, LM.se,
                                  LM.se.rel, LM.MAE, LM.RMSE, LM.r2, LM.p.val)
 
   return(LM_results)

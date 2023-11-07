@@ -69,7 +69,7 @@ G2508.data <- G2508_import(inputfile = file.path)
 
 }
 \seealso{
-Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
+Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
          to import multiple files from the same folder path using any instrument.
 
 Import functions for individual instruments:

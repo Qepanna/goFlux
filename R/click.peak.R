@@ -57,27 +57,24 @@
 #' library(dplyr)
 #'
 #' ## with a LGR instrument and an auxiliary file (.txt)
-#' aux.path <- system.file("extdata", "LGR/example_LGR_aux.txt",
-#'                         package = "GoFluxYourself")
+#' aux.path <- system.file("extdata", "LGR/LGR_aux.txt", package = "GoFluxYourself")
 #' auxfile <- read.delim(aux.path) %>%
 #'   mutate(start.time = as.POSIXct(start.time, tz = "UTC"))
-#' data(example_LGR_imp)
-#' example_LGR_ow <- obs.win(inputfile = example_LGR_imp, auxfile = auxfile,
-#'                           obs.length = 180, shoulder = 60)
-#' example_LGR_manID <- click.peak(example_LGR_ow[[1]])
+#' data(LGR_imp)
+#' LGR_ow <- obs.win(inputfile = LGR_imp, auxfile = auxfile,
+#'                   obs.length = 180, shoulder = 60)
+#' LGR_manID <- click.peak(LGR_ow[[1]])
 #'
 #' ## with a LI-COR instrument and the Smart Chamber as auxiliary file
-#' data(example_LI8200_imp)
-#' data(example_LI7810_imp)
-#' example_LI7810_ow <- obs.win(inputfile = example_LI7810_imp,
-#'                              auxfile = example_LI8200_imp,
-#'                              shoulder = 30)
-#' example_LI7810_manID <- click.peak(example_LI7810_ow[[1]])
+#' data(LI8200_imp)
+#' data(LI7810_imp)
+#' LI7810_ow <- obs.win(inputfile = LI7810_imp, auxfile = LI8200_imp, shoulder = 30)
+#' LI7810_manID <- click.peak(LI7810_ow[[1]])
 #'
 #' ## with the LI-6400 and no auxiliary file
-#' data(example_LI6400_imp)
-#' example_LI6400_ow <- obs.win(inputfile = example_LI6400_imp, shoulder = 0)
-#' example_LI6400_manID <- click.peak(example_LI6400_ow[[1]])
+#' data(LI6400_imp)
+#' LI6400_ow <- obs.win(inputfile = LI6400_imp, shoulder = 0)
+#' LI6400_manID <- click.peak(LI6400_ow[[1]])
 #'
 #' @export
 #'
@@ -191,8 +188,8 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
     mutate(obs.length_corr = as.numeric(end.time_corr - start.time_corr, units = "secs"))
 
   # xaxis in validation plot: get lowest and highest Etime, rounded around 30s
-  xmin <- min(round_any(flux.corr$Etime, 30, f = floor))
-  xmax <- max(round_any(flux.corr$Etime, 30, f = ceiling))
+  xmin <- min(round_any(flux.corr$Etime, 30, f = floor)) %>% if_else(. == 0, -15, .)
+  xmax <- max(round_any(flux.corr$Etime, 30, f = ceiling)) %>% if_else(. == 0, 15, .)
   xmult <- (xmax + abs(xmin))/30
 
   # yaxis in validation plot: zoom on the selected values

@@ -6,14 +6,14 @@
 #'
 #' @docType data
 #'
-#' @usage data(example_LI6400_imp)
+#' @usage data(LI6400_imp)
 #'
 #' @format An object of class \code{"data.frame"}
 #'
 #' @keywords datasets
 #'
 #' @examples
-#' data(example_LI6400_imp)
-#' head(example_LI6400_imp)
+#' data(LI6400_imp)
+#' head(LI6400_imp)
 #'
-"example_LI6400_imp"
+"LI6400_imp"

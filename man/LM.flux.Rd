@@ -16,7 +16,7 @@ LM.flux(gas.meas, time.meas, flux.term)
 }
 \value{
 Returns a data frame with 10 columns: linear flux estimate, initial
-         gas concentration (C0), final gas concentration (Ci), slope of linear
+         gas concentration (C0), final gas concentration (Ct), slope of linear
          regression, mean absolute error (MAE), root mean square error (RMSE),
          standard error (se), relative se (se.rel),
          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and p-value.

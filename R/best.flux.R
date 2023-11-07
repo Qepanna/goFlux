@@ -68,10 +68,10 @@
 #' @include GoFluxYourself-package.R
 #'
 #' @examples
-#' data(example_LGR_manID)
-#' example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
-#' criteria <- c("MAE", "g.factor", "MDF", "SErel", "intercept")
-#' example_LGR_res <- best.flux(example_LGR_flux, criteria)
+#' data(LGR_manID)
+#' LGR_flux <- goFlux(LGR_manID, "CO2dry_ppm")
+#' criteria <- c("MAE", "g.factor", "MDF", "SErel")
+#' LGR_res <- best.flux(LGR_flux, criteria)
 #'
 #' @seealso Look up the functions \code{\link[GoFluxYourself]{MDF}},
 #'          \code{\link[GoFluxYourself]{flux.term}},

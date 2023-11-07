@@ -116,7 +116,7 @@
 #' @returns Returns a data frame with 26 columns: a UniqueID per measurement,
 #'          10 columns for the linear model results (linear flux estimate
 #'          (\code{LM.flux}), initial gas concentration (\code{LM.C0}), final
-#'          gas concentration (\code{LM.Ci}), slope of linear regression
+#'          gas concentration (\code{LM.Ct}), slope of linear regression
 #'          (\code{LM.slope}), mean absolute error ((\code{LM.MAE})), root mean
 #'          square error ((\code{LM.RMSE})), standard error ((\code{LM.se})),
 #'          relative se ((\code{LM.se.rel})),
@@ -134,7 +134,7 @@
 #'          kappa-max (\code{\link[GoFluxYourself]{k.max}}), the g factor
 #'          (\code{\link[GoFluxYourself]{g.factor}}), the number of observations
 #'          used (\code{nb.obs}) and the true initial gas concentration
-#'          (\code{C0}) and final gas concentration (\code{Ci}).
+#'          (\code{C0}) and final gas concentration (\code{Ct}).
 #'
 #' @include GoFluxYourself-package.R
 #' @include flux.term.R
@@ -153,10 +153,10 @@
 #'          information about these parameters.
 #'
 #' @examples
-#' data(example_LGR_manID)
-#' CO2_flux <- goFlux(example_LGR_manID, "CO2dry_ppm", prec = 0.3)
-#' CH4_flux <- goFlux(example_LGR_manID, "CH4dry_ppb", prec = 1.4)
-#' H2O_flux <- goFlux(example_LGR_manID, "H2O_ppm", prec = 50)
+#' data(LGR_manID)
+#' CO2_flux <- goFlux(LGR_manID, "CO2dry_ppm", prec = 0.3)
+#' CH4_flux <- goFlux(LGR_manID, "CH4dry_ppb", prec = 1.4)
+#' H2O_flux <- goFlux(LGR_manID, "H2O_ppm", prec = 50)
 #'
 #' @export
 #'
@@ -405,19 +405,19 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
                       time.meas = data_split[[f]]$Etime,
                       flux.term = flux.term)
 
-    # Calculate C0 and Ci and their boundaries based on LM.flux
+    # Calculate C0 and Ct and their boundaries based on LM.flux
     C0.flux <- LM.res$LM.C0
-    Ci.flux <- LM.res$LM.Ci
-    C.diff.flux <- abs(Ci.flux-C0.flux)
+    Ct.flux <- LM.res$LM.Ct
+    C.diff.flux <- abs(Ct.flux-C0.flux)
     C0.lim.flux <- c(C0.flux-C.diff.flux*0.2, C0.flux+C.diff.flux*0.2)
-    Ci.lim.flux <- c(Ci.flux-C.diff.flux*0.2, Ci.flux+C.diff.flux*0.2)
+    Ct.lim.flux <- c(Ct.flux-C.diff.flux*0.2, Ct.flux+C.diff.flux*0.2)
 
-    # Calculate C0 and Ci and their boundaries based on raw data
+    # Calculate C0 and Ct and their boundaries based on raw data
     C0 <- first(gas.meas)
-    Ci <- last(gas.meas)
+    Ct <- last(gas.meas)
 
-    # Chose the right C0 and Ci
-    Ci.best <- if_else(between(Ci, Ci.lim.flux[1], Ci.lim.flux[2]), Ci, Ci.flux)
+    # Chose the right C0 and Ct
+    Ct.best <- if_else(between(Ct, Ct.lim.flux[1], Ct.lim.flux[2]), Ct, Ct.flux)
     C0.best <- if_else(between(C0, C0.lim.flux[1], C0.lim.flux[2]), C0, C0.flux)
 
     # Calculate kappa thresholds based on MDF, LM.flux and Etime
@@ -425,12 +425,12 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
 
     # Hutchinson and Mosier
     HM.res <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
-                      flux.term = flux.term, Ci = Ci.best, C0 = C0.best,
+                      flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
                       k.max = kappa.max)
 
     # Flux results
     flux.res.ls[[f]] <- cbind.data.frame(
-      UniqueID, LM.res, HM.res, C0, Ci, MDF, prec,
+      UniqueID, LM.res, HM.res, C0, Ct, MDF, prec,
       flux.term, nb.obs, k.max = kappa.max*k.mult,
       g.fact = g.factor(HM.res$HM.flux, LM.res$LM.flux))
 

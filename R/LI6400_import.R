@@ -57,7 +57,7 @@
 #'
 #' @examples
 #' # Load file from downloaded package
-#' file.path <- system.file("extdata", "LI6400/example_LI6400.txt", package = "GoFluxYourself")
+#' file.path <- system.file("extdata", "LI6400/LI6400.txt", package = "GoFluxYourself")
 #'
 #' # Run function
 #' LI6400.data <- LI6400_import(inputfile = file.path)
@@ -66,9 +66,6 @@
 #'
 LI6400_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
                           save = FALSE, keep_all = FALSE){
-
-  # TEST
-  inputfile = "I:/SCIENCE-IGN-ALL-Climaite-metdata/bb chamber flux data/Licor 6400 211L/Licor raw/NEE2020/bb_20200526.txt"
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")

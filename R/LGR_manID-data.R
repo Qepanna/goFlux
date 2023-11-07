@@ -7,14 +7,14 @@
 #'
 #' @docType data
 #'
-#' @usage data(example_LGR_manID)
+#' @usage data(LGR_manID)
 #'
 #' @format An object of class \code{"data.frame"}
 #'
 #' @keywords datasets
 #'
 #' @examples
-#' data(example_LGR_manID)
-#' head(example_LGR_manID)
+#' data(LGR_manID)
+#' head(LGR_manID)
 #'
-"example_LGR_manID"
+"LGR_manID"

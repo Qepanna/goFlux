@@ -7,14 +7,14 @@
 #' @param time.meas numerical vector containing time stamps (seconds)
 #' @param flux.term numerical value; flux term calculated with the function
 #'                  \code{\link[GoFluxYourself]{flux.term}}
-#' @param Ci numerical; gas concentration after \emph{i} seconds (ppm or ppb).
+#' @param Ct numerical; gas concentration after \emph{t} seconds (ppm or ppb).
 #'           For typical forest soil conditions, use these estimates for the
 #'           following \code{gastypes}:
 #'           \itemize{
-#'               \item "CO2dry_ppm": \code{Ci = 1000 ppm}
-#'               \item "CH4dry_ppb": \code{Ci = 1800 ppb}
-#'               \item "N2Odry_ppb": \code{Ci = 500 ppb}
-#'               \item "H2O_ppm": \code{Ci = 20000 ppm}
+#'               \item "CO2dry_ppm": \code{Ct = 1000 ppm}
+#'               \item "CH4dry_ppb": \code{Ct = 1800 ppb}
+#'               \item "N2Odry_ppb": \code{Ct = 500 ppb}
+#'               \item "H2O_ppm": \code{Ct = 20000 ppm}
 #'             }
 #' @param C0 numerical; initial gas concentration at time 0 second (ppm or ppb)
 #'           For typical forest soil conditions, use these estimates for the
@@ -42,7 +42,7 @@
 #' \emph{PloS one}, 13(7), e0200876.
 #'
 #' @returns Returns a data frame with 10 columns: non-linear flux estimate,
-#'          initial gas concentration (C0), final gas concentration (Ci), slope
+#'          initial gas concentration (C0), final gas concentration (Ct), slope
 #'          at \code{t=0}, mean absolute error (MAE), root mean square error
 #'          (RMSE), standard error (se), relative se (se.rel),
 #'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}},
@@ -60,7 +60,7 @@
 #' @keywords internal
 #'
 HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
-                    Ci = NULL, C0 = NULL, k.mult = 1) {
+                    Ct = NULL, C0 = NULL, k.mult = 1) {
 
   # Root Mean Squared Error (RMSE)
   RMSE <- function(gas.meas, fit.val){
@@ -85,7 +85,7 @@ HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
   HMmod <- conc ~ Ci+(C0-Ci)*exp(-k*t)
 
   # Define the initial parameters for the fitting of the model
-  start <- list(Ci=Ci, C0=C0, k=0)
+  start <- list(Ci=Ct, C0=C0, k=0)
 
   # Run the model using the nlsLM function from the minpack.lm package
   HM <- try(nlsLM(HMmod,

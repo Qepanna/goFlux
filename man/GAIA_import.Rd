@@ -120,13 +120,13 @@ function, please contact the maintainer of this package for support.
 }
 \examples{
 # Examples on how to use:
-file.path <- system.file("extdata", "GAIA/example_GAIA.csv", package = "GoFluxYourself")
+file.path <- system.file("extdata", "GAIA/GAIA.csv", package = "GoFluxYourself")
 
 GAIA.data <- GAIA_import(inputfile = file.path)
 
 }
 \seealso{
-Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
+Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
          to import multiple files from the same folder path using any instrument.
 
 Import functions for individual instruments:

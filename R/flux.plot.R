@@ -121,12 +121,12 @@
 #'          these parameters.
 #'
 #' @examples
-#' data(example_LGR_manID)
-#' example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
+#' data(LGR_manID)
+#' LGR_flux <- goFlux(LGR_manID, "CO2dry_ppm")
 #' criteria <- c("MAE", "g.factor", "MDF", "SErel")
-#' example_LGR_res <- best.flux(example_LGR_flux, criteria)
-#' example_LGR_plots <- flux.plot(
-#'   flux.results = example_LGR_res, dataframe = example_LGR_manID,
+#' LGR_res <- best.flux(LGR_flux, criteria)
+#' LGR_plots <- flux.plot(
+#'   flux.results = LGR_res, dataframe = LGR_manID,
 #'   gastype = "CO2dry_ppm", quality.check = TRUE,
 #'   plot.legend = c("MAE", "RMSE", "k.ratio", "g.factor", "SErel"),
 #'   plot.display = c("Ci", "C0", "MDF", "prec", "nb.obs", "flux.term"))
@@ -347,10 +347,10 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
     }
     ### Ci ####
     if(any(grepl("\\<Ci\\>", plot.display))){
-      if(!any(grepl("\\<LM.Ci\\>", names(flux.results)))){
-        stop("'Ci' selected in 'plot.display', but 'LM.Ci' missing in 'flux.results'")
-      } else if(!is.numeric(flux.results$LM.Ci)){
-        stop("'LM.Ci' in 'flux.results' must be of class numeric")}
+      if(!any(grepl("\\<LM.Ct\\>", names(flux.results)))){
+        stop("'Ci' selected in 'plot.display', but 'LM.Ct' missing in 'flux.results'")
+      } else if(!is.numeric(flux.results$LM.Ct)){
+        stop("'LM.Ct' in 'flux.results' must be of class numeric")}
     }
     ### cham.close ####
     if(any(grepl("\\<cham.close\\>", plot.display))){
@@ -446,7 +446,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
     HM.C0.display <- LM.C0.display <- quality.check.display <-
     cham.open.display <- nb.obs.display <- prec.display <-
     flux.term.display <- cham.close.display <- MDF.display <-
-    HM.Ci.display <- LM.Ci.display <- legend.flux <- legend.MAE <-
+    HM.Ci.display <- LM.Ct.display <- legend.flux <- legend.MAE <-
     legend.RMSE <- legend.se.rel <- legend.se <- legend.r2 <-
     legend.LM.p.val <- legend.g.factor <- legend.HM.k <- legend.k.max <-
     legend.k.ratio <- best.model.display <- GASTYPE <- NULL
@@ -686,12 +686,12 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
     ### Ci ####
     if(any(grepl("\\<Ci\\>", plot.display))){
       # Ci values
-      LM.Ci <- round(unique(data_corr[[f]]$LM.Ci), 0)
+      LM.Ct <- round(unique(data_corr[[f]]$LM.Ct), 0)
       HM.Ci <- round(unique(data_corr[[f]]$HM.Ci), 0)
       # Plot
-      LM.Ci.display <- annotate(
+      LM.Ct.display <- annotate(
         "text", x = xmax-xdiff*0.1, y = (ymax+ymin)/2 + ydiff*0.035,
-        label = paste("'lm Ci ='~", LM.Ci, "~", gas.unit),
+        label = paste("'lm Ci ='~", LM.Ct, "~", gas.unit),
         colour = "blue", hjust = 1, parse = TRUE, size = 3.2)
       HM.Ci.display <- annotate(
         "text", x = xmax-xdiff*0.1, y = (ymax+ymin)/2 - ydiff*0.035,
@@ -845,7 +845,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
 
       # plot.display
       HM.C0.display + LM.C0.display +
-      HM.Ci.display + LM.Ci.display +
+      HM.Ci.display + LM.Ct.display +
       cham.close.display + cham.open.display +
       nb.obs.display +
       MDF.display +

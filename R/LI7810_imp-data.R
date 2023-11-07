@@ -6,14 +6,14 @@
 #'
 #' @docType data
 #'
-#' @usage data(example_LI7810_imp)
+#' @usage data(LI7810_imp)
 #'
 #' @format An object of class \code{"data.frame"}
 #'
 #' @keywords datasets
 #'
 #' @examples
-#' data(example_LI7810_imp)
-#' head(example_LI7810_imp)
+#' data(LI7810_imp)
+#' head(LI7810_imp)
 #'
-"example_LI7810_imp"
+"LI7810_imp"

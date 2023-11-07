@@ -46,7 +46,7 @@
 #' change the settings on your instrument, or contact the maintainer of this
 #' package for support.
 #'
-#' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
+#' @seealso Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso Import functions for individual instruments:
 #'          \code{\link[GoFluxYourself]{G2508_import}},

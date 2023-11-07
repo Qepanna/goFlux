@@ -91,10 +91,10 @@ flux estimate and the LM flux estimate. The threshold for the g-factor
 should be 4 (flexible), 2 (medium), or 1.25 (conservative).
 }
 \examples{
-data(example_LGR_manID)
-example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
-criteria <- c("MAE", "g.factor", "MDF", "SErel", "intercept")
-example_LGR_res <- best.flux(example_LGR_flux, criteria)
+data(LGR_manID)
+LGR_flux <- goFlux(LGR_manID, "CO2dry_ppm")
+criteria <- c("MAE", "g.factor", "MDF", "SErel")
+LGR_res <- best.flux(LGR_flux, criteria)
 
 }
 \seealso{
