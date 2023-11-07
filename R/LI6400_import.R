@@ -57,7 +57,7 @@
 #'
 #' @examples
 #' # Load file from downloaded package
-#' file.path <- system.file("extdata", "LI6400/example_LI6400.txt", package = "GoFluxYourself")
+#' file.path <- system.file("extdata", "LI6400/LI6400.txt", package = "GoFluxYourself")
 #'
 #' # Run function
 #' LI6400.data <- LI6400_import(inputfile = file.path)

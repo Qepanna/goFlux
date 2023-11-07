@@ -120,7 +120,7 @@ function, please contact the maintainer of this package for support.
 }
 \examples{
 # Examples on how to use:
-file.path <- system.file("extdata", "GAIA/example_GAIA.csv", package = "GoFluxYourself")
+file.path <- system.file("extdata", "GAIA/GAIA.csv", package = "GoFluxYourself")
 
 GAIA.data <- GAIA_import(inputfile = file.path)
 

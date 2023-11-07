@@ -153,10 +153,10 @@
 #'          information about these parameters.
 #'
 #' @examples
-#' data(example_LGR_manID)
-#' CO2_flux <- goFlux(example_LGR_manID, "CO2dry_ppm", prec = 0.3)
-#' CH4_flux <- goFlux(example_LGR_manID, "CH4dry_ppb", prec = 1.4)
-#' H2O_flux <- goFlux(example_LGR_manID, "H2O_ppm", prec = 50)
+#' data(LGR_manID)
+#' CO2_flux <- goFlux(LGR_manID, "CO2dry_ppm", prec = 0.3)
+#' CH4_flux <- goFlux(LGR_manID, "CH4dry_ppb", prec = 1.4)
+#' H2O_flux <- goFlux(LGR_manID, "H2O_ppm", prec = 50)
 #'
 #' @export
 #'

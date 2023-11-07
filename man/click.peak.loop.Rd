@@ -76,32 +76,26 @@ library(dplyr)
 library(purrr)
 
 ## with a LGR instrument and an auxiliary file (.txt)
-aux.path <- system.file("extdata", "LGR/example_LGR_aux.txt",
-                        package = "GoFluxYourself")
+aux.path <- system.file("extdata", "LGR/LGR_aux.txt", package = "GoFluxYourself")
 auxfile <- read.delim(aux.path) \%>\%
   mutate(start.time = as.POSIXct(start.time, tz = "UTC"))
-data(example_LGR_imp)
-example_LGR_ow <- obs.win(inputfile = example_LGR_imp, auxfile = auxfile,
-                          obs.length = 180, shoulder = 60)
-example_LGR_manID <- lapply(seq(1,3), click.peak.loop,
-                            flux.unique = example_LGR_ow) \%>\%
+data(LGR_imp)
+LGR_ow <- obs.win(inputfile = LGR_imp, auxfile = auxfile,
+                  obs.length = 180, shoulder = 60)
+LGR_manID <- lapply(seq(1,3), click.peak.loop, flux.unique = LGR_ow) \%>\%
   map_df(., ~as.data.frame(.x))
 
 ## with a LI-COR instrument and the Smart Chamber as auxiliary file
-data(example_LI8200_imp)
-data(example_LI7810_imp)
-example_LI7810_ow <- obs.win(inputfile = example_LI7810_imp,
-                             auxfile = example_LI8200_imp,
-                             shoulder = 30)
-example_LI7810_manID <- lapply(seq(1,3), click.peak.loop,
-                               flux.unique = example_LI7810_ow) \%>\%
+data(LI8200_imp)
+data(LI7810_imp)
+LI7810_ow <- obs.win(inputfile = LI7810_imp, auxfile = LI8200_imp, shoulder = 30)
+LI7810_manID <- lapply(seq(1,3), click.peak.loop, flux.unique = LI7810_ow) \%>\%
   map_df(., ~as.data.frame(.x))
 
 ## with the LI-6400 and no auxiliary file
-data(example_LI6400_imp)
-example_LI6400_ow <- obs.win(inputfile = example_LI6400_imp, shoulder = 0)
-example_LI6400_manID <- lapply(seq(1,3), click.peak.loop,
-                               flux.unique = example_LI6400_ow) \%>\%
+data(LI6400_imp)
+LI6400_ow <- obs.win(inputfile = LI6400_imp, shoulder = 0)
+LI6400_manID <- lapply(seq(1,3), click.peak.loop, flux.unique = LI6400_ow) \%>\%
   map_df(., ~as.data.frame(.x))
 
 }

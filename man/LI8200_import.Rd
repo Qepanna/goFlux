@@ -56,7 +56,7 @@ function, please contact the maintainer of this package for support.
 }
 \examples{
 # Load file from downloaded package
-file.path <- system.file("extdata", "LI8200/example_LI8200.json", package = "GoFluxYourself")
+file.path <- system.file("extdata", "LI8200/LI8200.json", package = "GoFluxYourself")
 
 # Run function
 LI8200.data <- LI8200_import(inputfile = file.path)

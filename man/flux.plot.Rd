@@ -137,12 +137,12 @@ the p-values are rounded to p < 0.001, p < 0.01 and p < 0.05. If
 significant numbers.
 }
 \examples{
-data(example_LGR_manID)
-example_LGR_flux <- goFlux(example_LGR_manID, "CO2dry_ppm")
+data(LGR_manID)
+LGR_flux <- goFlux(LGR_manID, "CO2dry_ppm")
 criteria <- c("MAE", "g.factor", "MDF", "SErel")
-example_LGR_res <- best.flux(example_LGR_flux, criteria)
-example_LGR_plots <- flux.plot(
-  flux.results = example_LGR_res, dataframe = example_LGR_manID,
+LGR_res <- best.flux(LGR_flux, criteria)
+LGR_plots <- flux.plot(
+  flux.results = LGR_res, dataframe = LGR_manID,
   gastype = "CO2dry_ppm", quality.check = TRUE,
   plot.legend = c("MAE", "RMSE", "k.ratio", "g.factor", "SErel"),
   plot.display = c("Ci", "C0", "MDF", "prec", "nb.obs", "flux.term"))
