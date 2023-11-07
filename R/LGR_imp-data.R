@@ -12,5 +12,8 @@
 #'
 #' @keywords datasets
 #'
+#' @examples
+#' data(LGR_imp)
+#' head(LGR_imp)
 #'
 "LGR_imp"
