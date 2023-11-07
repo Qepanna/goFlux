@@ -150,6 +150,7 @@ LI6400_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
       group_by(chamID) %>%
       mutate(cham.close = min(na.omit(POSIX.time)),
              start.time = cham.close,
+             chamID = paste(chamID, start.time),
              cham.open = max(na.omit(POSIX.time)),
              Etime = as.numeric(POSIX.time - start.time, units = "secs")) %>%
       ungroup() %>%
@@ -196,6 +197,7 @@ LI6400_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
       group_by(chamID) %>%
       mutate(cham.close = first(na.omit(POSIX.time)),
              start.time = cham.close,
+             chamID = paste(chamID, start.time),
              cham.open = last(na.omit(POSIX.time)),
              Etime = as.numeric(POSIX.time - start.time, units = "secs")) %>%
       ungroup() %>%
