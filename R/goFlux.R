@@ -186,7 +186,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
   if(!any(grepl(paste("\\<", gastype, "\\>", sep = ""), names(dataframe)))){
     stop("'dataframe' must contain a column that matches 'gastype'")}
   if(any(grepl(paste("\\<", gastype, "\\>", sep = ""), names(dataframe))) &
-     !is.numeric(dataframe[,gastype])){
+     !is.numeric(dataframe[,gastype][[1]])){
     stop("The column that matches 'gastype' in 'dataframe' must be of class numeric")}
 
   ### H2O_col and match in dataframe ####
@@ -195,7 +195,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
   if(!any(grepl(paste("\\<", H2O_col, "\\>", sep = ""), names(dataframe)))){
     stop("'dataframe' must contain a column that matches 'H2O_col'")}
   if(any(grepl(paste("\\<", H2O_col, "\\>", sep = ""), names(dataframe))) &
-     !is.numeric(dataframe[,H2O_col])){
+     !is.numeric(dataframe[,H2O_col][[1]])){
     stop("The column that matches 'H2O_col' in 'dataframe' must be of class numeric")}
 
   ### UniqueID (or chamID) ####
