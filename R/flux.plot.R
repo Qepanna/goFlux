@@ -51,6 +51,10 @@
 #' @param p.val.disp character string; how should the p-value be displayed in the
 #'                   legend above the plot. Chose one of the following: "star",
 #'                   "round", "value".
+#' @param side character string; chose a side to display
+#'             \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{mol C[0]}{ASCII}} and
+#'             \ifelse{html}{\out{C<sub>i</sub>}}{\eqn{mol C[i]}{ASCII}} values.
+#'             By default, they are displayed on the left side of the plot.
 #'
 #' @details
 #' In \code{plot.legend}, one may chose to display up to 5 additional parameters
@@ -138,7 +142,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
                       plot.display = c("MDF", "prec"),
                       quality.check = TRUE, flux.unit = NULL,
                       flux.term.unit = NULL, best.model = TRUE,
-                      p.val.disp = "round") {
+                      p.val.disp = "round", side = "left") {
 
   # Check arguments ####
   if(is.null(shoulder)) stop("'shoulder' is required") else{
@@ -437,6 +441,14 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
         stop("'p.val.disp' must be one of the following: 'star', 'round' or 'value'")}
     }
 
+  ## side ####
+  if(is.null(side)) {stop("'side' cannot be NULL")
+  } else if(!is.character(side)){
+    stop("'side' must be of class character")} else {
+      if(!any(grepl(paste("\\<", side, "\\>", sep = ""), c("left", "right")))){
+        stop("'side' must be one of the following: 'left' or 'right'")}
+    }
+
   # Assign NULL to variables without binding ####
   UniqueID <- HM.Ci <- HM.C0 <- HM.k <- . <- flag <- start.Etime <-
     end.Etime <- Etime <- x <- y <- content <- color <- POSIX.time <-
@@ -670,13 +682,14 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
       # C0 values
       LM.C0 <- round(unique(data_corr[[f]]$LM.C0), 0)
       HM.C0 <- round(unique(data_corr[[f]]$HM.C0), 0)
+      C0.x <- if_else(side == "left", xmin+xdiff*0.2, xmin+xdiff*0.8)
       # Plot
       LM.C0.display <- annotate(
-        "text", x = xmin+xdiff*0.2, y = (ymax+ymin)/2 + ydiff*0.12,
+        "text", x = C0.x, y = (ymax+ymin)/2 + ydiff*0.12,
         label = paste("~~lm~C[0]", "~'='~", LM.C0, "~", gas.unit),
         colour = "blue", hjust = 0.5, parse = TRUE, size = 3.2)
       HM.C0.display <- annotate(
-        "text", x = xmin+xdiff*0.2, y = (ymax+ymin)/2 + ydiff*0.05,
+        "text", x = C0.x, y = (ymax+ymin)/2 + ydiff*0.05,
         label = paste("HM~C[0]", "~'='~", HM.C0, "~", gas.unit),
         colour = "red", hjust = 0.5, parse = TRUE, size = 3.2)
     }
@@ -684,9 +697,10 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
     if(any(grepl("\\<Ci\\>", plot.display))){
       # Ci values
       HM.Ci <- round(unique(data_corr[[f]]$HM.Ci), 0)
+      Ci.x <- if_else(side == "left", xmin+xdiff*0.2, xmin+xdiff*0.8)
       # Plot
       HM.Ci.display <- annotate(
-        "text", x = xmin+xdiff*0.2, y = (ymax+ymin)/2 - ydiff*0.02,
+        "text", x = Ci.x, y = (ymax+ymin)/2 - ydiff*0.02,
         label = paste("~~HM~C[i]", "~'='~", HM.Ci, "~", gas.unit),
         colour = "red", hjust = 0.5, parse = TRUE, size = 3.2)
     }

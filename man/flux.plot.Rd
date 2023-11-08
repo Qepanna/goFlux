@@ -15,7 +15,8 @@ flux.plot(
   flux.unit = NULL,
   flux.term.unit = NULL,
   best.model = TRUE,
-  p.val.disp = "round"
+  p.val.disp = "round",
+  side = "left"
 )
 }
 \arguments{
@@ -76,6 +77,11 @@ next to the best model selected by the function
 \item{p.val.disp}{character string; how should the p-value be displayed in the
 legend above the plot. Chose one of the following: "star",
 "round", "value".}
+
+\item{side}{character string; chose a side to display
+\ifelse{html}{\out{C<sub>0</sub>}}{\eqn{mol C[0]}{ASCII}} and
+\ifelse{html}{\out{C<sub>i</sub>}}{\eqn{mol C[i]}{ASCII}} values.
+By default, they are displayed on the left side of the plot.}
 }
 \value{
 a list of plots, one per UniqueID, drawn from flux restults (output
