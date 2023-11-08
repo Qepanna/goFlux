@@ -61,7 +61,7 @@ package for support.
 file.path <- system.file("extdata", "LI7820/LI7820.data", package = "GoFluxYourself")
 
 # Run function
-LI7820.data <- LI7820_import(inputfile = file.path)
+LI7820_imp <- LI7820_import(inputfile = file.path)
 
 }
 \seealso{

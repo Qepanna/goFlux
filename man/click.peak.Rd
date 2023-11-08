@@ -79,9 +79,9 @@ LGR_manID <- click.peak(LGR_ow[[1]])
 
 ## with a LI-COR instrument and the Smart Chamber as auxiliary file
 data(LI8200_imp)
-data(LI7810_imp)
-LI7810_ow <- obs.win(inputfile = LI7810_imp, auxfile = LI8200_imp, shoulder = 30)
-LI7810_manID <- click.peak(LI7810_ow[[1]])
+data(LI7820_imp)
+LI7820_ow <- obs.win(inputfile = LI7820_imp, auxfile = LI8200_imp, shoulder = 60)
+LI7820_manID <- click.peak(LI7820_ow[[1]], gastype = "N2Odry_ppb", plot.lim = c(250,500))
 
 ## with the LI-6400 and no auxiliary file
 data(LI6400_imp)

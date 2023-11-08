@@ -74,9 +74,10 @@
 #'
 #' ## with a LI-COR instrument and the Smart Chamber as auxiliary file
 #' data(LI8200_imp)
-#' data(LI7810_imp)
-#' LI7810_ow <- obs.win(inputfile = LI7810_imp, auxfile = LI8200_imp, shoulder = 30)
-#' LI7810_manID <- lapply(seq(1,3), click.peak.loop, flux.unique = LI7810_ow) %>%
+#' data(LI7820_imp)
+#' LI7820_ow <- obs.win(inputfile = LI7820_imp, auxfile = LI8200_imp, shoulder = 60)
+#' LI7810_manID <- lapply(seq(1,3), click.peak.loop, flux.unique = LI7820_ow,
+#'                        gastype = "N2Odry_ppb", plot.lim = c(250,500)) %>%
 #'   map_df(., ~as.data.frame(.x))
 #'
 #' ## with the LI-6400 and no auxiliary file

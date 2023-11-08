@@ -52,8 +52,8 @@
 #'
 #' ## with a LI-COR instrument and the Smart Chamber as auxiliary file
 #' data(LI8200_imp)
-#' data(LI7810_imp)
-#' LI7810_ow <- obs.win(inputfile = LI7810_imp, auxfile = LI8200_imp, shoulder = 30)
+#' data(LI7820_imp)
+#' LI7820_ow <- obs.win(inputfile = LI7820_imp, auxfile = LI8200_imp, shoulder = 60)
 #'
 #' ## with the LI-6400 and no auxiliary file
 #' data(LI6400_imp)
