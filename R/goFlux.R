@@ -328,8 +328,10 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
   }
 
   # Rename chamID to UniqueID
-  if(any(grepl("\\<chamID\\>", names(dataframe)))){
-    dataframe <- dataframe %>% mutate(UniqueID = paste(chamID, DATE, sep = "_"))}
+  if(!any(grepl("\\<UniqueID\\>", names(dataframe)))){
+    if(any(grepl("\\<chamID\\>", names(dataframe)))){
+      dataframe <- dataframe %>% mutate(UniqueID = paste(chamID, DATE, sep = "_"))}
+  }
 
   # Clean and subset data (per gastype)
   if(gastype != "H2O_ppm"){
