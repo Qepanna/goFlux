@@ -159,7 +159,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
   if(!any(grepl(paste("\\<", gastype, "\\>", sep = ""), names(dataframe)))){
     stop("'dataframe' must contain a column that matches 'gastype'")}
   if(any(grepl(paste("\\<", gastype, "\\>", sep = ""), names(dataframe))) &
-     !is.numeric(dataframe[,gastype])){
+     !is.numeric(dataframe[,gastype][[1]])){
     stop("The column that matches 'gastype' in 'dataframe' must be of class numeric")}
 
   ### Etime and flag ####
@@ -188,6 +188,10 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
   ### UniqueID ####
   if(!any(grepl("\\<UniqueID\\>", names(flux.results)))){
     stop("'UniqueID' is required and was not found in 'flux.results'")}
+
+  ### Is there any match between dataframe and flux.results?
+  if(!any(unique(dataframe$UniqueID) %in% unique(flux.results$UniqueID))){
+    stop("'UniqueID' in 'flux.results' has no match for 'UniqueID' in 'dataframe'")}
 
   ### LM results ####
   ### LM.flux
@@ -345,13 +349,6 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
                                collapse = "|"), plot.display))){
       stop("if 'plot.display' is not NULL, it must contain at least one of the following: 'Ci', 'C0', 'cham.close', 'cham.open', 'nb.obs', 'crop', 'prec', 'flux.term', 'MDF'")
     }
-    ### Ci ####
-    if(any(grepl("\\<Ci\\>", plot.display))){
-      if(!any(grepl("\\<LM.Ct\\>", names(flux.results)))){
-        stop("'Ci' selected in 'plot.display', but 'LM.Ct' missing in 'flux.results'")
-      } else if(!is.numeric(flux.results$LM.Ct)){
-        stop("'LM.Ct' in 'flux.results' must be of class numeric")}
-    }
     ### cham.close ####
     if(any(grepl("\\<cham.close\\>", plot.display))){
       if(!any(grepl("\\<cham.close\\>", names(dataframe)))){
@@ -446,7 +443,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
     HM.C0.display <- LM.C0.display <- quality.check.display <-
     cham.open.display <- nb.obs.display <- prec.display <-
     flux.term.display <- cham.close.display <- MDF.display <-
-    HM.Ci.display <- LM.Ct.display <- legend.flux <- legend.MAE <-
+    HM.Ci.display <- legend.flux <- legend.MAE <-
     legend.RMSE <- legend.se.rel <- legend.se <- legend.r2 <-
     legend.LM.p.val <- legend.g.factor <- legend.HM.k <- legend.k.max <-
     legend.k.ratio <- best.model.display <- GASTYPE <- NULL
@@ -675,28 +672,23 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
       HM.C0 <- round(unique(data_corr[[f]]$HM.C0), 0)
       # Plot
       LM.C0.display <- annotate(
-        "text", x = xmin+xdiff*0.3, y = (ymax+ymin)/2 + ydiff*0.035,
-        label = paste("'lm C0 ='~", LM.C0, "~", gas.unit),
-        colour = "blue", hjust = 1, parse = TRUE, size = 3.2)
+        "text", x = xmin+xdiff*0.2, y = (ymax+ymin)/2 + ydiff*0.12,
+        label = paste("~~lm~C[0]", "~'='~", LM.C0, "~", gas.unit),
+        colour = "blue", hjust = 0.5, parse = TRUE, size = 3.2)
       HM.C0.display <- annotate(
-        "text", x = xmin+xdiff*0.3, y = (ymax+ymin)/2 - ydiff*0.035,
-        label = paste("'HM C0 ='~", HM.C0, "~", gas.unit),
-        colour = "red", hjust = 1, parse = TRUE, size = 3.2)
+        "text", x = xmin+xdiff*0.2, y = (ymax+ymin)/2 + ydiff*0.05,
+        label = paste("HM~C[0]", "~'='~", HM.C0, "~", gas.unit),
+        colour = "red", hjust = 0.5, parse = TRUE, size = 3.2)
     }
     ### Ci ####
     if(any(grepl("\\<Ci\\>", plot.display))){
       # Ci values
-      LM.Ct <- round(unique(data_corr[[f]]$LM.Ct), 0)
       HM.Ci <- round(unique(data_corr[[f]]$HM.Ci), 0)
       # Plot
-      LM.Ct.display <- annotate(
-        "text", x = xmax-xdiff*0.1, y = (ymax+ymin)/2 + ydiff*0.035,
-        label = paste("'lm Ci ='~", LM.Ct, "~", gas.unit),
-        colour = "blue", hjust = 1, parse = TRUE, size = 3.2)
       HM.Ci.display <- annotate(
-        "text", x = xmax-xdiff*0.1, y = (ymax+ymin)/2 - ydiff*0.035,
-        label = paste("'HM Ci ='~", HM.Ci, "~", gas.unit),
-        colour = "red", hjust = 1, parse = TRUE, size = 3.2)
+        "text", x = xmin+xdiff*0.2, y = (ymax+ymin)/2 - ydiff*0.02,
+        label = paste("~~HM~C[i]", "~'='~", HM.Ci, "~", gas.unit),
+        colour = "red", hjust = 0.5, parse = TRUE, size = 3.2)
     }
     ### cham.close ####
     if(any(grepl("\\<cham.close\\>", plot.display))){
@@ -845,7 +837,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
 
       # plot.display
       HM.C0.display + LM.C0.display +
-      HM.Ci.display + LM.Ct.display +
+      HM.Ci.display +
       cham.close.display + cham.open.display +
       nb.obs.display +
       MDF.display +
