@@ -20,6 +20,7 @@
 #' @importFrom dplyr mutate_at
 #' @importFrom dplyr n
 #' @importFrom dplyr reframe
+#' @importFrom dplyr relocate
 #' @importFrom dplyr rename
 #' @importFrom dplyr right_join
 #' @importFrom dplyr row_number
