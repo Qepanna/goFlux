@@ -34,6 +34,10 @@
 #'             folder in the current working directory. If \code{save = FALSE},
 #'             returns the file in the Console, or load in the Environment if
 #'             assigned to an object.
+#' @param prec numerical vector; the precision of the instrument for each gas,
+#'             in the following order: "CO2dry_ppm", CH4dry_ppb", "N2Odry_ppb"
+#'             "H2O_ppm_LI7810" and "H2O_ppm_LI7820". The default is
+#'             \code{prec = c(3.5, 0.6, 0.4, 45, 45)}.
 #' @param Op.stat.col,PAR.col,Tcham.col,Tsoil.col,SWC.col,CH.col character string;
 #'        a pattern to match all columns that fit the corresponding parameter. For
 #'        example, all columns containing the pattern "3C07_Sunlight" will be
@@ -80,6 +84,20 @@
 #' this instrument. If you would like to import additional data using this
 #' function, please contact the maintainer of this package for support.
 #'
+#' The precision of the instrument is needed to restrict kappa-max
+#' \code{\link[GoFluxYourself]{k.max}} in the non-linear flux calculation
+#' \code{\link[GoFluxYourself]{HM.flux}}. Kappa-max is inversely proportional to
+#' instrument precision. If the precision of your instrument is unknown, it is
+#' better to use a low value (e.g. 1 ppm for
+#' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}, or 1 ppb for
+#' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
+#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}) to allow for more
+#' curvature, especially for water vapor fluxes, or very long measurements, that
+#' are normally curved. The default values given for instrument precision are
+#' the ones found for the latest model of this instrument, available at the
+#' time of the creation of this package (11-2023).
+#'
 #' @include GoFluxYourself-package.R
 #'
 #' @seealso Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
@@ -100,13 +118,14 @@
 #' # Examples on how to use:
 #' file.path <- system.file("extdata", "GAIA/GAIA.csv", package = "GoFluxYourself")
 #'
-#' GAIA.data <- GAIA_import(inputfile = file.path)
+#' GAIA_imp <- GAIA_import(inputfile = file.path)
 #'
 #' @export
 #'
 GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                         pivot = "long", active = TRUE, flag = c(7,11),
                         background = FALSE, save = FALSE,
+                        prec = c(3.5, 0.6, 0.4, 45, 45),
                         CH.col = "COM5A0",
                         SWC.col = "1C08_Soil.Moisture",
                         Tsoil.col = "1C07_Soil.Temperature",
@@ -144,6 +163,8 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   if (!is.character(Tsoil.col)) stop("'Tsoil.col' must be of class character")
   if (!is.character(SWC.col)) stop("'SWC.col' must be of class character")
   if (!is.character(CH.col)) stop("'CH.col' must be of class character")
+  if(is.null(prec)) stop("'prec' is required") else{
+    if(!is.numeric(prec)) stop("'prec' must be of class numeric")}
 
   # Assign NULL to variables without binding
   POSIX.time <- activ.cham <- DATE_TIME <- start.time <- . <- SEQUENCE <-
@@ -315,6 +336,11 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
     data.raw <- data.raw %>% filter(activ.cham != "Background") %>%
       mutate_at("activ.cham", as.numeric)
   }
+
+  # Add instrument precision for each gas
+  data.raw <- data.raw %>%
+    mutate(CO2_prec = prec[1], CH4_prec = prec[2], N2O_prec = prec[3],
+           H2O_LI7810_prec = prec[4], H2O_LI7810_prec = prec[5])
 
   # Save cleaned data file
   if(save == TRUE){

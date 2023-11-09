@@ -21,6 +21,12 @@
 #' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from raw
 #'                 file. The default is \code{keep_all = FALSE}, and columns that
 #'                 are not necessary for gas flux calculation are removed.
+#' @param prec numerical vector; the precision of the instrument for each gas,
+#'             in the following order: "CO2dry_ppm", CH4dry_ppb" and H2O_ppm".
+#'             The default is \code{prec = c(0.2, 1.4, 50)}, which corresponds
+#'             to the ultra-portable GGA (GLA132 series). For the micro
+#'             ultra-portable GGA (GLA131 series), use
+#'             \code{prec = c(0.35, 0.9, 200)}.
 #'
 #' @returns a data frame containing raw data from LGR GHG analyzer.
 #'
@@ -42,6 +48,19 @@
 #' change the settings on your instrument, or contact the maintainer of this
 #' package for support.
 #'
+#' The precision of the instrument is needed to restrict kappa-max
+#' \code{\link[GoFluxYourself]{k.max}} in the non-linear flux calculation
+#' \code{\link[GoFluxYourself]{HM.flux}}. Kappa-max is inversely proportional to
+#' instrument precision. If the precision of your instrument is unknown, it is
+#' better to use a low value (e.g. 1 ppm for
+#' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}, or 1 ppb for
+#' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}) to allow for more
+#' curvature, especially for water vapor fluxes, or very long measurements, that
+#' are normally curved. The default values given for instrument precision are
+#' the ones found for the latest model of this instrument, available at the
+#' time of the creation of this package (11-2023).
+#'
 #' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso Import functions for individual instruments:
@@ -60,12 +79,12 @@
 #' # Examples on how to use:
 #' file.path <- system.file("extdata", "LGR/LGR.txt", package = "GoFluxYourself")
 #'
-#' LGR.data <- LGR_import(inputfile = file.path)
+#' LGR_imp <- LGR_import(inputfile = file.path)
 #'
 #' @export
 #'
 LGR_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
-                       save = FALSE, keep_all = FALSE){
+                       save = FALSE, keep_all = FALSE, prec = c(0.2, 1.4, 50)){
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")
@@ -76,6 +95,8 @@ LGR_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
   if (!is.character(timezone)) stop("'timezone' must be of class character")
   if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
   if (keep_all != TRUE & keep_all != FALSE) stop("'keep_all' must be TRUE or FALSE")
+  if(is.null(prec)) stop("'prec' is required") else{
+    if(!is.numeric(prec)) stop("'prec' must be of class numeric")}
 
   # Assign NULL to variables without binding
   POSIX.time <- DATE_TIME <- H2O_ppm <- CH4dry_ppb <- Time <- . <-
@@ -128,6 +149,10 @@ LGR_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
 
   # Add a column for DATE alone
   data.raw <- data.raw %>% mutate(DATE = substr(POSIX.time, 0, 10))
+
+  # Add instrument precision for each gas
+  data.raw <- data.raw %>%
+    mutate(CO2_prec = prec[1], CH4_prec = prec[2],  H2O_prec = prec[3])
 
   # Save cleaned data file
   if(save == TRUE){

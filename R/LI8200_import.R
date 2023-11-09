@@ -63,7 +63,7 @@
 #' file.path <- system.file("extdata", "LI8200/LI8200.json", package = "GoFluxYourself")
 #'
 #' # Run function
-#' LI8200.data <- LI8200_import(inputfile = file.path)
+#' LI8200_imp <- LI8200_import(inputfile = file.path)
 #'
 #' @export
 #'

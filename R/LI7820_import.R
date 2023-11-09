@@ -19,6 +19,9 @@
 #' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from raw
 #'                 file. The default is \code{keep_all = FALSE}, and columns that
 #'                 are not necessary for gas flux calculation are removed.
+#' @param prec numerical vector; the precision of the instrument for each gas,
+#'             in the following order: "N2Odry_ppb" and H2O_ppm".
+#'             The default is \code{prec = c(0.4, 45)}.
 #'
 #' @returns a data frame containing raw data from LI-COR GHG analyzer LI-7820.
 #'
@@ -29,13 +32,25 @@
 #'
 #' Note that this function was designed for the following default units:
 #' \itemize{
-#'   \item ppm for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
 #'   \item ppb for \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}
+#'   \item ppm for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
 #'   \item kPa for pressure
 #'   \item Celsius for temperature}
 #' If your instrument uses different units, either convert the units after import,
 #' change the settings on your instrument, or contact the maintainer of this
 #' package for support.
+#'
+#' The precision of the instrument is needed to restrict kappa-max
+#' \code{\link[GoFluxYourself]{k.max}} in the non-linear flux calculation
+#' \code{\link[GoFluxYourself]{HM.flux}}. Kappa-max is inversely proportional to
+#' instrument precision. If the precision of your instrument is unknown, it is
+#' better to use a low value (e.g. 1 ppm for
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}, or 1 ppb for
+#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}) to allow for more
+#' curvature, especially for water vapor fluxes, or very long measurements, that
+#' are normally curved. The default values given for instrument precision are
+#' the ones found for the latest model of this instrument, available at the
+#' time of the creation of this package (11-2023).
 #'
 #' @include GoFluxYourself-package.R
 #'
@@ -58,12 +73,12 @@
 #' file.path <- system.file("extdata", "LI7820/LI7820.data", package = "GoFluxYourself")
 #'
 #' # Run function
-#' LI7820.data <- LI7820_import(inputfile = file.path)
+#' LI7820_imp <- LI7820_import(inputfile = file.path)
 #'
 #' @export
 #'
 LI7820_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
-                          save = FALSE, keep_all = FALSE){
+                          save = FALSE, keep_all = FALSE, prec = c(0.4, 45)){
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")
@@ -74,6 +89,8 @@ LI7820_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   if (!is.character(timezone)) stop("'timezone' must be of class character")
   if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
   if (keep_all != TRUE & keep_all != FALSE) stop("'keep_all' must be TRUE or FALSE")
+  if(is.null(prec)) stop("'prec' is required") else{
+    if(!is.numeric(prec)) stop("'prec' must be of class numeric")}
 
   # Assign NULL to variables without binding
   H2O_ppm <- H2O <- N2O <- TIME <- DATE <- DATAH <- N2Odry_ppb <-
@@ -117,6 +134,10 @@ LI7820_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                "Verify that 'date.format' corresponds to the column 'DATE' in",
                "the raw data file. Here is a sample:", data.raw$DATE[1]))
   } else data.raw$POSIX.time <- try.POSIX
+
+  # Add instrument precision for each gas
+  data.raw <- data.raw %>%
+    mutate(N2O_prec = prec[1], H2O_prec = prec[2])
 
   # Save cleaned data file
   if(save == TRUE){
