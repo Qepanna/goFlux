@@ -24,6 +24,13 @@
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
 #'                 recommended to use the time zone "UTC" to avoid any issue
 #'                 related to summer time and winter time changes.
+#' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from raw
+#'                 file. The default is \code{keep_all = FALSE}, and columns that
+#'                 are not necessary for gas flux calculation are removed.
+#' @param prec numerical vector; the precision of the instrument for each gas.
+#'             Look at the examples bellow, or the help for each import function
+#'             of each instrument, to know what values to use.
+#'
 #' @returns a data frame saved as RData in a newly created folder, RData, into
 #'          the working directory.
 #'
@@ -74,30 +81,56 @@
 #' # The default time zone "UTC" is used in all cases.
 #'
 #' # with the Gasmet instrument DX4015
-#' import2RData(path = "inst/extdata/DX4015", instrument = "DX4015", date.format = "ymd")
+#' # Note that the precision of this instrument is currently unknown,
+#' # so all values are set to 1.
+#' import2RData(path = "inst/extdata/DX4015", instrument = "DX4015",
+#'              date.format = "ymd", keep_all = FALSE,
+#'              prec = c(1, 1, 1, 1, 1, 1))
 #'
 #' # with the Picarro instrument G2508
-#' import2RData(path = "inst/extdata/G2508", instrument = "G2508", date.format = "ymd")
+#' import2RData(path = "inst/extdata/G2508", instrument = "G2508",
+#'              date.format = "ymd", keep_all = FALSE,
+#'              prec = c(0.6, 10, 25, 5, 500))
 #'
 #' # with the automated chamber ECOFlux (GAIA2TECH)
-#' import2RData(path = "inst/extdata/GAIA", instrument = "GAIA", date.format = "ymd")
+#' # with this instrument, "keep_all" is not a valid argument.
+#' import2RData(path = "inst/extdata/GAIA", instrument = "GAIA",
+#'              date.format = "ymd", prec = c(3.5, 0.6, 0.4, 45, 45))
 #'
 #' # with Los Gatos Research instruments (e.g. UGGA or m-GGA)
-#' import2RData(path = "inst/extdata/LGR", instrument = "LGR", date.format = "dmy")
+#' import2RData(path = "inst/extdata/LGR", instrument = "LGR",
+#'              date.format = "dmy", keep_all = FALSE,
+#'              prec = c(0.2, 1.4, 50))
 #'
-#' # with LI-COR instruments
-#' import2RData(path = "inst/extdata/LI6400", instrument = "LI-6400", date.format = "mdy")
-#' import2RData(path = "inst/extdata/LI7810", instrument = "LI-7810", date.format = "ymd")
-#' import2RData(path = "inst/extdata/LI7820", instrument = "LI-7820", date.format = "ymd")
-#' import2RData(path = "inst/extdata/LI8100", instrument = "LI-8100", date.format = "ymd")
+#' # with the LI-COR LI-6400 gas analyzer
+#' import2RData(path = "inst/extdata/LI6400", instrument = "LI-6400",
+#'              date.format = "mdy", keep_all = FALSE,
+#'              prec = c(0.2, 1.4, 50))
+#'
+#' # with the LI-COR LI-7810 gas analyzer
+#' import2RData(path = "inst/extdata/LI7810", instrument = "LI-7810",
+#'              date.format = "ymd", keep_all = FALSE,
+#'              prec = c(3.5, 0.6, 45))
+#'
+#' # with the LI-COR LI-7820 gas analyzer
+#' import2RData(path = "inst/extdata/LI7820", instrument = "LI-7820",
+#'              date.format = "ymd", keep_all = FALSE,
+#'              prec = c(0.4, 45))
+#'
+#' # with the LI-COR LI-8100 gas analyzer
+#' import2RData(path = "inst/extdata/LI8100", instrument = "LI-8100",
+#'              date.format = "ymd", keep_all = FALSE,
+#'              prec = c(1, 10))
 #'
 #' # with the LI-COR smart chamber (LI-8200)
-#' # with this instrument, "keep_all" is not a valid argument.
-#' import2RData(path = "inst/extdata/LI8200", instrument = "LI-8200", date.format = "ymd")
+#' # with this instrument, "keep_all" and "prec" are not valid arguments.
+#' import2RData(path = "inst/extdata/LI8200", instrument = "LI-8200",
+#'              date.format = "ymd")
 #'
 #' @export
 #'
-import2RData <- function(path, instrument, date.format, timezone = "UTC"){
+import2RData <- function(path, instrument, date.format, timezone = "UTC",
+                         keep_all, prec){
 
   # Check arguments ####
   if(missing(path)) stop("'path' is required")
@@ -137,7 +170,9 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC"){
         DX4015_import(inputfile = file_list[i],
                       date.format = date.format,
                       timezone = timezone,
-                      save = TRUE),
+                      save = TRUE,
+                      keep_all = keep_all,
+                      prec = prec),
 
         error = function(e){
           errs <<- c(errs, message(
@@ -165,7 +200,9 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC"){
         G2508_import(inputfile = file_list[i],
                      date.format = date.format,
                      timezone = timezone,
-                     save = TRUE),
+                     save = TRUE,
+                     keep_all = keep_all,
+                     prec = prec),
 
         error = function(e){
           errs <<- c(errs, message(
@@ -192,7 +229,8 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC"){
         GAIA_import(inputfile = file_list[i],
                     date.format = date.format,
                     timezone = timezone,
-                    save = TRUE),
+                    save = TRUE,
+                    prec = prec),
 
         error = function(e){
           errs <<- c(errs, message(
@@ -219,7 +257,9 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC"){
         LGR_import(inputfile = file_list[i],
                    date.format = date.format,
                    timezone = timezone,
-                   save = TRUE),
+                   save = TRUE,
+                   keep_all = keep_all,
+                   prec = prec),
 
         error = function(e){
           errs <<- c(errs, message(
@@ -246,7 +286,9 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC"){
         LI6400_import(inputfile = file_list[i],
                       date.format = date.format,
                       timezone = timezone,
-                      save = TRUE),
+                      save = TRUE,
+                      keep_all = keep_all,
+                      prec = prec),
 
         error = function(e){
           errs <<- c(errs, message(
@@ -273,7 +315,9 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC"){
         LI7810_import(inputfile = file_list[i],
                       date.format = date.format,
                       timezone = timezone,
-                      save = TRUE),
+                      save = TRUE,
+                      keep_all = keep_all,
+                      prec = prec),
 
         error = function(e){
           errs <<- c(errs, message(
@@ -300,7 +344,9 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC"){
         LI7820_import(inputfile = file_list[i],
                       date.format = date.format,
                       timezone = timezone,
-                      save = TRUE),
+                      save = TRUE,
+                      keep_all = keep_all,
+                      prec = prec),
 
         error = function(e){
           errs <<- c(errs, message(
@@ -327,7 +373,9 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC"){
         LI8100_import(inputfile = file_list[i],
                       date.format = date.format,
                       timezone = timezone,
-                      save = TRUE),
+                      save = TRUE,
+                      keep_all = keep_all,
+                      prec = prec),
 
         error = function(e){
           errs <<- c(errs, message(
