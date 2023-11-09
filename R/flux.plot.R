@@ -12,7 +12,7 @@
 #'                  \code{\link[GoFluxYourself]{goFlux}}).
 #' @param gastype character string; specifies which column was used for the
 #'                flux calculations. Must be one of the following: "CO2dry_ppm",
-#'                "CH4dry_ppb", "N2Odry_ppb" or "H2O_ppm".
+#'                "COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" or "H2O_ppm".
 #' @param shoulder numerical value; time before and after measurement in observation
 #'                 window (seconds). Default is 30 seconds.
 #' @param plot.legend character vector; specifies which parameters should be
@@ -158,8 +158,8 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
   if(missing(gastype)) stop("'gastype' is required")
   if(!is.null(gastype) & !is.character(gastype)) stop("'gastype' must be a character string")
   if(!any(grepl(paste("\\<", gastype, "\\>", sep = ""),
-                c("CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb", "H2O_ppm")))){
-    stop("'gastype' must be one of the following: 'CO2dry_ppm', 'CH4dry_ppb', 'N2Odry_ppb' or 'H2O_ppm'")}
+                c("CO2dry_ppm", "COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb", "H2O_ppm")))){
+    stop("'gastype' must be of class character and one of the following: 'CO2dry_ppm', 'COdry_ppm', 'CH4dry_ppb', 'N2Odry_ppb', 'NH3dry_ppb' or 'H2O_ppm'")}
   if(!any(grepl(paste("\\<", gastype, "\\>", sep = ""), names(dataframe)))){
     stop("'dataframe' must contain a column that matches 'gastype'")}
   if(any(grepl(paste("\\<", gastype, "\\>", sep = ""), names(dataframe))) &
@@ -483,12 +483,16 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
   if(gastype == "CO2dry_ppm") gas.unit <- "ppm"
   if(gastype == "CH4dry_ppb") gas.unit <- "ppb"
   if(gastype == "N2Odry_ppb") gas.unit <- "ppb"
+  if(gastype == "COdry_ppb") gas.unit <- "ppb"
+  if(gastype == "NH3dry_ppb") gas.unit <- "ppb"
   if(gastype == "H2O_ppm") gas.unit <- "ppm"
 
   # Define y axis legend on plots
   if(gastype == "CO2dry_ppm") ylab <- ylab(expression(bold(CO["2"]*" dry (ppm)")))
   if(gastype == "CH4dry_ppb") ylab <- ylab(expression(CH["4"]*" dry (ppb)"))
   if(gastype == "N2Odry_ppb") ylab <- ylab(expression(N["2"]*"O dry (ppb)"))
+  if(gastype == "COdry_ppb") ylab <- ylab(expression(CO*" dry (ppb)"))
+  if(gastype == "NH3dry_ppb") ylab <- ylab(expression(NH["3"]*" dry (ppb)"))
   if(gastype == "H2O_ppm") ylab <- ylab(expression(H["2"]*"O (ppm)"))
 
   # Define flux units
@@ -496,6 +500,8 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
     if(gastype == "CO2dry_ppm") flux.unit <- "\u03BCmol~m^-2*s^-1"
     if(gastype == "CH4dry_ppb") flux.unit <- "nmol~m^-2*s^-1"
     if(gastype == "N2Odry_ppb") flux.unit <- "nmol~m^-2*s^-1"
+    if(gastype == "COdry_ppb") flux.unit <- "nmol~m^-2*s^-1"
+    if(gastype == "NH3dry_ppb") flux.unit <- "nmol~m^-2*s^-1"
     if(gastype == "H2O_ppm") flux.unit <- "\u03BCmol~m^-2*s^-1"
   }
 

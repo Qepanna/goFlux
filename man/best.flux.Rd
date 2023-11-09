@@ -30,7 +30,8 @@ saying "Noisy measurement").}
 \item{intercept.lim}{numerical vector of length 2; inferior and superior
 limits of the intercept (initial concentration;
 \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}}).
-Must be the same units as \code{gastype}. If
+Must be the same units as \code{gastype} in the
+\code{\link[GoFluxYourself]{goFlux}} function. If
 \code{intercept.lim = NULL}, the limits are calculated
 from the true values of
 \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}} and

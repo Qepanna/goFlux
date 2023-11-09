@@ -19,8 +19,9 @@ Must contain the columns \code{gastype} (see below),
 
 \item{gastype}{character string; specifies which gas should be displayed on the
 plot to manually select start time and end time of measurements.
-Must be one of the following: "CO2dry_ppm", "CH4dry_ppb",
-"N2Odry_ppb" or "H2O_ppm". Default is "CO2dry_ppm".}
+Must be one of the following: "CO2dry_ppm", "COdry_ppb",
+"CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" or "H2O_ppm".
+Default is "CO2dry_ppm".}
 
 \item{sleep}{numerical; delay before closing the resulting plot. When used
 with the function \code{\link[GoFluxYourself]{click.peak.loop}},
@@ -40,6 +41,8 @@ processing the next measurement. Sleep must be shorter than 10 seconds.}
     \itemize{
   \item "CH4dry_ppb": \code{plot.lim = c(2200, 1800)}
   \item "N2Odry_ppb": \code{plot.lim = c(250, 500)}
+  \item "NH3dry_ppb": \code{plot.lim = c(0, 200)}
+  \item "COdry_ppb": \code{plot.lim = c(0, 200)}
   \item "H2O_ppm": \code{plot.lim = c(10000, 20000)}
 }}
 

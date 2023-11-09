@@ -26,8 +26,9 @@ if \code{UniqueID} cannot be found.}
 
 \item{gastype}{character string; specifies which gas should be displayed on the
 plot to manually select start time and end time of measurements.
-Must be one of the following: "CO2dry_ppm", "CH4dry_ppb",
-"N2Odry_ppb" or "H2O_ppm". Default is "CO2dry_ppm".}
+Must be one of the following: "CO2dry_ppm", "COdry_ppb",
+"CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" or "H2O_ppm".
+Default is "CO2dry_ppm".}
 
 \item{obs.length}{numerical; chamber closure time (seconds). Default is NULL.
 If \code{obs.length} is not provided, a column \code{obs.length}

@@ -15,8 +15,9 @@
 #'                    (see below), \code{POSIX.time} and \code{UniqueID}.
 #' @param gastype character string; specifies which gas should be displayed on the
 #'                plot to manually select start time and end time of measurements.
-#'                Must be one of the following: "CO2dry_ppm", "CH4dry_ppb",
-#'                "N2Odry_ppb" or "H2O_ppm". Default is "CO2dry_ppm".
+#'                Must be one of the following: "CO2dry_ppm", "COdry_ppb",
+#'                "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" or "H2O_ppm".
+#'                Default is "CO2dry_ppm".
 #' @param sleep numerical; delay before closing the resulting plot. When used
 #'              with the function \code{\link[GoFluxYourself]{click.peak.loop}},
 #'              grants a delay between measurements to verify the output before
@@ -34,6 +35,8 @@
 #'                 \itemize{
 #'               \item "CH4dry_ppb": \code{plot.lim = c(2200, 1800)}
 #'               \item "N2Odry_ppb": \code{plot.lim = c(250, 500)}
+#'               \item "NH3dry_ppb": \code{plot.lim = c(0, 200)}
+#'               \item "COdry_ppb": \code{plot.lim = c(0, 200)}
 #'               \item "H2O_ppm": \code{plot.lim = c(10000, 20000)}
 #'             }
 #' @param warn.length numerical; minimum amount of observations accepted (number
@@ -109,8 +112,8 @@ click.peak.loop <- function(x, flux.unique, gastype = "CO2dry_ppm", sleep = 3,
   if(is.null(gastype)) stop("'gastype' is required")
   if(!is.null(gastype) & !is.character(gastype)) stop("'gastype' must be a character string")
   if(!any(grepl(paste("\\<", gastype, "\\>", sep = ""),
-                c("CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb", "H2O_ppm")))){
-    stop("'gastype' must be one of the following: 'CO2dry_ppm', 'CH4dry_ppb', 'N2Odry_ppb' or 'H2O_ppm'")}
+                c("CO2dry_ppm", "COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb", "H2O_ppm")))){
+    stop("'gastype' must be of class character and one of the following: 'CO2dry_ppm', 'COdry_ppm', 'CH4dry_ppb', 'N2Odry_ppb', 'NH3dry_ppb' or 'H2O_ppm'")}
 
   ## sleep
   if(!is.numeric(sleep)) stop("'sleep' must be of class numeric")

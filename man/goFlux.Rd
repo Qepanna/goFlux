@@ -30,37 +30,15 @@ and the following columns: \code{UniqueID}, \code{Etime},
 
 \item{gastype}{character string; specifies which column should be used for the
 flux calculations. Must be one of the following: "CO2dry_ppm",
-"CH4dry_ppb", "N2Odry_ppb" or "H2O_ppm".}
+"CH4dry_ppb", "COdry_ppb", "N2Odry_ppb", "NH3dry_ppb" or "H2O_ppm".}
 
 \item{H2O_col}{character string; specifies which column should be used to
 subtract the effect of water vapor in the chamber space.}
 
 \item{prec}{numerical value; precision of the instruments. Units must be the
-same as \code{gastype}. Default values for
-\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
-\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
-\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
-\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
-are based on the LI-COR instruments (LI-7810 and LI-7820):
-\itemize{
-  \item \ifelse{html}{\out{CO<sub>2</sub> = 3.5 ppm;}}{\eqn{CO[2] = 3.5 ppm;}{ASCII}}
-  \item \ifelse{html}{\out{CH<sub>4</sub> = 0.6 ppb;}}{\eqn{CH[4] = 0.6 ppb;}{ASCII}}
-  \item \ifelse{html}{\out{N<sub>2</sub>O = 0.4 ppb;}}{\eqn{N[2]O = 0.4 ppb;}{ASCII}}
-  \item \ifelse{html}{\out{H<sub>2</sub>O = 45 ppm.}}{\eqn{H[2]O = 45 ppm.}{ASCII}}
-}
-For other instruments, you must manually specify the precision of
-the instrument. If using the ultra-portable GGA (GLA132 series):
-\itemize{
-  \item \ifelse{html}{\out{CO<sub>2</sub> = 0.3 ppm;}}{\eqn{CO[2] = 0.3 ppm;}{ASCII}}
-  \item \ifelse{html}{\out{CH<sub>4</sub> = 1.4 ppb;}}{\eqn{CH[4] = 1.4 ppb;}{ASCII}}
-  \item \ifelse{html}{\out{H<sub>2</sub>O = 50 ppm.}}{\eqn{H[2]O = 50 ppm.}{ASCII}}
-}
-If using the micro  ultra-portable GGA (GLA131 series):
-\itemize{
-  \item \ifelse{html}{\out{CO<sub>2</sub> = 0.35 ppm;}}{\eqn{CO[2] = 0.35 ppm;}{ASCII}}
-  \item \ifelse{html}{\out{CH<sub>4</sub> = 0.9 ppb;}}{\eqn{CH[4] = 0.9 ppb;}{ASCII}}
-  \item \ifelse{html}{\out{H<sub>2</sub>O = 200 ppm.}}{\eqn{H[2]O = 200 ppm.}{ASCII}}
-}}
+same as \code{gastype}. With the default \code{prec = NULL},
+instrument precision for each gas must be provided in
+\code{dataframe}.}
 
 \item{Area}{numerical value; area of the soil surface inside the chamber
 \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}.
@@ -171,9 +149,9 @@ kilograms of soil by 10000 to remove the conversion from
 }
 \examples{
 data(LGR_manID)
-CO2_flux <- goFlux(LGR_manID, "CO2dry_ppm", prec = 0.3)
-CH4_flux <- goFlux(LGR_manID, "CH4dry_ppb", prec = 1.4)
-H2O_flux <- goFlux(LGR_manID, "H2O_ppm", prec = 50)
+CO2_flux <- goFlux(LGR_manID, "CO2dry_ppm")
+CH4_flux <- goFlux(LGR_manID, "CH4dry_ppb")
+H2O_flux <- goFlux(LGR_manID, "H2O_ppm")
 
 }
 \seealso{
@@ -184,4 +162,16 @@ Look up the functions \code{\link[GoFluxYourself]{MDF}},
          \code{\link[GoFluxYourself]{HM.flux}} and
          \code{\link[GoFluxYourself]{LM.flux}} of this package for more
          information about these parameters.
+
+See also the import functions to find the
+         default instrument precision for each instrument:
+         \code{\link[GoFluxYourself]{DX4015_import}},
+         \code{\link[GoFluxYourself]{G2508_import}},
+         \code{\link[GoFluxYourself]{GAIA_import}},
+         \code{\link[GoFluxYourself]{LGR_import}},
+         \code{\link[GoFluxYourself]{LI6400_import}},
+         \code{\link[GoFluxYourself]{LI7810_import}},
+         \code{\link[GoFluxYourself]{LI7820_import}},
+         \code{\link[GoFluxYourself]{LI8100_import}},
+         \code{\link[GoFluxYourself]{LI8200_import}}
 }

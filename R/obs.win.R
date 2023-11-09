@@ -6,8 +6,9 @@
 #' @param inputfile data.frame; output from import or align functions.
 #' @param gastype character string; specifies which gas should be displayed on the
 #'                plot to manually select start time and end time of measurements.
-#'                Must be one of the following: "CO2dry_ppm", "CH4dry_ppb",
-#'                "N2Odry_ppb" or "H2O_ppm". Default is "CO2dry_ppm".
+#'                Must be one of the following: "CO2dry_ppm", "COdry_ppb",
+#'                "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" or "H2O_ppm".
+#'                Default is "CO2dry_ppm".
 #' @param auxfile data.frame; auxiliary data frame containing the columns
 #'                \code{start.time} and \code{UniqueID}. \code{start.time} must
 #'                contain a date and be in POSIXct format. The time zone must be
@@ -67,8 +68,8 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
   # Check arguments ####
   if(missing(inputfile)) stop("'inputfile' is required")
   if(!is.null(inputfile) & !is.data.frame(inputfile)) stop("'inputfile' must be of class data.frame")
-  if(!any(grepl(gastype, c("CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb", "H2O_ppm")))) {
-    stop("'gastype' must be of class character and one of the following: 'CO2dry_ppm', 'CH4dry_ppb', 'N2Odry_ppb' or 'H2O_ppm'")}
+  if(!any(grepl(gastype, c("CO2dry_ppm", "COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb", "H2O_ppm")))) {
+    stop("'gastype' must be of class character and one of the following: 'CO2dry_ppm', 'COdry_ppm', 'CH4dry_ppb', 'N2Odry_ppb', 'NH3dry_ppb' or 'H2O_ppm'")}
   if(!is.null(auxfile) & !is.data.frame(auxfile)) stop("'auxfile' must be of class data.frame")
   if(is.null(shoulder)) stop("'shoulder' is required") else{
     if(!is.numeric(shoulder)) stop("'shoulder' must be of class numeric") else{
@@ -170,9 +171,9 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
   }
 
   # Assign NULL to variables without binding ####
-  POSIX.time <- chamID <- start.time <- UniqueID <- Etime <- flag <-
-    DATE <- CO2dry_ppm <- CH4dry_ppb <- N2Odry_ppb <- H2O_ppm <-
-    cham.open <- end.time <- NULL
+  POSIX.time <- chamID <- start.time <- UniqueID <- Etime <- flag <- DATE <-
+    CO2dry_ppm <- COdry_ppb <- CH4dry_ppb <- N2Odry_ppb <- NH3dry_ppb <-
+    H2O_ppm <- cham.open <- end.time <- NULL
 
   # FUNCTION STARTS ####
 
@@ -289,9 +290,13 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
       auxfile <- auxfile %>% select(!c(DATE)) }
     if (any(grepl("\\<CO2dry_ppm\\>", names(auxfile)))){
       auxfile <- auxfile %>% select(!c(CO2dry_ppm)) }
+    if (any(grepl("\\<COdry_ppb\\>", names(auxfile)))){
+      auxfile <- auxfile %>% select(!c(CO2dry_ppm)) }
     if (any(grepl("\\<CH4dry_ppb\\>", names(auxfile)))){
       auxfile <- auxfile %>% select(!c(CH4dry_ppb)) }
     if (any(grepl("\\<N2Odry_ppb\\>", names(auxfile)))){
+      auxfile <- auxfile %>% select(!c(N2Odry_ppb)) }
+    if (any(grepl("\\<NH3dry_ppb\\>", names(auxfile)))){
       auxfile <- auxfile %>% select(!c(N2Odry_ppb)) }
     if (any(grepl("\\<H2O_ppm\\>", names(auxfile)))){
       auxfile <- auxfile %>% select(!c(H2O_ppm)) }
