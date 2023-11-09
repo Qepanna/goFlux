@@ -9,7 +9,8 @@ LI6400_import(
   date.format = "mdy",
   timezone = "UTC",
   save = FALSE,
-  keep_all = FALSE
+  keep_all = FALSE,
+  prec = c(1, 1)
 )
 }
 \arguments{
@@ -32,6 +33,10 @@ in the Console, or load in the Environment if assigned to an object.}
 \item{keep_all}{logical; if \code{keep_all = TRUE}, keep all columns from raw
 file. The default is \code{keep_all = FALSE}, and columns that
 are not necessary for gas flux calculation are removed.}
+
+\item{prec}{numerical vector; the precision of the instrument for each gas,
+in the following order: "CO2dry_ppm" and H2O_ppm". The default is
+\code{prec = c(0.8, 60)}.}
 }
 \value{
 a data frame containing raw data from LI-COR GHG analyzer LI-6400.
@@ -57,13 +62,23 @@ Note that this function was designed for the following default units:
 If your instrument uses different units, either convert the units after import,
 change the settings on your instrument, or contact the maintainer of this
 package for support.
+
+The precision of the instrument is needed to restrict kappa-max
+\code{\link[GoFluxYourself]{k.max}} in the non-linear flux calculation
+\code{\link[GoFluxYourself]{HM.flux}}. Kappa-max is inversely proportional to
+instrument precision. If the precision of your instrument is unknown, it is
+better to use a low value (e.g. 1 ppm) to allow for more curvature, especially
+for water vapor fluxes, or very long measurements, that are normally curved.
+The default values given for instrument precision are the ones found for the
+latest model of this instrument, available at the time of the creation of
+this package (11-2023).
 }
 \examples{
 # Load file from downloaded package
 file.path <- system.file("extdata", "LI6400/LI6400.txt", package = "GoFluxYourself")
 
 # Run function
-LI6400.data <- LI6400_import(inputfile = file.path)
+LI6400_imp <- LI6400_import(inputfile = file.path)
 
 }
 \seealso{

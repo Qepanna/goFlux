@@ -13,6 +13,7 @@ GAIA_import(
   flag = c(7, 11),
   background = FALSE,
   save = FALSE,
+  prec = c(3.5, 0.6, 0.4, 45, 45),
   CH.col = "COM5A0",
   SWC.col = "1C08_Soil.Moisture",
   Tsoil.col = "1C07_Soil.Temperature",
@@ -60,6 +61,11 @@ for the flux calculation. Default is \code{flag = c(7,11)}, where
 folder in the current working directory. If \code{save = FALSE},
 returns the file in the Console, or load in the Environment if
 assigned to an object.}
+
+\item{prec}{numerical vector; the precision of the instrument for each gas,
+in the following order: "CO2dry_ppm", CH4dry_ppb", "N2Odry_ppb"
+"H2O_ppm_LI7810" and "H2O_ppm_LI7820". The default is
+\code{prec = c(3.5, 0.6, 0.4, 45, 45)}.}
 
 \item{Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, CH.col}{character string;
 a pattern to match all columns that fit the corresponding parameter. For
@@ -117,12 +123,26 @@ package for support.
 As opposed to the other import functions, there is no option to "keep_all" with
 this instrument. If you would like to import additional data using this
 function, please contact the maintainer of this package for support.
+
+The precision of the instrument is needed to restrict kappa-max
+\code{\link[GoFluxYourself]{k.max}} in the non-linear flux calculation
+\code{\link[GoFluxYourself]{HM.flux}}. Kappa-max is inversely proportional to
+instrument precision. If the precision of your instrument is unknown, it is
+better to use a low value (e.g. 1 ppm for
+\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}, or 1 ppb for
+\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
+\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}) to allow for more
+curvature, especially for water vapor fluxes, or very long measurements, that
+are normally curved. The default values given for instrument precision are
+the ones found for the latest model of this instrument, available at the
+time of the creation of this package (11-2023).
 }
 \examples{
 # Examples on how to use:
 file.path <- system.file("extdata", "GAIA/GAIA.csv", package = "GoFluxYourself")
 
-GAIA.data <- GAIA_import(inputfile = file.path)
+GAIA_imp <- GAIA_import(inputfile = file.path)
 
 }
 \seealso{

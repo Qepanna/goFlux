@@ -164,7 +164,8 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   if (!is.character(SWC.col)) stop("'SWC.col' must be of class character")
   if (!is.character(CH.col)) stop("'CH.col' must be of class character")
   if(is.null(prec)) stop("'prec' is required") else{
-    if(!is.numeric(prec)) stop("'prec' must be of class numeric")}
+    if(!is.numeric(prec)) stop("'prec' must be of class numeric") else{
+      if(length(prec) != 5) stop("'prec' must be of length 5")}}
 
   # Assign NULL to variables without binding
   POSIX.time <- activ.cham <- DATE_TIME <- start.time <- . <- SEQUENCE <-

@@ -98,7 +98,8 @@ G2508_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
   if (keep_all != TRUE & keep_all != FALSE) stop("'keep_all' must be TRUE or FALSE")
   if(is.null(prec)) stop("'prec' is required") else{
-    if(!is.numeric(prec)) stop("'prec' must be of class numeric")}
+    if(!is.numeric(prec)) stop("'prec' must be of class numeric") else{
+      if(length(prec) != 5) stop("'prec' must be of length 5")}}
 
   # Assign NULL to variables without binding
   ALARM_STATUS <- H2O <- N2O_dry30s <- N2O_dry <- CH4_dry <- CavityPressure <-

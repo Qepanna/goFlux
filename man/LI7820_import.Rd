@@ -9,7 +9,8 @@ LI7820_import(
   date.format = "ymd",
   timezone = "UTC",
   save = FALSE,
-  keep_all = FALSE
+  keep_all = FALSE,
+  prec = c(0.4, 45)
 )
 }
 \arguments{
@@ -32,6 +33,10 @@ in the Console, or load in the Environment if assigned to an object.}
 \item{keep_all}{logical; if \code{keep_all = TRUE}, keep all columns from raw
 file. The default is \code{keep_all = FALSE}, and columns that
 are not necessary for gas flux calculation are removed.}
+
+\item{prec}{numerical vector; the precision of the instrument for each gas,
+in the following order: "N2Odry_ppb" and H2O_ppm".
+The default is \code{prec = c(0.4, 45)}.}
 }
 \value{
 a data frame containing raw data from LI-COR GHG analyzer LI-7820.
@@ -48,13 +53,25 @@ date is found in the column "DATE".
 
 Note that this function was designed for the following default units:
 \itemize{
-  \item ppm for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
   \item ppb for \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}
+  \item ppm for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
   \item kPa for pressure
   \item Celsius for temperature}
 If your instrument uses different units, either convert the units after import,
 change the settings on your instrument, or contact the maintainer of this
 package for support.
+
+The precision of the instrument is needed to restrict kappa-max
+\code{\link[GoFluxYourself]{k.max}} in the non-linear flux calculation
+\code{\link[GoFluxYourself]{HM.flux}}. Kappa-max is inversely proportional to
+instrument precision. If the precision of your instrument is unknown, it is
+better to use a low value (e.g. 1 ppm for
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}, or 1 ppb for
+\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}) to allow for more
+curvature, especially for water vapor fluxes, or very long measurements, that
+are normally curved. The default values given for instrument precision are
+the ones found for the latest model of this instrument, available at the
+time of the creation of this package (11-2023).
 }
 \examples{
 # Load file from downloaded package

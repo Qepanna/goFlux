@@ -90,7 +90,8 @@ LI6400_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
   if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
   if (keep_all != TRUE & keep_all != FALSE) stop("'keep_all' must be TRUE or FALSE")
   if(is.null(prec)) stop("'prec' is required") else{
-    if(!is.numeric(prec)) stop("'prec' must be of class numeric")}
+    if(!is.numeric(prec)) stop("'prec' must be of class numeric") else{
+      if(length(prec) != 2) stop("'prec' must be of length 2")}}
 
   # Assign NULL to variables without binding
   cham.close <- cham.open <- POSIX.time <- chamID <- DATE <- TIME <- H2O_mmol <-
