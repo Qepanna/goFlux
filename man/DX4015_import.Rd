@@ -10,7 +10,8 @@ DX4015_import(
   date.format = "ymd",
   timezone = "UTC",
   save = FALSE,
-  keep_all = FALSE
+  keep_all = FALSE,
+  prec = c(1, 1, 1, 1, 1, 1)
 )
 }
 \arguments{
@@ -33,6 +34,12 @@ in the Console, or load in the Environment if assigned to an object.}
 \item{keep_all}{logical; if \code{keep_all = TRUE}, keep all columns from raw
 file. The default is \code{keep_all = FALSE}, and columns that
 are not necessary for gas flux calculation are removed.}
+
+\item{prec}{numerical vector; the precision of the instrument for each gas,
+in the following order: "CO2dry_ppm", "COdry_ppb", CH4dry_ppb",
+"N2Odry_ppb", "NH3dry_ppb" and H2O_ppm". The default is
+\code{prec = c(1, 1, 1, 1, 1, 1)}. NOTE: the precision of this
+instrument is currently unknown, and so all values are set to 1.}
 }
 \value{
 a data frame containing raw data from the Gasmet DX4015 gas analyzer.
@@ -62,6 +69,21 @@ Note that this function was designed for the following default units:
 If your instrument uses different units, either convert the units after import,
 change the settings on your instrument, or contact the maintainer of this
 package for support.
+
+The precision of the instrument is needed to restrict kappa-max
+\code{\link[GoFluxYourself]{k.max}} in the non-linear flux calculation
+\code{\link[GoFluxYourself]{HM.flux}}. Kappa-max is inversely proportional to
+instrument precision. If the precision of your instrument is unknown, it is
+better to use a low value (e.g. 1 ppm for
+\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}, or 1 ppb for
+\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}, CO
+\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+\ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}) to allow for more
+curvature, especially for water vapor fluxes, or very long measurements, that
+are normally curved. The default values given for instrument precision are
+the ones found for the latest model of this instrument, available at the
+time of the creation of this package (11-2023).
 }
 \examples{
 # Examples on how to use:

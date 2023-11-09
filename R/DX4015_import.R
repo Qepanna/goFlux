@@ -102,14 +102,17 @@ DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   if(save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
   if(keep_all != TRUE & keep_all != FALSE) stop("'keep_all' must be TRUE or FALSE")
   if(is.null(prec)) stop("'prec' is required") else{
-    if(!is.numeric(prec)) stop("'prec' must be of class numeric")}
+    if(!is.numeric(prec)) stop("'prec' must be of class numeric") else{
+      if(length(prec) != 6) stop("'prec' must be of length 6")}}
 
   # Assign NULL to variables without binding
   POSIX.warning <- Line <- SpectrumFile <- H2O_frac <- Time <- Date <-
     Ambient.pressure <- Status <- LibraryFile <- NH3dry_ppb <- N2Odry_ppb <-
     H2O_ppm <- CH4dry_ppb <- COdry_ppb <- CO2dry_ppm <- `H2O_vol-%` <-
     COdry_ppm <- NH3dry_ppm <- N2Odry_ppm <- CH4dry_ppm <- P_unit <- . <-
-    H2O_unit <- CO2_unit <- CH4_unit <- N2O_unit <- CO_unit <- NH3_unit <- NULL
+    H2O_unit <- CO2_unit <- CH4_unit <- N2O_unit <- CO_unit <- NH3_unit <-
+    COwet_ppm <- NH3wet_ppm <- N2Owet_ppm <- CH4wet_ppm <- CO2wet_ppm <-
+    DATE <- TIME <- NULL
 
   # Load data file
   data.raw <- read.delim(inputfile, colClasses = "character") %>%
@@ -135,9 +138,6 @@ DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
     rename(N2O_frac = which(names(.) == "Nitrous.oxide.N2O") +2) %>%
     rename(CO_frac = which(names(.) == "Carbon.monoxide.CO") +2) %>%
     rename(NH3_frac = which(names(.) == "Ammonia.NH3") +2) %>%
-    # In "Compensation", wet means that the gases are compensated for water
-    # vapor, meaning that "wet" stands for the dry fraction.
-    mutate_all(str_replace_all, "wet", "dry") %>%
     # Modify column names for residual
     rename(H2O_resid = which(names(.) == "Water.vapor.H2O") +3) %>%
     rename(CO2_resid = which(names(.) == "Carbon.dioxide.CO2") +3) %>%
@@ -176,30 +176,41 @@ DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
     setNames(gsub("Methane.CH4", CH4_col_name, names(.))) %>%
     setNames(gsub("Nitrous.oxide.N2O", N2O_col_name, names(.))) %>%
     setNames(gsub("Ammonia.NH3", NH3_col_name, names(.))) %>%
+    # Convert column class automatically
+    type.convert(as.is = TRUE) %>%
+    # In "Compensation", wet means that the gases are NOT compensated for water
+    # vapor, meaning that "wet" stands for the wet fraction.
+    mutate(H2O_ppm = `H2O_vol-%`*10000) %>%
+    mutate(CO2dry_ppm = CO2wet_ppm/(1-H2O_ppm/1000000)) %>%
+    mutate(CH4dry_ppm = CH4wet_ppm/(1-H2O_ppm/1000000)) %>%
+    mutate(N2Odry_ppm = N2Owet_ppm/(1-H2O_ppm/1000000)) %>%
+    mutate(NH3dry_ppm = NH3wet_ppm/(1-H2O_ppm/1000000)) %>%
+    mutate(COdry_ppm = COwet_ppm/(1-H2O_ppm/1000000)) %>%
     # Remove unit and compensation columns
     select(!c(H2O_unit, CO2_unit, CH4_unit, N2O_unit,
               CO_unit, NH3_unit, contains(c("frac")))) %>%
-    # Convert column class automatically
-    type.convert(as.is = TRUE) %>%
     # Convert units
     mutate(CH4dry_ppb = CH4dry_ppm*1000) %>%
     mutate(N2Odry_ppb = N2Odry_ppm*1000) %>%
     mutate(NH3dry_ppb = NH3dry_ppm*1000) %>%
     mutate(COdry_ppb = COdry_ppm*1000) %>%
-    mutate(H2O_ppm = `H2O_vol-%`*10000) %>%
     # Remove NAs and negative gas measurements, if any
     filter(CO2dry_ppm > 0) %>%
     filter(COdry_ppb > 0) %>%
     filter(CH4dry_ppb > 0) %>%
     filter(H2O_ppm > 0) %>%
     filter(N2Odry_ppb > 0) %>%
-    filter(NH3dry_ppb > 0)
+    filter(NH3dry_ppb > 0) %>%
+    # Order columns alphabetically
+    select(order(colnames(.))) %>% relocate(DATE, TIME)
 
   # Remove columns that are not used for gas flux calculations
   if(keep_all == FALSE){
     data.raw <- data.raw %>%
       # Remove residuals
       select(!contains("_resid")) %>%
+      # Remove columns with original wet fraction
+      select(!c(CH4wet_ppm, N2Owet_ppm, NH3wet_ppm, CO2wet_ppm, COwet_ppm)) %>%
       # Remove columns with original gas units
       select(!c(CH4dry_ppm, N2Odry_ppm, NH3dry_ppm, COdry_ppm, `H2O_vol-%`))}
 
