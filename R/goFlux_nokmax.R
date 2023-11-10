@@ -1,4 +1,4 @@
-#' goFlux (RMSE): a user-friendly GHG fluxes calculation tool
+#' goFlux (without kappa-max): a user-friendly GHG fluxes calculation tool
 #'
 #' A wrapper function to calculate GHG fluxes from static chamber measurements.
 #' Calculates linear (\code{\link[GoFluxYourself]{LM.flux}}) and non-linear fluxes
@@ -45,13 +45,6 @@
 #'              Alternatively, provide the column \code{Tcham} in \code{dataframe}
 #'              if \code{Tcham} is different between samples. If \code{Tcham} is
 #'              not provided, normal air temperature (15°C) is used.
-#' @param k.mult numerical value; a multiplier for the allowed kappa-max.
-#'               kappa-max is the maximal curvature (kappa) of the non-linear
-#'               regression (Hutchinson and Mosier model) allowed for a each flux
-#'               measurement. See the functions \code{\link[GoFluxYourself]{k.max}}
-#'               and \code{\link[GoFluxYourself]{HM.flux}} for more information.
-#'               Default setting is no multiplier (\code{k.mult = 1}). \code{k.mult}
-#'               cannot be negative and must be smaller or equal to 10.
 #' @param warn.length numerical; minimum amount of observations accepted (number
 #'                    of data points). With nowadays portable greenhouse gas
 #'                    analyzers, the frequency of measurement is usually one
@@ -62,11 +55,9 @@
 #' @details
 #' This function differs from the original version
 #' \code{\link[GoFluxYourself]{goFlux}}. In this version, the non-linear model
-#' is first calculated without kappa-max (\code{\link[GoFluxYourself]{k.max}}),
-#' and then the HM.RMSE is used to calculate kappa-max (LM.slope / HM.RMSE),
-#' after which, the non-linear model is calculated again using that kappa-max.
-#' In the original version, the kappa-max is estimated using the
-#' \code{\link[GoFluxYourself]{MDF}} instead of HM.RMSE.
+#' is calculated without kappa-max (\code{\link[GoFluxYourself]{k.max}}). In the
+#' original version, the kappa-max is estimated using the
+#' \code{\link[GoFluxYourself]{MDF}}.
 #'
 #' Flux estimate units are
 #' \ifelse{html}{\out{µmol/m<sup>2</sup>s}}{\eqn{µmol/m^{2}s}{ASCII}}
@@ -152,20 +143,17 @@
 #'
 #' @examples
 #' data(LGR_manID)
-#' CO2_flux <- goFlux_RMSE(LGR_manID, "CO2dry_ppm")
-#' CH4_flux <- goFlux_RMSE(LGR_manID, "CH4dry_ppb")
-#' H2O_flux <- goFlux_RMSE(LGR_manID, "H2O_ppm")
+#' CO2_flux <- goFlux_nokmax(LGR_manID, "CO2dry_ppm")
+#' CH4_flux <- goFlux_nokmax(LGR_manID, "CH4dry_ppb")
+#' H2O_flux <- goFlux_nokmax(LGR_manID, "H2O_ppm")
 #'
 #' @export
 #'
-goFlux_RMSE <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
-                        Area = NULL, offset = NULL, Vtot = NULL, Vcham = NULL,
-                        Pcham = NULL, Tcham = NULL, k.mult = 1, warn.length = 60){
+goFlux_nokmax <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
+                          Area = NULL, offset = NULL, Vtot = NULL, Vcham = NULL,
+                          Pcham = NULL, Tcham = NULL, warn.length = 60){
 
   # Check arguments ####
-  if(!is.numeric(k.mult)) stop("'k.mult' must be of class numeric")
-  if(!dplyr::between(k.mult, 0, 10) | k.mult <= 0){
-    stop("'k.mult' cannot be negative and must be smaller or equal to 10")}
   if(!is.numeric(warn.length)){stop("'warn.length' must be of class numeric")
   } else {if(warn.length <= 0) stop("'warn.length' must be greater than 0")}
 
@@ -446,27 +434,15 @@ goFlux_RMSE <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     # Calculate kappa thresholds based on MDF, LM.flux and Etime
     kappa.max <- k.max(MDF, LM.res$LM.flux, (max(data_split[[f]]$Etime)+1))
 
-    # First Hutchinson and Mosier
-    HM1 <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
-                   flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-                   k.max = kappa.max*Inf)
-
-    # Find the ideal RMSE
-    # kappa.RMSE <- if_else(LM.res$LM.RMSE > HM1$HM.RMSE, HM1$HM.RMSE, LM.res$LM.RMSE)
-
-    # Calculate kappa-max based on RMSE and LM.flux
-    kappa.max <- LM.res$LM.slope / HM1$HM.RMSE
-
     # Hutchinson and Mosier
     HM.res <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
                       flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-                      k.max = kappa.max*k.mult)
+                      k.max = kappa.max*Inf)
 
     # Flux results
     flux.res.ls[[f]] <- cbind.data.frame(
       UniqueID, LM.res, HM.res, C0, Ct, MDF, prec,
-      flux.term, nb.obs, k.max = kappa.max*k.mult,
-      g.fact = g.factor(HM.res$HM.flux, LM.res$LM.flux))
+      flux.term, nb.obs, g.fact = g.factor(HM.res$HM.flux, LM.res$LM.flux))
 
     # Update progress bar
     setTxtProgressBar(pb, f)
