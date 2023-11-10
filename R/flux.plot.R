@@ -26,7 +26,7 @@
 #'                     displayed on the plot. Chose from the following: "C0",
 #'                     "Ci", "cham.close", "cham.open", "crop", "MDF", "nb.obs",
 #'                     "flux.term" and "prec". Default is
-#'                     \code{plot.display = c("cham.close", "cham.open")}.
+#'                     \code{plot.display = c("MDF", "prec")}.
 #' @param quality.check logical; if \code{quality.check = TRUE}, the column
 #'                      \code{quality.check} (output from the function
 #'                      \code{\link[GoFluxYourself]{best.flux}}) is displayed
