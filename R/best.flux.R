@@ -293,7 +293,8 @@ best.flux <- function(flux.result,
   g.fact <- HM.diagnose <- HM.RMSE <- prec <- model <- quality.check <- HM.k <-
     LM.p.val <- LM.diagnose <- HM.se.rel <- LM.se.rel <- HM.C0 <- LM.C0 <-
     LM.Ci <- LM.se <- HM.se <- MDF <- HM.MAE <- nb.obs <- LM.RMSE <- Ct <-
-    LM.MAE <- UniqueID <- . <- C0 <- Ct <- C0.min <- C0.max <- RMSE.lim <- NULL
+    LM.MAE <- UniqueID <- . <- C0 <- Ct <- C0.min <- C0.max <- RMSE.lim <-
+    MAE.lim <- NULL
 
   # FUNCTION START ####
 
@@ -306,9 +307,9 @@ best.flux <- function(flux.result,
   # Reflects the instrument precision. Sensitive to outliers.
   if(any(grepl("\\<RMSE\\>", criteria))) {
 
-    RMSE.quality <- "Noise (LM.RMSE & HM.RMSE)"
-    RMSE.LM.diagnostic <- "Noisy measurement (LM.RMSE)"
-    RMSE.HM.diagnostic <- "Noisy measurement (HM.RMSE)"
+    RMSE.quality <- "RMSE"
+    RMSE.LM.diagnostic <- "Noise (LM.RMSE)"
+    RMSE.HM.diagnostic <- "Noise (HM.RMSE)"
 
     best.flux.df <- best.flux.df %>%
       # Calculate RMSE threshold: prec + 0.05% of reading
@@ -316,76 +317,90 @@ best.flux <- function(flux.result,
       # If HM.RMSE <= RMSE.lim, use HM.flux
       # If HM.RMSE > RMSE.lim, but HM.RMSE <= LM.RMSE, still use HM.flux
       # else, use LM.flux
-      mutate(best.flux = if_else(HM.RMSE > RMSE.lim & HM.RMSE > LM.RMSE,
+      mutate(best.flux = if_else(signif(HM.RMSE, 1) > signif(RMSE.lim, 1) &
+                                   signif(HM.RMSE, 1) > signif(LM.RMSE, 1),
                                  LM.flux, best.flux),
-             model = if_else(HM.RMSE > RMSE.lim & HM.RMSE > LM.RMSE,
+             model = if_else(signif(HM.RMSE, 1) > RMSE.lim &
+                               signif(HM.RMSE, 1) > signif(LM.RMSE, 1),
                              "LM", model)) %>%
       # If LM.RMSE > RMSE.lim
-      mutate(LM.diagnose = if_else(LM.RMSE > RMSE.lim, ifelse(
-        LM.diagnose == "", RMSE.LM.diagnostic,
-        paste(LM.diagnose, RMSE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
+      mutate(LM.diagnose = if_else(
+        signif(LM.RMSE, 1) > signif(RMSE.lim, 1), ifelse(
+          LM.diagnose == "", RMSE.LM.diagnostic,
+          paste(LM.diagnose, RMSE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
       # If HM.RMSE > RMSE.lim
-      mutate(HM.diagnose = if_else(HM.RMSE > RMSE.lim, ifelse(
-        HM.diagnose == "", RMSE.HM.diagnostic,
-        paste(HM.diagnose, RMSE.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
+      mutate(HM.diagnose = if_else(
+        signif(HM.RMSE, 1) > signif(RMSE.lim, 1), ifelse(
+          HM.diagnose == "", RMSE.HM.diagnostic,
+          paste(HM.diagnose, RMSE.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
       # If LM.RMSE > RMSE.lim & HM.RMSE > RMSE.lim
       mutate(quality.check = if_else(
-        LM.RMSE > RMSE.lim & HM.RMSE > RMSE.lim, ifelse(
-          quality.check == "", RMSE.quality,
-          paste(quality.check, RMSE.quality, sep = " | ")), quality.check)) %>%
+        signif(LM.RMSE, 1) > signif(RMSE.lim, 1) &
+          signif(HM.RMSE, 1) > signif(RMSE.lim, 1), ifelse(
+            quality.check == "", RMSE.quality,
+            paste(quality.check, RMSE.quality, sep = " | ")), quality.check)) %>%
       # If LM.RMSE > RMSE.lim & HM.RMSE <= RMSE.lim
       mutate(HM.diagnose = if_else(
-        LM.RMSE > RMSE.lim & HM.RMSE <= RMSE.lim, ifelse(
-          HM.diagnose == "", RMSE.LM.diagnostic,
-          paste(HM.diagnose, RMSE.LM.diagnostic, sep = " | ")), HM.diagnose)) %>%
+        signif(LM.RMSE, 1) > signif(RMSE.lim, 1) &
+          signif(HM.RMSE, 1) <= signif(RMSE.lim, 1), ifelse(
+            HM.diagnose == "", RMSE.LM.diagnostic,
+            paste(HM.diagnose, RMSE.LM.diagnostic, sep = " | ")), HM.diagnose)) %>%
       # If LM.RMSE <= RMSE.lim & HM.RMSE > RMSE.lim
       mutate(HM.diagnose = if_else(
-        LM.RMSE <= RMSE.lim & HM.RMSE > RMSE.lim, ifelse(
-          HM.diagnose == "", RMSE.HM.diagnostic,
-          paste(HM.diagnose, RMSE.HM.diagnostic, sep = " | ")), HM.diagnose))
+        signif(LM.RMSE, 1) <= signif(RMSE.lim, 1) &
+          signif(HM.RMSE, 1) > signif(RMSE.lim, 1), ifelse(
+            HM.diagnose == "", RMSE.HM.diagnostic,
+            paste(HM.diagnose, RMSE.HM.diagnostic, sep = " | ")), HM.diagnose))
   }
 
   ## MAE ####
   # Reflects the instrument precision.
   if(any(grepl("\\<MAE\\>", criteria))) {
 
-    MAE.quality <- "Noise (LM.MAE & HM.MAE)"
-    MAE.LM.diagnostic <- "Noisy measurement (LM.MAE)"
-    MAE.HM.diagnostic <- "Noisy measurement (HM.MAE)"
+    MAE.quality <- "MAE"
+    MAE.LM.diagnostic <- "Noise (LM.MAE)"
+    MAE.HM.diagnostic <- "Noise (HM.MAE)"
 
     best.flux.df <- best.flux.df %>%
       # Calculate MAE threshold: prec + 0.05% of reading
       mutate(MAE.lim = prec + 0.05*max(c(Ct, C0))/100) %>%
-      # If HM.MAE <= prec, use HM.flux
-      # else, if HM.MAE > prec, but HM.MAE <= LM.MAE, still use HM.flux
+      # If HM.MAE <= MAE.lim, use HM.flux
+      # If HM.MAE > MAE.lim, but HM.MAE <= LM.MAE, still use HM.flux
       # else, use LM.flux
-      mutate(best.flux = if_else(HM.MAE > prec & HM.MAE > LM.MAE,
+      mutate(best.flux = if_else(signif(HM.MAE, 1) > signif(MAE.lim, 1) &
+                                   signif(HM.MAE, 1) > signif(LM.MAE, 1),
                                  LM.flux, best.flux),
-             model = if_else(HM.MAE > prec & HM.MAE > LM.MAE,
+             model = if_else(signif(HM.MAE, 1) > MAE.lim &
+                               signif(HM.MAE, 1) > signif(LM.MAE, 1),
                              "LM", model)) %>%
-      # If LM.MAE > prec
-      mutate(LM.diagnose = if_else(LM.MAE > prec, ifelse(
-        LM.diagnose == "", MAE.LM.diagnostic,
-        paste(LM.diagnose, MAE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
-      # If HM.MAE > prec
-      mutate(HM.diagnose = if_else(HM.MAE > prec, ifelse(
-        HM.diagnose == "", MAE.HM.diagnostic,
-        paste(HM.diagnose, MAE.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
-      # If LM.MAE > prec & HM.MAE > prec
-      mutate(quality.check = if_else(
-        LM.MAE > prec & HM.MAE > prec, ifelse(
-          quality.check == "", MAE.quality,
-          paste(quality.check, MAE.quality, sep = " | ")), quality.check)) %>%
-      # If LM.MAE > prec & HM.MAE <= prec
+      # If LM.MAE > MAE.lim
+      mutate(LM.diagnose = if_else(
+        signif(LM.MAE, 1) > signif(MAE.lim, 1), ifelse(
+          LM.diagnose == "", MAE.LM.diagnostic,
+          paste(LM.diagnose, MAE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
+      # If HM.MAE > MAE.lim
       mutate(HM.diagnose = if_else(
-        LM.MAE > prec & HM.MAE <= prec, ifelse(
-          HM.diagnose == "", MAE.LM.diagnostic,
-          paste(HM.diagnose, MAE.LM.diagnostic, sep = " | ")), HM.diagnose)) %>%
-      # If LM.MAE <= prec & HM.MAE > prec
-      mutate(HM.diagnose = if_else(
-        LM.MAE <= prec & HM.MAE > prec, ifelse(
+        signif(HM.MAE, 1) > signif(MAE.lim, 1), ifelse(
           HM.diagnose == "", MAE.HM.diagnostic,
-          paste(HM.diagnose, MAE.HM.diagnostic, sep = " | ")), HM.diagnose))
+          paste(HM.diagnose, MAE.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
+      # If LM.MAE > MAE.lim & HM.MAE > MAE.lim
+      mutate(quality.check = if_else(
+        signif(LM.MAE, 1) > signif(MAE.lim, 1) &
+          signif(HM.MAE, 1) > signif(MAE.lim, 1), ifelse(
+            quality.check == "", MAE.quality,
+            paste(quality.check, MAE.quality, sep = " | ")), quality.check)) %>%
+      # If LM.MAE > MAE.lim & HM.MAE <= MAE.lim
+      mutate(HM.diagnose = if_else(
+        signif(LM.MAE, 1) > signif(MAE.lim, 1) &
+          signif(HM.MAE, 1) <= signif(MAE.lim, 1), ifelse(
+            HM.diagnose == "", MAE.LM.diagnostic,
+            paste(HM.diagnose, MAE.LM.diagnostic, sep = " | ")), HM.diagnose)) %>%
+      # If LM.MAE <= MAE.lim & HM.MAE > MAE.lim
+      mutate(HM.diagnose = if_else(
+        signif(LM.MAE, 1) <= signif(MAE.lim, 1) &
+          signif(HM.MAE, 1) > signif(MAE.lim, 1), ifelse(
+            HM.diagnose == "", MAE.HM.diagnostic,
+            paste(HM.diagnose, MAE.HM.diagnostic, sep = " | ")), HM.diagnose))
   }
 
   ## SErel ####
@@ -395,10 +410,11 @@ best.flux <- function(flux.result,
   if(any(grepl("\\<SErel\\>", criteria))) {
 
     SErel.quality <- paste("SE rel. > ", SErel, "%", sep = "")
-    SErel.LM.diagnostic <- paste("Noisy meas. (LM.se.rel > ", SErel, "%)", sep = "")
-    SErel.HM.diagnostic <- paste("Noisy meas. (HM.se.rel > ", SErel, "%)", sep = "")
+    SErel.LM.diagnostic <- paste("LM.se.rel > ", SErel, "%", sep = "")
+    SErel.HM.diagnostic <- paste("HM.se.rel > ", SErel, "%", sep = "")
 
     best.flux.df <- best.flux.df %>%
+      mutate(SErel.lim = SErel) %>%
       # If HM.se.rel <= SErel, use HM.flux
       # else, if HM.se.rel > SErel, but HM.se.rel <= LM.se.rel, still use HM.flux
       # else, use LM.flux
@@ -435,10 +451,11 @@ best.flux <- function(flux.result,
   # Ratio between HM/LM. Default is 2
   if(any(grepl("\\<g.factor\\>", criteria))) {
 
-    g.quality <- paste("g-factor > ", g.limit, sep = "")
-    g.diagnostic <- paste("Overestimation of flux (g-factor > ", g.limit, ")", sep = "")
+    g.quality <- paste("g-fact. > ", g.limit, sep = "")
+    g.diagnostic <- "Overestimated flux (g-fact)"
 
     best.flux.df <- best.flux.df %>%
+      mutate(g.limit = g.limit) %>%
       # If g.fact <= g.limit, use HM.flux
       # else, use LM.flux
       mutate(best.flux = if_else(g.fact > g.limit, LM.flux, best.flux),
@@ -457,11 +474,11 @@ best.flux <- function(flux.result,
   # Maximal curvature allowed in non-linear regression (Hutchinson and Mosier)
   if(any(grepl("\\<kappa\\>", criteria))) {
 
-    k.quality <- paste("kappa ratio > ", k.ratio*100, "%", sep = "")
-    k.diagnostic <- paste("Exaggerated curvature (kappa ratio > ",
-                          k.ratio, sep = "")
+    k.quality <- "kappa max"
+    k.diagnostic <- "Exaggerated curvature (k.ratio)"
 
     best.flux.df <- best.flux.df %>%
+      mutate(k.ratio.lim = k.ratio) %>%
       # If abs(HM.k/k.max) <= k.ratio, use HM.flux
       # else, use LM.flux
       mutate(best.flux = if_else(abs(HM.k/k.max) > k.ratio, LM.flux, best.flux),
@@ -480,10 +497,11 @@ best.flux <- function(flux.result,
   # Statistical limit of detectable flux. Default is p-value < 0.05
   if(any(grepl("\\<p-value\\>", criteria))) {
 
-    p.quality <- "No detect. LM.flux (p-val)"
-    p.diagnostic <- paste("No detectable flux (p-value > ", p.val, ")", sep = "")
+    p.quality <- "p-value"
+    p.diagnostic <- "No detect. flux (p-val.)"
 
     best.flux.df <- best.flux.df %>%
+      mutate(p.val.lim = p.val) %>%
       # If LM.p.val > p.val
       mutate(LM.diagnose = if_else(LM.p.val > p.val, ifelse(
         LM.diagnose == "", p.diagnostic,
@@ -499,9 +517,9 @@ best.flux <- function(flux.result,
   # Based on instrument precision.
   if(any(grepl("\\<MDF\\>", criteria))) {
 
-    MDF.quality <- "No detectable flux (MDF)"
-    MDF.LM.diagnostic <- "No detectable LM.flux (MDF)"
-    MDF.HM.diagnostic <- "No detectable HM.flux (MDF)"
+    MDF.quality <- "MDF"
+    MDF.LM.diagnostic <- "MDF (LM)"
+    MDF.HM.diagnostic <- "MDF (HM)"
 
     best.flux.df <- best.flux.df %>%
       # If HM.flux => MDF, use HM.flux
@@ -533,9 +551,9 @@ best.flux <- function(flux.result,
   # Limits must have a minimum and a maximum value
   if(any(grepl("\\<intercept\\>", criteria))){
 
-    C0.quality <- "Intercept (LM & HM)"
-    C0.LM.diagnostic <- "Intercept out of bounds (LM)"
-    C0.HM.diagnostic <- "Intercept out of bounds (HM)"
+    C0.quality <- "Intercept"
+    C0.LM.diagnostic <- "Intercept (LM)"
+    C0.HM.diagnostic <- "Intercept (HM)"
 
     if(!is.null(intercept.lim)){
       best.flux.df <- best.flux.df %>%
@@ -548,6 +566,7 @@ best.flux <- function(flux.result,
     }
 
     best.flux.df <- best.flux.df %>%
+      mutate(C0.min = C0.min, C0.max = C0.max) %>%
       # If only HM.C0 is out of bounds
       mutate(
         HM.diagnose = if_else(
@@ -585,9 +604,10 @@ best.flux <- function(flux.result,
   ## Number of observations ####
   if(any(grepl("\\<nb.obs\\>", criteria))) {
 
-    obs.quality <- paste("nb.obs <", warn.length)
+    obs.quality <- "nb.obs"
 
     best.flux.df <- best.flux.df %>%
+      mutate(warn.nb.obs = warn.length) %>%
       # If nb.obs < warn.length
       mutate(quality.check = if_else(nb.obs < warn.length, ifelse(
         quality.check == "", obs.quality,
