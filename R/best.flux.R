@@ -108,11 +108,11 @@ best.flux <- function(flux.result,
     if(length(grep(paste(intercept.require, collapse = "|"), names(flux.result))) != 2){
       if(!any(grepl("\\<HM.C0\\>", names(flux.result)))){
         stop("'HM.C0' required in 'flux.result'")
-      } else if(!is.numeric(flux.result$HM.C0)){
+      } else if(!is.numeric(flux.result$HM.C0[[1]])){
         stop("'HM.C0' in 'flux.result' must be of class numeric")}
       if(!any(grepl("\\<LM.C0\\>", names(flux.result)))){
         stop("'LM.C0' required in 'flux.result'")
-      } else if(!is.numeric(flux.result$LM.C0)){
+      } else if(!is.numeric(flux.result$LM.C0[[1]])){
         stop("'LM.C0' in 'flux.result' must be of class numeric")}
     }
     # Requirements with intercept.lim
@@ -121,16 +121,14 @@ best.flux <- function(flux.result,
       if(!is.numeric(intercept.lim)) stop("'intercept.lim' must be of class numeric")
     } else {
       intercept.require2 <- c("\\<C0\\>", "\\<Ci\\>")
-      if(length(grep(paste(intercept.require2, collapse = "|"), names(flux.result))) != 2){
-        if(!any(grepl("\\<C0\\>", names(flux.result)))){
-          stop("'C0' required in 'flux.result'")
-        } else if(!is.numeric(flux.result$C0)){
-          stop("'C0' in 'flux.result' must be of class numeric")}
-        if(!any(grepl("\\<Ci\\>", names(flux.result)))){
-          stop("'Ci' required in 'flux.result'")
-        } else if(!is.numeric(flux.result$Ci)){
-          stop("'Ci' in 'flux.result' must be of class numeric")}
-      }
+      if(!any(grepl("\\<C0\\>", names(flux.result)))){
+        stop("'C0' required in 'flux.result'")
+      } else if(!is.numeric(flux.result$C0[[1]])){
+        stop("'C0' in 'flux.result' must be of class numeric")}
+      if(!any(grepl("\\<Ct\\>", names(flux.result)))){
+        stop("'Ct' required in 'flux.result'")
+      } else if(!is.numeric(flux.result$Ct[[1]])){
+        stop("'Ct' in 'flux.result' must be of class numeric")}
     }
   }
   ## Check SErel ####
