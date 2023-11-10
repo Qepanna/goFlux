@@ -41,6 +41,7 @@ Collate:
     'g.factor.R'
     'k.max.R'
     'goFlux.R'
+    'goFlux_RMSE.R'
     'import2RData.R'
     'obs.win.R'
     'seq.rep.R'
