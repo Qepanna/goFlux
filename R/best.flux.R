@@ -120,7 +120,6 @@ best.flux <- function(flux.result,
       if(length(intercept.lim) != 2) stop("'intercept.lim' must have length = 2")
       if(!is.numeric(intercept.lim)) stop("'intercept.lim' must be of class numeric")
     } else {
-      intercept.require2 <- c("\\<C0\\>", "\\<Ci\\>")
       if(!any(grepl("\\<C0\\>", names(flux.result)))){
         stop("'C0' required in 'flux.result'")
       } else if(!is.numeric(flux.result$C0[[1]])){
@@ -294,7 +293,7 @@ best.flux <- function(flux.result,
   g.fact <- HM.diagnose <- HM.RMSE <- prec <- model <- quality.check <- HM.k <-
     LM.p.val <- LM.diagnose <- HM.se.rel <- LM.se.rel <- HM.C0 <- LM.C0 <-
     LM.Ci <- LM.se <- HM.se <- MDF <- HM.MAE <- nb.obs <- LM.RMSE <- Ct <-
-    LM.MAE <- UniqueID <- . <- C0 <- Ci <- C0.min <- C0.max <- RMSE.lim <- NULL
+    LM.MAE <- UniqueID <- . <- C0 <- Ct <- C0.min <- C0.max <- RMSE.lim <- NULL
 
   # FUNCTION START ####
 
@@ -544,8 +543,8 @@ best.flux <- function(flux.result,
                C0.max = intercept.lim[2])
     } else {
       best.flux.df <- best.flux.df %>%
-        mutate(C0.min = C0-(abs(Ci-C0)*0.1),
-               C0.max = C0+(abs(Ci-C0)*0.1))
+        mutate(C0.min = C0-(abs(Ct-C0)*0.1),
+               C0.max = C0+(abs(Ct-C0)*0.1))
     }
 
     best.flux.df <- best.flux.df %>%
