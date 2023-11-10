@@ -457,8 +457,8 @@ goFlux_nokmax <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
 
   for (f in 1:nrow(flux_results)){
     if(flux_results$nb.obs[f] < warn.length){
-      warning("Number of observations for UniqueID: ", flux_results$UniqueID[f],
-              " is ", flux_results$nb.obs[f], " observations", call. = FALSE)}
+      warning("Low number of observations: UniqueID ", flux_results$UniqueID[f],
+              " has ", flux_results$nb.obs[f], " observations", call. = FALSE)}
   }
 
   # Return results
