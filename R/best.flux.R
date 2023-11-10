@@ -295,8 +295,8 @@ best.flux <- function(flux.result,
   # Assign NULL to variables without binding ####
   g.fact <- HM.diagnose <- HM.RMSE <- prec <- model <- quality.check <- HM.k <-
     LM.p.val <- LM.diagnose <- HM.se.rel <- LM.se.rel <- HM.C0 <- LM.C0 <-
-    LM.Ci <- LM.se <- HM.se <- MDF <- HM.MAE <- nb.obs <- LM.RMSE <-
-    LM.MAE <- UniqueID <- . <- C0 <- Ci <- C0.min <- C0.max <- NULL
+    LM.Ci <- LM.se <- HM.se <- MDF <- HM.MAE <- nb.obs <- LM.RMSE <- Ct <-
+    LM.MAE <- UniqueID <- . <- C0 <- Ci <- C0.min <- C0.max <- RMSE.lim <- NULL
 
   # FUNCTION START ####
 
@@ -314,34 +314,36 @@ best.flux <- function(flux.result,
     RMSE.HM.diagnostic <- "Noisy measurement (HM.RMSE)"
 
     best.flux.df <- best.flux.df %>%
-      # If HM.RMSE <= prec, use HM.flux
-      # else, if HM.RMSE > prec, but HM.RMSE <= LM.RMSE, still use HM.flux
+      # Calculate RMSE threshold: prec + 0.05% of reading
+      mutate(RMSE.lim = prec + 0.05*max(c(Ct, C0))/100) %>%
+      # If HM.RMSE <= RMSE.lim, use HM.flux
+      # If HM.RMSE > RMSE.lim, but HM.RMSE <= LM.RMSE, still use HM.flux
       # else, use LM.flux
-      mutate(best.flux = if_else(HM.RMSE > prec & HM.RMSE > LM.RMSE,
+      mutate(best.flux = if_else(HM.RMSE > RMSE.lim & HM.RMSE > LM.RMSE,
                                  LM.flux, best.flux),
-             model = if_else(HM.RMSE > prec & HM.RMSE > LM.RMSE,
+             model = if_else(HM.RMSE > RMSE.lim & HM.RMSE > LM.RMSE,
                              "LM", model)) %>%
-      # If LM.RMSE > prec
-      mutate(LM.diagnose = if_else(LM.RMSE > prec, ifelse(
+      # If LM.RMSE > RMSE.lim
+      mutate(LM.diagnose = if_else(LM.RMSE > RMSE.lim, ifelse(
         LM.diagnose == "", RMSE.LM.diagnostic,
         paste(LM.diagnose, RMSE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
-      # If HM.RMSE > prec
-      mutate(HM.diagnose = if_else(HM.RMSE > prec, ifelse(
+      # If HM.RMSE > RMSE.lim
+      mutate(HM.diagnose = if_else(HM.RMSE > RMSE.lim, ifelse(
         HM.diagnose == "", RMSE.HM.diagnostic,
         paste(HM.diagnose, RMSE.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
-      # If LM.RMSE > prec & HM.RMSE > prec
+      # If LM.RMSE > RMSE.lim & HM.RMSE > RMSE.lim
       mutate(quality.check = if_else(
-        LM.RMSE > prec & HM.RMSE > prec, ifelse(
+        LM.RMSE > RMSE.lim & HM.RMSE > RMSE.lim, ifelse(
           quality.check == "", RMSE.quality,
           paste(quality.check, RMSE.quality, sep = " | ")), quality.check)) %>%
-      # If LM.RMSE > prec & HM.RMSE <= prec
+      # If LM.RMSE > RMSE.lim & HM.RMSE <= RMSE.lim
       mutate(HM.diagnose = if_else(
-        LM.RMSE > prec & HM.RMSE <= prec, ifelse(
+        LM.RMSE > RMSE.lim & HM.RMSE <= RMSE.lim, ifelse(
           HM.diagnose == "", RMSE.LM.diagnostic,
           paste(HM.diagnose, RMSE.LM.diagnostic, sep = " | ")), HM.diagnose)) %>%
-      # If LM.RMSE <= prec & HM.RMSE > prec
+      # If LM.RMSE <= RMSE.lim & HM.RMSE > RMSE.lim
       mutate(HM.diagnose = if_else(
-        LM.RMSE <= prec & HM.RMSE > prec, ifelse(
+        LM.RMSE <= RMSE.lim & HM.RMSE > RMSE.lim, ifelse(
           HM.diagnose == "", RMSE.HM.diagnostic,
           paste(HM.diagnose, RMSE.HM.diagnostic, sep = " | ")), HM.diagnose))
   }
@@ -355,6 +357,8 @@ best.flux <- function(flux.result,
     MAE.HM.diagnostic <- "Noisy measurement (HM.MAE)"
 
     best.flux.df <- best.flux.df %>%
+      # Calculate MAE threshold: prec + 0.05% of reading
+      mutate(MAE.lim = prec + 0.05*max(c(Ct, C0))/100) %>%
       # If HM.MAE <= prec, use HM.flux
       # else, if HM.MAE > prec, but HM.MAE <= LM.MAE, still use HM.flux
       # else, use LM.flux

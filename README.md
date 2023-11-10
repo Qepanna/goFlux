@@ -196,13 +196,15 @@ using the `best.flux()` function:
   from diffusion under non-steady state, a parameter such as MAE or RMSE
   reflects the instrument precision. Therefore, the instrument precision
   is used in the `best.flux()` function as a threshold for these
-  parameters. If MAE is chosen as a criteria in `best.flux()`, the model
-  with the smallest MAE is chosen, unless both of them are smaller than
-  the instrument precision. In that case, the non-linear flux estimate
-  is always chosen by default. If MAE is larger than the instrument
-  precision, a warning is given in the columns “quality.check”,
-  “LM.diagnose” or “HM.diagnose” saying “Noisy measurement (MAE)”. MAE
-  and RMSE cannot both be selected.
+  parameters. To account for a larger noise in larger measurements, the
+  threshold in the `best.flux()` function is the instrument precision
+  plus 0.05% of the reading. If MAE is chosen as a criteria in
+  `best.flux()`, the model with the smallest MAE is chosen, unless both
+  of them are smaller than the instrument precision. In that case, the
+  non-linear flux estimate is always chosen by default. If MAE is larger
+  than the instrument precision, a warning is given in the columns
+  “quality.check”, “LM.diagnose” or “HM.diagnose” saying “Noisy
+  measurement (MAE)”. MAE and RMSE cannot both be selected.
 - **Root Mean Square Error (RMSE)**: RMSE functions exactly like MAE.
   The difference between the two is that RMSE is much more sensitive to
   outliers. MAE will always return a smaller value than RMSE. MAE and
