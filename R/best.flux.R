@@ -3,15 +3,13 @@
 #' This automatic selection of the best flux estimate (linear or non-linear) is
 #' based on objective criteria and non-arbitrary thresholds.
 #'
-#' @param flux.result data.frame; output from the function \code{\link[GoFluxYourself]{goFlux}}.
-#' @param criteria character vector; criteria used to asses the goodness of fit of the
-#'                 linear and non-linear flux estimates. Must be at least one the following:
-#'                 \code{criteria = c("MAE", "RMSE", "g.factor", "kappa", "MDF",
-#'                 "nb.obs", "p-value", "intercept", "SErel")}. "MAE" and "RMSE"
-#'                 cannot both be selected. RMSE is more sensitive to outliers
-#'                 than MAE. Select RMSE to identify more measurements with small
-#'                 deviations (a warning is given in the column \code{quality.check}
-#'                 saying "Noisy measurement").
+#' @param flux.result data.frame; output from the function
+#'                    \code{\link[GoFluxYourself]{goFlux}}.
+#' @param criteria character vector; criteria used to asses the goodness of fit
+#'                 of the linear and non-linear flux estimates. Must be at least
+#'                 one the following: "MAE", "RMSE", "AICc", "SErel", "g.factor",
+#'                 "kappa", "MDF", "nb.obs", "p-value", or "intercept". The
+#'                 default is all of them.
 #' @param intercept.lim numerical vector of length 2; inferior and superior
 #'                      limits of the intercept (initial concentration;
 #'                      \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}}).
@@ -23,7 +21,7 @@
 #'                      \ifelse{html}{\out{C<sub>i</sub>}}{\eqn{C[i]}{ASCII}}
 #'                      for each measurement.
 #' @param SErel numerical value; maximal relative standard error accepted (\%)
-#'               on flux estimate. The default is 5\%.
+#'              on flux estimate. The default is 5\%.
 #' @param g.limit numerical value; maximal limit of the the g-factor, which is the
 #'                ratio between the non-linear flux estimate
 #'                (\code{\link[GoFluxYourself]{HM.flux}}) and the linear flux
@@ -47,32 +45,46 @@
 #'                    should be approximately one minute (60 seconds).
 #'
 #' @details
-#' The function \code{\link[GoFluxYourself]{k.max}} calculates the maximal
-#' curvature (kappa) of the non-linear model (Hutchinson and Mosier) allowed for
-#' each flux measurements. k.max is calculated based on the minimal detectable
-#' flux (MDF), the linear flux estimate (LM.flux) and the measurement time. The
-#' unit of kappa-max is \ifelse{html}{\out{s<sup>-1</sup>}}{\eqn{s^{-1}}{ASCII}}.
-#'
-#' The function \code{\link[GoFluxYourself]{MDF}} calculates the minimal
-#' detectable flux (MDF) based on instrument precision and measurements time.
+#' In \code{criteria}, the indices of model fit "MAE", "RMSE" and "SErel" all
+#' have a threshold. For MAE and RMSE, the threshold is instrument precision.
+#' For SErel, the threshold is given as an argument, where the default limit is
+#' 5\%. These indices also compare the two models (linear, LM, and non-linear,
+#' HM). The selection of the best model regarding indices of model fit ("MAE",
+#' "RMSE", "AICc" and "SErel") is based on a scoring system. Each model starts
+#' with a score of 0. Each time one of the model has a worst fit than the other
+#' model, based on "MAE", "RMSE", "AICc" or "SErel", that model's score is
+#' increased by 1. Whichever model has the lowest score wins. In case of a tie,
+#' the non-linear model wins.
 #'
 #' Another criteria, which is calculated automatically with the function
 #' \code{\link[GoFluxYourself]{best.flux}}, is the g-factor
 #' (\code{\link[GoFluxYourself]{g.factor}}), which is the ratio between the HM
-#' flux estimate and the LM flux estimate. The threshold for the g-factor
-#' should be 4 (flexible), 2 (medium), or 1.25 (conservative).
+#' flux estimate and the LM flux estimate. Recommended thresholds for the g-factor
+#' are 4 (flexible), 2 (medium), or 1.25 (conservative).
+#'
+#' The function \code{\link[GoFluxYourself]{k.max}} calculates the maximal
+#' curvature (kappa) of the non-linear model (Hutchinson and Mosier) allowed for
+#' each flux measurement. k.max is calculated based on the minimal detectable
+#' flux (\code{\link[GoFluxYourself]{MDF}}), the linear flux estimate
+#' (\code{LM.flux}) and the measurement time. The unit of kappa-max is
+#' \ifelse{html}{\out{s<sup>-1</sup>}}{\eqn{s^{-1}}{ASCII}}.
+#'
+#' The function \code{\link[GoFluxYourself]{MDF}} calculates the minimal
+#' detectable flux (MDF) based on instrument precision and measurement time.
 #'
 #' @returns a data.frame identical to the input \code{flux.result} with the
 #'          additional columns \code{HM.diagnose}, \code{LM.diagnose},
-#'          \code{best.flux}, \code{model} and \code{quality.check}.
+#'          \code{best.flux}, \code{model} and \code{quality.check}. For each
+#'          criteria selected, an additional column is also added to specify
+#'          the limits used for those criteria (e.g. \code{RMSE.lim},
+#'          \code{p.val.lim}, etc.)
 #'
 #' @include GoFluxYourself-package.R
 #'
 #' @examples
 #' data(LGR_manID)
 #' LGR_flux <- goFlux(LGR_manID, "CO2dry_ppm")
-#' criteria <- c("MAE", "g.factor", "MDF", "SErel")
-#' LGR_res <- best.flux(LGR_flux, criteria)
+#' LGR_res <- best.flux(LGR_flux)
 #'
 #' @seealso Look up the functions \code{\link[GoFluxYourself]{MDF}},
 #'          \code{\link[GoFluxYourself]{flux.term}},
@@ -87,8 +99,8 @@
 #' @export
 #'
 best.flux <- function(flux.result,
-                      criteria = c("MAE", "g.factor", "kappa", "MDF", "nb.obs",
-                                   "intercept", "SErel"),
+                      criteria = c("MAE", "RMSE", "AICc", "SErel", "g.factor",
+                                   "kappa", "MDF", "nb.obs", "intercept", "p-value"),
                       intercept.lim = NULL, SErel = 5, g.limit = 2,
                       p.val = 0.05, k.ratio = 1, warn.length = 60) {
 
@@ -97,9 +109,9 @@ best.flux <- function(flux.result,
   if(!is.null(flux.result) & !is.data.frame(flux.result)){
     stop("'flux.result' must be of class 'dataframe'")}
   if(!any(grepl(paste(c("\\<MAE\\>", "\\<RMSE\\>", "\\<g.factor\\>", "\\<kappa\\>",
-                        "\\<MDF\\>", "\\<nb.obs\\>", "\\<p-value\\>",
-                        "intercept", "SErel"), collapse = "|"), criteria))){
-    stop("'criteria' must contain at least one of the following: 'MAE', 'RMSE', 'g.factor', 'kappa', 'MDF', 'nb.obs', 'p-value', 'intercept', 'SErel'")}
+                        "\\<MDF\\>", "\\<nb.obs\\>", "\\<p-value\\>", "\\<AICc\\>",
+                        "\\<intercept\\>", "\\<SErel\\>"), collapse = "|"), criteria))){
+    stop("'criteria' must contain at least one of the following: 'MAE', 'RMSE', 'AICc', 'g.factor', 'kappa', 'MDF', 'nb.obs', 'p-value', 'intercept', 'SErel'")}
 
   ## Check intercept.lim ####
   if(any(grepl("\\<intercept\\>", criteria))){
@@ -252,56 +264,68 @@ best.flux <- function(flux.result,
     }
   }
   ## Check MAE / RMSE ####
-  if(any(grepl("\\<MAE\\>", criteria)) & any(grepl("\\<RMSE\\>", criteria))) {
-    stop("'MAE' and 'RMSE' cannot both be selected.")
-  } else {
-    if(any(grepl("\\<MAE\\>", criteria))){
-      MAE.require <- c("\\<LM.flux\\>", "\\<HM.MAE\\>", "\\<prec\\>")
-      if(length(grep(paste(MAE.require, collapse = "|"), names(flux.result))) != 3){
-        if(!any(grepl("\\<LM.flux\\>", names(flux.result)))){
-          stop("'LM.flux' required in 'flux.result'")
-        } else if(!is.numeric(flux.result$LM.flux)){
-          stop("'LM.flux' in 'flux.result' must be of class numeric")}
-        if(!any(grepl("\\<HM.MAE\\>", names(flux.result)))){
-          stop("'HM.MAE' required in 'flux.result'")
-        } else if(!is.numeric(flux.result$HM.MAE)){
-          stop("'HM.MAE' in 'flux.result' must be of class numeric")}
-        if(!any(grepl("\\<prec\\>", names(flux.result)))){
-          stop("'prec' required in 'flux.result'")
-        } else if(!is.numeric(flux.result$prec)){
-          stop("'prec' in 'flux.result' must be of class numeric")}
-      }
-    } else if(any(grepl("\\<RMSE\\>", criteria))){
-      RMSE.require <- c("\\<LM.flux\\>", "\\<HM.RMSE\\>", "\\<prec\\>")
-      if(length(grep(paste(RMSE.require, collapse = "|"), names(flux.result))) != 3){
-        if(!any(grepl("\\<LM.flux\\>", names(flux.result)))){
-          stop("'LM.flux' required in 'flux.result'")
-        } else if(!is.numeric(flux.result$LM.flux)){
-          stop("'LM.flux' in 'flux.result' must be of class numeric")}
-        if(!any(grepl("\\<HM.RMSE\\>", names(flux.result)))){
-          stop("'HM.RMSE' required in 'flux.result'")
-        } else if(!is.numeric(flux.result$HM.RMSE)){
-          stop("'HM.RMSE' in 'flux.result' must be of class numeric")}
-        if(!any(grepl("\\<prec\\>", names(flux.result)))){
-          stop("'prec' required in 'flux.result'")
-        } else if(!is.numeric(flux.result$prec)){
-          stop("'prec' in 'flux.result' must be of class numeric")}
-      }
+
+  if(any(grepl("\\<MAE\\>", criteria))){
+    MAE.require <- c("\\<LM.flux\\>", "\\<HM.MAE\\>", "\\<prec\\>")
+    if(length(grep(paste(MAE.require, collapse = "|"), names(flux.result))) != 3){
+      if(!any(grepl("\\<LM.flux\\>", names(flux.result)))){
+        stop("'LM.flux' required in 'flux.result'")
+      } else if(!is.numeric(flux.result$LM.flux)){
+        stop("'LM.flux' in 'flux.result' must be of class numeric")}
+      if(!any(grepl("\\<HM.MAE\\>", names(flux.result)))){
+        stop("'HM.MAE' required in 'flux.result'")
+      } else if(!is.numeric(flux.result$HM.MAE)){
+        stop("'HM.MAE' in 'flux.result' must be of class numeric")}
+      if(!any(grepl("\\<prec\\>", names(flux.result)))){
+        stop("'prec' required in 'flux.result'")
+      } else if(!is.numeric(flux.result$prec)){
+        stop("'prec' in 'flux.result' must be of class numeric")}
+    }
+  } else if(any(grepl("\\<RMSE\\>", criteria))){
+    RMSE.require <- c("\\<LM.flux\\>", "\\<HM.RMSE\\>", "\\<prec\\>")
+    if(length(grep(paste(RMSE.require, collapse = "|"), names(flux.result))) != 3){
+      if(!any(grepl("\\<LM.flux\\>", names(flux.result)))){
+        stop("'LM.flux' required in 'flux.result'")
+      } else if(!is.numeric(flux.result$LM.flux)){
+        stop("'LM.flux' in 'flux.result' must be of class numeric")}
+      if(!any(grepl("\\<HM.RMSE\\>", names(flux.result)))){
+        stop("'HM.RMSE' required in 'flux.result'")
+      } else if(!is.numeric(flux.result$HM.RMSE)){
+        stop("'HM.RMSE' in 'flux.result' must be of class numeric")}
+      if(!any(grepl("\\<prec\\>", names(flux.result)))){
+        stop("'prec' required in 'flux.result'")
+      } else if(!is.numeric(flux.result$prec)){
+        stop("'prec' in 'flux.result' must be of class numeric")}
     }
   }
+
   # Assign NULL to variables without binding ####
   g.fact <- HM.diagnose <- HM.RMSE <- prec <- model <- quality.check <- HM.k <-
     LM.p.val <- LM.diagnose <- HM.se.rel <- LM.se.rel <- HM.C0 <- LM.C0 <-
     LM.Ci <- LM.se <- HM.se <- MDF <- HM.MAE <- nb.obs <- LM.RMSE <- Ct <-
     LM.MAE <- UniqueID <- . <- C0 <- Ct <- C0.min <- C0.max <- RMSE.lim <-
-    MAE.lim <- NULL
+    MAE.lim <- MDF.lim <- HM.score <- LM.score <- HM.AICc <- LM.AICc <-  NULL
+
+  # Function to find decimal places
+  nb.decimal = function(x) {
+    #length zero input
+    if (length(x) == 0) return(numeric())
+
+    #count decimals
+    x_nchr = x %>% abs() %>% as.character() %>% nchar() %>% as.numeric()
+    x_int = floor(x) %>% abs() %>% nchar()
+    x_nchr = x_nchr - 1 - x_int
+    x_nchr[x_nchr < 0] = 0
+
+    x_nchr
+  }
 
   # FUNCTION START ####
 
   # Assume that the best flux is HM.flux and leave *.diagnose empty
   best.flux.df <- flux.result %>%
     mutate(HM.diagnose = "", LM.diagnose = "", best.flux = HM.flux,
-           model = "HM", quality.check = "")
+           model = "HM", quality.check = "", HM.score = 0, LM.score = 0)
 
   ## RMSE ####
   # Reflects the instrument precision. Sensitive to outliers.
@@ -312,45 +336,37 @@ best.flux <- function(flux.result,
     RMSE.HM.diagnostic <- "Noise (HM.RMSE)"
 
     best.flux.df <- best.flux.df %>%
-      # Calculate RMSE threshold: prec + 0.05% of reading
-      mutate(RMSE.lim = prec + 0.05*max(c(Ct, C0))/100) %>%
+      # RMSE threshold: instrument precision
+      mutate(RMSE.lim = prec) %>%
+      # Update score for HM and LM
       # If HM.RMSE <= RMSE.lim, use HM.flux
       # If HM.RMSE > RMSE.lim, but HM.RMSE <= LM.RMSE, still use HM.flux
       # else, use LM.flux
-      mutate(best.flux = if_else(signif(HM.RMSE, 1) > signif(RMSE.lim, 1) &
-                                   signif(HM.RMSE, 1) > signif(LM.RMSE, 1),
-                                 LM.flux, best.flux),
-             model = if_else(signif(HM.RMSE, 1) > RMSE.lim &
-                               signif(HM.RMSE, 1) > signif(LM.RMSE, 1),
-                             "LM", model)) %>%
-      # If LM.RMSE > RMSE.lim
+      mutate(HM.score = if_else(
+        round(HM.RMSE, nb.decimal(prec)) > RMSE.lim &
+          round(HM.RMSE, nb.decimal(prec)) >
+          round(LM.RMSE, nb.decimal(prec)), HM.score+1, HM.score)) %>%
+      mutate(LM.score = if_else(
+        round(HM.RMSE, nb.decimal(prec)) > RMSE.lim &
+          round(HM.RMSE, nb.decimal(prec)) >
+          round(LM.RMSE, nb.decimal(prec)), LM.score, LM.score+1)) %>%
+      # Update LM.diagnose
       mutate(LM.diagnose = if_else(
-        signif(LM.RMSE, 1) > signif(RMSE.lim, 1), ifelse(
-          LM.diagnose == "", RMSE.LM.diagnostic,
-          paste(LM.diagnose, RMSE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
-      # If HM.RMSE > RMSE.lim
+        round(LM.RMSE, nb.decimal(prec)) >
+          round(RMSE.lim, nb.decimal(prec)), ifelse(
+            LM.diagnose == "", RMSE.LM.diagnostic,
+            paste(LM.diagnose, RMSE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
+      # Update HM.diagnose
       mutate(HM.diagnose = if_else(
-        signif(HM.RMSE, 1) > signif(RMSE.lim, 1), ifelse(
+        round(HM.RMSE, nb.decimal(prec)) > round(RMSE.lim, nb.decimal(prec)), ifelse(
           HM.diagnose == "", RMSE.HM.diagnostic,
           paste(HM.diagnose, RMSE.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
-      # If LM.RMSE > RMSE.lim & HM.RMSE > RMSE.lim
+      # Update quality check
       mutate(quality.check = if_else(
-        signif(LM.RMSE, 1) > signif(RMSE.lim, 1) &
-          signif(HM.RMSE, 1) > signif(RMSE.lim, 1), ifelse(
+        round(LM.RMSE, nb.decimal(prec)) > round(RMSE.lim, nb.decimal(prec)) &
+          round(HM.RMSE, nb.decimal(prec)) > round(RMSE.lim, nb.decimal(prec)), ifelse(
             quality.check == "", RMSE.quality,
-            paste(quality.check, RMSE.quality, sep = " | ")), quality.check)) %>%
-      # If LM.RMSE > RMSE.lim & HM.RMSE <= RMSE.lim
-      mutate(HM.diagnose = if_else(
-        signif(LM.RMSE, 1) > signif(RMSE.lim, 1) &
-          signif(HM.RMSE, 1) <= signif(RMSE.lim, 1), ifelse(
-            HM.diagnose == "", RMSE.LM.diagnostic,
-            paste(HM.diagnose, RMSE.LM.diagnostic, sep = " | ")), HM.diagnose)) %>%
-      # If LM.RMSE <= RMSE.lim & HM.RMSE > RMSE.lim
-      mutate(HM.diagnose = if_else(
-        signif(LM.RMSE, 1) <= signif(RMSE.lim, 1) &
-          signif(HM.RMSE, 1) > signif(RMSE.lim, 1), ifelse(
-            HM.diagnose == "", RMSE.HM.diagnostic,
-            paste(HM.diagnose, RMSE.HM.diagnostic, sep = " | ")), HM.diagnose))
+            paste(quality.check, RMSE.quality, sep = " | ")), quality.check))
   }
 
   ## MAE ####
@@ -362,45 +378,37 @@ best.flux <- function(flux.result,
     MAE.HM.diagnostic <- "Noise (HM.MAE)"
 
     best.flux.df <- best.flux.df %>%
-      # Calculate MAE threshold: prec + 0.05% of reading
-      mutate(MAE.lim = prec + 0.05*max(c(Ct, C0))/100) %>%
+      # MAE threshold: instrument precision
+      mutate(MAE.lim = prec) %>%
+      # Update score for HM and LM
       # If HM.MAE <= MAE.lim, use HM.flux
       # If HM.MAE > MAE.lim, but HM.MAE <= LM.MAE, still use HM.flux
       # else, use LM.flux
-      mutate(best.flux = if_else(signif(HM.MAE, 1) > signif(MAE.lim, 1) &
-                                   signif(HM.MAE, 1) > signif(LM.MAE, 1),
-                                 LM.flux, best.flux),
-             model = if_else(signif(HM.MAE, 1) > MAE.lim &
-                               signif(HM.MAE, 1) > signif(LM.MAE, 1),
-                             "LM", model)) %>%
-      # If LM.MAE > MAE.lim
+      mutate(HM.score = if_else(
+        round(HM.MAE, nb.decimal(prec)) > MAE.lim &
+          round(HM.MAE, nb.decimal(prec)) >
+          round(LM.MAE, nb.decimal(prec)), HM.score+1, HM.score)) %>%
+      mutate(LM.score = if_else(
+        round(HM.MAE, nb.decimal(prec)) > MAE.lim &
+          round(HM.MAE, nb.decimal(prec)) >
+          round(LM.MAE, nb.decimal(prec)), LM.score, LM.score+1)) %>%
+      # Update LM.diagnose
       mutate(LM.diagnose = if_else(
-        signif(LM.MAE, 1) > signif(MAE.lim, 1), ifelse(
-          LM.diagnose == "", MAE.LM.diagnostic,
-          paste(LM.diagnose, MAE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
-      # If HM.MAE > MAE.lim
+        round(LM.MAE, nb.decimal(prec)) >
+          round(MAE.lim, nb.decimal(prec)), ifelse(
+            LM.diagnose == "", MAE.LM.diagnostic,
+            paste(LM.diagnose, MAE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
+      # Update HM.diagnose
       mutate(HM.diagnose = if_else(
-        signif(HM.MAE, 1) > signif(MAE.lim, 1), ifelse(
+        round(HM.MAE, nb.decimal(prec)) > round(MAE.lim, nb.decimal(prec)), ifelse(
           HM.diagnose == "", MAE.HM.diagnostic,
           paste(HM.diagnose, MAE.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
-      # If LM.MAE > MAE.lim & HM.MAE > MAE.lim
+      # Update quality check
       mutate(quality.check = if_else(
-        signif(LM.MAE, 1) > signif(MAE.lim, 1) &
-          signif(HM.MAE, 1) > signif(MAE.lim, 1), ifelse(
+        round(LM.MAE, nb.decimal(prec)) > round(MAE.lim, nb.decimal(prec)) &
+          round(HM.MAE, nb.decimal(prec)) > round(MAE.lim, nb.decimal(prec)), ifelse(
             quality.check == "", MAE.quality,
-            paste(quality.check, MAE.quality, sep = " | ")), quality.check)) %>%
-      # If LM.MAE > MAE.lim & HM.MAE <= MAE.lim
-      mutate(HM.diagnose = if_else(
-        signif(LM.MAE, 1) > signif(MAE.lim, 1) &
-          signif(HM.MAE, 1) <= signif(MAE.lim, 1), ifelse(
-            HM.diagnose == "", MAE.LM.diagnostic,
-            paste(HM.diagnose, MAE.LM.diagnostic, sep = " | ")), HM.diagnose)) %>%
-      # If LM.MAE <= MAE.lim & HM.MAE > MAE.lim
-      mutate(HM.diagnose = if_else(
-        signif(LM.MAE, 1) <= signif(MAE.lim, 1) &
-          signif(HM.MAE, 1) > signif(MAE.lim, 1), ifelse(
-            HM.diagnose == "", MAE.HM.diagnostic,
-            paste(HM.diagnose, MAE.HM.diagnostic, sep = " | ")), HM.diagnose))
+            paste(quality.check, MAE.quality, sep = " | ")), quality.check))
   }
 
   ## SErel ####
@@ -415,36 +423,54 @@ best.flux <- function(flux.result,
 
     best.flux.df <- best.flux.df %>%
       mutate(SErel.lim = SErel) %>%
+      # Update score for HM and LM
       # If HM.se.rel <= SErel, use HM.flux
       # else, if HM.se.rel > SErel, but HM.se.rel <= LM.se.rel, still use HM.flux
       # else, use LM.flux
-      mutate(best.flux = if_else(HM.se.rel > SErel & HM.se.rel > LM.se.rel,
-                                 LM.flux, best.flux),
-             model = if_else(HM.se.rel > SErel & HM.se.rel > LM.se.rel,
-                             "LM", model)) %>%
-      # If LM.se.rel > SErel
+      mutate(HM.score = if_else(
+        HM.se.rel > SErel & HM.se.rel > LM.se.rel, HM.score+1, HM.score)) %>%
+      mutate(LM.score = if_else(
+        HM.se.rel > SErel & HM.se.rel > LM.se.rel, LM.score, LM.score+1)) %>%
+      # Update LM.diagnose
       mutate(LM.diagnose = if_else(LM.se.rel > SErel, ifelse(
         LM.diagnose == "", SErel.LM.diagnostic,
         paste(LM.diagnose, SErel.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
-      # If HM.se.rel > SErel
+      # Update HM.diagnose
       mutate(HM.diagnose = if_else(HM.se.rel > SErel, ifelse(
         HM.diagnose == "", SErel.HM.diagnostic,
         paste(HM.diagnose, SErel.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
-      # If LM.se.rel > SErel & HM.se.rel > SErel
+      # Update quality check
       mutate(quality.check = if_else(
         LM.se.rel > SErel & HM.se.rel > SErel, ifelse(
           quality.check == "", SErel.quality,
-          paste(quality.check, SErel.quality, sep = " | ")), quality.check)) %>%
-      # If LM.se.rel > SErel & HM.se.rel <= SErel
-      mutate(HM.diagnose = if_else(
-        LM.se.rel > SErel & HM.se.rel <= SErel, ifelse(
-          HM.diagnose == "", SErel.LM.diagnostic,
-          paste(HM.diagnose, SErel.LM.diagnostic, sep = " | ")), HM.diagnose)) %>%
-      # If LM.se.rel <= SErel & HM.se.rel > SErel
-      mutate(HM.diagnose = if_else(
-        LM.se.rel <= SErel & HM.se.rel > SErel, ifelse(
-          HM.diagnose == "", SErel.HM.diagnostic,
-          paste(HM.diagnose, SErel.HM.diagnostic, sep = " | ")), HM.diagnose))
+          paste(quality.check, SErel.quality, sep = " | ")), quality.check))
+  }
+
+  ## AICc ####
+  # Index of model fit that corrects for the number of parameters in the
+  # model and corrects for the number of observations
+  if(any(grepl("\\<AICc\\>", criteria))) {
+
+    AICc.quality <- "AICc"
+
+    best.flux.df <- best.flux.df %>%
+      # Update score for HM and LM
+      # If HM.AICc <= LM.AICc, use HM.flux else, use LM.flux
+      mutate(HM.score = if_else(HM.AICc > LM.AICc, HM.score+1, HM.score)) %>%
+      mutate(LM.score = if_else(HM.AICc > LM.AICc, LM.score, LM.score+1)) %>%
+      # Update quality check
+      mutate(quality.check = if_else(HM.AICc > LM.AICc, ifelse(
+        quality.check == "", AICc.quality,
+        paste(quality.check, AICc.quality, sep = " | ")), quality.check))
+  }
+
+  ## Choose best model based on HM and LM scores ####
+  if(any(grepl(paste(c("\\<MAE\\>", "\\<RMSE\\>", "\\<AICc\\>", "\\<SErel\\>"),
+                    collapse = "|"), criteria))){
+
+    best.flux.df <- best.flux.df %>%
+      mutate(best.flux = if_else(HM.score > LM.score, HM.flux, LM.flux),
+             model = if_else(HM.score > LM.score, "LM", model))
   }
 
   ## G factor ####
@@ -522,29 +548,41 @@ best.flux <- function(flux.result,
     MDF.HM.diagnostic <- "MDF (HM)"
 
     best.flux.df <- best.flux.df %>%
-      # If HM.flux => MDF, use HM.flux
-      # else, if HM.flux < MDF, but LM.flux < MDF also, still use HM.flux
+      mutate(MDF.lim = ifelse(nb.decimal(signif(MDF, 1)) != 0, signif(MDF, 2),
+                              round(MDF, 1))) %>%
+      # If HM.flux => MDF.lim, use HM.flux
+      # else, if HM.flux < MDF.lim, but LM.flux < MDF.lim also, still use HM.flux
       # else, use LM.flux
-      mutate(best.flux = if_else(abs(HM.flux) < MDF & abs(LM.flux) >= MDF,
+      mutate(best.flux = if_else(round(abs(HM.flux), nb.decimal(MDF.lim)) < MDF.lim &
+                                   round(abs(LM.flux), nb.decimal(MDF.lim)) >= MDF.lim,
                                  LM.flux, best.flux),
-             model = if_else(abs(HM.flux) < MDF & abs(LM.flux) >= MDF,
+             model = if_else(round(abs(HM.flux), nb.decimal(MDF.lim)) < MDF.lim &
+                               round(abs(LM.flux), nb.decimal(MDF.lim)) >= MDF.lim,
                              "LM", model)) %>%
-      # If abs(LM.flux) < MDF
-      mutate(LM.diagnose = if_else(abs(LM.flux) < MDF, ifelse(
-        LM.diagnose == "", MDF.LM.diagnostic,
-        paste(LM.diagnose, MDF.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
-      # If abs(HM.flux) < MDF
-      mutate(HM.diagnose = if_else(abs(HM.flux) < MDF, ifelse(
-        HM.diagnose == "", MDF.HM.diagnostic,
-        paste(HM.diagnose, MDF.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
-      # If abs(HM.flux) < MDF & abs(LM.flux) < MDF
-      mutate(quality.check = if_else(abs(HM.flux) < MDF & abs(LM.flux) < MDF, ifelse(
-        quality.check == "", MDF.quality,
-        paste(quality.check, MDF.quality, sep = " | ")), quality.check)) %>%
-      # If abs(HM.flux) < MDF & abs(LM.flux) >= MDF
-      mutate(quality.check = if_else(abs(HM.flux) < MDF & abs(LM.flux) >= MDF, ifelse(
-        quality.check == "", MDF.HM.diagnostic,
-        paste(quality.check, MDF.HM.diagnostic, sep = " | ")), quality.check))
+      # If round(abs(LM.flux), nb.decimal(MDF.lim)) < MDF.lim
+      mutate(LM.diagnose = if_else(
+        round(abs(LM.flux), nb.decimal(MDF.lim)) < MDF.lim, ifelse(
+          LM.diagnose == "", MDF.LM.diagnostic,
+          paste(LM.diagnose, MDF.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
+      # If round(abs(HM.flux), nb.decimal(MDF.lim)) < MDF.lim
+      mutate(HM.diagnose = if_else(
+        round(abs(HM.flux), nb.decimal(MDF.lim)) < MDF.lim, ifelse(
+          HM.diagnose == "", MDF.HM.diagnostic,
+          paste(HM.diagnose, MDF.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
+      # If round(abs(HM.flux), nb.decimal(MDF.lim)) < MDF.lim &
+      #    round(abs(LM.flux), nb.decimal(MDF.lim)) < MDF.lim
+      mutate(quality.check = if_else(
+        round(abs(HM.flux), nb.decimal(MDF.lim)) < MDF.lim &
+          round(abs(LM.flux), nb.decimal(MDF.lim)) < MDF.lim, ifelse(
+            quality.check == "", MDF.quality,
+            paste(quality.check, MDF.quality, sep = " | ")), quality.check)) %>%
+      # If round(abs(HM.flux), nb.decimal(MDF.lim)) < MDF.lim &
+      #    round(abs(LM.flux), nb.decimal(MDF.lim)) >= MDF.lim
+      mutate(quality.check = if_else(
+        round(abs(HM.flux), nb.decimal(MDF.lim)) < MDF.lim &
+          round(abs(LM.flux), nb.decimal(MDF.lim)) >= MDF.lim, ifelse(
+            quality.check == "", MDF.HM.diagnostic,
+            paste(quality.check, MDF.HM.diagnostic, sep = " | ")), quality.check))
   }
 
   ## Intercept ####

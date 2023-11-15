@@ -6,7 +6,8 @@
 \usage{
 best.flux(
   flux.result,
-  criteria = c("MAE", "g.factor", "kappa", "MDF", "nb.obs", "intercept", "SErel"),
+  criteria = c("MAE", "RMSE", "AICc", "SErel", "g.factor", "kappa", "MDF", "nb.obs",
+    "intercept", "p-value"),
   intercept.lim = NULL,
   SErel = 5,
   g.limit = 2,
@@ -16,16 +17,14 @@ best.flux(
 )
 }
 \arguments{
-\item{flux.result}{data.frame; output from the function \code{\link[GoFluxYourself]{goFlux}}.}
+\item{flux.result}{data.frame; output from the function
+\code{\link[GoFluxYourself]{goFlux}}.}
 
-\item{criteria}{character vector; criteria used to asses the goodness of fit of the
-linear and non-linear flux estimates. Must be at least one the following:
-\code{criteria = c("MAE", "RMSE", "g.factor", "kappa", "MDF",
-"nb.obs", "p-value", "intercept", "SErel")}. "MAE" and "RMSE"
-cannot both be selected. RMSE is more sensitive to outliers
-than MAE. Select RMSE to identify more measurements with small
-deviations (a warning is given in the column \code{quality.check}
-saying "Noisy measurement").}
+\item{criteria}{character vector; criteria used to asses the goodness of fit
+of the linear and non-linear flux estimates. Must be at least
+one the following: "MAE", "RMSE", "AICc", "SErel", "g.factor",
+"kappa", "MDF", "nb.obs", "p-value", or "intercept". The
+default is all of them.}
 
 \item{intercept.lim}{numerical vector of length 2; inferior and superior
 limits of the intercept (initial concentration;
@@ -69,33 +68,47 @@ should be approximately one minute (60 seconds).}
 \value{
 a data.frame identical to the input \code{flux.result} with the
          additional columns \code{HM.diagnose}, \code{LM.diagnose},
-         \code{best.flux}, \code{model} and \code{quality.check}.
+         \code{best.flux}, \code{model} and \code{quality.check}. For each
+         criteria selected, an additional column is also added to specify
+         the limits used for those criteria (e.g. \code{RMSE.lim},
+         \code{p.val.lim}, etc.)
 }
 \description{
 This automatic selection of the best flux estimate (linear or non-linear) is
 based on objective criteria and non-arbitrary thresholds.
 }
 \details{
-The function \code{\link[GoFluxYourself]{k.max}} calculates the maximal
-curvature (kappa) of the non-linear model (Hutchinson and Mosier) allowed for
-each flux measurements. k.max is calculated based on the minimal detectable
-flux (MDF), the linear flux estimate (LM.flux) and the measurement time. The
-unit of kappa-max is \ifelse{html}{\out{s<sup>-1</sup>}}{\eqn{s^{-1}}{ASCII}}.
-
-The function \code{\link[GoFluxYourself]{MDF}} calculates the minimal
-detectable flux (MDF) based on instrument precision and measurements time.
+In \code{criteria}, the indices of model fit "MAE", "RMSE" and "SErel" all
+have a threshold. For MAE and RMSE, the threshold is instrument precision.
+For SErel, the threshold is given as an argument, where the default limit is
+5\%. These indices also compare the two models (linear, LM, and non-linear,
+HM). The selection of the best model regarding indices of model fit ("MAE",
+"RMSE", "AICc" and "SErel") is based on a scoring system. Each model starts
+with a score of 0. Each time one of the model has a worst fit than the other
+model, based on "MAE", "RMSE", "AICc" or "SErel", that model's score is
+increased by 1. Whichever model has the lowest score wins. In case of a tie,
+the non-linear model wins.
 
 Another criteria, which is calculated automatically with the function
 \code{\link[GoFluxYourself]{best.flux}}, is the g-factor
 (\code{\link[GoFluxYourself]{g.factor}}), which is the ratio between the HM
-flux estimate and the LM flux estimate. The threshold for the g-factor
-should be 4 (flexible), 2 (medium), or 1.25 (conservative).
+flux estimate and the LM flux estimate. Recommended thresholds for the g-factor
+are 4 (flexible), 2 (medium), or 1.25 (conservative).
+
+The function \code{\link[GoFluxYourself]{k.max}} calculates the maximal
+curvature (kappa) of the non-linear model (Hutchinson and Mosier) allowed for
+each flux measurement. k.max is calculated based on the minimal detectable
+flux (\code{\link[GoFluxYourself]{MDF}}), the linear flux estimate
+(\code{LM.flux}) and the measurement time. The unit of kappa-max is
+\ifelse{html}{\out{s<sup>-1</sup>}}{\eqn{s^{-1}}{ASCII}}.
+
+The function \code{\link[GoFluxYourself]{MDF}} calculates the minimal
+detectable flux (MDF) based on instrument precision and measurement time.
 }
 \examples{
 data(LGR_manID)
 LGR_flux <- goFlux(LGR_manID, "CO2dry_ppm")
-criteria <- c("MAE", "g.factor", "MDF", "SErel")
-LGR_res <- best.flux(LGR_flux, criteria)
+LGR_res <- best.flux(LGR_flux)
 
 }
 \seealso{
