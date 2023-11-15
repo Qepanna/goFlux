@@ -50,12 +50,15 @@ following \code{gastypes}:
 multiplier (\code{k.mult = 1}).}
 }
 \value{
-Returns a data frame with 10 columns: non-linear flux estimate,
-         initial gas concentration (C0), final gas concentration (Ct), slope
-         at \code{t=0}, mean absolute error (MAE), root mean square error
-         (RMSE), standard error (se), relative se (se.rel),
-         \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}},
-         and curvature (kappa).
+Returns a data frame with 11 columns: non-linear flux estimate,
+         initial gas concentration (\code{HM.C0}), final gas concentration
+         (\code{HM.Ct}), slope at \code{t=0} (\code{HM.slope}), mean absolute
+         error (\code{HM.MAE}), root mean square error (\code{HM.RMSE}),
+         Akaike information criterion corrected for small sample size
+         (\code{LM.AICc}) standard error (\code{HM.se}),
+         relative standard error (\code{HM.se.rel}),
+         \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}} (\code{HM.r2}),
+         and curvature (kappa; (\code{HM.k})).
 }
 \description{
 Estimates a gas flux with a non-linear regression, the Hutchinson and Mosier

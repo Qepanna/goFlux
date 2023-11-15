@@ -17,11 +17,11 @@
 #'                 window (seconds). Default is 30 seconds.
 #' @param plot.legend character vector; specifies which parameters should be
 #'                    displayed in a legend above each plot. "flux" is always
-#'                    displayed. A maximum of 6 parameters can be displayed in
-#'                    the legend (including "flux"). Chose up to five extra
-#'                    parameters from the following: "MAE", "RMSE", "SErel",
-#'                    "SE", "r2", "LM.p.val", "HM.k", "k.max", "k.ratio" and
-#'                    "g.factor". Default is \code{plot.legend = c("MAE", "RMSE")}.
+#'                    displayed. A maximum of 6 parameters can be displayed in the
+#'                    legend (including "flux"). Chose up to five extra parameters
+#'                    from the following: "MAE", "RMSE", "AICc", "SErel", "SE",
+#'                    "r2", "LM.p.val", "HM.k", "k.max", "k.ratio" and "g.factor".
+#'                    Default is \code{plot.legend = c("MAE", "AICc", "k.ratio", "g.factor")}.
 #' @param plot.display character vector; specifies which parameters should be
 #'                     displayed on the plot. Chose from the following: "C0",
 #'                     "Ci", "cham.close", "cham.open", "crop", "MDF", "nb.obs",
@@ -132,13 +132,13 @@
 #' LGR_plots <- flux.plot(
 #'   flux.results = LGR_res, dataframe = LGR_manID,
 #'   gastype = "CO2dry_ppm", quality.check = TRUE,
-#'   plot.legend = c("MAE", "RMSE", "k.ratio", "g.factor", "SErel"),
+#'   plot.legend = c("MAE", "AICc", "k.ratio", "g.factor"),
 #'   plot.display = c("Ci", "C0", "MDF", "prec", "nb.obs", "flux.term"))
 #'
 #' @export
 #'
 flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
-                      plot.legend = c("MAE", "RMSE"),
+                      plot.legend = c("MAE", "AICc", "k.ratio", "g.factor"),
                       plot.display = c("MDF", "prec"),
                       quality.check = TRUE, flux.unit = NULL,
                       flux.term.unit = NULL, best.model = TRUE,
@@ -237,8 +237,8 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
     stop("'HM.k' in 'flux.results' must be of class numeric")}
 
   ## Check plot.legend ####
-  plot.legend.all <- c("MAE", "RMSE", "SErel", "SE", "r2", "LM.p.val", "HM.k",
-                       "k.max", "k.ratio", "g.factor", "best.model")
+  plot.legend.all <- c("MAE", "RMSE", "AICc", "SErel", "SE", "r2", "LM.p.val",
+                       "HM.k", "k.max", "k.ratio", "g.factor", "best.model")
   if(!is.null(plot.legend)){
     if(!is.character(plot.legend)){
       stop("'plot.legend' must be of class character")
@@ -246,7 +246,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
       stop("in 'plot.legend': A maximum of 5 additional parameters can be displayed above the plot.")
     } else if(!any(grepl(paste(paste("\\<", plot.legend.all, "\\>", sep = ""),
                                collapse = "|"), plot.legend))){
-      stop("if 'plot.legend' is not NULL, it must contain at least one of the following: 'MAE', 'RMSE', 'SErel', 'SE', 'r2', 'LM.p.val', 'HM.k', 'k.max', 'k.ratio', 'g.factor', 'best.model'")
+      stop("if 'plot.legend' is not NULL, it must contain at least one of the following: 'MAE', 'RMSE', 'AICc', 'SErel', 'SE', 'r2', 'LM.p.val', 'HM.k', 'k.max', 'k.ratio', 'g.factor', 'best.model'")
     }
     ### MAE ####
     if(any(grepl("\\<MAE\\>", plot.legend))){
@@ -269,6 +269,17 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
         stop("'RMSE' selected in 'plot.legend', but 'HM.RMSE' missing in 'flux.results'")
       } else if(!is.numeric(flux.results$HM.RMSE)){
         stop("'HM.RMSE' in 'flux.results' must be of class numeric")}
+    }
+    ### AICc ####
+    if(any(grepl("\\<AICc\\>", plot.legend))){
+      if(!any(grepl("\\<LM.AICc\\>", names(flux.results)))){
+        stop("'AICc' selected in 'plot.legend', but 'LM.AICc' missing in 'flux.results'")
+      } else if(!is.numeric(flux.results$LM.AICc)){
+        stop("'LM.AICc' in 'flux.results' must be of class numeric")}
+      if(!any(grepl("\\<HM.AICc\\>", names(flux.results)))){
+        stop("'AICc' selected in 'plot.legend', but 'HM.AICc' missing in 'flux.results'")
+      } else if(!is.numeric(flux.results$HM.AICc)){
+        stop("'HM.AICc' in 'flux.results' must be of class numeric")}
     }
     ### SErel ####
     if(any(grepl("\\<SErel\\>", plot.legend))){
@@ -455,7 +466,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
     HM.C0.display <- LM.C0.display <- quality.check.display <-
     cham.open.display <- nb.obs.display <- prec.display <-
     flux.term.display <- cham.close.display <- MDF.display <-
-    HM.Ci.display <- legend.flux <- legend.MAE <-
+    HM.Ci.display <- legend.flux <- legend.MAE <- legend.AICc <-
     legend.RMSE <- legend.se.rel <- legend.se <- legend.r2 <-
     legend.LM.p.val <- legend.g.factor <- legend.HM.k <- legend.k.max <-
     legend.k.ratio <- best.model.display <- GASTYPE <- NULL
@@ -475,6 +486,20 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
     ifelse(x < 0.001, "p < 0.001",
            ifelse(x < 0.01, "p < 0.01",
                   ifelse(x < 0.05, "p < 0.05", "NS")))
+  }
+
+  # Function to find decimal places
+  nb.decimal = function(x) {
+    #length zero input
+    if (length(x) == 0) return(numeric())
+
+    #count decimals
+    x_nchr = x %>% abs() %>% as.character() %>% nchar() %>% as.numeric()
+    x_int = floor(x) %>% abs() %>% nchar()
+    x_nchr = x_nchr - 1 - x_int
+    x_nchr[x_nchr < 0] = 0
+
+    x_nchr
   }
 
   # FUNCTION STARTS ####
@@ -573,245 +598,261 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
         }
       }
     }
-  ## plot.legend ####
+    ## plot.legend ####
 
-  ### LM and HM flux are always in the legend
-  LM.flux <- signif(unique(data_corr[[f]]$LM.flux), 2)
-  HM.flux <- signif(unique(data_corr[[f]]$HM.flux), 2)
+    # Variables decimals
+    flux.dec <- nb.decimal(ifelse(
+      nb.decimal(signif(unique(data_corr[[f]]$MDF), 1)) != 0,
+      signif(unique(data_corr[[f]]$MDF), 2),
+      round(unique(data_corr[[f]]$MDF), 1))) %>%
+      ifelse(. > 2, . -1, .)
 
-  legend.flux <- cbind.data.frame(
-    content = c("Model", "lm", "HM", paste("'Flux units:'", "~", flux.unit),
-                "Flux", LM.flux, HM.flux, ""))
+    gas.dec <- nb.decimal(unique(data_corr[[f]]$prec))
 
-  ### Legend length ####
-  legend.length <- length(grep(paste(c(
-    "\\<MAE\\>", "\\<RMSE\\>", "\\<SErel\\>", "\\<SE\\>", "\\<LM.p.val\\>",
-    "\\<r2\\>", "\\<HM.k\\>", "\\<k.max\\>", "\\<k.ratio\\>", "\\<g.factor\\>",
-    "\\<best.model\\>"),
-    collapse = "|"), plot.legend)) +2
+    ### LM and HM flux are always in the legend
+    LM.flux <- round(unique(data_corr[[f]]$LM.flux), flux.dec)
+    HM.flux <- round(unique(data_corr[[f]]$HM.flux), flux.dec)
 
-  ### Legend content ####
-  if(!is.null(plot.legend)){
+    legend.flux <- cbind.data.frame(
+      content = c("Model", "lm", "HM", paste("'Flux units:'", "~", flux.unit),
+                  "Flux", LM.flux, HM.flux, ""))
 
-    ### MAE ####
-    if(any(grepl("\\<MAE\\>", plot.legend))){
-      LM.MAE <- signif(unique(data_corr[[f]]$LM.MAE), 3)
-      HM.MAE <- signif(unique(data_corr[[f]]$HM.MAE), 3)
-      legend.MAE <- cbind.data.frame(content = c("MAE", LM.MAE, HM.MAE, ""))
-    }
-    ### RMSE ####
-    if(any(grepl("\\<RMSE\\>", plot.legend))){
-      LM.RMSE <- signif(unique(data_corr[[f]]$LM.RMSE), 2)
-      HM.RMSE <- signif(unique(data_corr[[f]]$HM.RMSE), 2)
-      legend.RMSE <- cbind.data.frame(content = c("RMSE", LM.RMSE, HM.RMSE, ""))
-    }
-    ### SErel ####
-    if(any(grepl("\\<SErel\\>", plot.legend))){
-      LM.se.rel <- round(unique(data_corr[[f]]$LM.se.rel), 1)
-      HM.se.rel <- round(unique(data_corr[[f]]$HM.se.rel), 1)
-      legend.se.rel <- cbind.data.frame(content = c(
-        "'SE rel.'", paste(LM.se.rel, "~'%'"), paste(HM.se.rel, "~'%'"), ""))
-    }
-    ### SE ####
-    if(any(grepl("\\<SE\\>", plot.legend))){
-      LM.se <- round(unique(data_corr[[f]]$LM.se), 3)
-      HM.se <- round(unique(data_corr[[f]]$HM.se), 3)
-      legend.se <- cbind.data.frame(content = c("SE", LM.se, HM.se, ""))
-    }
-    ### LM.p.val ####
-    if(any(grepl("\\<LM.p.val\\>", plot.legend))){
-      if(any(grepl("\\<round\\>", p.val.disp))){
-        LM.p.val <- p.val.round(unique(data_corr[[f]]$LM.p.val))}
-      if(any(grepl("\\<star\\>", p.val.disp))){
-        LM.p.val <- p.val.star(unique(data_corr[[f]]$LM.p.val))}
-      if(any(grepl("\\<value\\>", p.val.disp))){
-        LM.p.val <- signif(unique(data_corr[[f]]$LM.p.val), 2)}
-      legend.LM.p.val <- cbind.data.frame(content = c("'p-value'", LM.p.val, "", ""))
-    }
-    ### r2 ####
-    if(any(grepl("\\<r2\\>", plot.legend))){
-      LM.r2 <- round(unique(data_corr[[f]]$LM.r2), 3)
-      HM.r2 <- round(unique(data_corr[[f]]$HM.r2), 3)
-      legend.r2 <- cbind.data.frame(content = c("r^2", LM.r2, HM.r2, ""))
-    }
-    ### HM.k ####
-    if(any(grepl("\\<HM.k\\>", plot.legend))){
-      HM.k <- signif(unique(data_corr[[f]]$HM.k), 2)
-      legend.HM.k <- cbind.data.frame(content = c("'kappa'", "", HM.k, ""))
-    }
-    ### k.max ####
-    if(any(grepl("\\<k.max\\>", plot.legend))){
-      k.max <- signif(unique(data_corr[[f]]$k.max), 2)
-      legend.k.max <- cbind.data.frame(content = c("kappa~'max'", "", k.max, ""))
-    }
-    ### k.ratio ####
-    if(any(grepl("\\<k.ratio\\>", plot.legend))){
-      HM.k <- unique(data_corr[[f]]$HM.k)
-      k.max <- unique(data_corr[[f]]$k.max)
-      k.ratio <- round(HM.k/k.max*100, 0)
-      legend.k.ratio <- cbind.data.frame(content = c("kappa~'ratio'", "",
-                                                     paste(k.ratio, "~'%'"), ""))
-    }
-    ### g.factor ####
-    if(any(grepl("\\<g.factor\\>", plot.legend))){
-      g.factor <- round(unique(data_corr[[f]]$g.fact), 1)
-      legend.g.factor <- cbind.data.frame(content = c("'g-factor'", "", g.factor, ""))
-    }
-  }
-  ## Legends' positions
-  seq.x <- seq.rep(0.93, -0.13, 4, legend.length)
-  seq.y <- seq.rep(0.28, -0.07, legend.length, 4, rep.seq = T)
+    ### Legend length ####
+    legend.length <- length(grep(paste(c(
+      "\\<MAE\\>", "\\<RMSE\\>", "\\<AICc\\>", "\\<SErel\\>", "\\<SE\\>",
+      "\\<LM.p.val\\>", "\\<r2\\>", "\\<HM.k\\>", "\\<k.max\\>", "\\<k.ratio\\>",
+      "\\<g.factor\\>", "\\<best.model\\>"),
+      collapse = "|"), plot.legend)) +2
 
-  ## Merge legend data frames
-  mod.legend <- rbind(legend.flux, legend.MAE, legend.RMSE, legend.se.rel,
-                      legend.se, legend.r2, legend.LM.p.val, legend.g.factor,
-                      legend.HM.k, legend.k.max, legend.k.ratio) %>%
-    cbind.data.frame(
-    color = rep(c("black", "blue", "red", "black"), legend.length),
-    x = xmax - xdiff*seq.x,
-    y = ymax + ydiff*seq.y)
+    ### Legend content ####
+    if(!is.null(plot.legend)){
 
-  ## best.model ####
-  if(isTRUE(best.model)){
-    model <- unique(data_corr[[f]]$model)
-    if(model == "LM") best.model.plot <- data.frame(y = ymax + ydiff*0.207)
-    if(model == "HM") best.model.plot <- data.frame(y = ymax + ydiff*0.137)
-    best.model.plot <- best.model.plot %>% mutate(x = xmax - xdiff*0.95)
-    best.model.display <- geom_star(data = best.model.plot, aes(
-      x = x, y = y), color = "black", size = 1.5)
-  }
+      ### MAE ####
+      if(any(grepl("\\<MAE\\>", plot.legend))){
+        LM.MAE <- round(unique(data_corr[[f]]$LM.MAE), gas.dec)
+        HM.MAE <- round(unique(data_corr[[f]]$HM.MAE), gas.dec)
+        legend.MAE <- cbind.data.frame(content = c("MAE", LM.MAE, HM.MAE, ""))
+      }
+      ### RMSE ####
+      if(any(grepl("\\<RMSE\\>", plot.legend))){
+        LM.RMSE <- round(unique(data_corr[[f]]$LM.RMSE), gas.dec)
+        HM.RMSE <- round(unique(data_corr[[f]]$HM.RMSE), gas.dec)
+        legend.RMSE <- cbind.data.frame(content = c("RMSE", LM.RMSE, HM.RMSE, ""))
+      }
+      ### AICc ####
+      if(any(grepl("\\<AICc\\>", plot.legend))){
+        LM.AICc <- signif(unique(data_corr[[f]]$LM.AICc), 3)
+        HM.AICc <- signif(unique(data_corr[[f]]$HM.AICc), 3)
+        legend.AICc <- cbind.data.frame(content = c("AICc", LM.AICc, HM.AICc, ""))
+      }
+      ### SErel ####
+      if(any(grepl("\\<SErel\\>", plot.legend))){
+        LM.se.rel <- round(unique(data_corr[[f]]$LM.se.rel), 1)
+        HM.se.rel <- round(unique(data_corr[[f]]$HM.se.rel), 1)
+        legend.se.rel <- cbind.data.frame(content = c(
+          "'SE rel.'", paste(LM.se.rel, "~'%'"), paste(HM.se.rel, "~'%'"), ""))
+      }
+      ### SE ####
+      if(any(grepl("\\<SE\\>", plot.legend))){
+        LM.se <- round(unique(data_corr[[f]]$LM.se), 3)
+        HM.se <- round(unique(data_corr[[f]]$HM.se), 3)
+        legend.se <- cbind.data.frame(content = c("SE", LM.se, HM.se, ""))
+      }
+      ### LM.p.val ####
+      if(any(grepl("\\<LM.p.val\\>", plot.legend))){
+        if(any(grepl("\\<round\\>", p.val.disp))){
+          LM.p.val <- p.val.round(unique(data_corr[[f]]$LM.p.val))}
+        if(any(grepl("\\<star\\>", p.val.disp))){
+          LM.p.val <- p.val.star(unique(data_corr[[f]]$LM.p.val))}
+        if(any(grepl("\\<value\\>", p.val.disp))){
+          LM.p.val <- signif(unique(data_corr[[f]]$LM.p.val), 2)}
+        legend.LM.p.val <- cbind.data.frame(content = c("'p-value'", LM.p.val, "", ""))
+      }
+      ### r2 ####
+      if(any(grepl("\\<r2\\>", plot.legend))){
+        LM.r2 <- round(unique(data_corr[[f]]$LM.r2), 3)
+        HM.r2 <- round(unique(data_corr[[f]]$HM.r2), 3)
+        legend.r2 <- cbind.data.frame(content = c("r^2", LM.r2, HM.r2, ""))
+      }
+      ### HM.k ####
+      if(any(grepl("\\<HM.k\\>", plot.legend))){
+        HM.k <- signif(unique(data_corr[[f]]$HM.k), 2)
+        legend.HM.k <- cbind.data.frame(content = c("'kappa'", "", HM.k, ""))
+      }
+      ### k.max ####
+      if(any(grepl("\\<k.max\\>", plot.legend))){
+        k.max <- signif(unique(data_corr[[f]]$k.max), 2)
+        legend.k.max <- cbind.data.frame(content = c("kappa~'max'", "", k.max, ""))
+      }
+      ### k.ratio ####
+      if(any(grepl("\\<k.ratio\\>", plot.legend))){
+        HM.k <- unique(data_corr[[f]]$HM.k)
+        k.max <- unique(data_corr[[f]]$k.max)
+        k.ratio <- ifelse(HM.k/k.max*100 < 1, round(HM.k/k.max*100, 2),
+                          round(HM.k/k.max*100, 0))
+        legend.k.ratio <- cbind.data.frame(content = c("kappa~'ratio'", "",
+                                                       paste(k.ratio, "~'%'"), ""))
+      }
+      ### g.factor ####
+      if(any(grepl("\\<g.factor\\>", plot.legend))){
+        g.factor <- round(unique(data_corr[[f]]$g.fact), 1)
+        legend.g.factor <- cbind.data.frame(content = c("'g-factor'", "", g.factor, ""))
+      }
+    }
+    ## Legends' positions
+    seq.x <- seq.rep(0.93, -0.13, 4, legend.length)
+    seq.y <- seq.rep(0.28, -0.07, legend.length, 4, rep.seq = T)
 
-  ## plot.display ####
-  if(!is.null(plot.display)){
-    ### C0 ####
-    if(any(grepl("\\<C0\\>", plot.display))){
-      # C0 values
-      LM.C0 <- round(unique(data_corr[[f]]$LM.C0), 0)
-      HM.C0 <- round(unique(data_corr[[f]]$HM.C0), 0)
-      C0.x <- if_else(side == "left", xmin+xdiff*0.2, xmin+xdiff*0.8)
-      # Plot
-      LM.C0.display <- annotate(
-        "text", x = C0.x, y = (ymax+ymin)/2 + ydiff*0.12,
-        label = paste("~~lm~C[0]", "~'='~", LM.C0, "~", gas.unit),
-        colour = "blue", hjust = 0.5, parse = TRUE, size = 3.2)
-      HM.C0.display <- annotate(
-        "text", x = C0.x, y = (ymax+ymin)/2 + ydiff*0.05,
-        label = paste("HM~C[0]", "~'='~", HM.C0, "~", gas.unit),
-        colour = "red", hjust = 0.5, parse = TRUE, size = 3.2)
+    ## Merge legend data frames
+    mod.legend <- rbind(legend.flux, legend.MAE, legend.RMSE, legend.AICc,
+                        legend.se.rel, legend.se, legend.r2, legend.LM.p.val,
+                        legend.g.factor, legend.HM.k, legend.k.max, legend.k.ratio) %>%
+      cbind.data.frame(
+        color = rep(c("black", "blue", "red", "black"), legend.length),
+        x = xmax - xdiff*seq.x,
+        y = ymax + ydiff*seq.y)
+
+    ## best.model ####
+    if(isTRUE(best.model)){
+      model <- unique(data_corr[[f]]$model)
+      if(model == "LM") best.model.plot <- data.frame(y = ymax + ydiff*0.207)
+      if(model == "HM") best.model.plot <- data.frame(y = ymax + ydiff*0.137)
+      best.model.plot <- best.model.plot %>% mutate(x = xmax - xdiff*0.95)
+      best.model.display <- geom_star(data = best.model.plot, aes(
+        x = x, y = y), color = "black", size = 1.5)
     }
-    ### Ci ####
-    if(any(grepl("\\<Ci\\>", plot.display))){
-      # Ci values
-      HM.Ci <- round(unique(data_corr[[f]]$HM.Ci), 0)
-      Ci.x <- if_else(side == "left", xmin+xdiff*0.2, xmin+xdiff*0.8)
-      # Plot
-      HM.Ci.display <- annotate(
-        "text", x = Ci.x, y = (ymax+ymin)/2 - ydiff*0.02,
-        label = paste("~~HM~C[i]", "~'='~", HM.Ci, "~", gas.unit),
-        colour = "red", hjust = 0.5, parse = TRUE, size = 3.2)
-    }
-    ### cham.close ####
-    if(any(grepl("\\<cham.close\\>", plot.display))){
-      # value
-      cham.close <- data_split[[f]] %>%
-        filter(POSIX.time == cham.close) %>%
-        rename(GASTYPE = all_of(gastype))
-      # plot
-      cham.close.display <- geom_star(data = cham.close, aes(
-        x = Etime, y = GASTYPE), fill = "#008000", size = 3)
-    }
-    ### cham.open ####
-    if(any(grepl("\\<cham.open\\>", plot.display))){
-      # value
-      cham.open <- data_split[[f]] %>%
-        filter(POSIX.time == cham.open) %>%
-        rename(GASTYPE = all_of(gastype))
-      # plot
-      cham.open.display <- geom_star(data = cham.open, aes(
-        x = Etime, y = GASTYPE), fill = "#008000", size = 3)
-    }
-    ### NEW PLOT LIMITS with nb.obs, MDF, flux term and prec ####
-    if(any(grepl(paste(c("\\<MDF\\>", "\\<nb.obs\\>", "\\<flux.term\\>", "\\<prec\\>"),
-                       collapse = "|"), plot.display))){
-      display.length <- length(grep(paste(c(
-        "\\<MDF\\>", "\\<nb.obs\\>", "\\<flux.term\\>", "\\<prec\\>"),
-        collapse = "|"), plot.display))
-      if(display.length > 2) ymin <- ymin - ydiff*min(seq.y)*1.8
-      if(display.length <= 2) ymin <- ymin - ydiff*min(seq.y)*0.9
-    }
-    ### nb.obs ####
-    if(any(grepl("\\<nb.obs\\>", plot.display))){
-      # position
-      nb.obs.ord <- which(grep(paste(c("\\<MDF\\>", "\\<nb.obs\\>",
+
+    ## plot.display ####
+    if(!is.null(plot.display)){
+      ### C0 ####
+      if(any(grepl("\\<C0\\>", plot.display))){
+        # C0 values
+        LM.C0 <- round(unique(data_corr[[f]]$LM.C0), 0)
+        HM.C0 <- round(unique(data_corr[[f]]$HM.C0), 0)
+        C0.x <- if_else(side == "left", xmin+xdiff*0.2, xmin+xdiff*0.8)
+        # Plot
+        LM.C0.display <- annotate(
+          "text", x = C0.x, y = (ymax+ymin)/2 + ydiff*0.12,
+          label = paste("~~lm~C[0]", "~'='~", LM.C0, "~", gas.unit),
+          colour = "blue", hjust = 0.5, parse = TRUE, size = 3.2)
+        HM.C0.display <- annotate(
+          "text", x = C0.x, y = (ymax+ymin)/2 + ydiff*0.05,
+          label = paste("HM~C[0]", "~'='~", HM.C0, "~", gas.unit),
+          colour = "red", hjust = 0.5, parse = TRUE, size = 3.2)
+      }
+      ### Ci ####
+      if(any(grepl("\\<Ci\\>", plot.display))){
+        # Ci values
+        HM.Ci <- round(unique(data_corr[[f]]$HM.Ci), 0)
+        Ci.x <- if_else(side == "left", xmin+xdiff*0.2, xmin+xdiff*0.8)
+        # Plot
+        HM.Ci.display <- annotate(
+          "text", x = Ci.x, y = (ymax+ymin)/2 - ydiff*0.02,
+          label = paste("~~HM~C[i]", "~'='~", HM.Ci, "~", gas.unit),
+          colour = "red", hjust = 0.5, parse = TRUE, size = 3.2)
+      }
+      ### cham.close ####
+      if(any(grepl("\\<cham.close\\>", plot.display))){
+        # value
+        cham.close <- data_split[[f]] %>%
+          filter(POSIX.time == cham.close) %>%
+          rename(GASTYPE = all_of(gastype))
+        # plot
+        cham.close.display <- geom_star(data = cham.close, aes(
+          x = Etime, y = GASTYPE), fill = "#008000", size = 3)
+      }
+      ### cham.open ####
+      if(any(grepl("\\<cham.open\\>", plot.display))){
+        # value
+        cham.open <- data_split[[f]] %>%
+          filter(POSIX.time == cham.open) %>%
+          rename(GASTYPE = all_of(gastype))
+        # plot
+        cham.open.display <- geom_star(data = cham.open, aes(
+          x = Etime, y = GASTYPE), fill = "#008000", size = 3)
+      }
+      ### NEW PLOT LIMITS with nb.obs, MDF, flux term and prec ####
+      if(any(grepl(paste(c("\\<MDF\\>", "\\<nb.obs\\>", "\\<flux.term\\>", "\\<prec\\>"),
+                         collapse = "|"), plot.display))){
+        display.length <- length(grep(paste(c(
+          "\\<MDF\\>", "\\<nb.obs\\>", "\\<flux.term\\>", "\\<prec\\>"),
+          collapse = "|"), plot.display))
+        if(display.length > 2) ymin <- ymin - ydiff*min(seq.y)*1.8
+        if(display.length <= 2) ymin <- ymin - ydiff*min(seq.y)*0.9
+      }
+      ### nb.obs ####
+      if(any(grepl("\\<nb.obs\\>", plot.display))){
+        # position
+        nb.obs.ord <- which(grep(paste(c("\\<MDF\\>", "\\<nb.obs\\>",
+                                         "\\<flux.term\\>", "\\<prec\\>"), collapse = "|"),
+                                 plot.display, value = T) == "nb.obs")
+        if(nb.obs.ord == 1 | nb.obs.ord == 3) nb.obs.x <- 3
+        if(nb.obs.ord == 2 | nb.obs.ord == 4) nb.obs.x <- 6
+        if(nb.obs.ord <= 2) nb.obs.y <- -0.4
+        if(nb.obs.ord > 2) nb.obs.y <- 1.6
+        # value
+        nb.obs <- round(unique(data_corr[[f]]$nb.obs), 0)
+        # nb.obs.display
+        nb.obs.display <- annotate(
+          "text", x = seq(xmin, xmax, length.out=9)[nb.obs.x], colour = "black",
+          y = ymin - ydiff*min(seq.y)*nb.obs.y/2, hjust = 0,
+          label = paste(nb.obs, "~'data points'"), parse = TRUE, size = 3.2)
+      }
+      ### MDF ####
+      if(any(grepl("\\<MDF\\>", plot.display))){
+        # position
+        MDF.ord <- which(grep(paste(c("\\<MDF\\>", "\\<nb.obs\\>",
+                                      "\\<flux.term\\>", "\\<prec\\>"), collapse = "|"),
+                              plot.display, value = T) == "MDF")
+        if(MDF.ord == 1 | MDF.ord == 3) MDF.x <- 3
+        if(MDF.ord == 2 | MDF.ord == 4) MDF.x <- 6
+        if(MDF.ord <= 2) MDF.y <- -0.4
+        if(MDF.ord > 2) MDF.y <- 1.6
+        # value
+        MDF <- signif(unique(data_corr[[f]]$MDF), 2)
+        # MDF.display
+        MDF.display <- annotate(
+          "text", x = seq(xmin, xmax, length.out=9)[MDF.x], colour = "black",
+          y = ymin - ydiff*min(seq.y)*MDF.y/2, hjust = 0,
+          label = paste("'MDF ='~", MDF, "~", flux.unit), parse = TRUE, size = 3.2)
+      }
+      ### flux.term ####
+      if(any(grepl("\\<flux.term\\>", plot.display))){
+        # position
+        flux.term.ord <- which(grep(paste(c("\\<MDF\\>", "\\<nb.obs\\>",
+                                            "\\<flux.term\\>", "\\<prec\\>"), collapse = "|"),
+                                    plot.display, value = T) == "flux.term")
+        if(flux.term.ord == 1 | flux.term.ord == 3) flux.term.x <- 3
+        if(flux.term.ord == 2 | flux.term.ord == 4) flux.term.x <- 6
+        if(flux.term.ord <= 2) flux.term.y <- -0.4
+        if(flux.term.ord > 2) flux.term.y <- 1.6
+        # value
+        flux.term <- round(unique(data_corr[[f]]$flux.term), 1)
+        # flux.term.display
+        flux.term.display <- annotate(
+          "text", x = seq(xmin, xmax, length.out=9)[flux.term.x], colour = "black",
+          y = ymin - ydiff*min(seq.y)*flux.term.y/2, hjust = 0, parse = TRUE,
+          label = paste("'flux.term ='~", flux.term, "~", flux.term.unit), size = 3.2)
+      }
+      ### prec ####
+      if(any(grepl("\\<prec\\>", plot.display))){
+        # position
+        prec.ord <- which(grep(paste(c("\\<MDF\\>", "\\<nb.obs\\>",
                                        "\\<flux.term\\>", "\\<prec\\>"), collapse = "|"),
-                               plot.display, value = T) == "nb.obs")
-      if(nb.obs.ord == 1 | nb.obs.ord == 3) nb.obs.x <- 3
-      if(nb.obs.ord == 2 | nb.obs.ord == 4) nb.obs.x <- 6
-      if(nb.obs.ord <= 2) nb.obs.y <- -0.4
-      if(nb.obs.ord > 2) nb.obs.y <- 1.6
-      # value
-      nb.obs <- round(unique(data_corr[[f]]$nb.obs), 0)
-      # nb.obs.display
-      nb.obs.display <- annotate(
-        "text", x = seq(xmin, xmax, length.out=9)[nb.obs.x], colour = "black",
-        y = ymin - ydiff*min(seq.y)*nb.obs.y/2, hjust = 0,
-        label = paste(nb.obs, "~'data points'"), parse = TRUE, size = 3.2)
+                               plot.display, value = T) == "prec")
+        if(prec.ord == 1 | prec.ord == 3) prec.x <- 3
+        if(prec.ord == 2 | prec.ord == 4) prec.x <- 6
+        if(prec.ord <= 2) prec.y <- -0.4
+        if(prec.ord > 2) prec.y <- 1.6
+        # value
+        prec <- unique(data_corr[[f]]$prec)
+        # prec.display
+        prec.display <- annotate(
+          "text", x = seq(xmin, xmax, length.out=9)[prec.x], colour = "black",
+          y = ymin - ydiff*min(seq.y)*prec.y/2, hjust = 0,
+          label = paste("'prec ='~", prec, "~", gas.unit), parse = TRUE, size = 3.2)
+      }
     }
-    ### MDF ####
-    if(any(grepl("\\<MDF\\>", plot.display))){
-      # position
-      MDF.ord <- which(grep(paste(c("\\<MDF\\>", "\\<nb.obs\\>",
-                                    "\\<flux.term\\>", "\\<prec\\>"), collapse = "|"),
-                            plot.display, value = T) == "MDF")
-      if(MDF.ord == 1 | MDF.ord == 3) MDF.x <- 3
-      if(MDF.ord == 2 | MDF.ord == 4) MDF.x <- 6
-      if(MDF.ord <= 2) MDF.y <- -0.4
-      if(MDF.ord > 2) MDF.y <- 1.6
-      # value
-      MDF <- signif(unique(data_corr[[f]]$MDF), 2)
-      # MDF.display
-      MDF.display <- annotate(
-        "text", x = seq(xmin, xmax, length.out=9)[MDF.x], colour = "black",
-        y = ymin - ydiff*min(seq.y)*MDF.y/2, hjust = 0,
-        label = paste("'MDF ='~", MDF, "~", flux.unit), parse = TRUE, size = 3.2)
-    }
-    ### flux.term ####
-    if(any(grepl("\\<flux.term\\>", plot.display))){
-      # position
-      flux.term.ord <- which(grep(paste(c("\\<MDF\\>", "\\<nb.obs\\>",
-                                          "\\<flux.term\\>", "\\<prec\\>"), collapse = "|"),
-                                  plot.display, value = T) == "flux.term")
-      if(flux.term.ord == 1 | flux.term.ord == 3) flux.term.x <- 3
-      if(flux.term.ord == 2 | flux.term.ord == 4) flux.term.x <- 6
-      if(flux.term.ord <= 2) flux.term.y <- -0.4
-      if(flux.term.ord > 2) flux.term.y <- 1.6
-      # value
-      flux.term <- round(unique(data_corr[[f]]$flux.term), 1)
-      # flux.term.display
-      flux.term.display <- annotate(
-        "text", x = seq(xmin, xmax, length.out=9)[flux.term.x], colour = "black",
-        y = ymin - ydiff*min(seq.y)*flux.term.y/2, hjust = 0, parse = TRUE,
-        label = paste("'flux.term ='~", flux.term, "~", flux.term.unit), size = 3.2)
-    }
-    ### prec ####
-    if(any(grepl("\\<prec\\>", plot.display))){
-      # position
-      prec.ord <- which(grep(paste(c("\\<MDF\\>", "\\<nb.obs\\>",
-                                     "\\<flux.term\\>", "\\<prec\\>"), collapse = "|"),
-                             plot.display, value = T) == "prec")
-      if(prec.ord == 1 | prec.ord == 3) prec.x <- 3
-      if(prec.ord == 2 | prec.ord == 4) prec.x <- 6
-      if(prec.ord <= 2) prec.y <- -0.4
-      if(prec.ord > 2) prec.y <- 1.6
-      # value
-      prec <- unique(data_corr[[f]]$prec)
-      # prec.display
-      prec.display <- annotate(
-        "text", x = seq(xmin, xmax, length.out=9)[prec.x], colour = "black",
-        y = ymin - ydiff*min(seq.y)*prec.y/2, hjust = 0,
-        label = paste("'prec ='~", prec, "~", gas.unit), parse = TRUE, size = 3.2)
-    }
-  }
 
     ## Extract quality check ####
     if(quality.check == TRUE){

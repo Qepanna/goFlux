@@ -15,11 +15,15 @@ LM.flux(gas.meas, time.meas, flux.term)
 \code{\link[GoFluxYourself]{flux.term}}}
 }
 \value{
-Returns a data frame with 10 columns: linear flux estimate, initial
-         gas concentration (C0), final gas concentration (Ct), slope of linear
-         regression, mean absolute error (MAE), root mean square error (RMSE),
-         standard error (se), relative se (se.rel),
-         \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and p-value.
+Returns a data frame with 11 columns: linear flux estimate, initial
+         gas concentration (\code{LM.C0}), final gas concentration
+         (\code{LM.Ct}), slope of linear regression (\code{LM.slope}), mean
+         absolute error (\code{LM.MAE}), root mean square error
+         (\code{LM.RMSE}), Akaike information criterion corrected for small
+         sample size (\code{LM.AICc}), standard error (\code{LM.se}),
+         relative standard error (\code{LM.se.rel}),
+         \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}} (\code{LM.r2}),
+         and p-value (\code{LM.p.val}).
 }
 \description{
 Estimates a gas flux with a linear regression, and then extracts values from

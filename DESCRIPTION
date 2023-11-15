@@ -41,9 +41,8 @@ Collate:
     'g.factor.R'
     'k.max.R'
     'goFlux.R'
-    'goFlux_RMSE.R'
     'goFlux_nokmax.R'
     'import2RData.R'
     'obs.win.R'
     'seq.rep.R'
-Imports: data.table, dplyr, ggnewscale, ggplot2, ggstar, graphics, grDevices, grid, gridExtra, lubridate, minpack.lm, msm, pbapply, plyr, purrr, rjson, rlist, SimDesign, stats, stringr, tibble, tidyr, utils
+Imports: AICcmodavg, data.table, dplyr, ggnewscale, ggplot2, ggstar, graphics, grDevices, grid, gridExtra, lubridate, minpack.lm, msm, pbapply, plyr, purrr, rjson, rlist, SimDesign, stats, stringr, tibble, tidyr, utils

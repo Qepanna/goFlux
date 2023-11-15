@@ -1,3 +1,4 @@
+#' @importFrom AICcmodavg AICc
 #' @importFrom data.table rleid
 #' @importFrom dplyr %>%
 #' @importFrom dplyr all_of

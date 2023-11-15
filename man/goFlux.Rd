@@ -87,26 +87,28 @@ of \code{warn.length = 60}, the chamber closure time
 should be approximately one minute (60 seconds).}
 }
 \value{
-Returns a data frame with 26 columns: a UniqueID per measurement,
-         10 columns for the linear model results (linear flux estimate
+Returns a data frame with 28 columns: a UniqueID per measurement,
+         11 columns for the linear model results (linear flux estimate
          (\code{LM.flux}), initial gas concentration (\code{LM.C0}), final
          gas concentration (\code{LM.Ct}), slope of linear regression
          (\code{LM.slope}), mean absolute error ((\code{LM.MAE})), root mean
-         square error ((\code{LM.RMSE})), standard error ((\code{LM.se})),
-         relative se ((\code{LM.se.rel})),
-         \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and p-value
-         ((\code{LM.p.val}))), 10 columns for the non-linear model results
-         (non-linear flux estimate (\code{HM.flux}), initial gas concentration
-         (\code{HM.C0}), final gas concentration (\code{HM.Ci}), slope
-         at \code{t=0} (\code{HM.slope}), mean absolute error (\code{HM.MAE}),
-         root mean square error (\code{HM.RMSE}), standard error (\code{HM.se}),
-         relative se (\code{HM.se.rel}),
-         \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and curvature
-         (kappa; \code{HM.k}), as well as the minimal detectable flux
+         square error ((\code{LM.RMSE})), Akaike information criterion
+         corrected for small sample size (\code{LM.AICc}), standard error
+         ((\code{LM.se})), relative standard error ((\code{LM.se.rel})),
+         \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}} ((\code{LM.r2})),
+         and p-value ((\code{LM.p.val}))), 11 columns for the non-linear model
+         results (non-linear flux estimate (\code{HM.flux}), initial gas
+         concentration (\code{HM.C0}), final gas concentration (\code{HM.Ci}),
+         slope at \code{t=0} (\code{HM.slope}), mean absolute error
+         (\code{HM.MAE}), root mean square error (\code{HM.RMSE}), Akaike
+         information criterion corrected for small sample size (\code{HM.AICc}),
+         standard error (\code{HM.se}), relative standard error (\code{HM.se.rel}),
+         \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}} ((\code{HM.r2})),
+         and curvature (kappa; \code{HM.k}), as well as the minimal detectable flux
          (\code{\link[GoFluxYourself]{MDF}}), the precision of the instrument
          (\code{prec}), the flux term (\code{\link[GoFluxYourself]{flux.term}}),
-         kappa-max (\code{\link[GoFluxYourself]{k.max}}), the g factor
-         (\code{\link[GoFluxYourself]{g.factor}}), the number of observations
+         kappa-max (\code{\link[GoFluxYourself]{k.max}}), the g factor (g.fact;
+         \code{\link[GoFluxYourself]{g.factor}}), the number of observations
          used (\code{nb.obs}) and the true initial gas concentration
          (\code{C0}) and final gas concentration (\code{Ct}).
 }

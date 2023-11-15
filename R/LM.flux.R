@@ -13,11 +13,15 @@
 #' @seealso See also the function \code{\link[GoFluxYourself]{HM.flux}}
 #'          for information about the non-linear regression model used in this package.
 #'
-#' @returns Returns a data frame with 10 columns: linear flux estimate, initial
-#'          gas concentration (C0), final gas concentration (Ct), slope of linear
-#'          regression, mean absolute error (MAE), root mean square error (RMSE),
-#'          standard error (se), relative se (se.rel),
-#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and p-value.
+#' @returns Returns a data frame with 11 columns: linear flux estimate, initial
+#'          gas concentration (\code{LM.C0}), final gas concentration
+#'          (\code{LM.Ct}), slope of linear regression (\code{LM.slope}), mean
+#'          absolute error (\code{LM.MAE}), root mean square error
+#'          (\code{LM.RMSE}), Akaike information criterion corrected for small
+#'          sample size (\code{LM.AICc}), standard error (\code{LM.se}),
+#'          relative standard error (\code{LM.se.rel}),
+#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}} (\code{LM.r2}),
+#'          and p-value (\code{LM.p.val}).
 #'
 #' @details
 #' Flux estimate units are
@@ -61,8 +65,8 @@ LM.flux <- function(gas.meas, time.meas, flux.term) {
   form <- sprintf("~ x2 * %f", flux.term)
   LM.se <- deltamethod(as.formula(form), coef(LM), vcov(LM))
 
-  # Indices of the model fit
-  # Relative flux standard error, r2, p-value, MAE and RMSE
+  # Indices of model fit
+  LM.AICc <- AICc(LM)
   LM.se.rel <- (LM.se / LM.flux) * 100
   LM.r2 <- as.numeric(summary(lm(fitted(LM) ~ gas.meas))[9])[1]
   LM.p.val <- summary(LM)[[4]][2,4]
@@ -70,8 +74,8 @@ LM.flux <- function(gas.meas, time.meas, flux.term) {
   LM.MAE <- MAE(gas.meas, fitted(LM))
 
   # Store results in new data table
-  LM_results <- cbind.data.frame(LM.flux, LM.C0, LM.Ct, LM.slope, LM.se,
-                                 LM.se.rel, LM.MAE, LM.RMSE, LM.r2, LM.p.val)
+  LM_results <- cbind.data.frame(LM.flux, LM.C0, LM.Ct, LM.slope, LM.MAE, LM.RMSE,
+                                 LM.AICc, LM.se, LM.se.rel, LM.r2, LM.p.val)
 
   return(LM_results)
 }

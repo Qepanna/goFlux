@@ -9,7 +9,7 @@ flux.plot(
   dataframe,
   gastype,
   shoulder = 30,
-  plot.legend = c("MAE", "RMSE"),
+  plot.legend = c("MAE", "AICc", "k.ratio", "g.factor"),
   plot.display = c("MDF", "prec"),
   quality.check = TRUE,
   flux.unit = NULL,
@@ -37,11 +37,11 @@ window (seconds). Default is 30 seconds.}
 
 \item{plot.legend}{character vector; specifies which parameters should be
 displayed in a legend above each plot. "flux" is always
-displayed. A maximum of 6 parameters can be displayed in
-the legend (including "flux"). Chose up to five extra
-parameters from the following: "MAE", "RMSE", "SErel",
-"SE", "r2", "LM.p.val", "HM.k", "k.max", "k.ratio" and
-"g.factor". Default is \code{plot.legend = c("MAE", "RMSE")}.}
+displayed. A maximum of 6 parameters can be displayed in the
+legend (including "flux"). Chose up to five extra parameters
+from the following: "MAE", "RMSE", "AICc", "SErel", "SE",
+"r2", "LM.p.val", "HM.k", "k.max", "k.ratio" and "g.factor".
+Default is \code{plot.legend = c("MAE", "AICc", "k.ratio", "g.factor")}.}
 
 \item{plot.display}{character vector; specifies which parameters should be
 displayed on the plot. Chose from the following: "C0",
@@ -150,7 +150,7 @@ LGR_res <- best.flux(LGR_flux, criteria)
 LGR_plots <- flux.plot(
   flux.results = LGR_res, dataframe = LGR_manID,
   gastype = "CO2dry_ppm", quality.check = TRUE,
-  plot.legend = c("MAE", "RMSE", "k.ratio", "g.factor", "SErel"),
+  plot.legend = c("MAE", "AICc", "k.ratio", "g.factor"),
   plot.display = c("Ci", "C0", "MDF", "prec", "nb.obs", "flux.term"))
 
 }

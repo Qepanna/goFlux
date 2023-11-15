@@ -41,12 +41,15 @@
 #' soil greenhouse gas flux calculation for more reliable flux estimates.
 #' \emph{PloS one}, 13(7), e0200876.
 #'
-#' @returns Returns a data frame with 10 columns: non-linear flux estimate,
-#'          initial gas concentration (C0), final gas concentration (Ct), slope
-#'          at \code{t=0}, mean absolute error (MAE), root mean square error
-#'          (RMSE), standard error (se), relative se (se.rel),
-#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}},
-#'          and curvature (kappa).
+#' @returns Returns a data frame with 11 columns: non-linear flux estimate,
+#'          initial gas concentration (\code{HM.C0}), final gas concentration
+#'          (\code{HM.Ct}), slope at \code{t=0} (\code{HM.slope}), mean absolute
+#'          error (\code{HM.MAE}), root mean square error (\code{HM.RMSE}),
+#'          Akaike information criterion corrected for small sample size
+#'          (\code{LM.AICc}) standard error (\code{HM.se}),
+#'          relative standard error (\code{HM.se.rel}),
+#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}} (\code{HM.r2}),
+#'          and curvature (kappa; (\code{HM.k})).
 #'
 #' @details
 #' Flux estimate units are
@@ -72,15 +75,6 @@ HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
     sum(abs(na.omit(gas.meas - fit.val))) / length(na.omit(gas.meas))
   }
 
-  # kappa limits
-  if (k.max < 0) {
-    kappa.max <- 1
-    kappa.min <- k.max*k.mult
-  } else {
-    kappa.max <- k.max*k.mult
-    kappa.min <- -1
-  }
-
   # Define the Hutchinson and Mosier model
   HMmod <- conc ~ Ci+(C0-Ci)*exp(-k*t)
 
@@ -90,8 +84,8 @@ HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
   # Run the model using the nlsLM function from the minpack.lm package
   HM <- try(nlsLM(HMmod,
                   data = cbind.data.frame(conc = gas.meas, t = time.meas),
-                  lower = c(Ci=0, C0=0, k=kappa.min),
-                  upper = c(Ci=Inf, C0=Inf, k=kappa.max),
+                  lower = c(Ci=0, C0=0, k=-1),
+                  upper = c(Ci=Inf, C0=Inf, k=k.max*k.mult),
                   start = start,
                   na.action = na.exclude,
                   control = nls.lm.control(
@@ -118,20 +112,21 @@ HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
     form <- sprintf("~ (x1 - x2) * x3 * %f", flux.term)
     HM.se <- deltamethod(as.formula(form), coef(HM), vcov(HM))
 
-    # Indices of the model fit
-    # Relative flux standard error, r2, MAE and RMSE
+    # Indices of model fit
+    HM.AICc <- AICc(HM)
     HM.se.rel <- (HM.se / HM.flux) * 100
     HM.r2 <- as.numeric(summary(lm(fitted(HM) ~ gas.meas))[9])[1]
     HM.RMSE <- RMSE(gas.meas, fitted(HM))
     HM.MAE <- MAE(gas.meas, fitted(HM))
 
     # Store results in new data table
-    HM_results <- cbind.data.frame(HM.flux, HM.C0, HM.Ci, HM.slope, HM.se,
-                                   HM.se.rel, HM.MAE, HM.RMSE, HM.r2, HM.k)
+    HM_results <- cbind.data.frame(HM.flux, HM.C0, HM.Ci, HM.slope, HM.MAE,
+                                   HM.RMSE, HM.AICc, HM.se, HM.se.rel, HM.r2, HM.k)
 
   } else {
-    HM_results <- cbind.data.frame(HM.Ci = NA, HM.C0 = NA, HM.k = NA,
-                                   HM.slope = NA, HM.flux = NA, HM.se = NA,
-                                   HM.se.rel = NA, HM.r2 = NA, HM.RMSE = NA)
+    HM_results <- cbind.data.frame(HM.flux = NA, HM.C0 = NA, HM.Ci = NA,
+                                   HM.slope = NA, HM.MAE = NA, HM.RMSE = NA,
+                                   HM.AICc = NA, HM.se = NA, HM.se.rel = NA,
+                                   HM.r2 = NA, HM.k = NA)
   }
 }

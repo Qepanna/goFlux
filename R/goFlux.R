@@ -91,26 +91,28 @@
 #' \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to
 #' \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}.
 #'
-#' @returns Returns a data frame with 26 columns: a UniqueID per measurement,
-#'          10 columns for the linear model results (linear flux estimate
+#' @returns Returns a data frame with 28 columns: a UniqueID per measurement,
+#'          11 columns for the linear model results (linear flux estimate
 #'          (\code{LM.flux}), initial gas concentration (\code{LM.C0}), final
 #'          gas concentration (\code{LM.Ct}), slope of linear regression
 #'          (\code{LM.slope}), mean absolute error ((\code{LM.MAE})), root mean
-#'          square error ((\code{LM.RMSE})), standard error ((\code{LM.se})),
-#'          relative se ((\code{LM.se.rel})),
-#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and p-value
-#'          ((\code{LM.p.val}))), 10 columns for the non-linear model results
-#'          (non-linear flux estimate (\code{HM.flux}), initial gas concentration
-#'          (\code{HM.C0}), final gas concentration (\code{HM.Ci}), slope
-#'          at \code{t=0} (\code{HM.slope}), mean absolute error (\code{HM.MAE}),
-#'          root mean square error (\code{HM.RMSE}), standard error (\code{HM.se}),
-#'          relative se (\code{HM.se.rel}),
-#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and curvature
-#'          (kappa; \code{HM.k}), as well as the minimal detectable flux
+#'          square error ((\code{LM.RMSE})), Akaike information criterion
+#'          corrected for small sample size (\code{LM.AICc}), standard error
+#'          ((\code{LM.se})), relative standard error ((\code{LM.se.rel})),
+#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}} ((\code{LM.r2})),
+#'          and p-value ((\code{LM.p.val}))), 11 columns for the non-linear model
+#'          results (non-linear flux estimate (\code{HM.flux}), initial gas
+#'          concentration (\code{HM.C0}), final gas concentration (\code{HM.Ci}),
+#'          slope at \code{t=0} (\code{HM.slope}), mean absolute error
+#'          (\code{HM.MAE}), root mean square error (\code{HM.RMSE}), Akaike
+#'          information criterion corrected for small sample size (\code{HM.AICc}),
+#'          standard error (\code{HM.se}), relative standard error (\code{HM.se.rel}),
+#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}} ((\code{HM.r2})),
+#'          and curvature (kappa; \code{HM.k}), as well as the minimal detectable flux
 #'          (\code{\link[GoFluxYourself]{MDF}}), the precision of the instrument
 #'          (\code{prec}), the flux term (\code{\link[GoFluxYourself]{flux.term}}),
-#'          kappa-max (\code{\link[GoFluxYourself]{k.max}}), the g factor
-#'          (\code{\link[GoFluxYourself]{g.factor}}), the number of observations
+#'          kappa-max (\code{\link[GoFluxYourself]{k.max}}), the g factor (g.fact;
+#'          \code{\link[GoFluxYourself]{g.factor}}), the number of observations
 #'          used (\code{nb.obs}) and the true initial gas concentration
 #'          (\code{C0}) and final gas concentration (\code{Ct}).
 #'
@@ -393,8 +395,8 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     data_split[[f]] <- data_split[[f]] %>%
       mutate(flux.term = flux.term(first(na.omit(Vtot)), first(na.omit(Pcham)),
                                    first(na.omit(Area)), first(na.omit(Tcham)),
-                                   H2O_flux.term),
-             MDF = MDF(prec, (max(Etime)+1), flux.term))
+                                   H2O_flux.term)) %>%
+      mutate(MDF = MDF(prec, (max(Etime)+1), flux.term))
   }
 
   # Create an empty list to store results
@@ -436,17 +438,17 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     C0.best <- if_else(between(C0, C0.lim.flux[1], C0.lim.flux[2]), C0, C0.flux)
 
     # Calculate kappa thresholds based on MDF, LM.flux and Etime
-    kappa.max <- k.max(MDF, LM.res$LM.flux, (max(data_split[[f]]$Etime)+1))
+    kappa.max <- abs(k.max(MDF, LM.res$LM.flux, (max(data_split[[f]]$Etime)+1)))
 
     # Hutchinson and Mosier
     HM.res <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
                       flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-                      k.max = kappa.max)
+                      k.max = kappa.max, k.mult = k.mult)
 
     # Flux results
     flux.res.ls[[f]] <- cbind.data.frame(
       UniqueID, LM.res, HM.res, C0, Ct, MDF, prec,
-      flux.term, nb.obs, k.max = kappa.max*k.mult,
+      flux.term, nb.obs, k.max = kappa.max, k.mult,
       g.fact = g.factor(HM.res$HM.flux, LM.res$LM.flux))
 
     # Update progress bar
