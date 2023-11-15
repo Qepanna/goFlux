@@ -21,7 +21,7 @@
 #'                 are not necessary for gas flux calculation are removed.
 #' @param prec numerical vector; the precision of the instrument for each gas,
 #'             in the following order: "CO2dry_ppm" and H2O_ppm". The default is
-#'             \code{prec = c(0.8, 60)}.
+#'             \code{prec = c(0.15, 20)}.
 #'
 #' @returns a data frame containing raw data from LI-COR GHG analyzer LI-6400.
 #'
@@ -78,7 +78,7 @@
 #' @export
 #'
 LI6400_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
-                          save = FALSE, keep_all = FALSE, prec = c(1, 1)){
+                          save = FALSE, keep_all = FALSE, prec = c(0.15, 20)){
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")

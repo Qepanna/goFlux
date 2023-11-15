@@ -24,7 +24,7 @@
 #' @param prec numerical vector; the precision of the instrument for each gas,
 #'             in the following order: "CO2dry_ppm", CH4dry_ppb", "N2Odry_ppb",
 #'             "NH3dry_ppb" and H2O_ppm". The default is
-#'             \code{prec = c(0.6, 10, 25, 5, 500)}.
+#'             \code{prec = c(0.24, 0.3, 5, 0.16, 500)}.
 #'
 #' @returns a data frame containing raw data from Picarro G2508 GHG analyzer.
 #'
@@ -86,7 +86,7 @@
 #'
 G2508_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                          save = FALSE, keep_all = FALSE,
-                         prec = c(0.6, 10, 25, 5, 500)){
+                         prec = c(0.24, 0.3, 5, 0.16, 500)){
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")

@@ -10,7 +10,7 @@ LI6400_import(
   timezone = "UTC",
   save = FALSE,
   keep_all = FALSE,
-  prec = c(1, 1)
+  prec = c(0.15, 20)
 )
 }
 \arguments{
@@ -36,7 +36,7 @@ are not necessary for gas flux calculation are removed.}
 
 \item{prec}{numerical vector; the precision of the instrument for each gas,
 in the following order: "CO2dry_ppm" and H2O_ppm". The default is
-\code{prec = c(0.8, 60)}.}
+\code{prec = c(0.15, 20)}.}
 }
 \value{
 a data frame containing raw data from LI-COR GHG analyzer LI-6400.

@@ -10,7 +10,7 @@ G2508_import(
   timezone = "UTC",
   save = FALSE,
   keep_all = FALSE,
-  prec = c(0.6, 10, 25, 5, 500)
+  prec = c(0.24, 0.3, 5, 0.16, 500)
 )
 }
 \arguments{
@@ -37,7 +37,7 @@ are not necessary for gas flux calculation are removed.}
 \item{prec}{numerical vector; the precision of the instrument for each gas,
 in the following order: "CO2dry_ppm", CH4dry_ppb", "N2Odry_ppb",
 "NH3dry_ppb" and H2O_ppm". The default is
-\code{prec = c(0.6, 10, 25, 5, 500)}.}
+\code{prec = c(0.24, 0.3, 5, 0.16, 500)}.}
 }
 \value{
 a data frame containing raw data from Picarro G2508 GHG analyzer.
