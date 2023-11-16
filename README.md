@@ -67,17 +67,17 @@ not include data pre-processing (e.g. the R packages
 
 This new R package, `GoFluxYourself` is meant to be “student proof”,
 meaning that no extensive knowledge or experience is needed to import
-raw data into R, chose the best model to calculate fluxes (LM, HM or no
-flux), quality check the results objectively and obtain high quality
-flux estimates. The package contains a wide range of functions that
-allows the user to import raw data from a variety of instruments
-(LI-COR, LGR, GAIA2TECH, Gasmet and Picarro); calculate fluxes from a
-variety of GHG (CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O,
-NH<sub>3</sub>, CO and H<sub>2</sub>O) with both linear (LM) and
-non-linear (HM) flux calculation methods; align instruments clocks after
-data import; interactively identify measurements (start and end time) if
-there are no automatic chamber recordings (e.g. LI-COR smart chamber);
-plot measurements for easy visual inspection; and quality check the
+raw data into R, chose the best model to calculate fluxes (LM or HM),
+quality check the results objectively and obtain high quality flux
+estimates. The package contains a wide range of functions that allows
+the user to import raw data from a variety of instruments (LI-COR, LGR,
+GAIA2TECH, Gasmet and Picarro); calculate fluxes from a variety of GHG
+(CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, NH<sub>3</sub>, CO and
+H<sub>2</sub>O) with both linear (LM) and non-linear (HM) flux
+calculation methods; align instruments clocks after data import;
+interactively identify measurements (start and end time) if there are no
+automatic chamber recordings (e.g. LI-COR smart chamber); plot
+measurements for easy visual inspection; and quality check the
 measurements based on objective criteria and non-arbitrary thresholds.
 
 > *Three R packages for the Elven-kings under the CRAN,  
@@ -99,7 +99,9 @@ model to calculate fluxes (LM or HM, that is the question. -Shakespeare,
 needed) and obtain high quality flux estimates from static chamber
 measurements (wonderful!).
 
-The package contains a wide range of functions that lets the user import
+### Import and measurement identification
+
+The package contains a wide range of functions that let the user import
 raw data from a variety of instruments:
 
 - [**LI-COR trace gas
@@ -121,10 +123,10 @@ raw data from a variety of instruments:
 - [**GAIATECH Automated ECOFlux
   chamber**](https://www.dmr.eu/technologies/gas-emission-measurements-eco2flux/automated-eco2flux-chamber/):
   for an easy import of data from any gas analyzer
-- [**Gasmet
-  DX4015**](https://www.gasmet.com/products/category/portable-gas-analyzers/dx4015/):
-  portable analyzer for humid conditions. Measures CO, CO<sub>2</sub>,
-  CH<sub>4</sub>, N<sub>2</sub>O, NH<sub>3</sub> and H<sub>2</sub>O.
+- [**Gasmet DX4015 portable analyzer for humid
+  conditions**](https://www.gasmet.com/products/category/portable-gas-analyzers/dx4015/):
+  for CO, CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, NH<sub>3</sub>
+  and H<sub>2</sub>O.
 
 After import, the user can chose from two methods for identification of
 measurements:
@@ -139,10 +141,49 @@ measurements:
   recordings of chamber opening and closing from an instrument such as
   the LI-COR Smart Chamber or the GAIATECH Automated ECOFlux chamber.
 
+### Flux calculation
+
 The function `goFlux()` calculates fluxes from a variety of greenhouse
 gases (CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, NH<sub>3</sub>,
-CO, and H<sub>2</sub>O) using both linear (LM) and non-linear
-(Hutchinson and Mosier) flux calculation methods.
+CO, and H<sub>2</sub>O) using both linear (LM) and non-linear (HM;
+[Hutchinson and Mosier,
+1981](https://doi.org/10.2136/sssaj1981.03615995004500020017x)) flux
+calculation methods. The HM model for the chamber concentration $C_t$ at
+time $t > 0$ after deployment is given by:
+
+$$\mathbf{Eqn~1}~~~~~~C_t = \varphi~+~(C_0 - \varphi)^{-~\kappa~t}$$
+
+Where $\varphi$ is the assumed concentration of constant gas source
+below the surface (also known as $C_i$), $C_0$ is the concentration in
+the chamber at the moment of chamber closure and $\kappa$ (kappa)
+determines the curvature of the model. A large kappa returns a strong
+curvature.
+
+A maximum threshold for this parameter, kappa-max ($k.max$), can be
+calculated from the linear flux estimate ($LM.flux$), the minimal
+detectable flux ($MDF$) and the time of chamber closure ($t$) ([Hüppi et
+al., 2018](https://doi.org/10.1371/journal.pone.0200876)).
+$$\mathbf{Eqn~2}~~~~~~k.max = \frac{LM.flux}{MDF~\times~t}$$Where
+$LM.flux$ and $MDF$have the same units (nmol or
+$\mu$mol$\cdot$m<sup>-2</sup>$\cdot$s<sup>-1</sup>) and $t$ is in
+seconds. Therefore, the units of kappa-max is s<sup>-1</sup>. This limit
+of kappa-max is included in the `goFlux()` function, so that the
+non-linear flux estimate cannot exceed this maximum curvature. See below
+for more details about the minimal detectable flux (MDF).
+
+All flux estimates, including the MDF, are multiplied by a $flux.term$
+which is used to correct for water vapor inside the chamber, as well as
+convert the units to obtain a term in nmol or
+$\mu$mol$\cdot$m<sup>-2</sup>$\cdot$s<sup>-1</sup>:
+$$\mathbf{Eqn~3}~~~~~~flux.term = \frac{(1 - H_2O)~V~P}{A~R~T}$$Where
+$H_2O$ is the water vapor in mmol$\cdot$mol<sup>-1</sup>, $V$ is the
+volume inside the chamber in liters, $P$ is the pressure in kPa, $A$ is
+the surface area inside the chamber in m<sup>2</sup>, $R$ is the
+universal gas constant in
+L$\cdot$kPa$\cdot$K<sup>-1</sup>$\cdot$mol<sup>-1</sup>. Each parameters
+are measured inside the chamber at $t = 0$.
+
+### Automatic selection of the best flux estimate
 
 Following flux calculation, the user can select the best flux estimate
 (LM or HM) based on objective criteria and non-arbitrary thresholds,
@@ -151,92 +192,224 @@ using the `best.flux()` function:
 - **Assumed non-linearity**: If all criteria are respected, the best
   flux estimate is assumed to be the non-linear estimate from the
   Hutchinson and Mosier model.
-- **G-factor**: The g-factor is the ratio between the result of a
-  non-linear flux calculation model (e.g. Hutchinson and Mosier; HM) and
-  the result of a linear flux calculation model ([Hüppi et al.,
-  2018](https://doi.org/10.1371/journal.pone.0200876)). With the
-  `best.flux()` function, one can chose a limit at which the HM model is
-  deemed to overestimate (*f*<sub>0</sub>). Recommended thresholds for
-  the g-factor are \<4 for a flexible threshold, \<2 for a medium
-  threshold, or \<1.25 for a more conservative threshold. The default
-  threshold is `g.limit = 2`. If the g-factor is above the specified
-  threshold, the best flux estimate will switch to LM instead of HM.
-- **Minimal Detectable Flux**: The minimal detectable flux (MDF) is
-  based on instrument precision and measurements time ([Christiansen et
-  al., 2015](https://doi.org/10.1016/j.agrformet.2015.06.004)). Under
-  the MDF, there is no detectable flux, but the function will not return
-  a 0 to avoid heteroscedasticity of variances. There will simply be a
-  comment in the columns “quality.check”, “LM.diagnose” or “HM.diagnose”
-  saying that there is “No detectable flux (MDF)”. No best flux estimate
-  is chosen based on MDF.
-- **Kappa max**: The parameter kappa determines the curvature of the
-  non-linear regression in the Hutchinson and Mosier model. A large
-  kappa, returns a strong curvature. A maximum threshold for this
-  parameter, kappa-max, is calculated based on the minimal detectable
-  flux (MDF), the linear flux estimate and the measurement time ([Hüppi
-  et al., 2018](https://doi.org/10.1371/journal.pone.0200876)). The
-  units of the kappa-max is s<sup>-1</sup>. This limit of kappa-max is
-  included in the `goFlux()` function, so that the non-linear flux
-  estimate cannot exceed this maximum curvature. In the function
-  `best.flux()`, one can choose the linear flux estimate over the
-  non-linear flux estimate based on the ratio between kappa and
-  kappa-max. The ratio is expressed as a percentage, where 1 indicates
-  `HM.k = k.max`, and 0.5 indicates `HM.k = 0.5*k.max`. The default
-  setting is `k.ratio = 1`.
-- **Statistically significant flux (*p-value*)**: This criteria is only
-  applicable to the linear flux. Under a defined *p-value*, the linear
-  flux estimate is deemed non-significant, i. e., no detectable flux.
-  The default threshold is `p.val = 0.05`. No best flux estimate is
-  chosen based on *p-value*. If `LM.p.val < p.val`, a warning is given
-  in the columns “quality.check” and “LM.diagnose”: “No detect. LM.flux
-  (p-val)”.
-- **Mean Absolute Error (MAE)**: This criteria is used to warned against
-  “noisy” measurements: In a theoretical situation where the
-  concentration inside the chamber is strictly diffusional and deviate
-  from diffusion under non-steady state, a parameter such as MAE or RMSE
-  reflects the instrument precision. Therefore, the instrument precision
-  is used in the `best.flux()` function as a threshold for these
-  parameters. To account for a larger noise in larger measurements, the
-  threshold in the `best.flux()` function is the instrument precision
-  plus 0.05% of the reading. If MAE is chosen as a criteria in
-  `best.flux()`, the model with the smallest MAE is chosen, unless both
-  of them are smaller than the instrument precision. In that case, the
-  non-linear flux estimate is always chosen by default. If MAE is larger
-  than the instrument precision, a warning is given in the columns
-  “quality.check”, “LM.diagnose” or “HM.diagnose” saying “Noisy
-  measurement (MAE)”. MAE and RMSE cannot both be selected.
-- **Root Mean Square Error (RMSE)**: RMSE functions exactly like MAE.
-  The difference between the two is that RMSE is much more sensitive to
-  outliers. MAE will always return a smaller value than RMSE. MAE and
-  RMSE cannot both be selected.
-- **Relative Standard Error**: The delta method is used to propagate the
-  total error of the flux calculation (`deltamethod()` from the `msm`
-  package). The standard error is then divided by the flux estimate to
-  obtain the relative standard error (%). This criteria is used as a
-  warning of a potentially “bad measurement”. The default threshold is
-  `SErel = 5`. Like MAE and RMSE, the smallest relative standard error
-  between `LM.se.rel` and `HM.se.rel` selects for the best flux
-  estimate, unless they are both under the threshold. In that case, the
-  non-linear flux estimate is always chosen by default. If `LM.se.rel`
-  and `HM.se.rel` are larger than the threshold, a warning is given in
-  the columns “quality.check”, “LM.diagnose” or “HM.diagnose” saying
-  “Noisy measurement (SE rel.)”.
-- **Intercept**: If the initial gas concentration (*C<sub>0</sub>*)
-  calculated for the flux estimates are more or less than 10% of the
-  difference between *C<sub>0</sub>* and the final gas concentration at
-  the end of the measurement (*C<sub>i</sub>*), a warning is issued in
-  the columns “quality.check”, “LM.diagnose” or “HM.diagnose” saying
-  “Intercept out of bounds”. Alternatively, one can provide boundaries
-  for the intercept, for example: `intercept.lim = c(380, 420)` for a
-  true *C<sub>0</sub>* of 400 ppm.
-- **Number of observations**: Minimum amount of observations accepted
-  (`nb.obs`). With nowadays portable greenhouse gas analyzers, the
-  frequency of measurement is usually one measurement per second.
-  Therefore, for a default setting of `warn.length = 60`, the chamber
-  closure time should be approximately one minute (60 seconds). If the
-  number of observations is smaller than the threshold, a warning is
-  issued in the column “quality.check” saying “nb.obs \< 60”, for
-  example.
+- flux estimate.
+- and kappa-max ($k.max$).
+- on a selection of indices of model fit: MAE, RMSE, SE and AICc. In
+  addition to the automatic selection of the best flux estimate based on
+  these indices of model fit, measurements can be flagged “noisy” using
+  these criteria.
+
+In addition, the `best.flux()` function can flag measurements that are
+below detection limit (MDF and *p-value*), out of bounds (intercept), or
+too short (number of observations).
+
+- is considered below the detection limit.
+- flux estimate is considered statistically non-significant, and below
+  the detection limit.
+- models.
+- for being too short.
+
+By default, all criteria are included:
+`criteria = c("MAE", "RMSE", "AICc", "SE", "g-factor", "kappa", "MDF", "nb.obs", "p-value", "intercept")`
+
+#### **G-factor**
+
+The g-factor is the ratio between the result of a non-linear flux
+calculation model (e.g. Hutchinson and Mosier; HM) and the result of a
+linear flux calculation model ([Hüppi et al.,
+2018](https://doi.org/10.1371/journal.pone.0200876)).
+$$\mathbf{Eqn~4}~~~~~~g-factor = \frac{HM.flux}{LM.flux}$$With the
+`best.flux()` function, one can chose a limit at which the HM model is
+deemed to overestimate (*f*<sub>0</sub>). Recommended thresholds for the
+g-factor are \<4 for a flexible threshold, \<2 for a medium threshold,
+or \<1.25 for a more conservative threshold. The default threshold is
+`g.limit = 2`. If the g-factor is above the specified threshold, the
+best flux estimate will switch to LM instead of HM. If `HM.flux/LM.flux`
+is larger than `g.limit`, a warning is given in the columns
+`HM.diagnose` and `quality.check`.
+
+#### **Minimal Detectable Flux (MDF)**
+
+The minimal detectable flux ($MDF$) is based on instrument precision
+($prec$) and measurement time ($t$) ([Christiansen et al.,
+2015](https://doi.org/10.1016/j.agrformet.2015.06.004)).
+$$\mathbf{Eqn~5}~~~~~~MDF = \frac{prec}{t}~\times~flux.term$$Where the
+instrument precision is in the same units as the measured gas (ppm or
+ppb) and the measurement time is in seconds.
+
+Below the MDF, the flux estimate is considered under the detection
+limit, but not null. Therefore, the function will not return a 0. There
+will simply be a warning in the columns `quality.check`, `LM.diagnose`
+or `HM.diagnose` to warn of a flux estimate under the detectable limit.
+No best flux estimate is chosen based on MDF.
+
+#### **Kappa ratio**
+
+The parameter kappa determines the curvature of the non-linear
+regression in the Hutchinson and Mosier model, as shown in equation 1.
+The limit of kappa-max, as calculated in equation 2, is included in the
+`goFlux()` function, so that the non-linear flux estimate cannot exceed
+this maximum curvature.
+
+In the function `best.flux()`, one can choose the linear flux estimate
+over the non-linear flux estimate based on the ratio between kappa and
+kappa-max (`k.ratio`). The ratio is expressed as a percentage, where 1
+indicates `HM.k = k.max`, and 0.5 indicates `HM.k = 0.5*k.max`. The
+default setting is `k.ratio = 1`. If `HM.k/k.max` is larger than
+`k.ratio`, a warning is issued in the columns `HM.diagnose` and
+`quality.check`.
+
+#### **Indices of model fit**
+
+In the `best.flux()` function, we included multiple choices of indices
+of model fit, described below. One can chose to include however many of
+them in the function. If multiple of them are included, the selection of
+the best model will be made based on a scoring system. Both models start
+with a score of 0. For each criteria, whichever model performs worst is
+given +1. After all selected criteria have been evaluated, the model
+with the lowest score wins. In case of a tie, the non-linear flux
+estimate is always chosen by default, as non-linearity is assumed.
+
+##### **Mean Absolute Error (MAE) and Root Mean Square Error (RMSE)**
+
+The mean absolute error (MAE) is the arithmetic mean of the absolute
+residuals of a model, calculated as follows:
+$$\mathbf{Eqn~6}~~~~~~MAE = \frac{\sum_{i = 1}^{n}{\lvert{y_i-\hat{y_i}}\rvert}}{n}$$Where
+$y_i$ is the measured value, $\hat{y_i}$ is the predicted value and $n$
+is the number of observations.
+
+The root mean square error (RMSE) is very similar to the MAE. Instead of
+using absolute errors, it uses squared errors, and the mean of the
+squared errors is then rooted as follows:
+$$\mathbf{Eqn~7}~~~~~~RMSE = \sqrt{\frac{\sum_{i = 1}^{n}{({y_i-\hat{y_i}})^2}}{n}}$$Because
+of the squared errors, RMSE is sensitive to outliers. Indeed, a few
+large errors will have a significant impact on the RMSE. Therefore, RMSE
+will always be larger than or equal to MAE ([Pontius et al.,
+2008](https://doi.org/10.1007/s10651-007-0043-y)).
+
+Mathematically, RMSE is the standard deviation of the residuals:
+$$\mathbf{Eqn~8}~~~~~~\sigma = \sqrt{\frac{\sum_{i = 1}^{N}{({x_i-\mu})^2}}{N}}$$Where
+$x_i$ is the measured value, $N$ is the size of the population and $\mu$
+is the population mean. The standard deviation is used to calculate the
+precision of an instrument. In that case, $\mu$ is a known constant gas
+concentration and $N$ is the number of observations.
+
+Considering all of the above, MAE, RMSE and the standard deviation are
+all measures of how much the data points are scattered around the true
+mean or the regression. Therefore, MAE and RMSE can be compared to the
+instrument precision to determine if a measurement is noisy. For a MAE
+or RMSE larger than the instrument precision, the measurement is
+considered to have more noise than normally expected.
+
+If MAE is chosen as a criteria in `best.flux()`, the model with the
+smallest MAE is chosen. If both models have a MAE smaller than the
+instrument precision, the non-linear flux estimate is always chosen by
+default, as non-linearity is assumed. When MAE is larger than the
+instrument precision, a warning is given in the columns `quality.check`,
+`LM.diagnose` or `HM.diagnose` to warn of a noisy measurement. RMSE
+functions exactly the same was as MAE in the `best.flux()` function.
+
+##### **Standard Error**
+
+While the standard deviation tell about how the data points are
+scattered around the true mean, the standard error of a measurement
+tells how accurate that measurement is compared to the true population
+mean ([Altman and Bland,
+2005](https://doi.org/10.1136%2Fbmj.331.7521.903)). If considering the
+standard deviation as used to calculate instrument precision (equation
+8), the instrument standard error (instrument accuracy) is the standard
+deviation divided by the square root of the number of observations:
+$$\mathbf{Eqn~9}~~~~~~\sigma_\bar{x} = \frac{\sigma}{\sqrt{n}}$$Practically,
+this means that a larger sample size increases the accuracy of a
+measurement. In other words, if an instrument is imprecise and the
+measurement has a lot of noise, it is still possible to get a very
+accurate estimate of the true mean by increasing the number of
+observations. With high-frequency GHG analyzers, that means increasing
+the chamber closure time.
+
+To calculate the standard error of a regression, one can use the delta
+method (`deltamethod()` from the `msm` package), which propagates the
+total error of the flux calculation for each parameter included in the
+formula. The delta method approximates the standard error of a
+regression $g(X)$ of a random variable $X = (x_1, x_2, ...)$, given
+estimates of the mean and covariance matrix of $X$ ([Oehlert,
+1992](https://doi.org/10.2307/2684406); [Mandel,
+2013](https://doi.org/10.1080/00031305.2013.783880)).
+
+In the function `best.flux()`, the standard error (SE) of the
+measurements can be compared to the standard error of the instrument
+($\sigma_\bar{x}$). If SE is chosen as a criteria in `best.flux()`, the
+model with the smallest SE is chosen. If both models have a SE smaller
+than the instrument precision, the non-linear flux estimate is always
+chosen by default, as non-linearity is assumed. When SE is larger than
+the instrument accuracy ($\sigma_\bar{x}$), a warning is given in the
+columns `quality.check`, `LM.diagnose` or `HM.diagnose` to warn of a
+noisy measurement.
+
+##### **Akaike Information Criterion corrected for small sample size (AICc)**
+
+The AIC estimates the relative quality of a statistical model and is
+used to compare the fitting of different models to a set of data
+([Akaike, 1974](https://doi.org/10.1109/TAC.1974.1100705)). Consider the
+formula for AIC: $$\mathbf{Eqn~10}~~~~~~AIC = 2k - 2ln(\hat{L})$$Where
+$k$ is the number of parameters in the model and $\hat{L}$ is the
+maximized value of the likelihood function for the model. AIC deals with
+the trade-off between the goodness of fit of a model and the simplicity
+of the model. In other words, the AIC is a score that deals with both
+the risk of underfitting and the risk of overfitting, and the model with
+the lowest score has the best model fit.
+
+In flux calculation, the linear model contains two parameters: the slope
+and the intercept ($C_0$), whereas the Hutchinson and Mosier model
+(equation 1) contains three parameters: the assumed concentration of
+constant gas source below the surface ( $\varphi$ ), is the
+concentration in the chamber at the moment of chamber closure ($C_0$)
+and the curvature, kappa ($\kappa$). If both models have a very similar
+fit (maximum likelihood), then the linear model would win because it has
+less parameters. However, when the sample size is small (\<40
+observations per parameter; i.e. \<120 observations when calculating
+HM), there is an increased risk that AIC selects a model with too many
+parameters. To address this risk of overfitting, AICc was developed
+([Sugiura, 1978](https://doi.org/10.1080/03610927808827599)):
+$$\mathbf{Eqn~11}~~~~~~AICc = AIC + \frac{2k^2 + 2k}{n - k - 1}$$Where
+$n$ denotes the number of observations and $k$ the number of parameters
+in the model.
+
+If AICc is selected as a criteria in the `best.flux()` function, the
+model with the lowest AICc wins.
+
+#### **Intercept**
+
+If the initial gas concentration (*C<sub>0</sub>*) calculated for the
+flux estimates are more or less than 10% of the difference between
+*C<sub>0</sub>* and the final gas concentration at the end of the
+measurement (*C<sub>t</sub>*), a warning is issued in the columns
+`quality.check`, `LM.diagnose` or `HM.diagnose` to warn of an intercept
+out of bounds. Alternatively, one can provide boundaries for the
+intercept, for example: `intercept.lim = c(380, 420)` for a true
+*C<sub>0</sub>* of 400 ppm.
+
+#### **Statistically significant flux (*p-value*)**
+
+This criteria is only applicable to the linear flux. Under a defined
+*p-value*, the linear flux estimate is deemed non-significant, i. e.,
+flux under the detectable limit. The default threshold is
+`p.val = 0.05`. No best flux estimate is chosen based on *p-value*. If
+`LM.p.val < p.val`, a warning is given in the columns `quality.check`
+and `LM.diagnose` to warn of an estimated flux under the detection
+limit.
+
+#### **Number of observations**
+
+Limit under which a measurement is flagged for being too short
+(`nb.obs < warn.length`). With nowadays’ portable greenhouse gas
+analyzers, the frequency of measurement is usually one observation per
+second. Therefore, for the default setting of `warn.length = 60`, the
+chamber closure time should be approximately one minute (60 seconds). If
+the number of observations is smaller than the threshold, a warning is
+issued in the column `quality.check`.
+
+### Visual inspection
 
 Finally, after finding the best flux estimates, one can plot the results
 and visually inspect the measurements using the function `flux.plot()`
@@ -278,11 +451,11 @@ remotes::install_github("Qepanna/GoFluxYourself")
 
 **If prompted, it is recommended to update any pre-installed packages.**
 The functioning of the package depends on many other packages
-(`data.table`, `dplyr`, `ggnewscale`, `ggplot2`, `ggstar`, `graphics`,
-`grDevices`, `grid`, `gridExtra`, `lubridate`, `minpack.lm`, `msm`,
-`pbapply`, `plyr`, `purrr`, `rjson`, `rlist`, `SimDesign`, `stats`,
-`stringr`, `tibble`, `tidyr`, `utils`), which will be installed when
-installing `GoFluxYourself`.
+(`AICcmodavg`, `data.table`, `dplyr`, `ggnewscale`, `ggplot2`, `ggstar`,
+`graphics`, `grDevices`, `grid`, `gridExtra`, `lubridate`, `minpack.lm`,
+`msm`, `pbapply`, `plyr`, `purrr`, `rjson`, `rlist`, `SimDesign`,
+`stats`, `stringr`, `tibble`, `tidyr`, `utils`), which will be installed
+when installing `GoFluxYourself`.
 
 Troubleshoot problems with `install_github()`:
 
@@ -414,9 +587,9 @@ surface; cm) and the volume of the chamber (`Vcham`; L). In that case,
 the volume inside the tubing and the instruments is considered
 negligible, or it should be added to `Vcham`.
 
-The final output, before flux calculation requires: UniqueID, Etime,
-flag, Vtot (or Vcham and offset), Area, Pcham, Tcham, H2O_ppm and other
-gases.
+The final output, before flux calculation requires: `UniqueID`, `Etime`,
+`flag`, `Vtot` (or `Vcham` and `offset`), `Area`, `Pcham`, `Tcham`,
+`H2O_ppm` and other gases.
 
 ### Flux calculation
 
@@ -431,15 +604,15 @@ non-arbitrary thresholds, and plot the results for visual inspection.
 ?best.flux
 
 # Calculate fluxes for all gas types
-CO2_flux <- goFlux(LGR_manID, "CO2dry_ppm", prec = 0.3)
-CH4_flux <- goFlux(LGR_manID, "CH4dry_ppb", prec = 1.4)
-H2O_flux <- goFlux(LGR_manID, "H2O_ppm", prec = 50)
+CO2_flux <- goFlux(LGR_manID, "CO2dry_ppm")
+CH4_flux <- goFlux(LGR_manID, "CH4dry_ppb")
+H2O_flux <- goFlux(LGR_manID, "H2O_ppm")
 
 # Use best.flux to select the best flux estimates (LM or HM)
 # based on a list of criteria
 CO2_flux_res <- best.flux(CO2_flux, criteria = c("MAE", "g.factor", "MDF"))
 CH4_flux_res <- best.flux(CH4_flux, criteria = c("MAE", "g.factor", "MDF"))
-H2O_flux_res <- best.flux(H2O_flux, criteria = c("MAE", "MDF"))
+H2O_flux_res <- best.flux(H2O_flux, criteria = c("MAE", "AICc", "MDF"))
 
 # Plots results ----------------------------------------------------------------
 ?flux.plot
@@ -448,7 +621,7 @@ H2O_flux_res <- best.flux(H2O_flux, criteria = c("MAE", "MDF"))
 # Make a list of plots of all measurements, for each gastype.
 # With the function flux.plot, all parameters can be displayed.
 # You can chose what parameters to display on the plots.
-plot.legend = c("MAE", "RMSE", "k.ratio", "g.factor", "SErel")
+plot.legend = c("MAE", "RMSE", "AICc", "k.ratio", "g.factor")
 plot.display = c("MDF", "prec", "nb.obs", "flux.term")
 quality.check = TRUE
 

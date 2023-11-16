@@ -6,10 +6,9 @@
 \usage{
 best.flux(
   flux.result,
-  criteria = c("MAE", "RMSE", "AICc", "SErel", "g.factor", "kappa", "MDF", "nb.obs",
+  criteria = c("MAE", "RMSE", "AICc", "SE", "g.factor", "kappa", "MDF", "nb.obs",
     "intercept", "p-value"),
   intercept.lim = NULL,
-  SErel = 5,
   g.limit = 2,
   p.val = 0.05,
   k.ratio = 1,
@@ -22,7 +21,7 @@ best.flux(
 
 \item{criteria}{character vector; criteria used to asses the goodness of fit
 of the linear and non-linear flux estimates. Must be at least
-one the following: "MAE", "RMSE", "AICc", "SErel", "g.factor",
+one the following: "MAE", "RMSE", "AICc", "SE", "g.factor",
 "kappa", "MDF", "nb.obs", "p-value", or "intercept". The
 default is all of them.}
 
@@ -37,33 +36,20 @@ from the true values of
 \ifelse{html}{\out{C<sub>i</sub>}}{\eqn{C[i]}{ASCII}}
 for each measurement.}
 
-\item{SErel}{numerical value; maximal relative standard error accepted (\%)
-on flux estimate. The default is 5\%.}
-
-\item{g.limit}{numerical value; maximal limit of the the g-factor, which is the
-ratio between the non-linear flux estimate
-(\code{\link[GoFluxYourself]{HM.flux}}) and the linear flux
-estimate (\code{\link[GoFluxYourself]{LM.flux}}). Recommended
+\item{g.limit}{numerical value; maximal limit of the the g-factor (ratio
+between \code{\link[GoFluxYourself]{HM.flux}} and
+\code{\link[GoFluxYourself]{LM.flux}}). Recommended
 thresholds for the g-factor are 4 (flexible), 2 (medium), or
 1.25 (conservative). The default limit is \code{g.limit = 2}.}
 
-\item{p.val}{numerical value; a limit for a statistically non-zero flux.
-The default threshold is p-value < 0.05.}
+\item{p.val}{numerical value; a limit for a statistically detectable flux.
+The default threshold is \emph{p-value} < 0.05.}
 
 \item{k.ratio}{numerical value; maximal limit of the ratio between kappa and
-the kappa-max. kappa-max is the maximal curvature (kappa)
-of the non-linear regression (Hutchinson and Mosier model)
-allowed for a each flux measurements. With \code{k.ratio}, one
-can chose to select the LM flux estimate instead of the
-non-linear flux estimate by giving a percentage of kappa-max.
-Default is \code{k.ratio = 1}.}
+the kappa-max. Default is \code{k.ratio = 1}.}
 
-\item{warn.length}{numerical; minimum amount of observations accepted (nb.obs).
-With nowadays portable greenhouse gas analyzers, the
-frequency of measurement is usually one measurement per
-second. Therefore, for a default setting of
-\code{warn.length = 60}, the chamber closure time
-should be approximately one minute (60 seconds).}
+\item{warn.length}{numerical; limit under which a measurement is flagged for
+being too short (\code{nb.obs < warn.length}).}
 }
 \value{
 a data.frame identical to the input \code{flux.result} with the
@@ -78,32 +64,75 @@ This automatic selection of the best flux estimate (linear or non-linear) is
 based on objective criteria and non-arbitrary thresholds.
 }
 \details{
-In \code{criteria}, the indices of model fit "MAE", "RMSE" and "SErel" all
-have a threshold. For MAE and RMSE, the threshold is instrument precision.
-For SErel, the threshold is given as an argument, where the default limit is
-5\%. These indices also compare the two models (linear, LM, and non-linear,
-HM). The selection of the best model regarding indices of model fit ("MAE",
-"RMSE", "AICc" and "SErel") is based on a scoring system. Each model starts
-with a score of 0. Each time one of the model has a worst fit than the other
-model, based on "MAE", "RMSE", "AICc" or "SErel", that model's score is
-increased by 1. Whichever model has the lowest score wins. In case of a tie,
-the non-linear model wins.
+In \code{criteria}, the indices of model fit "MAE", "RMSE" and "SE" all
+have a threshold. For MAE and RMSE, the threshold is instrument precision
+(1\eqn{\sigma}{ASCII}). For SE, the threshold is the instrument accuracy
+(1\eqn{\sigma}{ASCII}/\eqn{\sqrt{n}}{ASCII}. These indices also compare the two models
+(linear, LM, and non-linear, HM). The selection of the best model based on
+indices of model fit ("MAE", "RMSE", "AICc" and "SE") is based on a scoring
+system. Both models start with a score of 0. For each criteria, whichever
+model performs worst is given +1. After all selected criteria have been
+evaluated, the model with the lowest score wins. In case of a tie, the
+non-linear flux estimate is always chosen by default, as non-linearity is assumed.
 
-Another criteria, which is calculated automatically with the function
-\code{\link[GoFluxYourself]{best.flux}}, is the g-factor
-(\code{\link[GoFluxYourself]{g.factor}}), which is the ratio between the HM
-flux estimate and the LM flux estimate. Recommended thresholds for the g-factor
-are 4 (flexible), 2 (medium), or 1.25 (conservative).
+The \code{g.limit} indicates a threshold for the
+\code{\link[GoFluxYourself]{g.factor}}, which is the ratio between a
+non-linear flux estimate and a linear flux estimate. With the
+\code{\link[GoFluxYourself]{best.flux}} function, one can chose a limit at
+which the HM model is deemed to overestimate
+\ifelse{html}{\out{f<sub>0</sub>}}{\eqn{f[0]}{ASCII}}. Recommended thresholds
+for the g-factor are <4 for a flexible threshold, <2 for a medium threshold,
+or <1.25 for a more conservative threshold. The default threshold is
+\code{g.limit = 2}. If the g-factor is above the specified threshold, the
+best flux estimate will switch to LM instead of HM and give a warning in the
+columns \code{quality.check} and \code{HM.diagnose}.
 
-The function \code{\link[GoFluxYourself]{k.max}} calculates the maximal
-curvature (kappa) of the non-linear model (Hutchinson and Mosier) allowed for
-each flux measurement. k.max is calculated based on the minimal detectable
-flux (\code{\link[GoFluxYourself]{MDF}}), the linear flux estimate
-(\code{LM.flux}) and the measurement time. The unit of kappa-max is
-\ifelse{html}{\out{s<sup>-1</sup>}}{\eqn{s^{-1}}{ASCII}}.
+The minimal detectable flux (\code{\link[GoFluxYourself]{MDF}}) is calculated
+from the instrument precision and measurement time. Below the MDF, the flux
+estimate is considered under the detection limit, but not null. Therefore,
+the function will not return a 0. There will simply be a warning in the
+columns \code{quality.check}, \code{LM.diagnose} or \code{HM.diagnose} to
+warn of a flux estimate under the detectable limit. No best flux estimate
+is chosen based on MDF.
 
-The function \code{\link[GoFluxYourself]{MDF}} calculates the minimal
-detectable flux (MDF) based on instrument precision and measurement time.
+The parameter kappa determines the curvature of the non-linear regression in
+the Hutchinson and Mosier model. A maximal limit of kappa,
+\code{\link[GoFluxYourself]{k.max}} is included in the
+\code{\link[GoFluxYourself]{goFlux}} function, so that the non-linear flux
+estimate cannot exceed this maximum curvature. In the function
+\code{best.flux()}, one can choose the linear flux estimate over the
+non-linear flux estimate based on the ratio between kappa and kappa-max
+(\code{k.ratio}). The ratio is expressed as a percentage, where 1 indicates
+\code{HM.k = k.max}, and 0.5 indicates \code{HM.k = 0.5*k.max}. The default
+setting is \code{k.ratio = 1}. If \code{HM.k/k.max} is larger than k.ratio,
+a warning is issued in the columns HM.diagnose and quality.check.
+
+If the initial gas concentration
+(\ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}}) calculated for the
+flux estimates are more or less than 10% of the difference between
+\ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}} and the final gas
+concentration at the end of the measurement
+(\ifelse{html}{\out{C<sub>t</sub>}}{\eqn{C[t]}{ASCII}}), a warning is issued
+in the columns \code{quality.check}, \code{LM.diagnose} or \code{HM.diagnose}
+to warn of an intercept out of bounds. Alternatively, one can provide
+boundaries for the intercept, for example: \code{intercept.lim = c(380, 420)}
+for a true \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}} of 400 ppm.
+
+The argument \code{p.val} is only applicable to the linear flux. Under the
+defined \emph{p-value}, the linear flux estimate is deemed non-significant,
+i. e., flux under the detectable limit. The default threshold is
+\code{p.val = 0.05}. No best flux estimate is chosen based on \emph{p-value}.
+If \code{LM.p.val < p.val}, a warning is given in the columns
+\code{quality.check} and \code{LM.diagnose} to warn of an estimated flux
+under the detection limit.
+
+\code{warn.length} is the limit under which a measurement is flagged for
+being too short (\code{nb.obs < warn.length}). With nowadays' portable
+greenhouse gas analyzers, the frequency of measurement is usually one
+observation per second. Therefore, for the default setting of
+\code{warn.length = 60}, the chamber closure time should be approximately
+one minute (60 seconds). If the number of observations is smaller than the
+threshold, a warning is issued in the column \code{quality.check}.
 }
 \examples{
 data(LGR_manID)

@@ -127,7 +127,7 @@
 #' @examples
 #' data(LGR_manID)
 #' LGR_flux <- goFlux(LGR_manID, "CO2dry_ppm")
-#' criteria <- c("MAE", "g.factor", "MDF", "SErel")
+#' criteria <- c("MAE", "g.factor", "MDF", "SE")
 #' LGR_res <- best.flux(LGR_flux, criteria)
 #' LGR_plots <- flux.plot(
 #'   flux.results = LGR_res, dataframe = LGR_manID,
