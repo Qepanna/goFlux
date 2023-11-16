@@ -18,7 +18,7 @@
 #'          (\code{LM.Ct}), slope of linear regression (\code{LM.slope}), mean
 #'          absolute error (\code{LM.MAE}), root mean square error
 #'          (\code{LM.RMSE}), Akaike information criterion corrected for small
-#'          sample size (\code{LM.AICc}), standard error (\code{LM.se}),
+#'          sample size (\code{LM.AICc}), standard error (\code{LM.SE}),
 #'          relative standard error (\code{LM.se.rel}),
 #'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}} (\code{LM.r2}),
 #'          and p-value (\code{LM.p.val}).
@@ -63,11 +63,11 @@ LM.flux <- function(gas.meas, time.meas, flux.term) {
 
   # Use the delta method to propagate total error to the flux calculation.
   form <- sprintf("~ x2 * %f", flux.term)
-  LM.se <- deltamethod(as.formula(form), coef(LM), vcov(LM))
+  LM.SE <- deltamethod(as.formula(form), coef(LM), vcov(LM))
 
   # Indices of model fit
   LM.AICc <- AICc(LM)
-  LM.se.rel <- (LM.se / LM.flux) * 100
+  LM.se.rel <- (LM.SE / LM.flux) * 100
   LM.r2 <- as.numeric(summary(lm(fitted(LM) ~ gas.meas))[9])[1]
   LM.p.val <- summary(LM)[[4]][2,4]
   LM.RMSE <- RMSE(gas.meas, fitted(LM))
@@ -75,7 +75,7 @@ LM.flux <- function(gas.meas, time.meas, flux.term) {
 
   # Store results in new data table
   LM_results <- cbind.data.frame(LM.flux, LM.C0, LM.Ct, LM.slope, LM.MAE, LM.RMSE,
-                                 LM.AICc, LM.se, LM.se.rel, LM.r2, LM.p.val)
+                                 LM.AICc, LM.SE, LM.se.rel, LM.r2, LM.p.val)
 
   return(LM_results)
 }

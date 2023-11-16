@@ -46,7 +46,7 @@
 #'          (\code{HM.Ct}), slope at \code{t=0} (\code{HM.slope}), mean absolute
 #'          error (\code{HM.MAE}), root mean square error (\code{HM.RMSE}),
 #'          Akaike information criterion corrected for small sample size
-#'          (\code{LM.AICc}) standard error (\code{HM.se}),
+#'          (\code{LM.AICc}) standard error (\code{HM.SE}),
 #'          relative standard error (\code{HM.se.rel}),
 #'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}} (\code{HM.r2}),
 #'          and curvature (kappa; (\code{HM.k})).
@@ -110,23 +110,23 @@ HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
 
     # Use the delta method to propagate total error to the flux calculation.
     form <- sprintf("~ (x1 - x2) * x3 * %f", flux.term)
-    HM.se <- deltamethod(as.formula(form), coef(HM), vcov(HM))
+    HM.SE <- deltamethod(as.formula(form), coef(HM), vcov(HM))
 
     # Indices of model fit
     HM.AICc <- AICc(HM)
-    HM.se.rel <- (HM.se / HM.flux) * 100
+    HM.se.rel <- (HM.SE / HM.flux) * 100
     HM.r2 <- as.numeric(summary(lm(fitted(HM) ~ gas.meas))[9])[1]
     HM.RMSE <- RMSE(gas.meas, fitted(HM))
     HM.MAE <- MAE(gas.meas, fitted(HM))
 
     # Store results in new data table
     HM_results <- cbind.data.frame(HM.flux, HM.C0, HM.Ci, HM.slope, HM.MAE,
-                                   HM.RMSE, HM.AICc, HM.se, HM.se.rel, HM.r2, HM.k)
+                                   HM.RMSE, HM.AICc, HM.SE, HM.se.rel, HM.r2, HM.k)
 
   } else {
     HM_results <- cbind.data.frame(HM.flux = NA, HM.C0 = NA, HM.Ci = NA,
                                    HM.slope = NA, HM.MAE = NA, HM.RMSE = NA,
-                                   HM.AICc = NA, HM.se = NA, HM.se.rel = NA,
+                                   HM.AICc = NA, HM.SE = NA, HM.se.rel = NA,
                                    HM.r2 = NA, HM.k = NA)
   }
 }

@@ -20,7 +20,7 @@ Returns a data frame with 11 columns: linear flux estimate, initial
          (\code{LM.Ct}), slope of linear regression (\code{LM.slope}), mean
          absolute error (\code{LM.MAE}), root mean square error
          (\code{LM.RMSE}), Akaike information criterion corrected for small
-         sample size (\code{LM.AICc}), standard error (\code{LM.se}),
+         sample size (\code{LM.AICc}), standard error (\code{LM.SE}),
          relative standard error (\code{LM.se.rel}),
          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}} (\code{LM.r2}),
          and p-value (\code{LM.p.val}).
