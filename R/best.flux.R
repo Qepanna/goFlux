@@ -7,7 +7,7 @@
 #'                    \code{\link[GoFluxYourself]{goFlux}}.
 #' @param criteria character vector; criteria used to asses the goodness of fit
 #'                 of the linear and non-linear flux estimates. Must be at least
-#'                 one the following: "MAE", "RMSE", "AICc", "SErel", "g.factor",
+#'                 one the following: "MAE", "RMSE", "AICc", "SE", "g.factor",
 #'                 "kappa", "MDF", "nb.obs", "p-value", or "intercept". The
 #'                 default is all of them.
 #' @param intercept.lim numerical vector of length 2; inferior and superior
@@ -20,57 +20,88 @@
 #'                      \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}} and
 #'                      \ifelse{html}{\out{C<sub>i</sub>}}{\eqn{C[i]}{ASCII}}
 #'                      for each measurement.
-#' @param SErel numerical value; maximal relative standard error accepted (\%)
-#'              on flux estimate. The default is 5\%.
-#' @param g.limit numerical value; maximal limit of the the g-factor, which is the
-#'                ratio between the non-linear flux estimate
-#'                (\code{\link[GoFluxYourself]{HM.flux}}) and the linear flux
-#'                estimate (\code{\link[GoFluxYourself]{LM.flux}}). Recommended
+#' @param g.limit numerical value; maximal limit of the the g-factor (ratio
+#'                between \code{\link[GoFluxYourself]{HM.flux}} and
+#'                \code{\link[GoFluxYourself]{LM.flux}}). Recommended
 #'                thresholds for the g-factor are 4 (flexible), 2 (medium), or
 #'                1.25 (conservative). The default limit is \code{g.limit = 2}.
 #' @param k.ratio numerical value; maximal limit of the ratio between kappa and
-#'                the kappa-max. kappa-max is the maximal curvature (kappa)
-#'                of the non-linear regression (Hutchinson and Mosier model)
-#'                allowed for a each flux measurements. With \code{k.ratio}, one
-#'                can chose to select the LM flux estimate instead of the
-#'                non-linear flux estimate by giving a percentage of kappa-max.
-#'                Default is \code{k.ratio = 1}.
-#' @param p.val numerical value; a limit for a statistically non-zero flux.
-#'              The default threshold is p-value < 0.05.
-#' @param warn.length numerical; minimum amount of observations accepted (nb.obs).
-#'                    With nowadays portable greenhouse gas analyzers, the
-#'                    frequency of measurement is usually one measurement per
-#'                    second. Therefore, for a default setting of
-#'                    \code{warn.length = 60}, the chamber closure time
-#'                    should be approximately one minute (60 seconds).
+#'                the kappa-max. Default is \code{k.ratio = 1}.
+#' @param p.val numerical value; a limit for a statistically detectable flux.
+#'              The default threshold is \emph{p-value} < 0.05.
+#' @param warn.length numerical; limit under which a measurement is flagged for
+#'                    being too short (\code{nb.obs < warn.length}).
 #'
 #' @details
-#' In \code{criteria}, the indices of model fit "MAE", "RMSE" and "SErel" all
-#' have a threshold. For MAE and RMSE, the threshold is instrument precision.
-#' For SErel, the threshold is given as an argument, where the default limit is
-#' 5\%. These indices also compare the two models (linear, LM, and non-linear,
-#' HM). The selection of the best model regarding indices of model fit ("MAE",
-#' "RMSE", "AICc" and "SErel") is based on a scoring system. Each model starts
-#' with a score of 0. Each time one of the model has a worst fit than the other
-#' model, based on "MAE", "RMSE", "AICc" or "SErel", that model's score is
-#' increased by 1. Whichever model has the lowest score wins. In case of a tie,
-#' the non-linear model wins.
+#' In \code{criteria}, the indices of model fit "MAE", "RMSE" and "SE" all
+#' have a threshold. For MAE and RMSE, the threshold is instrument precision
+#' (1\eqn{\sigma}{ASCII}). For SE, the threshold is the instrument accuracy
+#' (1\eqn{\sigma}{ASCII}/\eqn{\sqrt{n}}{ASCII}. These indices also compare the two models
+#' (linear, LM, and non-linear, HM). The selection of the best model based on
+#' indices of model fit ("MAE", "RMSE", "AICc" and "SE") is based on a scoring
+#' system. Both models start with a score of 0. For each criteria, whichever
+#' model performs worst is given +1. After all selected criteria have been
+#' evaluated, the model with the lowest score wins. In case of a tie, the
+#' non-linear flux estimate is always chosen by default, as non-linearity is assumed.
 #'
-#' Another criteria, which is calculated automatically with the function
-#' \code{\link[GoFluxYourself]{best.flux}}, is the g-factor
-#' (\code{\link[GoFluxYourself]{g.factor}}), which is the ratio between the HM
-#' flux estimate and the LM flux estimate. Recommended thresholds for the g-factor
-#' are 4 (flexible), 2 (medium), or 1.25 (conservative).
+#' The \code{g.limit} indicates a threshold for the
+#' \code{\link[GoFluxYourself]{g.factor}}, which is the ratio between a
+#' non-linear flux estimate and a linear flux estimate. With the
+#' \code{\link[GoFluxYourself]{best.flux}} function, one can chose a limit at
+#' which the HM model is deemed to overestimate
+#' \ifelse{html}{\out{f<sub>0</sub>}}{\eqn{f[0]}{ASCII}}. Recommended thresholds
+#' for the g-factor are <4 for a flexible threshold, <2 for a medium threshold,
+#' or <1.25 for a more conservative threshold. The default threshold is
+#' \code{g.limit = 2}. If the g-factor is above the specified threshold, the
+#' best flux estimate will switch to LM instead of HM and give a warning in the
+#' columns \code{quality.check} and \code{HM.diagnose}.
 #'
-#' The function \code{\link[GoFluxYourself]{k.max}} calculates the maximal
-#' curvature (kappa) of the non-linear model (Hutchinson and Mosier) allowed for
-#' each flux measurement. k.max is calculated based on the minimal detectable
-#' flux (\code{\link[GoFluxYourself]{MDF}}), the linear flux estimate
-#' (\code{LM.flux}) and the measurement time. The unit of kappa-max is
-#' \ifelse{html}{\out{s<sup>-1</sup>}}{\eqn{s^{-1}}{ASCII}}.
+#' The minimal detectable flux (\code{\link[GoFluxYourself]{MDF}}) is calculated
+#' from the instrument precision and measurement time. Below the MDF, the flux
+#' estimate is considered under the detection limit, but not null. Therefore,
+#' the function will not return a 0. There will simply be a warning in the
+#' columns \code{quality.check}, \code{LM.diagnose} or \code{HM.diagnose} to
+#' warn of a flux estimate under the detectable limit. No best flux estimate
+#' is chosen based on MDF.
 #'
-#' The function \code{\link[GoFluxYourself]{MDF}} calculates the minimal
-#' detectable flux (MDF) based on instrument precision and measurement time.
+#' The parameter kappa determines the curvature of the non-linear regression in
+#' the Hutchinson and Mosier model. A maximal limit of kappa,
+#' \code{\link[GoFluxYourself]{k.max}} is included in the
+#' \code{\link[GoFluxYourself]{goFlux}} function, so that the non-linear flux
+#' estimate cannot exceed this maximum curvature. In the function
+#' \code{best.flux()}, one can choose the linear flux estimate over the
+#' non-linear flux estimate based on the ratio between kappa and kappa-max
+#' (\code{k.ratio}). The ratio is expressed as a percentage, where 1 indicates
+#' \code{HM.k = k.max}, and 0.5 indicates \code{HM.k = 0.5*k.max}. The default
+#' setting is \code{k.ratio = 1}. If \code{HM.k/k.max} is larger than k.ratio,
+#' a warning is issued in the columns HM.diagnose and quality.check.
+#'
+#' If the initial gas concentration
+#' (\ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}}) calculated for the
+#' flux estimates are more or less than 10% of the difference between
+#' \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}} and the final gas
+#' concentration at the end of the measurement
+#' (\ifelse{html}{\out{C<sub>t</sub>}}{\eqn{C[t]}{ASCII}}), a warning is issued
+#' in the columns \code{quality.check}, \code{LM.diagnose} or \code{HM.diagnose}
+#' to warn of an intercept out of bounds. Alternatively, one can provide
+#' boundaries for the intercept, for example: \code{intercept.lim = c(380, 420)}
+#' for a true \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}} of 400 ppm.
+#'
+#' The argument \code{p.val} is only applicable to the linear flux. Under the
+#' defined \emph{p-value}, the linear flux estimate is deemed non-significant,
+#' i. e., flux under the detectable limit. The default threshold is
+#' \code{p.val = 0.05}. No best flux estimate is chosen based on \emph{p-value}.
+#' If \code{LM.p.val < p.val}, a warning is given in the columns
+#' \code{quality.check} and \code{LM.diagnose} to warn of an estimated flux
+#' under the detection limit.
+#'
+#' \code{warn.length} is the limit under which a measurement is flagged for
+#' being too short (\code{nb.obs < warn.length}). With nowadays' portable
+#' greenhouse gas analyzers, the frequency of measurement is usually one
+#' observation per second. Therefore, for the default setting of
+#' \code{warn.length = 60}, the chamber closure time should be approximately
+#' one minute (60 seconds). If the number of observations is smaller than the
+#' threshold, a warning is issued in the column \code{quality.check}.
 #'
 #' @returns a data.frame identical to the input \code{flux.result} with the
 #'          additional columns \code{HM.diagnose}, \code{LM.diagnose},
@@ -99,9 +130,9 @@
 #' @export
 #'
 best.flux <- function(flux.result,
-                      criteria = c("MAE", "RMSE", "AICc", "SErel", "g.factor",
+                      criteria = c("MAE", "RMSE", "AICc", "SE", "g.factor",
                                    "kappa", "MDF", "nb.obs", "intercept", "p-value"),
-                      intercept.lim = NULL, SErel = 5, g.limit = 2,
+                      intercept.lim = NULL, g.limit = 2,
                       p.val = 0.05, k.ratio = 1, warn.length = 60) {
 
   # Check arguments ####
@@ -110,8 +141,8 @@ best.flux <- function(flux.result,
     stop("'flux.result' must be of class 'dataframe'")}
   if(!any(grepl(paste(c("\\<MAE\\>", "\\<RMSE\\>", "\\<g.factor\\>", "\\<kappa\\>",
                         "\\<MDF\\>", "\\<nb.obs\\>", "\\<p-value\\>", "\\<AICc\\>",
-                        "\\<intercept\\>", "\\<SErel\\>"), collapse = "|"), criteria))){
-    stop("'criteria' must contain at least one of the following: 'MAE', 'RMSE', 'AICc', 'g.factor', 'kappa', 'MDF', 'nb.obs', 'p-value', 'intercept', 'SErel'")}
+                        "\\<intercept\\>", "\\<SE\\>"), collapse = "|"), criteria))){
+    stop("'criteria' must contain at least one of the following: 'MAE', 'RMSE', 'AICc', 'g.factor', 'kappa', 'MDF', 'nb.obs', 'p-value', 'intercept', 'SE'")}
 
   ## Check intercept.lim ####
   if(any(grepl("\\<intercept\\>", criteria))){
@@ -142,26 +173,6 @@ best.flux <- function(flux.result,
         stop("'Ct' in 'flux.result' must be of class numeric")}
     }
   }
-  ## Check SErel ####
-  if(any(grepl("\\<SErel\\>", criteria)) & !is.null(SErel)){
-    if(!is.numeric(SErel)) stop("'SErel' must be of class numeric")
-    if(is.numeric(SErel) & !between(SErel, 0, 100)) stop("'SErel' must be between 0% and 100%")
-    if(is.numeric(SErel) & SErel <= 0) stop("'SErel' must be higher than 0%")
-
-    SErel.require <- c("\\<LM.se.rel\\>", "\\<HM.se.rel\\>")
-    if(length(grep(paste(SErel.require, collapse = "|"), names(flux.result))) != 2){
-      if(!any(grepl("\\<LM.se.rel\\>", names(flux.result)))){
-        stop("'LM.se.rel' required in 'flux.result'")}
-      if(any(grepl("\\<LM.se.rel\\>", names(flux.result))) & !is.numeric(flux.result$LM.se.rel)){
-        stop("'LM.se.rel' in 'flux.result' must be of class numeric")}
-      if(!any(grepl("\\<HM.se.rel\\>", names(flux.result)))){
-        stop("'HM.se.rel' required in 'flux.result'")}
-      if(any(grepl("\\<HM.se.rel\\>", names(flux.result))) & !is.numeric(flux.result$HM.se.rel)){
-        stop("'HM.se.rel' in 'flux.result' must be of class numeric")}
-    }
-  } else if(any(grepl("\\<SErel\\>", criteria)) & is.null(SErel)){
-    stop("'SErel' is mentionned in 'criteria', but the argument 'SErel' is NULL")}
-
   ## Check g.factor and g.limit ####
   if(any(grepl("\\<g.factor\\>", criteria)) & !is.null(g.limit)){
     if(!is.numeric(g.limit)) stop("'g.limit' must be of class numeric")
@@ -239,8 +250,8 @@ best.flux <- function(flux.result,
 
   ## Check MDF ####
   if(any(grepl("\\<MDF\\>", criteria))){
-    MDF.require <- c("\\<MDF\\>", "\\<LM.flux\\>", "\\<LM.se\\>", "\\<HM.flux\\>", "\\<HM.se\\>")
-    if(length(grep(paste(MDF.require, collapse = "|"), names(flux.result))) != 5){
+    MDF.require <- c("\\<MDF\\>", "\\<LM.flux\\>", "\\<HM.flux\\>")
+    if(length(grep(paste(MDF.require, collapse = "|"), names(flux.result))) != 3){
       if(!any(grepl("\\<MDF\\>", names(flux.result)))){
         stop("'MDF' required in 'flux.result'")
       } else if(!is.numeric(flux.result$MDF)){
@@ -249,29 +260,20 @@ best.flux <- function(flux.result,
         stop("'LM.flux' required in 'flux.result'")
       } else if(!is.numeric(flux.result$LM.flux)){
         stop("'LM.flux' in 'flux.result' must be of class numeric")}
-      if(!any(grepl("\\<LM.se\\>", names(flux.result)))){
-        stop("'LM.se' required in 'flux.result'")
-      } else if(!is.numeric(flux.result$LM.se)){
-        stop("'LM.se' in 'flux.result' must be of class numeric")}
       if(!any(grepl("\\<HM.flux\\>", names(flux.result)))){
         stop("'HM.flux' required in 'flux.result'")
       } else if(!is.numeric(flux.result$HM.flux)){
         stop("'HM.flux' in 'flux.result' must be of class numeric")}
-      if(!any(grepl("\\<HM.se\\>", names(flux.result)))){
-        stop("'HM.se' required in 'flux.result'")
-      } else if(!is.numeric(flux.result$HM.se)){
-        stop("'HM.se' in 'flux.result' must be of class numeric")}
     }
   }
-  ## Check MAE / RMSE ####
-
+  ## Check MAE ####
   if(any(grepl("\\<MAE\\>", criteria))){
-    MAE.require <- c("\\<LM.flux\\>", "\\<HM.MAE\\>", "\\<prec\\>")
+    MAE.require <- c("\\<LM.MAE\\>", "\\<HM.MAE\\>", "\\<prec\\>")
     if(length(grep(paste(MAE.require, collapse = "|"), names(flux.result))) != 3){
-      if(!any(grepl("\\<LM.flux\\>", names(flux.result)))){
-        stop("'LM.flux' required in 'flux.result'")
-      } else if(!is.numeric(flux.result$LM.flux)){
-        stop("'LM.flux' in 'flux.result' must be of class numeric")}
+      if(!any(grepl("\\<LM.MAE\\>", names(flux.result)))){
+        stop("'LM.MAE' required in 'flux.result'")
+      } else if(!is.numeric(flux.result$LM.MAE)){
+        stop("'LM.MAE' in 'flux.result' must be of class numeric")}
       if(!any(grepl("\\<HM.MAE\\>", names(flux.result)))){
         stop("'HM.MAE' required in 'flux.result'")
       } else if(!is.numeric(flux.result$HM.MAE)){
@@ -281,13 +283,15 @@ best.flux <- function(flux.result,
       } else if(!is.numeric(flux.result$prec)){
         stop("'prec' in 'flux.result' must be of class numeric")}
     }
-  } else if(any(grepl("\\<RMSE\\>", criteria))){
-    RMSE.require <- c("\\<LM.flux\\>", "\\<HM.RMSE\\>", "\\<prec\\>")
+  }
+  ## Check RMSE ####
+  if(any(grepl("\\<RMSE\\>", criteria))){
+    RMSE.require <- c("\\<LM.RMSE\\>", "\\<HM.RMSE\\>", "\\<prec\\>")
     if(length(grep(paste(RMSE.require, collapse = "|"), names(flux.result))) != 3){
-      if(!any(grepl("\\<LM.flux\\>", names(flux.result)))){
-        stop("'LM.flux' required in 'flux.result'")
-      } else if(!is.numeric(flux.result$LM.flux)){
-        stop("'LM.flux' in 'flux.result' must be of class numeric")}
+      if(!any(grepl("\\<LM.RMSE\\>", names(flux.result)))){
+        stop("'LM.RMSE' required in 'flux.result'")
+      } else if(!is.numeric(flux.result$LM.RMSE)){
+        stop("'LM.RMSE' in 'flux.result' must be of class numeric")}
       if(!any(grepl("\\<HM.RMSE\\>", names(flux.result)))){
         stop("'HM.RMSE' required in 'flux.result'")
       } else if(!is.numeric(flux.result$HM.RMSE)){
@@ -298,20 +302,39 @@ best.flux <- function(flux.result,
         stop("'prec' in 'flux.result' must be of class numeric")}
     }
   }
+  ## Check SE ####
+  if(any(grepl("\\<SE\\>", criteria))){
+    SE.require <- c("\\<LM.SE\\>", "\\<HM.SE\\>", "\\<prec\\>")
+    if(length(grep(paste(SE.require, collapse = "|"), names(flux.result))) != 3){
+      if(!any(grepl("\\<LM.SE\\>", names(flux.result)))){
+        stop("'LM.SE' required in 'flux.result'")
+      } else if(!is.numeric(flux.result$LM.SE)){
+        stop("'LM.SE' in 'flux.result' must be of class numeric")}
+      if(!any(grepl("\\<HM.SE\\>", names(flux.result)))){
+        stop("'HM.SE' required in 'flux.result'")
+      } else if(!is.numeric(flux.result$HM.SE)){
+        stop("'HM.SE' in 'flux.result' must be of class numeric")}
+      if(!any(grepl("\\<prec\\>", names(flux.result)))){
+        stop("'prec' required in 'flux.result'")
+      } else if(!is.numeric(flux.result$prec)){
+        stop("'prec' in 'flux.result' must be of class numeric")}
+    }
+  }
 
   # Assign NULL to variables without binding ####
   g.fact <- HM.diagnose <- HM.RMSE <- prec <- model <- quality.check <- HM.k <-
-    LM.p.val <- LM.diagnose <- HM.se.rel <- LM.se.rel <- HM.C0 <- LM.C0 <-
-    LM.Ci <- LM.se <- HM.se <- MDF <- HM.MAE <- nb.obs <- LM.RMSE <- Ct <-
+    LM.p.val <- LM.diagnose <- HM.SE <- LM.SE <- HM.C0 <- LM.C0 <-
+    LM.Ci <- LM.SE <- HM.SE <- MDF <- HM.MAE <- nb.obs <- LM.RMSE <- Ct <-
     LM.MAE <- UniqueID <- . <- C0 <- Ct <- C0.min <- C0.max <- RMSE.lim <-
-    MAE.lim <- MDF.lim <- HM.score <- LM.score <- HM.AICc <- LM.AICc <-  NULL
+    MAE.lim <- MDF.lim <- HM.score <- LM.score <- HM.AICc <- LM.AICc <-
+    SE.lim <- NULL
 
   # Function to find decimal places
   nb.decimal = function(x) {
-    #length zero input
+    # length zero input
     if (length(x) == 0) return(numeric())
 
-    #count decimals
+    # count decimals
     x_nchr = x %>% abs() %>% as.character() %>% nchar() %>% as.numeric()
     x_int = floor(x) %>% abs() %>% nchar()
     x_nchr = x_nchr - 1 - x_int
@@ -411,39 +434,48 @@ best.flux <- function(flux.result,
             paste(quality.check, MAE.quality, sep = " | ")), quality.check))
   }
 
-  ## SErel ####
-  # Standard Error Relative (%). Calculated with deltamethod().
-  # Default is 5%.
+  ## SE ####
+  # Standard Error. Calculated with deltamethod().
+  # Instrument SE is prec/sqrt(n)
 
-  if(any(grepl("\\<SErel\\>", criteria))) {
+  if(any(grepl("\\<SE\\>", criteria))) {
 
-    SErel.quality <- paste("SE rel. > ", SErel, "%", sep = "")
-    SErel.LM.diagnostic <- paste("LM.se.rel > ", SErel, "%", sep = "")
-    SErel.HM.diagnostic <- paste("HM.se.rel > ", SErel, "%", sep = "")
+    SE.quality <- "SE"
+    SE.LM.diagnostic <- "Noise (LM.SE)"
+    SE.HM.diagnostic <- "Noise (HM.SE)"
 
     best.flux.df <- best.flux.df %>%
-      mutate(SErel.lim = SErel) %>%
+      # SE threshold: instrument precision
+      mutate(SE.lim = prec/sqrt(nb.obs)) %>%
       # Update score for HM and LM
-      # If HM.se.rel <= SErel, use HM.flux
-      # else, if HM.se.rel > SErel, but HM.se.rel <= LM.se.rel, still use HM.flux
+      # If HM.SE <= SE.lim, use HM.flux
+      # If HM.SE > SE.lim, but HM.SE <= LM.SE, still use HM.flux
       # else, use LM.flux
       mutate(HM.score = if_else(
-        HM.se.rel > SErel & HM.se.rel > LM.se.rel, HM.score+1, HM.score)) %>%
+        round(HM.SE, nb.decimal(prec)) > SE.lim &
+          round(HM.SE, nb.decimal(prec)) >
+          round(LM.SE, nb.decimal(prec)), HM.score+1, HM.score)) %>%
       mutate(LM.score = if_else(
-        HM.se.rel > SErel & HM.se.rel > LM.se.rel, LM.score, LM.score+1)) %>%
+        round(HM.SE, nb.decimal(prec)) > SE.lim &
+          round(HM.SE, nb.decimal(prec)) >
+          round(LM.SE, nb.decimal(prec)), LM.score, LM.score+1)) %>%
       # Update LM.diagnose
-      mutate(LM.diagnose = if_else(LM.se.rel > SErel, ifelse(
-        LM.diagnose == "", SErel.LM.diagnostic,
-        paste(LM.diagnose, SErel.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
+      mutate(LM.diagnose = if_else(
+        round(LM.SE, nb.decimal(prec)) >
+          round(SE.lim, nb.decimal(prec)), ifelse(
+            LM.diagnose == "", SE.LM.diagnostic,
+            paste(LM.diagnose, SE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
       # Update HM.diagnose
-      mutate(HM.diagnose = if_else(HM.se.rel > SErel, ifelse(
-        HM.diagnose == "", SErel.HM.diagnostic,
-        paste(HM.diagnose, SErel.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
+      mutate(HM.diagnose = if_else(
+        round(HM.SE, nb.decimal(prec)) > round(SE.lim, nb.decimal(prec)), ifelse(
+          HM.diagnose == "", SE.HM.diagnostic,
+          paste(HM.diagnose, SE.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
       # Update quality check
       mutate(quality.check = if_else(
-        LM.se.rel > SErel & HM.se.rel > SErel, ifelse(
-          quality.check == "", SErel.quality,
-          paste(quality.check, SErel.quality, sep = " | ")), quality.check))
+        round(LM.SE, nb.decimal(prec)) > round(SE.lim, nb.decimal(prec)) &
+          round(HM.SE, nb.decimal(prec)) > round(SE.lim, nb.decimal(prec)), ifelse(
+            quality.check == "", SE.quality,
+            paste(quality.check, SE.quality, sep = " | ")), quality.check))
   }
 
   ## AICc ####
@@ -465,7 +497,7 @@ best.flux <- function(flux.result,
   }
 
   ## Choose best model based on HM and LM scores ####
-  if(any(grepl(paste(c("\\<MAE\\>", "\\<RMSE\\>", "\\<AICc\\>", "\\<SErel\\>"),
+  if(any(grepl(paste(c("\\<MAE\\>", "\\<RMSE\\>", "\\<AICc\\>", "\\<SE\\>"),
                     collapse = "|"), criteria))){
 
     best.flux.df <- best.flux.df %>%
@@ -496,7 +528,7 @@ best.flux <- function(flux.result,
         paste(quality.check, g.quality, sep = " | ")), quality.check))
   }
 
-  ## kappa max ####
+  ## kappa ratio ####
   # Maximal curvature allowed in non-linear regression (Hutchinson and Mosier)
   if(any(grepl("\\<kappa\\>", criteria))) {
 
