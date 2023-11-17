@@ -44,7 +44,7 @@ from the following: "MAE", "RMSE", "AICc", "SErel", "SE",
 Default is \code{plot.legend = c("MAE", "AICc", "k.ratio", "g.factor")}.}
 
 \item{plot.display}{character vector; specifies which parameters should be
-displayed on the plot. Chose from the following: "C0",
+displayed on the plot. Choose from the following: "C0",
 "Ci", "cham.close", "cham.open", "crop", "MDF", "nb.obs",
 "flux.term" and "prec". Default is
 \code{plot.display = c("MDF", "prec")}.}
@@ -75,7 +75,7 @@ next to the best model selected by the function
 \code{\link[GoFluxYourself]{best.flux}}.}
 
 \item{p.val.disp}{character string; how should the p-value be displayed in the
-legend above the plot. Chose one of the following: "star",
+legend above the plot. Choose one of the following: "star",
 "round", "value".}
 
 \item{side}{character string; chose a side to display
@@ -84,17 +84,17 @@ legend above the plot. Chose one of the following: "star",
 By default, they are displayed on the left side of the plot.}
 }
 \value{
-a list of plots, one per UniqueID, drawn from flux restults (output
-from the functions #' \code{\link[GoFluxYourself]{goFlux}} and
+a list of plots, one per UniqueID, drawn from flux results (output
+from the functions \code{\link[GoFluxYourself]{goFlux}} and
 \code{\link[GoFluxYourself]{best.flux}}).
 }
 \description{
-Returns a list plots, drawn from flux restults (output from the functions
+Returns a list of plots, drawn from flux results (output from the functions
 \code{\link[GoFluxYourself]{goFlux}} and \code{\link[GoFluxYourself]{best.flux}}).
 The plots are customizable.
 }
 \details{
-In \code{plot.legend}, one may chose to display up to 5 additional parameters
+In \code{plot.legend}, one may choose to display up to 5 additional parameters
 in a legend above the plots. Some parameters are displayed for both the linear
 model (\code{\link[GoFluxYourself]{HM.flux}}) and the non-linear model
 (\code{\link[GoFluxYourself]{HM.flux}}): Mean Absolute Error (\code{MAE}),
@@ -103,14 +103,14 @@ Standard Error (\code{SErel}), and coefficient of determination (\code{r2}).
 The p-value (\code{LM.p.val}) is displayed for the linear model only. The kappa
 (\code{HM.k}), kappa-max (\code{\link[GoFluxYourself]{k.max}}), kappa ratio
 (\code{k.ratio}) and g-factor (\code{\link[GoFluxYourself]{g.factor}}) are
-displayed for the Hutchinson and Mosier model only. One may chose to display
+displayed for the Hutchinson and Mosier model only. One may choose to display
 no additional parameter with \code{plot.legend = NULL}.
 
 In \code{plot.display}, one may chose to display some parameters on the plot:
 The initial and final gas concentrations (\code{C0} and \code{Ci}) for both
 models, the number of observations (\code{nb.obs}) flagged, the Minimal
 Detectable Flux (\code{\link[GoFluxYourself]{MDF}}), the flux term
-(\code{\link[GoFluxYourself]{flux.term}}), the instrument precision (prec),
+(\code{\link[GoFluxYourself]{flux.term}}), the instrument precision (\code{prec}),
 the chamber closure (\code{cham.close}) and opening (\code{cham.open})
 (indicated with a green star), and the data points between chamber closure
 and opening that have been removed (\code{crop}) (indicated in light red).

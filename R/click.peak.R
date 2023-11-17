@@ -27,7 +27,7 @@
 #' @param warn.length numerical value; limit under which a measurement is flagged
 #'                    for being too short (\code{nb.obs < warn.length}).
 #'
-#' @returns a data.frame, identical to the input \code{flux.unique}, with the
+#' @returns A data.frame, identical to the input \code{flux.unique}, with the
 #'          additional columns \code{flag}, \code{Etime}, \code{start.time_corr},
 #'          \code{end.time_corr} and \code{obs.length_corr}.
 #'

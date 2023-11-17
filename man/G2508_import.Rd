@@ -17,18 +17,19 @@ G2508_import(
 \item{inputfile}{character string; the name of a file with the extension .dat}
 
 \item{date.format}{date format; the date format used in the raw data file.
-Chose one of the following: "dmy", "ymd", or "mdy". Default
-is "ymd", as it is the date format from the example data
-file provided.}
+Choose one of the following: "dmy", "ymd", or "mdy".
+Default is "ymd", as it is the date format from the
+example data file provided.}
 
 \item{timezone}{character string; a time zone in which to import the data to
 POSIXct format. Default is "UTC". Note about time zone: it is
 recommended to use the time zone "UTC" to avoid any issue
 related to summer time and winter time changes.}
 
-\item{save}{logical; if save = TRUE, saves the file as RData in a RData folder
-in the current working directory. If save = FALSE, returns the file
-in the Console, or load in the Environment if assigned to an object.}
+\item{save}{logical; if \code{save = TRUE}, saves the file as RData in a
+RData folder in the current working directory. If
+\code{save = FALSE}, returns the file in the Console, or load in
+the Environment if assigned to an object.}
 
 \item{keep_all}{logical; if \code{keep_all = TRUE}, keep all columns from raw
 file. The default is \code{keep_all = FALSE}, and columns that
@@ -40,7 +41,7 @@ in the following order: "CO2dry_ppm", CH4dry_ppb", "N2Odry_ppb",
 \code{prec = c(0.24, 0.3, 5, 0.16, 500)}.}
 }
 \value{
-a data frame containing raw data from Picarro G2508 GHG analyzer.
+A data frame containing raw data from Picarro G2508 GHG analyzer.
 }
 \description{
 Imports single raw gas measurement files from the Picarro G2508 with the
@@ -54,7 +55,7 @@ In \code{date.format}, the date format refers to a date found in the raw data
 file, not the date format in the file name. For the instrument G2508, the date
 is found in the column "DATE".
 
-Note that this function was designed for the following default units:
+Note that this function was designed for the following units in the raw file:
 \itemize{
   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
   \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
@@ -67,8 +68,8 @@ change the settings on your instrument, or contact the maintainer of this
 package for support.
 
 The precision of the instrument is needed to restrict kappa-max
-\code{\link[GoFluxYourself]{k.max}} in the non-linear flux calculation
-\code{\link[GoFluxYourself]{HM.flux}}. Kappa-max is inversely proportional to
+(\code{\link[GoFluxYourself]{k.max}}) in the non-linear flux calculation
+(\code{\link[GoFluxYourself]{HM.flux}}). Kappa-max is inversely proportional to
 instrument precision. If the precision of your instrument is unknown, it is
 better to use a low value (e.g. 1 ppm for
 \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
@@ -89,10 +90,10 @@ G2508_imp <- G2508_import(inputfile = file.path)
 
 }
 \seealso{
-Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
+Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
          to import multiple files from the same folder path using any instrument.
 
-Import functions for individual instruments:
+See also, import functions for other instruments:
          \code{\link[GoFluxYourself]{DX4015_import}},
          \code{\link[GoFluxYourself]{GAIA_import}},
          \code{\link[GoFluxYourself]{LGR_import}},

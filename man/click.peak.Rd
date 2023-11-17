@@ -38,7 +38,7 @@ forest floor: \code{plot.lim = c(380,1000)}.}
 for being too short (\code{nb.obs < warn.length}).}
 }
 \value{
-a data.frame, identical to the input \code{flux.unique}, with the
+A data.frame, identical to the input \code{flux.unique}, with the
          additional columns \code{flag}, \code{Etime}, \code{start.time_corr},
          \code{end.time_corr} and \code{obs.length_corr}.
 }

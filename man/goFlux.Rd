@@ -92,7 +92,7 @@ Returns a data frame with 28 columns: a UniqueID per measurement,
          corrected for small sample size (\code{LM.AICc}), standard error
          (\code{LM.SE}), relative standard error (\code{LM.se.rel}),
          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}} (\code{LM.r2}),
-         and p-value (\code{LM.p.val})), 11 columns for the non-linear model
+         and \emph{p-value} (\code{LM.p.val})), 11 columns for the non-linear model
          results (non-linear flux estimate (\code{HM.flux}), initial gas
          concentration (\code{HM.C0}), final gas concentration (\code{HM.Ci}),
          slope at \code{t=0} (\code{HM.slope}), mean absolute error
@@ -120,27 +120,15 @@ Flux estimate units are
 \ifelse{html}{\out{nmol/m<sup>2</sup>s}}{\eqn{nmol/m^{2}s}{ASCII}}
 (if initial concentration is ppb, e.g. CH4dry_ppb).
 
-The function \code{\link[GoFluxYourself]{k.max}} calculates the maximal
-curvature (kappa) of the non-linear model (Hutchinson and Mosier;
-\code{\link[GoFluxYourself]{HM.flux}}) allowed for each flux measurements.
-kappa-max is calculated based on the minimal detectable flux
-(\code{\link[GoFluxYourself]{MDF}}), the linear flux estimate
-\code{\link[GoFluxYourself]{LM.flux}}
-and the measurement time. The unit of kappa-max is
-\ifelse{html}{\out{s<sup>-1</sup>}}{\eqn{s^{-1}}{ASCII}}.
-
-The function \code{\link[GoFluxYourself]{MDF}} calculates the minimal detectable
-flux (MDF) based on instrument precision and measurement time.
-
 The argument \code{Area} is in \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}},
-but the output units from \code{goFlux()} are in
+but the output units from \code{\link[GoFluxYourself]{goFlux}} are in
 \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This means that there is a factor
 of 10000 to convert from \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}
 to \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This is important
-to take into account if one would provide something else than an Area in
+to take into account if one would provide something else than an \code{Area} in
 \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to the function.
 For example, with incubated soil samples, one may provide an amount of soil
-(kg) instead of an Area. To get the right units in that case, multiply the
+(kg) instead of an \code{Area}. To get the right units in that case, multiply the
 kilograms of soil by 10000 to remove the conversion from
 \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to
 \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}.

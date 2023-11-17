@@ -6,16 +6,17 @@
 #'
 #' @param inputfile character string; the name of a file with the extension .81x
 #' @param date.format date format; the date format used in the raw data file.
-#'                    Chose one of the following: "dmy", "ymd", or "mdy". Default
-#'                    is "ymd", as it is the date format from the example data
-#'                    file provided.
+#'                    Choose one of the following: "dmy", "ymd", or "mdy".
+#'                    Default is "ymd", as it is the date format from the
+#'                    example data file provided.
 #' @param timezone character string; a time zone in which to import the data to
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
 #'                 recommended to use the time zone "UTC" to avoid any issue
 #'                 related to summer time and winter time changes.
-#' @param save logical; if save = TRUE, saves the file as RData in a RData folder
-#'             in the current working directory. If save = FALSE, returns the file
-#'             in the Console, or load in the Environment if assigned to an object.
+#' @param save logical; if \code{save = TRUE}, saves the file as RData in a
+#'             RData folder in the current working directory. If
+#'             \code{save = FALSE}, returns the file in the Console, or load in
+#'             the Environment if assigned to an object.
 #' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from raw
 #'                 file. The default is \code{keep_all = FALSE}, and columns that
 #'                 are not necessary for gas flux calculation are removed.
@@ -23,14 +24,14 @@
 #'             in the following order: "CO2dry_ppm" and H2O_ppm". The default is
 #'             \code{prec = c(1, 10)}.
 #'
-#' @returns a data frame containing raw data from LI-COR GHG analyzer LI-8100.
+#' @returns A data frame containing raw data from LI-COR GHG analyzer LI-8100.
 #'
 #' @details
 #' In \code{date.format}, the date format refers to a date found in the raw data
 #' file, not the date format in the file name. For the instrument LI-8100, the
 #' date is found in the column "Date".
 #'
-#' Note that this function was designed for the following default units:
+#' Note that this function was designed for the following units in the raw file:
 #' \itemize{
 #'   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
 #'   \item mmol/mol for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
@@ -40,8 +41,8 @@
 #' package for support.
 #'
 #' The precision of the instrument is needed to restrict kappa-max
-#' \code{\link[GoFluxYourself]{k.max}} in the non-linear flux calculation
-#' \code{\link[GoFluxYourself]{HM.flux}}. Kappa-max is inversely proportional to
+#' (\code{\link[GoFluxYourself]{k.max}}) in the non-linear flux calculation
+#' (\code{\link[GoFluxYourself]{HM.flux}}). Kappa-max is inversely proportional to
 #' instrument precision. If the precision of your instrument is unknown, it is
 #' better to use a low value (e.g. 1 ppm) to allow for more curvature, especially
 #' for water vapor fluxes, or very long measurements, that are normally curved.

@@ -52,7 +52,7 @@ the kappa-max. Default is \code{k.ratio = 1}.}
 being too short (\code{nb.obs < warn.length}).}
 }
 \value{
-a data.frame identical to the input \code{flux.result} with the
+A data.frame identical to the input \code{flux.result} with the
          additional columns \code{HM.diagnose}, \code{LM.diagnose},
          \code{best.flux}, \code{model} and \code{quality.check}. For each
          criteria selected, an additional column is also added to specify

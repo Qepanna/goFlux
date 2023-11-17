@@ -11,25 +11,26 @@ DX4015_import(
   timezone = "UTC",
   save = FALSE,
   keep_all = FALSE,
-  prec = c(1, 1, 1, 1, 1, 1)
+  prec = c(1.6, 23, 13, 2, 23, 33)
 )
 }
 \arguments{
 \item{inputfile}{character string; the name of a file with the extension .TXT}
 
 \item{date.format}{date format; the date format used in the raw data file.
-Chose one of the following: "dmy", "ymd", or "mdy". Default
-is "ymd", as it is the date format from the example data
-file provided.}
+Choose one of the following: "dmy", "ymd", or "mdy".
+Default is "ymd", as it is the date format from the
+example data file provided.}
 
 \item{timezone}{character string; a time zone in which to import the data to
 POSIXct format. Default is "UTC". Note about time zone: it is
 recommended to use the time zone "UTC" to avoid any issue
 related to summer time and winter time changes.}
 
-\item{save}{logical; if \code{save = TRUE}, saves the file as RData in a RData folder
-in the current working directory. If save = FALSE, returns the file
-in the Console, or load in the Environment if assigned to an object.}
+\item{save}{logical; if \code{save = TRUE}, saves the file as RData in a
+RData folder in the current working directory. If
+\code{save = FALSE}, returns the file in the Console, or load in
+the Environment if assigned to an object.}
 
 \item{keep_all}{logical; if \code{keep_all = TRUE}, keep all columns from raw
 file. The default is \code{keep_all = FALSE}, and columns that
@@ -41,7 +42,7 @@ in the following order: "CO2dry_ppm", "COdry_ppb", CH4dry_ppb",
 \code{prec = c(1.6, 23, 13, 2, 23, 33)}.}
 }
 \value{
-a data frame containing raw data from the Gasmet DX4015 gas analyzer.
+A data frame containing raw data from the Gasmet DX4015 gas analyzer.
 }
 \description{
 Imports single raw gas measurement files from the Gasmet DX4015 gas analyzer
@@ -49,14 +50,15 @@ Imports single raw gas measurement files from the Gasmet DX4015 gas analyzer
 \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
 \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
 \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}} and
-\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}) with the extension .TXT
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
+with the extension .TXT
 }
 \details{
 In \code{date.format}, the date format refers to a date found in the raw data
 file, not the date format in the file name. For the instrument DX4015, the date
 is found in the column "Date".
 
-Note that this function was designed for the following default units:
+Note that this function was designed for the following units in the raw file:
 \itemize{
   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
   CO, \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
@@ -70,8 +72,8 @@ change the settings on your instrument, or contact the maintainer of this
 package for support.
 
 The precision of the instrument is needed to restrict kappa-max
-\code{\link[GoFluxYourself]{k.max}} in the non-linear flux calculation
-\code{\link[GoFluxYourself]{HM.flux}}. Kappa-max is inversely proportional to
+(\code{\link[GoFluxYourself]{k.max}}) in the non-linear flux calculation
+(\code{\link[GoFluxYourself]{HM.flux}}). Kappa-max is inversely proportional to
 instrument precision. If the precision of your instrument is unknown, it is
 better to use a low value (e.g. 1 ppm for
 \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
@@ -92,10 +94,10 @@ DX4015_imp <- DX4015_import(inputfile = file.path)
 
 }
 \seealso{
-Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
+Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
          to import multiple files from the same folder path using any instrument.
 
-Import functions for individual instruments:
+See also, import functions for other instruments:
          \code{\link[GoFluxYourself]{G2508_import}},
          \code{\link[GoFluxYourself]{GAIA_import}},
          \code{\link[GoFluxYourself]{LGR_import}},

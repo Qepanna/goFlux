@@ -104,7 +104,7 @@
 #' one minute (60 seconds). If the number of observations is smaller than the
 #' threshold, a warning is issued in the column \code{quality.check}.
 #'
-#' @returns a data.frame identical to the input \code{flux.result} with the
+#' @returns A data.frame identical to the input \code{flux.result} with the
 #'          additional columns \code{HM.diagnose}, \code{LM.diagnose},
 #'          \code{best.flux}, \code{model} and \code{quality.check}. For each
 #'          criteria selected, an additional column is also added to specify

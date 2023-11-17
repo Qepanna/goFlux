@@ -31,7 +31,7 @@
 #' @param warn.length numerical value; limit under which a measurement is flagged
 #'                    for being too short (\code{nb.obs < warn.length}).
 #'
-#' @returns a list of data.frame, split by \code{UniqueID}, identical to the
+#' @returns A list of data.frame, split by \code{UniqueID}, identical to the
 #'          input \code{flux.unique}, with the additional columns \code{flag},
 #'          \code{Etime}, \code{start.time_corr}, \code{end.time_corr} and
 #'          \code{obs.length_corr}.

@@ -31,9 +31,9 @@ GAIA_import(
 \item{inputfile}{character string; the name of a file with the extension .csv}
 
 \item{date.format}{date format; the date format used in the raw data file.
-Chose one of the following: "dmy", "ymd", or "mdy". Default
-is "ymd", as it is the date format from the example data
-file provided.}
+Choose one of the following: "dmy", "ymd", or "mdy".
+Default is "ymd", as it is the date format from the
+example data file provided.}
 
 \item{timezone}{character string; a time zone in which to import the data to
 POSIXct format. Default is "UTC". Note about time zone: it is
@@ -57,10 +57,10 @@ for the flux calculation. Default is \code{flag = c(7,11)}, where
 \item{background}{logical; if \code{background = FALSE}, removes all data from
 \code{activ.cham == "Background"}.}
 
-\item{save}{logical; if \code{save = TRUE}, saves the file as RData in a RData
-folder in the current working directory. If \code{save = FALSE},
-returns the file in the Console, or load in the Environment if
-assigned to an object.}
+\item{save}{logical; if \code{save = TRUE}, saves the file as RData in a
+RData folder in the current working directory. If
+\code{save = FALSE}, returns the file in the Console, or load in
+the Environment if assigned to an object.}
 
 \item{prec}{numerical vector; the precision of the instrument for each gas,
 in the following order: "CO2dry_ppm", CH4dry_ppb", "N2Odry_ppb"
@@ -80,7 +80,7 @@ to match the columns containing the corresponding gas measurements.
 \code{N2O.col}.}
 }
 \value{
-a data frame containing raw data from the automated chamber
+A data frame containing raw data from the automated chamber
          ECOFlux (GAIA2TECH)
 }
 \description{
@@ -107,7 +107,7 @@ In \code{date.format}, the date format refers to a date found in the raw data
 file, not the date format in the file name. For the instrument GAIA the
 date is found in the column "Titles:".
 
-Note that this function was designed for the following default units:
+Note that this function was designed for the following units in the raw file:
 \itemize{
   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
   \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
@@ -125,8 +125,8 @@ this instrument. If you would like to import additional data using this
 function, please contact the maintainer of this package for support.
 
 The precision of the instrument is needed to restrict kappa-max
-\code{\link[GoFluxYourself]{k.max}} in the non-linear flux calculation
-\code{\link[GoFluxYourself]{HM.flux}}. Kappa-max is inversely proportional to
+(\code{\link[GoFluxYourself]{k.max}}) in the non-linear flux calculation
+(\code{\link[GoFluxYourself]{HM.flux}}). Kappa-max is inversely proportional to
 instrument precision. If the precision of your instrument is unknown, it is
 better to use a low value (e.g. 1 ppm for
 \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
@@ -146,10 +146,10 @@ GAIA_imp <- GAIA_import(inputfile = file.path)
 
 }
 \seealso{
-Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
+Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
          to import multiple files from the same folder path using any instrument.
 
-Import functions for individual instruments:
+See also, import functions for other instruments:
          \code{\link[GoFluxYourself]{DX4015_import}},
          \code{\link[GoFluxYourself]{G2508_import}},
          \code{\link[GoFluxYourself]{LGR_import}},

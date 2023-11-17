@@ -4,25 +4,26 @@
 #'
 #' @param inputfile character string; the name of a file with the extension .json
 #' @param date.format date format; the date format used in the raw data file.
-#'                    Chose one of the following: "dmy", "ymd", or "mdy". Default
-#'                    is "ymd", as it is the date format from the example data
-#'                    file provided.
+#'                    Choose one of the following: "dmy", "ymd", or "mdy".
+#'                    Default is "ymd", as it is the date format from the
+#'                    example data file provided.
 #' @param timezone character string; a time zone in which to import the data to
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
 #'                 recommended to use the time zone "UTC" to avoid any issue
 #'                 related to summer time and winter time changes.
-#' @param save logical; if save = TRUE, saves the file as RData in a RData folder
-#'             in the current working directory. If save = FALSE, returns the file
-#'             in the Console, or load in the Environment if assigned to an object.
+#' @param save logical; if \code{save = TRUE}, saves the file as RData in a
+#'             RData folder in the current working directory. If
+#'             \code{save = FALSE}, returns the file in the Console, or load in
+#'             the Environment if assigned to an object.
 #'
-#' @returns a data frame containing raw data from the LI-COR Smart Chamber LI-8200.
+#' @returns A data frame containing raw data from the LI-COR Smart Chamber LI-8200.
 #'
 #' @details
 #' In \code{date.format}, the date format refers to a date found in the raw data
 #' file, not the date format in the file name. For the instrument LI-8200, the
 #' date is found under one of the measurement, next to "Date":.
 #'
-#' Note that this function was designed for the following default units:
+#' Note that this function was designed for the following units in the raw file:
 #' \itemize{
 #'   \item seconds for DeadBand
 #'   \item cm for Area and Offset
@@ -46,7 +47,7 @@
 #'
 #' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
-#' @seealso Import functions for individual instruments:
+#' @seealso See also, import functions for other instruments:
 #'          \code{\link[GoFluxYourself]{DX4015_import}},
 #'          \code{\link[GoFluxYourself]{G2508_import}},
 #'          \code{\link[GoFluxYourself]{GAIA_import}},
