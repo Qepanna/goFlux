@@ -180,9 +180,9 @@ convert the units to obtain a term in nmol or
 
 $$\mathbf{Eqn~3}~~~~~~flux.term = \frac{(1 - H_2O)~V~P}{A~R~T}$$
 
-Where $H_2O$ is the water vapor in mmol$\cdot$mol<sup>-1</sup>, $V$ is
-the volume inside the chamber in liters, $P$ is the pressure in kPa, $A$
-is the surface area inside the chamber in m<sup>2</sup>, $R$ is the
+Where $H_2O$ is the water vapor in mmol·mol<sup>-1</sup>, $V$ is the
+volume inside the chamber in liters, $P$ is the pressure in kPa, $A$ is
+the surface area inside the chamber in m<sup>2</sup>, $R$ is the
 universal gas constant in L·kPa·K<sup>-1</sup>·mol<sup>-1</sup>. Each
 parameters are measured inside the chamber at $t = 0$.
 
