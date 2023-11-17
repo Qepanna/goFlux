@@ -392,10 +392,10 @@ the lowest score has the best model fit.
 In flux calculation, the linear model contains two parameters: the slope
 and the intercept ($C_0$), whereas the Hutchinson and Mosier model
 (equation 1) contains three parameters: the assumed concentration of
-constant gas source below the surface ( $\varphi$ ), is the
-concentration in the chamber at the moment of chamber closure ($C_0$)
-and the curvature, kappa ($\kappa$). If both models have a very similar
-fit (maximum likelihood), then the linear model would win because it has
+constant gas source below the surface ($\varphi$), is the concentration
+in the chamber at the moment of chamber closure ($C_0$) and the
+curvature, kappa ($\kappa$). If both models have a very similar fit
+(maximum likelihood), then the linear model would win because it has
 less parameters. However, when the sample size is small (\<40
 observations per parameter; i.e. \<120 observations when calculating
 HM), there is an increased risk that AIC selects a model with too many
