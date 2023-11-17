@@ -288,7 +288,9 @@ estimate is always chosen by default, as non-linearity is assumed.
 The mean absolute error (MAE) is the arithmetic mean of the absolute
 residuals of a model, calculated as follows:
 
-$$\mathbf{Eqn~6}~~~~~~MAE = \frac{{\sum_{i = 1}^{n}}{\lvert{y_i-\hat{y_i}}\rvert}}{n}$$
+$$
+\mathbf{Eqn~6}~~~~~~MAE = \frac{{\sum_{i = 1}^{n}}{\lvert{y_i-\hat{y_i}}\rvert}}{n}
+$$
 
 $$
 \sum_{i = 1}^{n}
