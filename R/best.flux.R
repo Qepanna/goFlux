@@ -35,8 +35,8 @@
 #' @details
 #' In \code{criteria}, the indices of model fit "MAE", "RMSE" and "SE" all
 #' have a threshold. For MAE and RMSE, the threshold is instrument precision
-#' (1\sigma). For SE, the threshold is the instrument accuracy
-#' (1\sigma/\eqn{\sqrt{n}}{ASCII}. These indices also compare the two models
+#' (1\eqn{\sigma}{ASCII}). For SE, the threshold is the instrument accuracy
+#' (1\eqn{\sigma}{ASCII}/\eqn{\sqrt{n}}{ASCII}. These indices also compare the two models
 #' (linear, LM, and non-linear, HM). The selection of the best model based on
 #' indices of model fit ("MAE", "RMSE", "AICc" and "SE") is based on a scoring
 #' system. Both models start with a score of 0. For each criteria, whichever
@@ -326,7 +326,8 @@ best.flux <- function(flux.result,
     LM.p.val <- LM.diagnose <- HM.SE <- LM.SE <- HM.C0 <- LM.C0 <-
     LM.Ci <- LM.SE <- HM.SE <- MDF <- HM.MAE <- nb.obs <- LM.RMSE <- Ct <-
     LM.MAE <- UniqueID <- . <- C0 <- Ct <- C0.min <- C0.max <- RMSE.lim <-
-    MAE.lim <- MDF.lim <- HM.score <- LM.score <- HM.AICc <- LM.AICc <-  NULL
+    MAE.lim <- MDF.lim <- HM.score <- LM.score <- HM.AICc <- LM.AICc <-
+    SE.lim <- NULL
 
   # Function to find decimal places
   nb.decimal = function(x) {

@@ -163,8 +163,10 @@ A maximum threshold for this parameter, kappa-max ($k.max$), can be
 calculated from the linear flux estimate ($LM.flux$), the minimal
 detectable flux ($MDF$) and the time of chamber closure ($t$) ([Hüppi et
 al., 2018](https://doi.org/10.1371/journal.pone.0200876)).
-$$\mathbf{Eqn~2}~~~~~~k.max = \frac{LM.flux}{MDF~\times~t}$$Where
-$LM.flux$ and $MDF$have the same units (nmol or
+
+$$\mathbf{Eqn~2}~~~~~~k.max = \frac{LM.flux}{MDF~\times~t}$$
+
+Where $LM.flux$ and $MDF$have the same units (nmol or
 $\mu$mol$\cdot$m<sup>-2</sup>$\cdot$s<sup>-1</sup>) and $t$ is in
 seconds. Therefore, the units of kappa-max is s<sup>-1</sup>. This limit
 of kappa-max is included in the `goFlux()` function, so that the
