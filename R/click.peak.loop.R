@@ -1,4 +1,4 @@
-#' Manual identification of peaks on gas measurements
+#' Looped manual identification of peaks on gas measurements
 #'
 #' Identify the start and the end of a measurement by clicking on them in a
 #' scatter plot. To use in a loop with multiple measurements, first use the
@@ -8,46 +8,31 @@
 #' \code{\link[base]{lapply}} (see example below).
 #'
 #' @param x a numerical sequence that indicates objects in a list. Must be used
-#'          with lapply after the function \code{\link[GoFluxYourself]{obs.win}}.
-#'          See examples below to see how to use with lapply.
+#'          with \code{\link[base]{lapply}} after the function
+#'          \code{\link[GoFluxYourself]{obs.win}}. See examples below to see
+#'          how to use with \code{\link[base]{lapply}}.
 #' @param flux.unique a list of data.frame; output from the function
-#'                    \code{obs.win()}. Must contain the columns \code{gastype}
-#'                    (see below), \code{POSIX.time} and \code{UniqueID}.
+#'                    \code{\link[GoFluxYourself]{obs.win}}. Must contain the
+#'                    columns \code{gastype} (see below), \code{POSIX.time} and
+#'                    \code{UniqueID}.
 #' @param gastype character string; specifies which gas should be displayed on the
 #'                plot to manually select start time and end time of measurements.
 #'                Must be one of the following: "CO2dry_ppm", "COdry_ppb",
 #'                "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" or "H2O_ppm".
 #'                Default is "CO2dry_ppm".
-#' @param sleep numerical; delay before closing the resulting plot. When used
-#'              with the function \code{\link[GoFluxYourself]{click.peak.loop}},
-#'              grants a delay between measurements to verify the output before
-#'              processing the next measurement. Sleep must be shorter than 10 seconds.
-#' @param plot.lim numerical vector of length 2; Y axis limits. Removes any data
-#'                 points below and above the plot limits for a better view of
-#'                 the scatter plot. Default values are set for a normal gas
-#'                 measurement of "CO2dry_ppm" from the forest floor:
-#'                 \code{plot.lim = c(380,1000)}, where 380ppm is the minimum plotted
-#'                 concentration, which corresponds to atmospheric concentration,
-#'                 and 1000ppm is the maximum plotted concentration, which correspond
-#'                 to a maximal accumulated concentration in the chamber before
-#'                 considering it an outlier (e.g. caused by breath or gas bubble).
-#'                 For other gases, you may use the following suggested values:
-#'                 \itemize{
-#'               \item "CH4dry_ppb": \code{plot.lim = c(2200, 1800)}
-#'               \item "N2Odry_ppb": \code{plot.lim = c(250, 500)}
-#'               \item "NH3dry_ppb": \code{plot.lim = c(0, 200)}
-#'               \item "COdry_ppb": \code{plot.lim = c(0, 200)}
-#'               \item "H2O_ppm": \code{plot.lim = c(10000, 20000)}
-#'             }
-#' @param warn.length numerical; minimum amount of observations accepted (number
-#'                    of data points). With nowadays portable greenhouse gas
-#'                    analyzers, the frequency of measurement is usually one
-#'                    measurement per second. Therefore, for a default setting
-#'                    of \code{warn.length = 60}, the chamber closure time
-#'                    should be approximately one minute (60 seconds).
+#' @param sleep numerical value; delay before closing the resulting plot. When
+#'              used with the function \code{\link[GoFluxYourself]{click.peak.loop}},
+#'              grants a delay between measurements to visually inspect the
+#'              output before processing the next measurement. Sleep must be
+#'              shorter than 10 seconds.
+#' @param plot.lim numerical vector of length 2; Y axis limits. Default values
+#'                 are set for a normal gas measurement of "CO2dry_ppm" from the
+#'                 forest floor: \code{plot.lim = c(380,1000)}.
+#' @param warn.length numerical value; limit under which a measurement is flagged
+#'                    for being too short (\code{nb.obs < warn.length}).
 #'
-#' @returns a list of data.frame, split by UniqueID, identical to the input
-#'          \code{flux.unique}, with the additional columns \code{flag},
+#' @returns a list of data.frame, split by \code{UniqueID}, identical to the
+#'          input \code{flux.unique}, with the additional columns \code{flag},
 #'          \code{Etime}, \code{start.time_corr}, \code{end.time_corr} and
 #'          \code{obs.length_corr}.
 #'
@@ -58,6 +43,33 @@
 #'          individual measurements, instead of using in a loop with
 #'          \code{\link[GoFluxYourself]{click.peak.loop}}. See also
 #'          \code{\link[GoFluxYourself]{obs.win}} to prepare a list of data.frame.
+#'
+#' @details
+#' The argument \code{plot.lim} is used to remove any data points below and
+#' above the plot limits for a better view of the scatter plot. Default values
+#' are set for a normal gas measurement of "CO2dry_ppm" from the forest floor:
+#' \code{plot.lim = c(380,1000)}, where 380 ppm is the minimum plotted
+#' concentration, which corresponds to atmospheric concentration, and 1000 ppm
+#' is the maximum plotted concentration, which correspond to a maximal
+#' accumulated concentration in the chamber before considering it an outlier
+#' (e.g. caused by breath or gas bubble). For other gasses, one may use the
+#' following suggested values:
+#' \itemize{
+#'   \item "CH4dry_ppb": \code{plot.lim = c(2200, 1800)}
+#'   \item "N2Odry_ppb": \code{plot.lim = c(250, 500)}
+#'   \item "NH3dry_ppb": \code{plot.lim = c(0, 200)}
+#'   \item "COdry_ppb": \code{plot.lim = c(0, 200)}
+#'   \item "H2O_ppm": \code{plot.lim = c(10000, 20000)}
+#' }
+#'
+#' \code{warn.length} is the limit under which a measurement is flagged for
+#' being too short (\code{nb.obs < warn.length}). With nowadays' portable
+#' greenhouse gas analyzers, the frequency of measurement is usually one
+#' observation per second. Therefore, for the default setting of
+#' \code{warn.length = 60}, the chamber closure time should be approximately
+#' one minute (60 seconds). If the number of observations is smaller than the
+#' threshold, a warning is printed after the loop: "Number of observations for
+#' UniqueID: 'UniqueID' is X observations".
 #'
 #' @examples
 #' # How to use in multiple situations:
