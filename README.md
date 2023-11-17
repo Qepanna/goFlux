@@ -166,24 +166,25 @@ al., 2018](https://doi.org/10.1371/journal.pone.0200876)).
 
 $$\mathbf{Eqn~2}~~~~~~k.max = \frac{LM.flux}{MDF~\times~t}$$
 
-Where $LM.flux$ and $MDF$have the same units (nmol or
-$\mu$mol$\cdot$m<sup>-2</sup>$\cdot$s<sup>-1</sup>) and $t$ is in
-seconds. Therefore, the units of kappa-max is s<sup>-1</sup>. This limit
-of kappa-max is included in the `goFlux()` function, so that the
-non-linear flux estimate cannot exceed this maximum curvature. See below
-for more details about the minimal detectable flux (MDF).
+Where $LM.flux$ and $MDF$ have the same units (nmol or
+µmol·m<sup>-2</sup>·s<sup>-1</sup>) and $t$ is in seconds. Therefore,
+the units of kappa-max is s<sup>-1</sup>. This limit of kappa-max is
+included in the `goFlux()` function, so that the non-linear flux
+estimate cannot exceed this maximum curvature. See below for more
+details about the minimal detectable flux (MDF).
 
 All flux estimates, including the MDF, are multiplied by a $flux.term$
 which is used to correct for water vapor inside the chamber, as well as
 convert the units to obtain a term in nmol or
-$\mu$mol$\cdot$m<sup>-2</sup>$\cdot$s<sup>-1</sup>:
-$$\mathbf{Eqn~3}~~~~~~flux.term = \frac{(1 - H_2O)~V~P}{A~R~T}$$Where
-$H_2O$ is the water vapor in mmol$\cdot$mol<sup>-1</sup>, $V$ is the
-volume inside the chamber in liters, $P$ is the pressure in kPa, $A$ is
-the surface area inside the chamber in m<sup>2</sup>, $R$ is the
-universal gas constant in
-L$\cdot$kPa$\cdot$K<sup>-1</sup>$\cdot$mol<sup>-1</sup>. Each parameters
-are measured inside the chamber at $t = 0$.
+µmol·m<sup>-2</sup>·s<sup>-1</sup>:
+
+$$\mathbf{Eqn~3}~~~~~~flux.term = \frac{(1 - H_2O)~V~P}{A~R~T}$$
+
+Where $H_2O$ is the water vapor in mmol$\cdot$mol<sup>-1</sup>, $V$ is
+the volume inside the chamber in liters, $P$ is the pressure in kPa, $A$
+is the surface area inside the chamber in m<sup>2</sup>, $R$ is the
+universal gas constant in L·kPa·K<sup>-1</sup>·mol<sup>-1</sup>. Each
+parameters are measured inside the chamber at $t = 0$.
 
 ### Automatic selection of the best flux estimate
 
@@ -194,50 +195,60 @@ using the `best.flux()` function:
 - **Assumed non-linearity**: If all criteria are respected, the best
   flux estimate is assumed to be the non-linear estimate from the
   Hutchinson and Mosier model.
-- flux estimate.
-- and kappa-max ($k.max$).
-- on a selection of indices of model fit: MAE, RMSE, SE and AICc. In
-  addition to the automatic selection of the best flux estimate based on
-  these indices of model fit, measurements can be flagged “noisy” using
-  these criteria.
+- **G-factor**: the ratio between a non-linear flux estimate
+  (e.g. Hutchinson and Mosier; HM) and a linear flux estimate.
+- **Kappa ratio**: maximal limit of the ratio between kappa and
+  kappa-max ($k.max$).
+- **Indices of model fit**: the best model can be selected based on a
+  selection of indices of model fit: MAE, RMSE, SE and AICc. In addition
+  to the automatic selection of the best flux estimate based on these
+  indices of model fit, measurements can be flagged “noisy” using these
+  criteria.
 
 In addition, the `best.flux()` function can flag measurements that are
 below detection limit (MDF and *p-value*), out of bounds (intercept), or
 too short (number of observations).
 
-- is considered below the detection limit.
-- flux estimate is considered statistically non-significant, and below
+- **Minimal Detectable Flux (MDF)**: limit under which a flux estimate
+  is considered below the detection limit.
+- **Statistically significant flux (*p-value*)**: limit under which a
+  flux estimate is considered statistically non-significant, and below
   the detection limit.
-- models.
-- for being too short.
+- **Intercept**: inferior and superior limits of the intercept (initial
+  concentration; $C_0$).
+- **Number of observations**: limit under which a measurement is flagged
+  for being too short.
 
 By default, all criteria are included:
 `criteria = c("MAE", "RMSE", "AICc", "SE", "g-factor", "kappa", "MDF", "nb.obs", "p-value", "intercept")`
 
 #### **G-factor**
 
-The g-factor is the ratio between the result of a non-linear flux
-calculation model (e.g. Hutchinson and Mosier; HM) and the result of a
-linear flux calculation model ([Hüppi et al.,
-2018](https://doi.org/10.1371/journal.pone.0200876)).
-$$\mathbf{Eqn~4}~~~~~~g-factor = \frac{HM.flux}{LM.flux}$$With the
-`best.flux()` function, one can chose a limit at which the HM model is
-deemed to overestimate (*f*<sub>0</sub>). Recommended thresholds for the
-g-factor are \<4 for a flexible threshold, \<2 for a medium threshold,
-or \<1.25 for a more conservative threshold. The default threshold is
-`g.limit = 2`. If the g-factor is above the specified threshold, the
-best flux estimate will switch to LM instead of HM. If `HM.flux/LM.flux`
-is larger than `g.limit`, a warning is given in the columns
-`HM.diagnose` and `quality.check`.
+The g-factor is the ratio between a non-linear flux estimate
+(e.g. Hutchinson and Mosier; HM) and a linear flux estimate ([Hüppi et
+al., 2018](https://doi.org/10.1371/journal.pone.0200876)).
+
+$$\mathbf{Eqn~4}~~~~~~g-factor = \frac{HM.flux}{LM.flux}$$
+
+With the `best.flux()` function, one can chose a limit at which the HM
+model is deemed to overestimate (*f*<sub>0</sub>). Recommended
+thresholds for the g-factor are \<4 for a flexible threshold, \<2 for a
+medium threshold, or \<1.25 for a more conservative threshold. The
+default threshold is `g.limit = 2`. If the g-factor is above the
+specified threshold, the best flux estimate will switch to LM instead of
+HM. If `HM.flux/LM.flux` is larger than `g.limit`, a warning is given in
+the columns `HM.diagnose` and `quality.check`.
 
 #### **Minimal Detectable Flux (MDF)**
 
 The minimal detectable flux ($MDF$) is based on instrument precision
 ($prec$) and measurement time ($t$) ([Christiansen et al.,
 2015](https://doi.org/10.1016/j.agrformet.2015.06.004)).
-$$\mathbf{Eqn~5}~~~~~~MDF = \frac{prec}{t}~\times~flux.term$$Where the
-instrument precision is in the same units as the measured gas (ppm or
-ppb) and the measurement time is in seconds.
+
+$$\mathbf{Eqn~5}~~~~~~MDF = \frac{prec}{t}~\times~flux.term$$
+
+Where the instrument precision is in the same units as the measured gas
+(ppm or ppb) and the measurement time is in seconds.
 
 Below the MDF, the flux estimate is considered under the detection
 limit, but not null. Therefore, the function will not return a 0. There
@@ -276,25 +287,35 @@ estimate is always chosen by default, as non-linearity is assumed.
 
 The mean absolute error (MAE) is the arithmetic mean of the absolute
 residuals of a model, calculated as follows:
-$$\mathbf{Eqn~6}~~~~~~MAE = \frac{\sum_{i = 1}^{n}{\lvert{y_i-\hat{y_i}}\rvert}}{n}$$Where
-$y_i$ is the measured value, $\hat{y_i}$ is the predicted value and $n$
-is the number of observations.
+
+$$\mathbf{Eqn~6}~~~~~~MAE = \frac{{\sum_{i = 1}^{n}}{\lvert{y_i-\hat{y_i}}\rvert}}{n}$$
+
+$$
+\sum_{i = 1}^{n}
+$$
+
+Where $y_i$ is the measured value, $\hat{y_i}$ is the predicted value
+and $n$ is the number of observations.
 
 The root mean square error (RMSE) is very similar to the MAE. Instead of
 using absolute errors, it uses squared errors, and the mean of the
 squared errors is then rooted as follows:
-$$\mathbf{Eqn~7}~~~~~~RMSE = \sqrt{\frac{\sum_{i = 1}^{n}{({y_i-\hat{y_i}})^2}}{n}}$$Because
-of the squared errors, RMSE is sensitive to outliers. Indeed, a few
-large errors will have a significant impact on the RMSE. Therefore, RMSE
-will always be larger than or equal to MAE ([Pontius et al.,
+
+$$\mathbf{Eqn~7}~~~~~~RMSE = \sqrt{\frac{\sum_{i = 1}^{n}{({y_i-\hat{y_i}})^2}}{n}}$$
+
+Because of the squared errors, RMSE is sensitive to outliers. Indeed, a
+few large errors will have a significant impact on the RMSE. Therefore,
+RMSE will always be larger than or equal to MAE ([Pontius et al.,
 2008](https://doi.org/10.1007/s10651-007-0043-y)).
 
 Mathematically, RMSE is the standard deviation of the residuals:
-$$\mathbf{Eqn~8}~~~~~~\sigma = \sqrt{\frac{\sum_{i = 1}^{N}{({x_i-\mu})^2}}{N}}$$Where
-$x_i$ is the measured value, $N$ is the size of the population and $\mu$
-is the population mean. The standard deviation is used to calculate the
-precision of an instrument. In that case, $\mu$ is a known constant gas
-concentration and $N$ is the number of observations.
+
+$$\mathbf{Eqn~8}~~~~~~\sigma = \sqrt{\frac{\sum_{i = 1}^{N}{({x_i-\mu})^2}}{N}}$$
+
+Where $x_i$ is the measured value, $N$ is the size of the population and
+$\mu$ is the population mean. The standard deviation is used to
+calculate the precision of an instrument. In that case, $\mu$ is a known
+constant gas concentration and $N$ is the number of observations.
 
 Considering all of the above, MAE, RMSE and the standard deviation are
 all measures of how much the data points are scattered around the true
@@ -321,9 +342,11 @@ mean ([Altman and Bland,
 standard deviation as used to calculate instrument precision (equation
 8), the instrument standard error (instrument accuracy) is the standard
 deviation divided by the square root of the number of observations:
-$$\mathbf{Eqn~9}~~~~~~\sigma_\bar{x} = \frac{\sigma}{\sqrt{n}}$$Practically,
-this means that a larger sample size increases the accuracy of a
-measurement. In other words, if an instrument is imprecise and the
+
+$$\mathbf{Eqn~9}~~~~~~\sigma_\bar{x} = \frac{\sigma}{\sqrt{n}}$$
+
+Practically, this means that a larger sample size increases the accuracy
+of a measurement. In other words, if an instrument is imprecise and the
 measurement has a lot of noise, it is still possible to get a very
 accurate estimate of the true mean by increasing the number of
 observations. With high-frequency GHG analyzers, that means increasing
@@ -353,8 +376,11 @@ noisy measurement.
 The AIC estimates the relative quality of a statistical model and is
 used to compare the fitting of different models to a set of data
 ([Akaike, 1974](https://doi.org/10.1109/TAC.1974.1100705)). Consider the
-formula for AIC: $$\mathbf{Eqn~10}~~~~~~AIC = 2k - 2ln(\hat{L})$$Where
-$k$ is the number of parameters in the model and $\hat{L}$ is the
+formula for AIC:
+
+$$\mathbf{Eqn~10}~~~~~~AIC = 2k - 2ln(\hat{L})$$
+
+Where $k$ is the number of parameters in the model and $\hat{L}$ is the
 maximized value of the likelihood function for the model. AIC deals with
 the trade-off between the goodness of fit of a model and the simplicity
 of the model. In other words, the AIC is a score that deals with both
@@ -373,9 +399,11 @@ observations per parameter; i.e. \<120 observations when calculating
 HM), there is an increased risk that AIC selects a model with too many
 parameters. To address this risk of overfitting, AICc was developed
 ([Sugiura, 1978](https://doi.org/10.1080/03610927808827599)):
-$$\mathbf{Eqn~11}~~~~~~AICc = AIC + \frac{2k^2 + 2k}{n - k - 1}$$Where
-$n$ denotes the number of observations and $k$ the number of parameters
-in the model.
+
+$$\mathbf{Eqn~11}~~~~~~AICc = AIC + \frac{2k^2 + 2k}{n - k - 1}$$
+
+Where $n$ denotes the number of observations and $k$ the number of
+parameters in the model.
 
 If AICc is selected as a criteria in the `best.flux()` function, the
 model with the lowest AICc wins.
