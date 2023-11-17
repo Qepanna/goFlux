@@ -5,7 +5,7 @@
 #'
 #' @param flux.result data.frame; output from the function
 #'                    \code{\link[GoFluxYourself]{goFlux}}.
-#' @param criteria character vector; criteria used to asses the goodness of fit
+#' @param criteria character vector; criteria used to assess the goodness of fit
 #'                 of the linear and non-linear flux estimates. Must be at least
 #'                 one the following: "MAE", "RMSE", "AICc", "SE", "g.factor",
 #'                 "kappa", "MDF", "nb.obs", "p-value", or "intercept". The
@@ -18,9 +18,9 @@
 #'                      \code{intercept.lim = NULL}, the limits are calculated
 #'                      from the true values of
 #'                      \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}} and
-#'                      \ifelse{html}{\out{C<sub>i</sub>}}{\eqn{C[i]}{ASCII}}
+#'                      \ifelse{html}{\out{C<sub>t</sub>}}{\eqn{C[t]}{ASCII}}
 #'                      for each measurement.
-#' @param g.limit numerical value; maximal limit of the the g-factor (ratio
+#' @param g.limit numerical value; maximal limit of the g-factor (ratio
 #'                between \code{\link[GoFluxYourself]{HM.flux}} and
 #'                \code{\link[GoFluxYourself]{LM.flux}}). Recommended
 #'                thresholds for the g-factor are 4 (flexible), 2 (medium), or
@@ -29,14 +29,14 @@
 #'                the kappa-max. Default is \code{k.ratio = 1}.
 #' @param p.val numerical value; a limit for a statistically detectable flux.
 #'              The default threshold is \emph{p-value} < 0.05.
-#' @param warn.length numerical; limit under which a measurement is flagged for
+#' @param warn.length numerical value; limit under which a measurement is flagged for
 #'                    being too short (\code{nb.obs < warn.length}).
 #'
 #' @details
 #' In \code{criteria}, the indices of model fit "MAE", "RMSE" and "SE" all
 #' have a threshold. For MAE and RMSE, the threshold is instrument precision
 #' (1\eqn{\sigma}{ASCII}). For SE, the threshold is the instrument accuracy
-#' (1\eqn{\sigma}{ASCII}/\eqn{\sqrt{n}}{ASCII}. These indices also compare the two models
+#' (1\eqn{\sigma}{ASCII}/\eqn{\sqrt{n}}{ASCII}). These indices also compare the two models
 #' (linear, LM, and non-linear, HM). The selection of the best model based on
 #' indices of model fit ("MAE", "RMSE", "AICc" and "SE") is based on a scoring
 #' system. Both models start with a score of 0. For each criteria, whichever
@@ -47,7 +47,7 @@
 #' The \code{g.limit} indicates a threshold for the
 #' \code{\link[GoFluxYourself]{g.factor}}, which is the ratio between a
 #' non-linear flux estimate and a linear flux estimate. With the
-#' \code{\link[GoFluxYourself]{best.flux}} function, one can chose a limit at
+#' \code{\link[GoFluxYourself]{best.flux}} function, one can choose a limit at
 #' which the HM model is deemed to overestimate
 #' \ifelse{html}{\out{f<sub>0</sub>}}{\eqn{f[0]}{ASCII}}. Recommended thresholds
 #' for the g-factor are <4 for a flexible threshold, <2 for a medium threshold,
@@ -61,7 +61,7 @@
 #' estimate is considered under the detection limit, but not null. Therefore,
 #' the function will not return a 0. There will simply be a warning in the
 #' columns \code{quality.check}, \code{LM.diagnose} or \code{HM.diagnose} to
-#' warn of a flux estimate under the detectable limit. No best flux estimate
+#' warn of a flux estimate under the detection limit. No best flux estimate
 #' is chosen based on MDF.
 #'
 #' The parameter kappa determines the curvature of the non-linear regression in
@@ -73,12 +73,13 @@
 #' non-linear flux estimate based on the ratio between kappa and kappa-max
 #' (\code{k.ratio}). The ratio is expressed as a percentage, where 1 indicates
 #' \code{HM.k = k.max}, and 0.5 indicates \code{HM.k = 0.5*k.max}. The default
-#' setting is \code{k.ratio = 1}. If \code{HM.k/k.max} is larger than k.ratio,
-#' a warning is issued in the columns HM.diagnose and quality.check.
+#' setting is \code{k.ratio = 1}. If \code{HM.k/k.max} is larger than
+#' \code{k.ratio}, a warning is issued in the columns \code{HM.diagnose} and
+#' \code{quality.check}.
 #'
 #' If the initial gas concentration
 #' (\ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}}) calculated for the
-#' flux estimates are more or less than 10% of the difference between
+#' flux estimates are more or less than 10\% of the difference between
 #' \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}} and the final gas
 #' concentration at the end of the measurement
 #' (\ifelse{html}{\out{C<sub>t</sub>}}{\eqn{C[t]}{ASCII}}), a warning is issued
@@ -89,7 +90,7 @@
 #'
 #' The argument \code{p.val} is only applicable to the linear flux. Under the
 #' defined \emph{p-value}, the linear flux estimate is deemed non-significant,
-#' i. e., flux under the detectable limit. The default threshold is
+#' i. e., flux under the detection limit. The default threshold is
 #' \code{p.val = 0.05}. No best flux estimate is chosen based on \emph{p-value}.
 #' If \code{LM.p.val < p.val}, a warning is given in the columns
 #' \code{quality.check} and \code{LM.diagnose} to warn of an estimated flux
