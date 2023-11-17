@@ -289,11 +289,7 @@ The mean absolute error (MAE) is the arithmetic mean of the absolute
 residuals of a model, calculated as follows:
 
 $$
-\mathbf{Eqn~6}~~~~~~MAE = \frac{{\sum_{i = 1}^{n}}{\lvert{y_i-\hat{y_i}}\rvert}}{n}
-$$
-
-$$
-\sum_{i = 1}^{n}
+\mathbf{Eqn~6}~~~~~~MAE = \frac{1}{n} \sum_{i = 1}^{n}{\lvert{y_i-\hat{y_i}}\rvert}
 $$
 
 Where $y_i$ is the measured value, $\hat{y_i}$ is the predicted value
@@ -303,7 +299,9 @@ The root mean square error (RMSE) is very similar to the MAE. Instead of
 using absolute errors, it uses squared errors, and the mean of the
 squared errors is then rooted as follows:
 
-$$\mathbf{Eqn~7}~~~~~~RMSE = \sqrt{\frac{\sum_{i = 1}^{n}{({y_i-\hat{y_i}})^2}}{n}}$$
+$$
+\mathbf{Eqn~7}~~~~~~RMSE = \sqrt{\frac{1}{n} \sum_{i = 1}^{n}{({y_i-\hat{y_i}})^2}}
+$$
 
 Because of the squared errors, RMSE is sensitive to outliers. Indeed, a
 few large errors will have a significant impact on the RMSE. Therefore,
@@ -312,7 +310,9 @@ RMSE will always be larger than or equal to MAE ([Pontius et al.,
 
 Mathematically, RMSE is the standard deviation of the residuals:
 
-$$\mathbf{Eqn~8}~~~~~~\sigma = \sqrt{\frac{\sum_{i = 1}^{N}{({x_i-\mu})^2}}{N}}$$
+$$
+\mathbf{Eqn~8}~~~~~~\sigma = \sqrt{\frac{1}{N} \sum_{i = 1}^{N}{({x_i-\mu})^2}}
+$$
 
 Where $x_i$ is the measured value, $N$ is the size of the population and
 $\mu$ is the population mean. The standard deviation is used to
