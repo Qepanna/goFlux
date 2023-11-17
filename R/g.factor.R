@@ -20,8 +20,8 @@
 #' @references Hüppi et al. (2018). Restricting the nonlinearity parameter in
 #' soil greenhouse gas flux calculation for more reliable flux estimates.
 #' \emph{PloS one}, 13(7), e0200876.
-
-#' @return a numerical value
+#'
+#' @return A numerical value
 #'
 #' @keywords internal
 #'

@@ -36,7 +36,8 @@
 #'                  \ifelse{html}{\out{µmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{µmol m^{-2}s^{-1}}{ASCII}}
 #'                  (if initial concentration is ppm, e.g. CO2dry_ppm) and
 #'                  \ifelse{html}{\out{nmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{nmol m^{-2}s^{-1}}{ASCII}}
-#'                  (if initial concentration is ppb, e.g. CH4dry_ppb). \cr
+#'                  (if initial concentration is ppb, e.g. CH4dry_ppb).
+#'                  \cr \cr
 #'                  For example, one may want to use
 #'                  \ifelse{html}{\out{nmol kg<sup>-1</sup>h<sup>-1</sup>}}{\eqn{µmol kg^{-1}h^{-1}}{ASCII}}
 #'                  for incubated soil samples. In such a case, write
@@ -48,10 +49,10 @@
 #' @param best.model logical; if \code{best.model = TRUE}, display a star sign
 #'                   next to the best model selected by the function
 #'                   \code{\link[GoFluxYourself]{best.flux}}.
-#' @param p.val.disp character string; how should the p-value be displayed in the
+#' @param p.val.disp character string; how should the \emph{p-value} be displayed in the
 #'                   legend above the plot. Choose one of the following: "star",
 #'                   "round", "value".
-#' @param side character string; chose a side to display
+#' @param side character string; choose a side to display
 #'             \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{mol C[0]}{ASCII}} and
 #'             \ifelse{html}{\out{C<sub>i</sub>}}{\eqn{mol C[i]}{ASCII}} values.
 #'             By default, they are displayed on the left side of the plot.
@@ -59,29 +60,33 @@
 #' @details
 #' In \code{plot.legend}, one may choose to display up to 5 additional parameters
 #' in a legend above the plots. Some parameters are displayed for both the linear
-#' model (\code{\link[GoFluxYourself]{HM.flux}}) and the non-linear model
+#' model (\code{\link[GoFluxYourself]{LM.flux}}) and the non-linear model
 #' (\code{\link[GoFluxYourself]{HM.flux}}): Mean Absolute Error (\code{MAE}),
-#' Root Mean Square Error (\code{RMSE}), Standard Error (\code{SE}), relative
-#' Standard Error (\code{SErel}), and coefficient of determination (\code{r2}).
-#' The p-value (\code{LM.p.val}) is displayed for the linear model only. The kappa
-#' (\code{HM.k}), kappa-max (\code{\link[GoFluxYourself]{k.max}}), kappa ratio
-#' (\code{k.ratio}) and g-factor (\code{\link[GoFluxYourself]{g.factor}}) are
-#' displayed for the Hutchinson and Mosier model only. One may choose to display
-#' no additional parameter with \code{plot.legend = NULL}.
+#' Root Mean Square Error (\code{RMSE}), Aikaike's Information Criterion
+#' corrected for small sample size (\code{LM.AICc}), Standard Error (\code{SE}),
+#' relative Standard Error (\code{SErel}), and coefficient of determination
+#' (\code{r2}). The \emph{p-value} (\code{LM.p.val}) is displayed for the linear
+#' model only. The kappa (\code{HM.k}), kappa-max
+#' (\code{\link[GoFluxYourself]{k.max}}), kappa ratio (\code{k.ratio}) and
+#' g-factor (\code{\link[GoFluxYourself]{g.factor}}) are displayed for the
+#' Hutchinson and Mosier model only. One may choose to display no additional
+#' parameter with \code{plot.legend = NULL}.
 #'
 #' In \code{plot.display}, one may chose to display some parameters on the plot:
-#' The initial and final gas concentrations (\code{C0} and \code{Ci}) for both
-#' models, the number of observations (\code{nb.obs}) flagged, the Minimal
-#' Detectable Flux (\code{\link[GoFluxYourself]{MDF}}), the flux term
-#' (\code{\link[GoFluxYourself]{flux.term}}), the instrument precision (\code{prec}),
-#' the chamber closure (\code{cham.close}) and opening (\code{cham.open})
-#' (indicated with a green star), and the data points between chamber closure
-#' and opening that have been removed (\code{crop}) (indicated in light red).
-#' For manual chamber measurements, because there is no automatic chamber closure
-#' and opening, no green stars can be displayed. In addition, \code{crop} is
-#' only relevant if data points have been removed with the function
-#' \code{crop.meas()} (this function is not available yet).
-#' One may chose to display none of these parameters with \code{plot.display = NULL}.
+#' The initial gas concentration (\code{C0}) for both models, the assumed
+#' concentration of constant gas source below the surface (\code{Ci}) calculated
+#' from the Hutchinson and Mosier model, the number of observations
+#' (\code{nb.obs}) flagged, the Minimal Detectable Flux
+#' (\code{\link[GoFluxYourself]{MDF}}), the flux term
+#' (\code{\link[GoFluxYourself]{flux.term}}), the instrument precision
+#' (\code{prec}), the chamber closure (\code{cham.close}) and opening
+#' (\code{cham.open}) (indicated with a green star), and the data points between
+#' chamber closure and opening that have been removed (\code{crop}) (indicated
+#' in light red). For manual chamber measurements, because there is no automatic
+#' chamber closure and opening, no green stars can be displayed. In addition,
+#' \code{crop} is only relevant if data points have been removed with the
+#' function \code{crop.meas()} (this function is not available yet).
+#' One may choose to display none of these parameters with \code{plot.display = NULL}.
 #' The order in which \code{prec}, \code{flux.term}, \code{MDF} and \code{nb.obs}
 #' are put in \code{plot.display = c()} decides the order in which they are
 #' displayed at the bottom of the plot.
@@ -90,7 +95,7 @@
 #' factor to convert the results from a unit to another. If kilograms of soil
 #' were used to calculate the fluxes (see the details section of the function
 #' \code{\link[GoFluxYourself]{goFlux}}), the units would be
-#' \ifelse{html}{\out{µmol kg<sup>-1</sup>h<sup>-1</sup>}}{\eqn{µmol kg^{-1}s^{-1}}{ASCII}}.
+#' \ifelse{html}{\out{µmol kg<sup>-1</sup>s<sup>-1</sup>}}{\eqn{µmol kg^{-1}s^{-1}}{ASCII}}.
 #' To convert the units to
 #' \ifelse{html}{\out{µmol kg<sup>-1</sup>h<sup>-1</sup>}}{\eqn{µmol kg^{-1}h^{-1}}{ASCII}}
 #' instead, one would need to multiply the flux results by 3600 to convert from
@@ -98,14 +103,14 @@
 #' print the Greek letter "mu" (\eqn{µ}), use the Unicode \code{\\u03BC}:
 #' \code{flux.unit = "\\u03BCmol~kg^-1*h^-1"}.
 #'
-#' In \code{p.val.disp}, if \code{p.val.disp = "star"}, the p-values will be
-#' displayed as star symbols (asterisks) as follows: ***, ** or * for p-values
-#' of p < 0.001, p < 0.01 and p < 0.05, respectively. If \code{p.val.disp = "round"},
-#' the p-values are rounded to p < 0.001, p < 0.01 and p < 0.05. If
-#' \code{p.val.disp = "value"}, the actual values are displayed, rounded to two
-#' significant numbers.
+#' In \code{p.val.disp}, if \code{p.val.disp = "star"}, the \emph{p-values} will
+#' be displayed as star symbols (asterisks) as follows: ***, ** or * for
+#' \emph{p-values} of p < 0.001, p < 0.01 and p < 0.05, respectively. If
+#' \code{p.val.disp = "round"}, the \emph{p-values} are rounded to p < 0.001,
+#' p < 0.01 and p < 0.05. If \code{p.val.disp = "value"}, the actual values are
+#' displayed, rounded to two significant numbers.
 #'
-#' @return a list of plots, one per UniqueID, drawn from flux results (output
+#' @return A list of plots, one per \code{UniqueID}, drawn from flux results (output
 #' from the functions \code{\link[GoFluxYourself]{goFlux}} and
 #' \code{\link[GoFluxYourself]{best.flux}}).
 #'
@@ -127,7 +132,7 @@
 #' @examples
 #' data(LGR_manID)
 #' LGR_flux <- goFlux(LGR_manID, "CO2dry_ppm")
-#' criteria <- c("MAE", "g.factor", "MDF", "SE")
+#' criteria <- c("MAE", "AICc", "g.factor", "MDF")
 #' LGR_res <- best.flux(LGR_flux, criteria)
 #' LGR_plots <- flux.plot(
 #'   flux.results = LGR_res, dataframe = LGR_manID,

@@ -16,7 +16,7 @@ model. Calculated with the \code{\link[GoFluxYourself]{LM.flux}}
 function of this package.}
 }
 \value{
-a numerical value
+A numerical value
 }
 \description{
 Calculates the g-factor: the ratio between the flux estimates of a non-linear

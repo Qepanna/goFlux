@@ -11,7 +11,7 @@
 #' @param width numerical value; width of the pdf page. Default is 11.6 inches.
 #' @param height numerical value; height of the pdf page. Default is 8.2 inches.
 #'
-#' @return a pdf file containing all plots from plot.list, sorted by UniqueID.
+#' @return A pdf file containing all plots from plot.list, sorted by UniqueID.
 #'
 #' @include GoFluxYourself-package.R
 #'

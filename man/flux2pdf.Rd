@@ -19,7 +19,7 @@ in the working directory, with the name of the plot.list.}
 \item{height}{numerical value; height of the pdf page. Default is 8.2 inches.}
 }
 \value{
-a pdf file containing all plots from plot.list, sorted by UniqueID.
+A pdf file containing all plots from plot.list, sorted by UniqueID.
 }
 \description{
 Save a list of plots to a pdf file, and combine plots sharing a UniqueID

@@ -18,10 +18,11 @@
 #'                 recommended to use the time zone "UTC" to avoid any issue
 #'                 related to summer time and winter time changes.
 #' @param pivot character string; either "long" or "wide". If \code{pivot = "long"},
-#'              each column containing information about Tsoil, Tcham, SWC, PAR
-#'              and operating status (Op.stat) will be saved in a single column
-#'              per parameter. If \code{pivot = "wide"}, the default display of
-#'              one column per chamber per parameter will be used.
+#'              each column containing information about \code{Tsoil},
+#'              \code{Tcham}, \code{SWC}, \code{PAR} and operating status
+#'              (\code{Op.stat}) will be saved in a single column per parameter.
+#'              If \code{pivot = "wide"}, the default display of one column per
+#'              chamber per parameter will be used.
 #' @param active logical; if \code{active = TRUE}, preserve data for active
 #'               chambers only.
 #' @param flag numeric vector; indicates the operating status that should be used
