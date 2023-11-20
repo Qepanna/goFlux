@@ -116,17 +116,23 @@ raw data from a variety of instruments:
   Ultra-portable Greenhouse Gas Analyzer (UGGA) and Microportable
   Greenhouse Gas Analyzer (MGGA) for CO<sub>2</sub>, CH<sub>4</sub> and
   H<sub>2</sub>O
-- [**Picarro G2508 gas
-  analyzer**](https://www.picarro.com/g2508_gas_concentration_analyzer):
+- [**Picarro G2508 Gas Concentration
+  Analyzer**](https://www.picarro.com/g2508_gas_concentration_analyzer):
   for CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, NH<sub>3</sub> and
   H<sub>2</sub>O
+- [**Picarro GasScouter<sup>TM</sup> G4301 Mobile Gas Concentration
+  Analyzer**](https://www.picarro.com/products/gas-scouter-g4301): for
+  CO<sub>2</sub>, CH<sub>4</sub> and H<sub>2</sub>O
 - [**GAIATECH Automated ECOFlux
   chamber**](https://www.dmr.eu/technologies/gas-emission-measurements-eco2flux/automated-eco2flux-chamber/):
   for an easy import of data from any gas analyzer
 - [**Gasmet DX4015 portable analyzer for humid
   conditions**](https://www.gasmet.com/products/category/portable-gas-analyzers/dx4015/):
   for CO, CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, NH<sub>3</sub>
-  and H<sub>2</sub>O.
+  and H<sub>2</sub>O
+- [**PP-Systems EGM-5 Portable CO<sub>2</sub> Gas
+  Analyzer**](https://ppsystems.com/egm-5/): for CO<sub>2</sub>,
+  O<sub>2</sub> and H<sub>2</sub>O
 
 After import, the user can chose from two methods for identification of
 measurements:
@@ -514,8 +520,9 @@ instruments, and example data files are provided for all of them:
 - LI-COR: LI-6400, LI-7810, LI-7820, LI-8100, LI-8200 (smart chamber)
 - Los Gatos Research instruments: (e.g. UGGA and m-GGA)
 - GAIA2TECH (DMR) automated chamber ECOFlux
-- Picarro: G2508
+- Picarro: G2508 and G4301
 - Gasmet: DX4015
+- PP-Systems: EGM-5
 
 To import multiple files from a folder, use the wrapper function
 `import2RData()`.
@@ -523,7 +530,9 @@ To import multiple files from a folder, use the wrapper function
 ``` r
 # Get help for import functions from the GoFluxYourself package
 ?DX4015_import
+?EGM5_import
 ?G2508_import
+?G4301_import
 ?GAIA_import
 ?LI6400_import
 ?LI7810_import

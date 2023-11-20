@@ -13,10 +13,10 @@ files to be imported.}
 
 \item{instrument}{character string; specifies which instrument was used to
 generate the files contained in the folder path. Choose one
-of the following: "DX4015", "LGR", "G2508", "GAIA", "LI-6400",
-"LI-7810", "LI-7820", "LI-8100", or "LI-8200". For more
-information about an instrument, see the section "See Also"
-below.}
+of the following: "DX4015", "EGM5", "G2508", "G4301" "GAIA",
+"LI-6400", "LI-7810", "LI-7820", "LI-8100", "LI-8200" or
+"LGR". For more information about an instrument, see the
+section "See Also" below.}
 
 \item{date.format}{character string; specifies the date format found in the
 raw data file. Choose one of the following: "dmy", "ymd",
@@ -47,8 +47,9 @@ Adapted to multiple greenhouse gas analyzers and other instruments:
 \item \strong{Los Gatos Research (LGR)}: ultra-portable GGA (GLA132 series) and
 micro ultra-portable GGA (GLA131 series)
 \item \strong{GAIA2TECH (DMR)} automated chamber ECOFlux
-\item \strong{Picarro}: G2508
+\item \strong{Picarro}: G2508 and G4301
 \item \strong{Gasmet}: DX4015
+\item \strong{PP-Systems}: EGM-5
 }
 }
 \details{
@@ -57,7 +58,9 @@ file, not the date format in the file name. For most instruments, the date is
 one of the columns in the raw data file:
 \itemize{
 \item DX4015: column Date
+\item EGM5: column Date
 \item G2508: column DATE
+\item G4301: column DATE
 \item GAIA: column Titles:
 \item LGR: column Time
 \item LI-7810: column DATE
@@ -80,10 +83,20 @@ import2RData(path = "inst/extdata/DX4015", instrument = "DX4015",
              date.format = "ymd", keep_all = FALSE,
              prec = c(1, 1, 1, 1, 1, 1))
 
+# with the PP-Systems EGM-5
+import2RData(path = "inst/extdata/EGM5", instrument = "EGM5",
+             date.format = "dmy", keep_all = FALSE,
+             prec = c(1, 1, 1))
+
 # with the Picarro instrument G2508
 import2RData(path = "inst/extdata/G2508", instrument = "G2508",
              date.format = "ymd", keep_all = FALSE,
              prec = c(0.6, 10, 25, 5, 500))
+
+# with the Picarro instrument G4301
+import2RData(path = "inst/extdata/G4301", instrument = "G4301",
+             date.format = "ymd", keep_all = FALSE,
+             prec = c(0.025, 0.1, 10))
 
 # with the automated chamber ECOFlux (GAIA2TECH)
 # with this instrument, "keep_all" is not a valid argument.
@@ -127,7 +140,9 @@ to import multiple files from the same folder path using any instrument.
 
 Import functions for individual instruments:
 \code{\link[GoFluxYourself]{DX4015_import}},
+\code{\link[GoFluxYourself]{EGM5_import}},
 \code{\link[GoFluxYourself]{G2508_import}},
+\code{\link[GoFluxYourself]{G4301_import}},
 \code{\link[GoFluxYourself]{GAIA_import}},
 \code{\link[GoFluxYourself]{LGR_import}},
 \code{\link[GoFluxYourself]{LI6400_import}},

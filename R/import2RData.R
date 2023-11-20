@@ -6,8 +6,9 @@
 #' * \strong{Los Gatos Research (LGR)}: ultra-portable GGA (GLA132 series) and
 #'                                      micro ultra-portable GGA (GLA131 series)
 #' * \strong{GAIA2TECH (DMR)} automated chamber ECOFlux
-#' * \strong{Picarro}: G2508
+#' * \strong{Picarro}: G2508 and G4301
 #' * \strong{Gasmet}: DX4015
+#' * \strong{PP-Systems}: EGM-5
 #' @md
 #'
 #' @param path character string; a folder path containing all files to be imported.
@@ -15,10 +16,10 @@
 #'             files to be imported.
 #' @param instrument character string; specifies which instrument was used to
 #'                   generate the files contained in the folder path. Choose one
-#'                   of the following: "DX4015", "LGR", "G2508", "GAIA", "LI-6400",
-#'                   "LI-7810", "LI-7820", "LI-8100", or "LI-8200". For more
-#'                   information about an instrument, see the section "See Also"
-#'                   below.
+#'                   of the following: "DX4015", "EGM5", "G2508", "G4301" "GAIA",
+#'                   "LI-6400", "LI-7810", "LI-7820", "LI-8100", "LI-8200" or
+#'                   "LGR". For more information about an instrument, see the
+#'                   section "See Also" below.
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
 #'                    or "mdy".
@@ -42,7 +43,9 @@
 #' one of the columns in the raw data file:
 #' \itemize{
 #' \item DX4015: column Date
+#' \item EGM5: column Date
 #' \item G2508: column DATE
+#' \item G4301: column DATE
 #' \item GAIA: column Titles:
 #' \item LGR: column Time
 #' \item LI-7810: column DATE
@@ -56,7 +59,9 @@
 #'
 #' @include GoFluxYourself-package.R
 #' @include DX4015_import.R
+#' @include EGM5_import.R
 #' @include G2508_import.R
+#' @include G4301_import.R
 #' @include GAIA_import.R
 #' @include LGR_import.R
 #' @include LI6400_import.R
@@ -69,7 +74,9 @@
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso Import functions for individual instruments:
 #'          \code{\link[GoFluxYourself]{DX4015_import}},
+#'          \code{\link[GoFluxYourself]{EGM5_import}},
 #'          \code{\link[GoFluxYourself]{G2508_import}},
+#'          \code{\link[GoFluxYourself]{G4301_import}},
 #'          \code{\link[GoFluxYourself]{GAIA_import}},
 #'          \code{\link[GoFluxYourself]{LGR_import}},
 #'          \code{\link[GoFluxYourself]{LI6400_import}},
@@ -89,10 +96,20 @@
 #'              date.format = "ymd", keep_all = FALSE,
 #'              prec = c(1, 1, 1, 1, 1, 1))
 #'
+#' # with the PP-Systems EGM-5
+#' import2RData(path = "inst/extdata/EGM5", instrument = "EGM5",
+#'              date.format = "dmy", keep_all = FALSE,
+#'              prec = c(1, 1, 1))
+#'
 #' # with the Picarro instrument G2508
 #' import2RData(path = "inst/extdata/G2508", instrument = "G2508",
 #'              date.format = "ymd", keep_all = FALSE,
 #'              prec = c(0.6, 10, 25, 5, 500))
+#'
+#' # with the Picarro instrument G4301
+#' import2RData(path = "inst/extdata/G4301", instrument = "G4301",
+#'              date.format = "ymd", keep_all = FALSE,
+#'              prec = c(0.025, 0.1, 10))
 #'
 #' # with the automated chamber ECOFlux (GAIA2TECH)
 #' # with this instrument, "keep_all" is not a valid argument.
@@ -140,8 +157,9 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
   if(missing(instrument)) stop("'instrument' is required")
   if(length(instrument) != 1) stop("'instrument' must be of length 1")
   if(!any(grepl(paste("\\<", instrument, "\\>", sep = ""),
-                c("DX4015", "LGR", "G2508", "GAIA", "LI-6400", "LI-7810", "LI-7820", "LI-8100", "LI-8200")))){
-    stop("'instrument' must be of class character and one of the following: 'DX4015', 'LGR', 'G2508', 'GAIA', 'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100', 'LI-8200'")}
+                c("DX4015", "LGR", "G4301", "G2508", "GAIA", "LI-6400", "EGM5",
+                  "LI-7810", "LI-7820", "LI-8100", "LI-8200")))){
+    stop("'instrument' must be of class character and one of the following: 'DX4015', 'EGM5', 'G2508', 'G4301', 'GAIA', 'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100', 'LI-8200', 'LGR'")}
   if(!missing(date.format)){
     if(length(date.format) != 1) stop("'date.format' must be of length 1")
     if(!any(grepl(paste("\\<", date.format, "\\>", sep = ""), c("ymd", "dmy", "mdy")))){
@@ -187,6 +205,36 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
     })
   }
 
+  # EGM5 ####
+  if(instrument == "EGM5"){
+
+    # List all the files contained in the specified path
+    file_list <- list.files(path = path, pattern = "\\.TXT", recursive = T,
+                            full.names = TRUE)
+
+    # Loop through files in "file_list" and apply import functions
+    pblapply(seq_along(file_list), function(i) {
+
+      withCallingHandlers(
+
+        EGM5_import(inputfile = file_list[i],
+                      date.format = date.format,
+                      timezone = timezone,
+                      save = TRUE,
+                      keep_all = keep_all,
+                      prec = prec),
+
+        error = function(e){
+          errs <<- c(errs, message(
+            paste("Error occurred in file", file_list[[i]],":\n"), e))
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
+    })
+  }
+
   # G2508 ####
   if(instrument == "G2508"){
 
@@ -200,6 +248,36 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
       withCallingHandlers(
 
         G2508_import(inputfile = file_list[i],
+                     date.format = date.format,
+                     timezone = timezone,
+                     save = TRUE,
+                     keep_all = keep_all,
+                     prec = prec),
+
+        error = function(e){
+          errs <<- c(errs, message(
+            paste("Error occurred in file", file_list[[i]],":\n"), e))
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
+    })
+  }
+
+  # G4301 ####
+  if(instrument == "G4301"){
+
+    # List all the files contained in the specified path
+    file_list <- list.files(path = path, pattern = "\\.dat", recursive = T,
+                            full.names = TRUE)
+
+    # Loop through files in "file_list" and apply import functions
+    pblapply(seq_along(file_list), function(i) {
+
+      withCallingHandlers(
+
+        G4301_import(inputfile = file_list[i],
                      date.format = date.format,
                      timezone = timezone,
                      save = TRUE,

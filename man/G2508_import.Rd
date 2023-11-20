@@ -47,7 +47,8 @@ A data frame containing raw data from Picarro G2508 GHG analyzer.
 Imports single raw gas measurement files from the Picarro G2508 with the
 extension .dat (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
-\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}, and
+\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
+\ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}, and
 \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} GHG analyzer)
 }
 \details{
@@ -57,10 +58,11 @@ is found in the column "DATE".
 
 Note that this function was designed for the following units in the raw file:
 \itemize{
-  \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
-  \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
-  \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
-  \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
+  \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
+  \item ppb for \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
+        \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+        \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}
+  \item mmol/mol for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
   \item Torr for pressure
   \item Celsius for temperature}
 If your instrument uses different units, either convert the units after import,
@@ -74,8 +76,9 @@ instrument precision. If the precision of your instrument is unknown, it is
 better to use a low value (e.g. 1 ppm for
 \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
 \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}, or 1 ppb for
-\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
-\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}) to allow for more
+\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
+\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+\ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}) to allow for more
 curvature, especially for water vapor fluxes, or very long measurements, that
 are normally curved. The default values given for instrument precision are
 the ones found for the latest model of this instrument, available at the
@@ -95,6 +98,8 @@ Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
 
 See also, import functions for other instruments:
          \code{\link[GoFluxYourself]{DX4015_import}},
+         \code{\link[GoFluxYourself]{EGM5_import}},
+         \code{\link[GoFluxYourself]{G4301_import}},
          \code{\link[GoFluxYourself]{GAIA_import}},
          \code{\link[GoFluxYourself]{LGR_import}},
          \code{\link[GoFluxYourself]{LI6400_import}},

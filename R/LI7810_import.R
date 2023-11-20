@@ -62,7 +62,9 @@
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso See also, import functions for other instruments:
 #'          \code{\link[GoFluxYourself]{DX4015_import}},
+#'          \code{\link[GoFluxYourself]{EGM5_import}},
 #'          \code{\link[GoFluxYourself]{G2508_import}},
+#'          \code{\link[GoFluxYourself]{G4301_import}},
 #'          \code{\link[GoFluxYourself]{GAIA_import}},
 #'          \code{\link[GoFluxYourself]{LGR_import}},
 #'          \code{\link[GoFluxYourself]{LI6400_import}},

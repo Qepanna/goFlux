@@ -3,7 +3,8 @@
 #' Imports single raw gas measurement files from the Picarro G2508 with the
 #' extension .dat (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
-#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}, and
+#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
+#' \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}, and
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} GHG analyzer)
 #'
 #' @param inputfile character string; the name of a file with the extension .dat
@@ -36,10 +37,11 @@
 #'
 #' Note that this function was designed for the following units in the raw file:
 #' \itemize{
-#'   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
-#'   \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
-#'   \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
-#'   \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
+#'   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
+#'   \item ppb for \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
+#'         \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+#'         \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}
+#'   \item mmol/mol for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
 #'   \item Torr for pressure
 #'   \item Celsius for temperature}
 #' If your instrument uses different units, either convert the units after import,
@@ -53,8 +55,9 @@
 #' better to use a low value (e.g. 1 ppm for
 #' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}, or 1 ppb for
-#' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
-#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}) to allow for more
+#' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
+#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+#' \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}) to allow for more
 #' curvature, especially for water vapor fluxes, or very long measurements, that
 #' are normally curved. The default values given for instrument precision are
 #' the ones found for the latest model of this instrument, available at the
@@ -66,6 +69,8 @@
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso See also, import functions for other instruments:
 #'          \code{\link[GoFluxYourself]{DX4015_import}},
+#'          \code{\link[GoFluxYourself]{EGM5_import}},
+#'          \code{\link[GoFluxYourself]{G4301_import}},
 #'          \code{\link[GoFluxYourself]{GAIA_import}},
 #'          \code{\link[GoFluxYourself]{LGR_import}},
 #'          \code{\link[GoFluxYourself]{LI6400_import}},
@@ -103,11 +108,10 @@ G2508_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       if(length(prec) != 5) stop("'prec' must be of length 5")}}
 
   # Assign NULL to variables without binding
-  ALARM_STATUS <- H2O <- N2O_dry30s <- N2O_dry <- CH4_dry <- CavityPressure <-
-    CO2_dry <- TIME <- DATE <- WarmBoxTemp <- EtalonTemp <- DasTemp <-
-    CavityTemp <- Amb_P <- N2Odry_ppb <- CH4dry_ppb <- H2O_ppm <-
+  H2O <- N2O_dry30s <- N2O_dry <- CH4_dry <- CO2_dry <- TIME <- DATE <- NH3 <-
+    N2Odry_ppb <- CH4dry_ppb <- H2O_ppm <- NH3wet_ppm <- H2O_mmol <-
     POSIX.warning <- N2Odry_30s_ppb <- CO2dry_ppm <- CH4dry_ppm <-
-    N2Odry_30s_ppm <- N2Odry_ppm <- H2O_mmol <- NULL
+    NH3dry_ppb <- N2Odry_30s_ppm <- N2Odry_ppm <- NULL
 
   # Import raw data file from G2508 (.dat)
   data.raw <- read.delim(inputfile, sep = "") %>%
@@ -121,8 +125,12 @@ G2508_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
            N2Odry_ppb = N2Odry_ppm*1000,
            N2Odry_30s_ppb = N2Odry_30s_ppm*1000,
            CH4dry_ppb = CH4dry_ppm*1000) %>%
+    # Water compensation in NH3
+    mutate(NH3wet_ppm = NH3/1000) %>%
+    mutate(NH3dry_ppb = (NH3wet_ppm/(1-H2O_ppm/1000000))*1000) %>%
     # Remove NAs and negative gas measurements, if any
     filter(N2Odry_ppb > 0) %>%
+    filter(NH3dry_ppb > 0) %>%
     filter(CH4dry_ppb > 0) %>%
     filter(H2O_ppm > 0)
 
@@ -130,7 +138,7 @@ G2508_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   if(keep_all == FALSE){
     data.raw <- data.raw %>%
       select(DATE, TIME, CO2dry_ppm, CH4dry_ppb, N2Odry_ppb, N2Odry_30s_ppb,
-             H2O_ppm)}
+             NH3dry_ppb, H2O_ppm)}
 
   # Create a new column containing date and time (POSIX format)
   tryCatch(

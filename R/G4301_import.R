@@ -1,15 +1,16 @@
-#' Import function for Los Gatos Research GHG analyzers
+#' Import function for the Picarro
+#' \ifelse{html}{\out{GasScouter<sup>TM</sup>}}{\eqn{GasScouter^{TM}}{ASCII}}
+#' G4301 Mobile Gas Concentration Analyzer
 #'
-#' Imports single raw gas measurement files from the ultra-portable GHG analyzers
-#' (UGGA and m-GGA) from Los Gatos Research
-#' (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+#' Imports single raw gas measurement files from the Picarro G4301 with the
+#' extension .dat (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
-#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}) with the extension .txt
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} GHG analyzer)
 #'
-#' @param inputfile character string; the name of a file with the extension .txt
+#' @param inputfile character string; the name of a file with the extension .dat
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
-#'                    or "mdy". Default is "dmy", as it is the date format from
+#'                    or "mdy". Default is "ymd", as it is the date format from
 #'                    the example data file provided.
 #' @param timezone character string; a time zone in which to import the data to
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
@@ -24,25 +25,20 @@
 #'                 are not necessary for gas flux calculation are removed.
 #' @param prec numerical vector; the precision of the instrument for each gas,
 #'             in the following order: "CO2dry_ppm", CH4dry_ppb" and H2O_ppm".
-#'             The default is \code{prec = c(0.2, 1.4, 50)}, which corresponds
-#'             to the ultra-portable GGA (GLA132 series). For the micro
-#'             ultra-portable GGA (GLA131 series), use
-#'             \code{prec = c(0.35, 0.9, 200)}.
+#'             The default is \code{prec = c(0.025, 0.1, 10)}.
 #'
-#' @returns A data frame containing raw data from LGR GHG analyzer.
-#'
-#' @include GoFluxYourself-package.R
+#' @returns A data frame containing raw data from Picarro G4301 GHG analyzer.
 #'
 #' @details
 #' In \code{date.format}, the date format refers to a date found in the raw data
-#' file, not the date format in the file name. For the instrument G2508, the date
-#' is found in the column "Time".
+#' file, not the date format in the file name. For the instrument G4301, the date
+#' is found in the column "DATE".
 #'
 #' Note that this function was designed for the following units in the raw file:
 #' \itemize{
-#'   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
-#'   \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
-#'   \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
+#'   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
+#'   \item ppb for \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}
+#'   \item mmol/mol for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
 #'   \item Torr for pressure
 #'   \item Celsius for temperature}
 #' If your instrument uses different units, either convert the units after import,
@@ -62,14 +58,16 @@
 #' the ones found for the latest model of this instrument, available at the
 #' time of the creation of this package (11-2023).
 #'
+#' @include GoFluxYourself-package.R
+#'
 #' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso See also, import functions for other instruments:
 #'          \code{\link[GoFluxYourself]{DX4015_import}},
 #'          \code{\link[GoFluxYourself]{EGM5_import}},
 #'          \code{\link[GoFluxYourself]{G2508_import}},
-#'          \code{\link[GoFluxYourself]{G4301_import}},
 #'          \code{\link[GoFluxYourself]{GAIA_import}},
+#'          \code{\link[GoFluxYourself]{LGR_import}},
 #'          \code{\link[GoFluxYourself]{LI6400_import}},
 #'          \code{\link[GoFluxYourself]{LI7810_import}},
 #'          \code{\link[GoFluxYourself]{LI7820_import}},
@@ -79,15 +77,17 @@
 #'          timezone attribute.
 #'
 #' @examples
-#' # Examples on how to use:
-#' file.path <- system.file("extdata", "LGR/LGR.txt", package = "GoFluxYourself")
+#' # Load file from downloaded package
+#' file.path <- system.file("extdata", "G4301/07_2022/G4301.dat", package = "GoFluxYourself")
 #'
-#' LGR_imp <- LGR_import(inputfile = file.path)
+#' # Run function
+#' G4301_imp <- G4301_import(inputfile = file.path)
 #'
 #' @export
 #'
-LGR_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
-                       save = FALSE, keep_all = FALSE, prec = c(0.2, 1.4, 50)){
+G4301_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
+                         save = FALSE, keep_all = FALSE,
+                         prec = c(0.025, 0.1, 10)){
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")
@@ -103,57 +103,39 @@ LGR_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
       if(length(prec) != 3) stop("'prec' must be of length 3")}}
 
   # Assign NULL to variables without binding
-  POSIX.time <- DATE_TIME <- H2O_ppm <- CH4dry_ppb <- Time <- . <-
-    CH4dry_ppm <- CO2dry_ppm <- POSIX.warning <- CO2_ppm <-
-    CO2wet_ppm <- CH4_ppm <- CH4wet_ppm <- NULL
+  H2O <- CH4_dry <- CO2_dry <- TIME <- DATE <- CH4dry_ppb <- H2O_ppm <-
+    POSIX.warning <- CO2dry_ppm <- CH4dry_ppm <- H2O_mmol <- NULL
 
-  # Load data file
-  data.raw <- read.delim(inputfile, skip = 1, sep = ",") %>%
-    # Clean column names
-    `colnames<-`(gsub("\\.", "",
-                      gsub("X.", "",
-                           gsub("d_", "dry_",
-                                gsub("__", "_", names(.))))))
-
-  # Compensate for water vapor
-  if(!any(grepl("CO2dry_ppm", names(data.raw)))){
-    data.raw <- data.raw %>%
-      rename(CO2wet_ppm = CO2_ppm) %>%
-      mutate(CO2dry_ppm = CO2wet_ppm/(1-H2O_ppm/1000000))}
-  if(!any(grepl("CH4dry_ppm", names(data.raw)))){
-    data.raw <- data.raw %>%
-      rename(CH4wet_ppm = CH4_ppm) %>%
-      mutate(CH4dry_ppm = CH4wet_ppm/(1-H2O_ppm/1000000))}
-
-  data.raw <- data.raw %>%
-    # Remove rows at the end of the file
-    drop_na(CO2dry_ppm) %>%
-    # Convert ppm into ppb for CH4dry
-    mutate(CH4dry_ppb = CH4dry_ppm*1000) %>%
+  # Import raw data file from G4301 (.dat)
+  data.raw <- read.delim(inputfile, sep = "") %>%
+    # Standardize column names
+    rename(CO2dry_ppm = CO2_dry, CH4dry_ppm = CH4_dry, H2O_mmol = H2O) %>%
+    # Convert column class automatically
+    type.convert(as.is = TRUE) %>%
+    # Convert mmol into ppm for H2O and ppm into ppb for N2O and CH4
+    mutate(H2O_ppm = H2O_mmol*1000,
+           CH4dry_ppb = CH4dry_ppm*1000) %>%
     # Remove NAs and negative gas measurements, if any
-    filter(CO2dry_ppm > 0) %>%
     filter(CH4dry_ppb > 0) %>%
-    filter(H2O_ppm > 0) %>%
-    # Replace characters in Time ("/" -> "-") and remove first space
-    mutate(DATE_TIME = gsub("/", "-", sub(" ", "" , Time)))
+    filter(H2O_ppm > 0)
 
   # Keep only useful columns for gas flux calculation
   if(keep_all == FALSE){
     data.raw <- data.raw %>%
-      select(DATE_TIME, CO2dry_ppm, CH4dry_ppb, H2O_ppm)}
+      select(DATE, TIME, CO2dry_ppm, CH4dry_ppb, H2O_ppm)}
 
   # Create a new column containing date and time (POSIX format)
   tryCatch(
     {op <- options()
     options(digits.secs=6)
     if(date.format == "dmy"){
-      try.POSIX <- as.POSIXct(dmy_hms(data.raw$DATE_TIME, tz = timezone),
+      try.POSIX <- as.POSIXct(dmy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone),
                               format = "%Y-%m-%d %H:%M:%OS")
     } else if(date.format == "mdy"){
-      try.POSIX <- as.POSIXct(mdy_hms(data.raw$DATE_TIME, tz = timezone),
+      try.POSIX <- as.POSIXct(mdy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone),
                               format = "%Y-%m-%d %H:%M:%OS")
     } else if(date.format == "ymd"){
-      try.POSIX <- as.POSIXct(ymd_hms(data.raw$DATE_TIME, tz = timezone),
+      try.POSIX <- as.POSIXct(ymd_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone),
                               format = "%Y-%m-%d %H:%M:%OS")}
     options(op)}, warning = function(w) {POSIX.warning <<- "date.format.error"}
   )
@@ -161,15 +143,12 @@ LGR_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
   if(isTRUE(POSIX.warning == "date.format.error")){
     stop(paste("An error occured while converting DATE and TIME into POSIX.time.",
                "Verify that 'date.format' corresponds to the column 'DATE' in",
-               "the raw data file. Here is a sample:", data.raw$DATE_TIME[1]))
+               "the raw data file. Here is a sample:", data.raw$DATE[1]))
   } else data.raw$POSIX.time <- try.POSIX
-
-  # Add a column for DATE alone
-  data.raw <- data.raw %>% mutate(DATE = substr(POSIX.time, 0, 10))
 
   # Add instrument precision for each gas
   data.raw <- data.raw %>%
-    mutate(CO2_prec = prec[1], CH4_prec = prec[2],  H2O_prec = prec[3])
+    mutate(CO2_prec = prec[1], CH4_prec = prec[2], H2O_prec = prec[5])
 
   # Save cleaned data file
   if(save == TRUE){
@@ -179,8 +158,8 @@ LGR_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
 
     # Create output file: change extension to .RData, and
     # add instrument name and "imp" for import to file name
-    file.name <- gsub(".*/", "", sub("\\.txt", "", inputfile))
-    outputfile <- paste("LGR_", file.name, "_imp.RData", sep = "")
+    file.name <- gsub(".*/", "", sub("\\.dat", "", inputfile))
+    outputfile <- paste("G4301_", file.name, "_imp.RData", sep = "")
 
     save(data.raw, file = paste(RData_folder, outputfile, sep = "/"))
 

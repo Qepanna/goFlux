@@ -1,6 +1,7 @@
 #' @importFrom AICcmodavg AICc
 #' @importFrom data.table rleid
 #' @importFrom dplyr %>%
+#' @importFrom dplyr across
 #' @importFrom dplyr all_of
 #' @importFrom dplyr arrange
 #' @importFrom dplyr between

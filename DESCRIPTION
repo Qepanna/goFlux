@@ -16,7 +16,9 @@ RoxygenNote: 7.2.3
 Collate: 
     'GoFluxYourself-package.R'
     'DX4015_import.R'
+    'EGM5_import.R'
     'G2508_import.R'
+    'G4301_import.R'
     'GAIA_import.R'
     'HM.flux.R'
     'LGR_imp-data.R'
