@@ -7,10 +7,10 @@
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}) with the extension .txt
 #'
 #' @param inputfile character string; the name of a file with the extension .txt
-#' @param date.format date format; the date format used in the raw data file.
-#'                    Choose one of the following: "dmy", "ymd", or "mdy".
-#'                    Default is "dmy", as it is the date format from the
-#'                    example data file provided.
+#' @param date.format character string; specifies the date format found in the
+#'                    raw data file. Choose one of the following: "dmy", "ymd",
+#'                    or "mdy". Default is "dmy", as it is the date format from
+#'                    the example data file provided.
 #' @param timezone character string; a time zone in which to import the data to
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
 #'                 recommended to use the time zone "UTC" to avoid any issue
@@ -102,7 +102,8 @@ LGR_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
 
   # Assign NULL to variables without binding
   POSIX.time <- DATE_TIME <- H2O_ppm <- CH4dry_ppb <- Time <- . <-
-    CH4dry_ppm <- CO2dry_ppm <- POSIX.warning <- NULL
+    CH4dry_ppm <- CO2dry_ppm <- POSIX.warning <- CO2_ppm <-
+    CO2wet_ppm <- CH4_ppm <- CH4wet_ppm <- NULL
 
   # Load data file
   data.raw <- read.delim(inputfile, skip = 1, sep = ",") %>%
@@ -110,7 +111,19 @@ LGR_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
     `colnames<-`(gsub("\\.", "",
                       gsub("X.", "",
                            gsub("d_", "dry_",
-                                gsub("__", "_", names(.)))))) %>%
+                                gsub("__", "_", names(.))))))
+
+  # Compensate for water vapor
+  if(!any(grepl("CO2dry_ppm", names(data.raw)))){
+    data.raw <- data.raw %>%
+      rename(CO2wet_ppm = CO2_ppm) %>%
+      mutate(CO2dry_ppm = CO2wet_ppm/(1-H2O_ppm/1000000))}
+  if(!any(grepl("CH4dry_ppm", names(data.raw)))){
+    data.raw <- data.raw %>%
+      rename(CH4wet_ppm = CH4_ppm) %>%
+      mutate(CH4dry_ppm = CH4wet_ppm/(1-H2O_ppm/1000000))}
+
+  data.raw <- data.raw %>%
     # Remove rows at the end of the file
     drop_na(CO2dry_ppm) %>%
     # Convert ppm into ppb for CH4dry
