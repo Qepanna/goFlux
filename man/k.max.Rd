@@ -7,16 +7,16 @@
 k.max(MDF, LM.flux, t)
 }
 \arguments{
-\item{MDF}{numerical; minimal detectable flux, calculated with the function
+\item{MDF}{numerical value; minimal detectable flux, calculated with the function
 \code{\link[GoFluxYourself]{MDF}}}
 
-\item{LM.flux}{numerical; flux estimate from a linear flux calculation model,
+\item{LM.flux}{numerical value; flux estimate from a linear flux calculation model,
 calculated with the function \code{\link[GoFluxYourself]{LM.flux}}}
 
-\item{t}{numerical; measurement time (enclosure time) (seconds)}
+\item{t}{numerical value; measurement time (enclosure time) (seconds)}
 }
 \value{
-a numerical value
+A numerical value: the kappa-max.
 }
 \description{
 The parameter kappa determines the curvature of the non-linear regression in the

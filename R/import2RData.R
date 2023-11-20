@@ -2,24 +2,26 @@
 #'
 #' Imports all raw gas measurement files contained in a folder.
 #' Adapted to multiple greenhouse gas analyzers and other instruments:
-#' * LI-COR: LI-6400, LI-7810, LI-7820, LI-8100, LI-8200 (smart chamber)
-#' * Los Gatos Research instruments: (e.g. UGGA and m-GGA)
-#' * GAIA2TECH (DMR) automated chamber ECOFlux
-#' * Picarro: G2508
-#' * Gasmet: DX4015
+#' * \strong{LI-COR}: LI-6400, LI-7810, LI-7820, LI-8100, LI-8200 (smart chamber)
+#' * \strong{Los Gatos Research (LGR)}: ultra-portable GGA (GLA132 series) and
+#'                                      micro ultra-portable GGA (GLA131 series)
+#' * \strong{GAIA2TECH (DMR)} automated chamber ECOFlux
+#' * \strong{Picarro}: G2508
+#' * \strong{Gasmet}: DX4015
 #' @md
 #'
 #' @param path character string; a folder path containing all files to be imported.
 #'             Ideally, to avoid any errors, the folder should only contain the
 #'             files to be imported.
 #' @param instrument character string; specifies which instrument was used to
-#'                   generate the files contained in the folder path. Chose one
+#'                   generate the files contained in the folder path. Choose one
 #'                   of the following: "DX4015", "LGR", "G2508", "GAIA", "LI-6400",
 #'                   "LI-7810", "LI-7820", "LI-8100", or "LI-8200". For more
-#'                   information about an instrument, see the section "See also"
+#'                   information about an instrument, see the section "See Also"
 #'                   below.
-#' @param date.format date format; the date format used in the raw data file.
-#'                    Chose one of the following: "dmy", "ymd", or "mdy".
+#' @param date.format character string; specifies the date format found in the
+#'                    raw data file. Choose one of the following: "dmy", "ymd",
+#'                    or "mdy".
 #' @param timezone character string; a time zone in which to import the data to
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
 #'                 recommended to use the time zone "UTC" to avoid any issue
@@ -28,10 +30,10 @@
 #'                 file. The default is \code{keep_all = FALSE}, and columns that
 #'                 are not necessary for gas flux calculation are removed.
 #' @param prec numerical vector; the precision of the instrument for each gas.
-#'             Look at the examples bellow, or the help for each import function
+#'             Look at the examples below, or the help for each import function
 #'             of each instrument, to know what values to use.
 #'
-#' @returns a data frame saved as RData in a newly created folder, RData, into
+#' @returns A data frame saved as RData in a newly created folder, RData, into
 #'          the working directory.
 #'
 #' @details
@@ -50,7 +52,7 @@
 #' For the instrument LI-6400, the date is found in one of the first lines in
 #' a format containing abbreviations, for example "Thr Aug 6 2020", which would
 #' be the date format "mdy". For the instrument LI-8200, the date is found under
-#' one of the measurement, next to "Date":.
+#' one of the measurements, next to "Date":.
 #'
 #' @include GoFluxYourself-package.R
 #' @include DX4015_import.R
@@ -63,7 +65,7 @@
 #' @include LI8100_import.R
 #' @include LI8200_import.R
 #'
-#' @seealso Use the wraper function \code{\link[GoFluxYourself]{import2RData}}
+#' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso Import functions for individual instruments:
 #'          \code{\link[GoFluxYourself]{DX4015_import}},

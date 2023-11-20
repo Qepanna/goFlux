@@ -100,13 +100,13 @@ the Hutchinson and Mosier model. A maximal limit of kappa,
 \code{\link[GoFluxYourself]{k.max}} is included in the
 \code{\link[GoFluxYourself]{goFlux}} function, so that the non-linear flux
 estimate cannot exceed this maximum curvature. In the function
-\code{best.flux()}, one can choose the linear flux estimate over the
-non-linear flux estimate based on the ratio between kappa and kappa-max
-(\code{k.ratio}). The ratio is expressed as a percentage, where 1 indicates
-\code{HM.k = k.max}, and 0.5 indicates \code{HM.k = 0.5*k.max}. The default
-setting is \code{k.ratio = 1}. If \code{HM.k/k.max} is larger than
-\code{k.ratio}, a warning is issued in the columns \code{HM.diagnose} and
-\code{quality.check}.
+\code{\link[GoFluxYourself]{best.flux}}, one can choose the linear flux
+estimate over the non-linear flux estimate based on the ratio between kappa
+and kappa-max (\code{k.ratio}). The ratio is expressed as a percentage, where
+1 indicates \code{HM.k = k.max}, and 0.5 indicates \code{HM.k = 0.5*k.max}.
+The default setting is \code{k.ratio = 1}. If \code{HM.k/k.max} is larger
+than \code{k.ratio}, a warning is issued in the columns \code{HM.diagnose}
+and \code{quality.check}.
 
 If the initial gas concentration
 (\ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}}) calculated for the

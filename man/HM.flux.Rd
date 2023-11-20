@@ -22,42 +22,26 @@ HM.flux(
 \item{flux.term}{numerical value; flux term calculated with the function
 \code{\link[GoFluxYourself]{flux.term}}}
 
-\item{k.max}{numerical; kappa-max is the maximal curvature allowed in the
+\item{k.max}{numerical value; kappa-max is the maximal curvature allowed in the
 Hutchinson and Mosier model. Calculated with the
 \code{\link[GoFluxYourself]{k.max}} function.}
 
-\item{Ct}{numerical; gas concentration after \emph{t} seconds (ppm or ppb).
-For typical forest soil conditions, use these estimates for the
-following \code{gastypes}:
-\itemize{
-    \item "CO2dry_ppm": \code{Ct = 1000 ppm}
-    \item "CH4dry_ppb": \code{Ct = 1800 ppb}
-    \item "N2Odry_ppb": \code{Ct = 500 ppb}
-    \item "H2O_ppm": \code{Ct = 20000 ppm}
-  }}
+\item{Ct}{numerical value; gas concentration after \emph{t} seconds (ppm or ppb).}
 
-\item{C0}{numerical; initial gas concentration at time 0 second (ppm or ppb)
-For typical forest soil conditions, use these estimates for the
-following \code{gastypes}:
-\itemize{
-    \item "CO2dry_ppm": \code{C0 = 380 ppm}
-    \item "CH4dry_ppb": \code{C0 = 2200 ppb}
-    \item "N2Odry_ppb": \code{C0 = 250 ppb}
-    \item "H2O_ppm": \code{C0 = 10000 ppm}
-  }}
+\item{C0}{numerical value; initial gas concentration at time 0 second (ppm or ppb).}
 
-\item{k.mult}{numerical; a multiplier for the allowed k.max. Default is no
+\item{k.mult}{numerical value; a multiplier for the allowed k.max. Default is no
 multiplier (\code{k.mult = 1}).}
 }
 \value{
 Returns a data frame with 11 columns: non-linear flux estimate,
-         initial gas concentration (\code{HM.C0}), final gas concentration
-         (\code{HM.Ct}), slope at \code{t=0} (\code{HM.slope}), mean absolute
-         error (\code{HM.MAE}), root mean square error (\code{HM.RMSE}),
-         Akaike information criterion corrected for small sample size
-         (\code{LM.AICc}) standard error (\code{HM.SE}),
-         relative standard error (\code{HM.se.rel}),
-         \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}} (\code{HM.r2}),
+         initial gas concentration (\code{HM.C0}), the assumed concentration
+         of constant gas source below the surface (\code{HM.Ct}), slope at
+         \code{t=0} (\code{HM.slope}), mean absolute error (\code{HM.MAE}),
+         root mean square error (\code{HM.RMSE}), Akaike's information
+         criterion corrected for small sample size (\code{LM.AICc}),
+         standard error (\code{HM.SE}), relative standard error
+         (\code{HM.se.rel}), coefficiend of determination (\code{HM.r2}),
          and curvature (kappa; (\code{HM.k})).
 }
 \description{
@@ -66,15 +50,43 @@ model, and then extracts values from the model fit.
 }
 \details{
 Flux estimate units are
-\ifelse{html}{\out{µmol/m<sup>2</sup>s}}{\eqn{µmol/m^{2}s}{ASCII}}
+\ifelse{html}{\out{µmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{µmol m^{-2}s^{-1}}{ASCII}}
 (if initial concentration is ppm, e.g. CO2dry_ppm) and
-\ifelse{html}{\out{nmol/m<sup>2</sup>s}}{\eqn{nmol/m^{2}s}{ASCII}}
+\ifelse{html}{\out{nmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{nmol m^{-2}s^{-1}}{ASCII}}
 (if initial concentration is ppb, e.g. CH4dry_ppb).
+
+The Hutchinson and Mosier model (HM) is a non-linear model, whose curvature
+is controlled by the parameter kappa. A large kappa returns a strong
+curvature. A maximum threshold for this parameter, kappa-max
+(\code{\link[GoFluxYourself]{k.max}}), can be calculated from the linear
+flux estimate (\code{\link[GoFluxYourself]{LM.flux}}), the minimal detectable
+flux (\code{\link[GoFluxYourself]{MDF}}) and the time of chamber closure.
+This limit of kappa-max is included in the
+\code{\link[GoFluxYourself]{goFlux}} function, so that the non-linear flux
+estimate cannot exceed this maximum curvature.
+
+The HM slope is multiplied by a \code{\link[GoFluxYourself]{flux.term}} which
+is used to correct for water vapor inside the chamber, as well as convert the
+units of the slope to obtain a flux estimate in nmol or
+\ifelse{html}{\out{µmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{µmol m^{-2}s^{-1}}{ASCII}}.
+
+In \code{Ct} and \code{C0}, typical values for forest soil conditions and
+180 seconds of chamber closure are as follows for each \code{gastype}:
+\itemize{
+  \item CO2dry_ppm:  \code{Ct=1000} ; \code{C0=380}
+  \item CH4dry_ppb:  \code{Ct=1800} ; \code{C0=2200}
+  \item N2Odry_ppb:  \code{Ct=500} ; \code{C0=250}
+  \item H2O_ppm:     \code{Ct=20000} ; \code{C0=10000}
+}
 }
 \references{
 Hüppi et al. (2018). Restricting the nonlinearity parameter in
 soil greenhouse gas flux calculation for more reliable flux estimates.
 \emph{PloS one}, 13(7), e0200876.
+
+Hutchinson and Mosier (1981). Improved soil cover method for
+field measurement of nitrous oxide fluxes.
+\emph{Soil Science Society of America Journal}, 45(2), 311-316.
 }
 \seealso{
 Look up the functions \code{\link[GoFluxYourself]{flux.term}} and

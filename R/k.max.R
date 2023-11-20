@@ -6,13 +6,13 @@
 #' flux estimate and the measurement time. The unit of the kappa-max is
 #' \ifelse{html}{\out{s<sup>-1</sup>}}{\eqn{s^{-1}}{ASCII}}.
 #'
-#' @param MDF numerical; minimal detectable flux, calculated with the function
+#' @param MDF numerical value; minimal detectable flux, calculated with the function
 #'            \code{\link[GoFluxYourself]{MDF}}
-#' @param LM.flux numerical; flux estimate from a linear flux calculation model,
+#' @param LM.flux numerical value; flux estimate from a linear flux calculation model,
 #'                calculated with the function \code{\link[GoFluxYourself]{LM.flux}}
-#' @param t numerical; measurement time (enclosure time) (seconds)
+#' @param t numerical value; measurement time (enclosure time) (seconds)
 #'
-#' @return a numerical value
+#' @return A numerical value: the kappa-max.
 #'
 #' @seealso Look up the functions \code{\link[GoFluxYourself]{MDF}} and
 #'          \code{\link[GoFluxYourself]{LM.flux}} of this package

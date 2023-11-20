@@ -16,10 +16,10 @@ LI8100_import(
 \arguments{
 \item{inputfile}{character string; the name of a file with the extension .81x}
 
-\item{date.format}{date format; the date format used in the raw data file.
-Choose one of the following: "dmy", "ymd", or "mdy".
-Default is "ymd", as it is the date format from the
-example data file provided.}
+\item{date.format}{character string; specifies the date format found in the
+raw data file. Choose one of the following: "dmy", "ymd",
+or "mdy". Default is "ymd", as it is the date format from
+the example data file provided.}
 
 \item{timezone}{character string; a time zone in which to import the data to
 POSIXct format. Default is "UTC". Note about time zone: it is

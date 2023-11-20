@@ -10,10 +10,10 @@
 #' with the extension .TXT
 #'
 #' @param inputfile character string; the name of a file with the extension .TXT
-#' @param date.format date format; the date format used in the raw data file.
-#'                    Choose one of the following: "dmy", "ymd", or "mdy".
-#'                    Default is "ymd", as it is the date format from the
-#'                    example data file provided.
+#' @param date.format character string; specifies the date format found in the
+#'                    raw data file. Choose one of the following: "dmy", "ymd",
+#'                    or "mdy". Default is "ymd", as it is the date format from
+#'                    the example data file provided.
 #' @param timezone character string; a time zone in which to import the data to
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
 #'                 recommended to use the time zone "UTC" to avoid any issue
