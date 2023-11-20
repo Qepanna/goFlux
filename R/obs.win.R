@@ -173,7 +173,7 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
   # Assign NULL to variables without binding ####
   POSIX.time <- chamID <- start.time <- UniqueID <- Etime <- flag <- DATE <-
     CO2dry_ppm <- COdry_ppb <- CH4dry_ppb <- N2Odry_ppb <- NH3dry_ppb <-
-    H2O_ppm <- cham.open <- end.time <- NULL
+    H2O_ppm <- cham.open <- end.time <- Tcham <- Pcham <- NULL
 
   # FUNCTION STARTS ####
 
@@ -300,7 +300,18 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
       auxfile <- auxfile %>% select(!c(N2Odry_ppb)) }
     if (any(grepl("\\<H2O_ppm\\>", names(auxfile)))){
       auxfile <- auxfile %>% select(!c(H2O_ppm)) }
-    # 2. Merge by UniqueID and POSIX.time
+    # 2. Extract the first element of these columns:
+    if (any(grepl("\\<Tcham\\>", names(auxfile)))){
+      Tcham <- first(na.omit(auxfile$Tcham))
+      auxfile <- auxfile %>% select(!c(Tcham))
+      data.filter$Tcham <- Tcham}
+    if (any(grepl("\\<Pcham\\>", names(auxfile)))){
+      Pcham <- first(na.omit(auxfile$Pcham))
+      auxfile <- auxfile %>% select(!c(Pcham))
+      data.filter$Pcham <- Pcham}
+    # 3. Simplify auxfile
+    auxfile <- auxfile %>% distinct()
+    # 4. Merge by UniqueID and POSIX.time:
     if (any(grepl("\\<POSIX.time\\>", names(auxfile)))){
       data.filter <- data.filter %>%
         left_join(auxfile, by = c("UniqueID", "POSIX.time"))
