@@ -101,7 +101,7 @@ LI6400_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
     Etime <- CO2dry_ppm <- Meas.type <- plotID <- H2OS <- Cdry <- Press <-
     Tair <- Mode <- ETime <- HHMMSS <- Meas.type..NEE.ER. <- Plot. <- Obs <-
     V4 <- V1 <- start.time <- met.date.warning <- flag <- offset <- Vcham <-
-    Area <- Pcham <- Tcham <- H2O_ppm <- TCham <- NULL
+    Area <- Pcham <- Tcham <- H2O_ppm <- TCham <- PAR <- PARo <- NULL
 
   # Find how many rows need to be skipped
   skip.rows <- tryapply(seq(1:30), function(i) {
@@ -136,7 +136,7 @@ LI6400_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
     # Standardize column names
     rename(plotID = Plot., Meas.type = Meas.type..NEE.ER., TIME = HHMMSS,
            Etime = ETime, Tcham = Tair, Pcham = Press, CO2dry_ppm = Cdry,
-           H2O_mmol = H2OS) %>% select(!TCham) %>%
+           H2O_mmol = H2OS, PAR = PARo) %>% select(!TCham) %>%
     # Remove comments
     filter(!CO2dry_ppm == "") %>% filter(!Obs == "Obs") %>%
     # Convert column class automatically
@@ -182,7 +182,7 @@ LI6400_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
   if(keep_all == FALSE){
     data.raw <- data.raw %>%
       select(POSIX.time, DATE, TIME, chamID, Obs, Meas.type, CO2dry_ppm, H2O_ppm,
-             Tcham, Pcham, Area, Vcham, offset, Obs, plotID, Etime, flag,
+             Tcham, Pcham, PAR, Area, Vcham, offset, Obs, plotID, Etime, flag,
              start.time, cham.close, cham.open)}
 
   # Add instrument precision for each gas
