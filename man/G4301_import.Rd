@@ -81,7 +81,7 @@ time of the creation of this package (11-2023).
 }
 \examples{
 # Load file from downloaded package
-file.path <- system.file("extdata", "G4301/07_2022/G4301.dat", package = "GoFluxYourself")
+file.path <- system.file("extdata", "G4301/G4301.dat", package = "GoFluxYourself")
 
 # Run function
 G4301_imp <- G4301_import(inputfile = file.path)
