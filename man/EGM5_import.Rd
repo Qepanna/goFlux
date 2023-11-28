@@ -11,7 +11,7 @@ EGM5_import(
   timezone = "UTC",
   save = FALSE,
   keep_all = FALSE,
-  prec = c(1, 1, 1)
+  prec = c(3, 1, 500)
 )
 }
 \arguments{
@@ -37,10 +37,8 @@ file. The default is \code{keep_all = FALSE}, and columns that
 are not necessary for gas flux calculation are removed.}
 
 \item{prec}{numerical vector; the precision of the instrument for each gas,
-in the following order: "CO2dry_ppm", "O2dry_ppm" and H2O_ppm".
-The default is \code{prec = c(1, 1, 1)}. Note that the precision
-of this instrument is currently unknown, so a value of 1 is used
-for each gas.}
+in the following order: "CO2dry_ppm", "O2dry_pct" and H2O_ppm".
+The default is \code{prec = c(3, 1, 500)}.}
 }
 \value{
 A data frame containing raw data from the PP-Systems EGM-5 Portable

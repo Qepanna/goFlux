@@ -81,17 +81,17 @@ one of the measurements, next to "Date":.
 # so all values are set to 1.
 import2RData(path = "inst/extdata/DX4015", instrument = "DX4015",
              date.format = "ymd", keep_all = FALSE,
-             prec = c(1, 1, 1, 1, 1, 1))
+             prec = c(1.6, 23, 13, 2, 23, 33))
 
 # with the PP-Systems EGM-5
 import2RData(path = "inst/extdata/EGM5", instrument = "EGM5",
              date.format = "dmy", keep_all = FALSE,
-             prec = c(1, 1, 1))
+             prec = c(3, 1, 500))
 
 # with the Picarro instrument G2508
 import2RData(path = "inst/extdata/G2508", instrument = "G2508",
              date.format = "ymd", keep_all = FALSE,
-             prec = c(0.6, 10, 25, 5, 500))
+             prec = c(0.24, 0.3, 5, 0.16, 500))
 
 # with the Picarro instrument G4301
 import2RData(path = "inst/extdata/G4301", instrument = "G4301",
@@ -103,15 +103,20 @@ import2RData(path = "inst/extdata/G4301", instrument = "G4301",
 import2RData(path = "inst/extdata/GAIA", instrument = "GAIA",
              date.format = "ymd", prec = c(3.5, 0.6, 0.4, 45, 45))
 
-# with Los Gatos Research instruments (e.g. UGGA or m-GGA)
+# with Los Gatos Research UGGA (GLA132 series)
 import2RData(path = "inst/extdata/LGR", instrument = "LGR",
              date.format = "dmy", keep_all = FALSE,
              prec = c(0.2, 1.4, 50))
 
+# with Los Gatos Research m-GGA (GLA131 series)
+import2RData(path = "inst/extdata/LGR", instrument = "LGR",
+             date.format = "dmy", keep_all = FALSE,
+             prec = c(0.35, 0.9, 200))
+
 # with the LI-COR LI-6400 gas analyzer
 import2RData(path = "inst/extdata/LI6400", instrument = "LI-6400",
              date.format = "mdy", keep_all = FALSE,
-             prec = c(0.2, 1.4, 50))
+             prec = c(0.15, 20))
 
 # with the LI-COR LI-7810 gas analyzer
 import2RData(path = "inst/extdata/LI7810", instrument = "LI-7810",
