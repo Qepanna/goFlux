@@ -299,14 +299,14 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
     }
     ### SE ####
     if(any(grepl("\\<SE\\>", plot.legend))){
-      if(!any(grepl("\\<LM.se\\>", names(flux.results)))){
-        stop("'SE' selected in 'plot.legend', but 'LM.se' missing in 'flux.results'")
-      } else if(!is.numeric(flux.results$LM.se)){
-        stop("'LM.se' in 'flux.results' must be of class numeric")}
-      if(!any(grepl("\\<HM.se\\>", names(flux.results)))){
-        stop("'SE' selected in 'plot.legend', but 'HM.se' missing in 'flux.results'")
-      } else if(!is.numeric(flux.results$HM.se)){
-        stop("'HM.se' in 'flux.results' must be of class numeric")}
+      if(!any(grepl("\\<LM.SE\\>", names(flux.results)))){
+        stop("'SE' selected in 'plot.legend', but 'LM.SE' missing in 'flux.results'")
+      } else if(!is.numeric(flux.results$LM.SE)){
+        stop("'LM.SE' in 'flux.results' must be of class numeric")}
+      if(!any(grepl("\\<HM.SE\\>", names(flux.results)))){
+        stop("'SE' selected in 'plot.legend', but 'HM.SE' missing in 'flux.results'")
+      } else if(!is.numeric(flux.results$HM.SE)){
+        stop("'HM.SE' in 'flux.results' must be of class numeric")}
     }
     ### r2 ####
     if(any(grepl("\\<r2", plot.legend))){
@@ -659,9 +659,9 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
       }
       ### SE ####
       if(any(grepl("\\<SE\\>", plot.legend))){
-        LM.se <- round(unique(data_corr[[f]]$LM.se), 3)
-        HM.se <- round(unique(data_corr[[f]]$HM.se), 3)
-        legend.se <- cbind.data.frame(content = c("SE", LM.se, HM.se, ""))
+        LM.SE <- round(unique(data_corr[[f]]$LM.SE), 3)
+        HM.SE <- round(unique(data_corr[[f]]$HM.SE), 3)
+        legend.se <- cbind.data.frame(content = c("SE", LM.SE, HM.SE, ""))
       }
       ### LM.p.val ####
       if(any(grepl("\\<LM.p.val\\>", plot.legend))){

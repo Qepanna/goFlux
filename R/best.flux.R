@@ -324,11 +324,10 @@ best.flux <- function(flux.result,
 
   # Assign NULL to variables without binding ####
   g.fact <- HM.diagnose <- HM.RMSE <- prec <- model <- quality.check <- HM.k <-
-    LM.p.val <- LM.diagnose <- HM.SE <- LM.SE <- HM.C0 <- LM.C0 <-
-    LM.Ci <- LM.SE <- HM.SE <- MDF <- HM.MAE <- nb.obs <- LM.RMSE <- Ct <-
-    LM.MAE <- UniqueID <- . <- C0 <- Ct <- C0.min <- C0.max <- RMSE.lim <-
-    MAE.lim <- MDF.lim <- HM.score <- LM.score <- HM.AICc <- LM.AICc <-
-    SE.lim <- NULL
+    LM.p.val <- LM.diagnose <- HM.C0 <- LM.C0 <- LM.Ci <- LM.SE <- HM.SE <-
+    MDF <- HM.MAE <- nb.obs <- LM.RMSE <- Ct <- LM.MAE <- UniqueID <- . <-
+    C0 <- Ct <- C0.min <- C0.max <- RMSE.lim <- MAE.lim <- MDF.lim <-
+    HM.score <- LM.score <- HM.AICc <- LM.AICc <- SE.lim <- NULL
 
   # Function to find decimal places
   nb.decimal = function(x) {
