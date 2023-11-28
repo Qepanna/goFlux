@@ -105,9 +105,10 @@ The package contains a wide range of functions that let the user import
 raw data from a variety of instruments:
 
 - [**LI-COR trace gas
-  analyzers**](https://www.licor.com/env/products/trace-gas/): LI-7810
-  for CO<sub>2</sub>, CH<sub>4</sub> and H<sub>2</sub>O, LI-7820 for
-  N<sub>2</sub>O and H<sub>2</sub>O
+  analyzers**](https://www.licor.com/env/products/trace-gas/): LI-6400
+  for CO<sub>2</sub> and H<sub>2</sub>O, LI-7810 for CO<sub>2</sub>,
+  CH<sub>4</sub> and H<sub>2</sub>O, LI-7820 for N<sub>2</sub>O and
+  H<sub>2</sub>O, and LI-8100 for CO<sub>2</sub> and H<sub>2</sub>O
 - [**LI-COR Smart
   Chamber**](https://www.licor.com/env/products/soil-flux/survey): for
   an easy import of data from any gas analyzer
