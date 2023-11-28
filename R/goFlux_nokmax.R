@@ -1,8 +1,14 @@
 #' goFlux (without kappa-max): a user-friendly GHG fluxes calculation tool
 #'
 #' A wrapper function to calculate GHG fluxes from static chamber measurements.
-#' Calculates linear (\code{\link[GoFluxYourself]{LM.flux}}) and non-linear fluxes
-#' (Hutchinson and Mosier model; \code{\link[GoFluxYourself]{HM.flux}}).
+#' Calculates linear (\code{\link[GoFluxYourself]{LM.flux}}) and non-linear
+#' fluxes (Hutchinson and Mosier model; \code{\link[GoFluxYourself]{HM.flux}}),
+#' from a variety of greenhouse gasses (
+#' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+#' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
+#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
+#' \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}, CO, and
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}).
 #'
 #' @param dataframe a data.frame containing gas measurements (see \code{gastype}
 #'                  below), water vapor measurements (see \code{H2O_col} below)
@@ -16,6 +22,7 @@
 #'                "CH4dry_ppb", "COdry_ppb", "N2Odry_ppb", "NH3dry_ppb" or "H2O_ppm".
 #' @param H2O_col character string; specifies which column should be used to
 #'                subtract the effect of water vapor in the chamber space.
+#'                Default is \code{H2O_col = "H2O_ppm"}.
 #' @param prec numerical value; precision of the instruments. Units must be the
 #'             same as \code{gastype}. With the default \code{prec = NULL},
 #'             instrument precision for each gas must be provided in
@@ -45,12 +52,12 @@
 #'              Alternatively, provide the column \code{Tcham} in \code{dataframe}
 #'              if \code{Tcham} is different between samples. If \code{Tcham} is
 #'              not provided, normal air temperature (15°C) is used.
-#' @param warn.length numerical; minimum amount of observations accepted (number
-#'                    of data points). With nowadays portable greenhouse gas
-#'                    analyzers, the frequency of measurement is usually one
-#'                    measurement per second. Therefore, for a default setting
-#'                    of \code{warn.length = 60}, the chamber closure time
-#'                    should be approximately one minute (60 seconds).
+#' @param k.mult numerical value; a multiplier for the allowed kappa-max.
+#'               Default setting is no multiplier (\code{k.mult = 1}).
+#'               \code{k.mult} cannot be negative and must be smaller or
+#'               equal to 10.
+#' @param warn.length numerical value; limit under which a measurement is
+#'                    flagged for being too short (\code{nb.obs < warn.length}).
 #'
 #' @details
 #' This function differs from the original version
@@ -60,58 +67,64 @@
 #' \code{\link[GoFluxYourself]{MDF}}.
 #'
 #' Flux estimate units are
-#' \ifelse{html}{\out{µmol/m<sup>2</sup>s}}{\eqn{µmol/m^{2}s}{ASCII}}
+#' \ifelse{html}{\out{µmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{µmol m^{-2}s^{-1}}{ASCII}}
 #' (if initial concentration is ppm, e.g. CO2dry_ppm) and
-#' \ifelse{html}{\out{nmol/m<sup>2</sup>s}}{\eqn{nmol/m^{2}s}{ASCII}}
+#' \ifelse{html}{\out{nmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{nmol m^{-2}s^{-1}}{ASCII}}
 #' (if initial concentration is ppb, e.g. CH4dry_ppb).
 #'
-#' The function \code{\link[GoFluxYourself]{k.max}} calculates the maximal
-#' curvature (kappa) of the non-linear model (Hutchinson and Mosier;
-#' \code{\link[GoFluxYourself]{HM.flux}}) allowed for each flux measurements.
-#' kappa-max is calculated based on the minimal detectable flux
-#' (\code{\link[GoFluxYourself]{MDF}}), the linear flux estimate
-#' \code{\link[GoFluxYourself]{LM.flux}}
-#' and the measurement time. The unit of kappa-max is
-#' \ifelse{html}{\out{s<sup>-1</sup>}}{\eqn{s^{-1}}{ASCII}}.
+#' The \code{\link[GoFluxYourself]{goFlux}} function calculates flux estimates
+#' from the linear model (LM) and the Hutchinson and Mosier model (HM). The HM
+#' model is a non-linear model, whose curvature is controlled by the parameter
+#' kappa. A large kappa returns a strong curvature. A maximum threshold for this
+#' parameter, kappa-max (\code{\link[GoFluxYourself]{k.max}}), can be calculated
+#' from the linear flux estimate (\code{\link[GoFluxYourself]{LM.flux}}), the
+#' minimal detectable flux (\code{\link[GoFluxYourself]{MDF}}) and the time of
+#' chamber closure. This limit of kappa-max is included in the
+#' \code{\link[GoFluxYourself]{goFlux}} function, so that the non-linear flux
+#' estimate cannot exceed this maximum curvature.
 #'
-#' The function \code{\link[GoFluxYourself]{MDF}} calculates the minimal detectable
-#' flux (MDF) based on instrument precision and measurement time.
+#' All flux estimates, including the \code{\link[GoFluxYourself]{MDF}}, are
+#' multiplied by a \code{\link[GoFluxYourself]{flux.term}} which is used to
+#' correct for water vapor inside the chamber, as well as convert the units to
+#' obtain a term in nmol or
+#' \ifelse{html}{\out{µmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{µmol m^{-2}s^{-1}}{ASCII}}.
 #'
 #' The argument \code{Area} is in \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}},
-#' but the output units from \code{goFlux()} are in
+#' but the output units from \code{\link[GoFluxYourself]{goFlux}} are in
 #' \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This means that there is a factor
-#' of 10000 to convert from \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}
+#' of 10,000 to convert from \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}
 #' to \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This is important
-#' to take into account if one would provide something else than an Area in
+#' to take into account if one would provide something else than an \code{Area} in
 #' \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to the function.
 #' For example, with incubated soil samples, one may provide an amount of soil
-#' (kg) instead of an Area. To get the right units in that case, multiply the
-#' kilograms of soil by 10000 to remove the conversion from
+#' (kg) instead of an \code{Area}. To get the right units in that case, multiply the
+#' kilograms of soil by 10,000 to remove the conversion from
 #' \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to
 #' \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}.
 #'
-#' @returns Returns a data frame with 26 columns: a UniqueID per measurement,
-#'          10 columns for the linear model results (linear flux estimate
-#'          (\code{LM.flux}), initial gas concentration (\code{LM.C0}), final
-#'          gas concentration (\code{LM.Ct}), slope of linear regression
-#'          (\code{LM.slope}), mean absolute error ((\code{LM.MAE})), root mean
-#'          square error ((\code{LM.RMSE})), standard error ((\code{LM.se})),
-#'          relative se ((\code{LM.se.rel})),
-#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and p-value
-#'          ((\code{LM.p.val}))), 10 columns for the non-linear model results
-#'          (non-linear flux estimate (\code{HM.flux}), initial gas concentration
-#'          (\code{HM.C0}), final gas concentration (\code{HM.Ci}), slope
-#'          at \code{t=0} (\code{HM.slope}), mean absolute error (\code{HM.MAE}),
-#'          root mean square error (\code{HM.RMSE}), standard error (\code{HM.se}),
-#'          relative se (\code{HM.se.rel}),
-#'          \ifelse{html}{\out{r<sup>2</sup>}}{\eqn{r^2}{ASCII}}, and curvature
-#'          (kappa; \code{HM.k}), as well as the minimal detectable flux
-#'          (\code{\link[GoFluxYourself]{MDF}}), the precision of the instrument
-#'          (\code{prec}), the flux term (\code{\link[GoFluxYourself]{flux.term}}),
-#'          kappa-max (\code{\link[GoFluxYourself]{k.max}}), the g factor
-#'          (\code{\link[GoFluxYourself]{g.factor}}), the number of observations
-#'          used (\code{nb.obs}) and the true initial gas concentration
-#'          (\code{C0}) and final gas concentration (\code{Ct}).
+#' @returns Returns a data frame with 28 columns: a \code{UniqueID} per
+#' measurement, 11 columns for the linear model results (linear flux estimate
+#' (\code{\link[GoFluxYourself]{LM.flux}}), initial gas concentration
+#' (\code{LM.C0}), final gas concentration (\code{LM.Ct}), slope of linear
+#' regression (\code{LM.slope}), mean absolute error (\code{LM.MAE}), root mean
+#' square error (\code{LM.RMSE}), Akaike's information criterion corrected for
+#' small sample size (\code{LM.AICc}), standard error (\code{LM.SE}), relative
+#' standard error (\code{LM.se.rel}), coefficient of determination (\code{LM.r2}),
+#' and \emph{p-value} (\code{LM.p.val})), 11 columns for the non-linear model
+#' results (non-linear flux estimate (\code{\link[GoFluxYourself]{HM.flux}}),
+#' initial gas concentration (\code{HM.C0}), the assumed concentration of
+#' constant gas source below the surface (\code{HM.Ci}), slope at \code{t=0}
+#' (\code{HM.slope}), mean absolute error (\code{HM.MAE}), root mean square error
+#' (\code{HM.RMSE}), Akaike's information criterion corrected for small sample
+#' size (\code{HM.AICc}), standard error (\code{HM.SE}), relative standard error
+#' (\code{HM.se.rel}), coefficient of determination (\code{HM.r2}), and curvature
+#' (kappa; \code{HM.k}), as well as the minimal detectable flux
+#' (\code{\link[GoFluxYourself]{MDF}}), the precision of the instrument
+#' (\code{prec}), the flux term (\code{\link[GoFluxYourself]{flux.term}}),
+#' kappa-max (\code{\link[GoFluxYourself]{k.max}}), the g factor (g.fact;
+#' \code{\link[GoFluxYourself]{g.factor}}), the number of observations used
+#' (\code{nb.obs}) and the true initial gas concentration (\code{C0}) and final
+#' gas concentration (\code{Ct}).
 #'
 #' @include GoFluxYourself-package.R
 #' @include flux.term.R
@@ -151,9 +164,12 @@
 #'
 goFlux_nokmax <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
                           Area = NULL, offset = NULL, Vtot = NULL, Vcham = NULL,
-                          Pcham = NULL, Tcham = NULL, warn.length = 60){
+                          Pcham = NULL, Tcham = NULL, k.mult = 1, warn.length = 60){
 
   # Check arguments ####
+  if(!is.numeric(k.mult)) stop("'k.mult' must be of class numeric")
+  if(!dplyr::between(k.mult, 0, 10) | k.mult <= 0){
+    stop("'k.mult' cannot be negative and must be smaller or equal to 10")}
   if(!is.numeric(warn.length)){stop("'warn.length' must be of class numeric")
   } else {if(warn.length <= 0) stop("'warn.length' must be greater than 0")}
 
@@ -234,9 +250,9 @@ goFlux_nokmax <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
         if(!any(grepl("\\<Vcham\\>", names(dataframe)))){
           stop("'Vtot' missing. Alternative argument 'Vcham' also missing.")
         } else { # Vcham in dataframe must be numeric
-            if(!is.numeric(dataframe$Vcham)){
-              stop("'Vcham' in 'dataframe' must be of class numeric")}
-          }
+          if(!is.numeric(dataframe$Vcham)){
+            stop("'Vcham' in 'dataframe' must be of class numeric")}
+        }
       }
       ##### offset
       if(!is.null(offset)){ # if offset is an argument
@@ -389,8 +405,8 @@ goFlux_nokmax <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     data_split[[f]] <- data_split[[f]] %>%
       mutate(flux.term = flux.term(first(na.omit(Vtot)), first(na.omit(Pcham)),
                                    first(na.omit(Area)), first(na.omit(Tcham)),
-                                   H2O_flux.term),
-             MDF = MDF(prec, (max(Etime)+1), flux.term))
+                                   H2O_flux.term)) %>%
+      mutate(MDF = MDF(prec, (max(Etime)+1), flux.term))
   }
 
   # Create an empty list to store results
@@ -432,17 +448,18 @@ goFlux_nokmax <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     C0.best <- if_else(between(C0, C0.lim.flux[1], C0.lim.flux[2]), C0, C0.flux)
 
     # Calculate kappa thresholds based on MDF, LM.flux and Etime
-    kappa.max <- k.max(MDF, LM.res$LM.flux, (max(data_split[[f]]$Etime)+1))
+    kappa.max <- abs(k.max(MDF, LM.res$LM.flux, (max(data_split[[f]]$Etime)+1)))
 
     # Hutchinson and Mosier
     HM.res <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
                       flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-                      k.max = kappa.max*Inf)
+                      k.max = kappa.max, k.mult = k.mult)
 
     # Flux results
     flux.res.ls[[f]] <- cbind.data.frame(
       UniqueID, LM.res, HM.res, C0, Ct, MDF, prec,
-      flux.term, nb.obs, g.fact = g.factor(HM.res$HM.flux, LM.res$LM.flux))
+      flux.term, nb.obs, k.max = kappa.max, k.mult,
+      g.fact = g.factor(HM.res$HM.flux, LM.res$LM.flux))
 
     # Update progress bar
     setTxtProgressBar(pb, f)
