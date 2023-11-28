@@ -52,10 +52,6 @@
 #'              Alternatively, provide the column \code{Tcham} in \code{dataframe}
 #'              if \code{Tcham} is different between samples. If \code{Tcham} is
 #'              not provided, normal air temperature (15°C) is used.
-#' @param k.mult numerical value; a multiplier for the allowed kappa-max.
-#'               Default setting is no multiplier (\code{k.mult = 1}).
-#'               \code{k.mult} cannot be negative and must be smaller or
-#'               equal to 10.
 #' @param warn.length numerical value; limit under which a measurement is
 #'                    flagged for being too short (\code{nb.obs < warn.length}).
 #'
@@ -164,12 +160,9 @@
 #'
 goFlux_nokmax <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
                           Area = NULL, offset = NULL, Vtot = NULL, Vcham = NULL,
-                          Pcham = NULL, Tcham = NULL, k.mult = 1, warn.length = 60){
+                          Pcham = NULL, Tcham = NULL, warn.length = 60){
 
   # Check arguments ####
-  if(!is.numeric(k.mult)) stop("'k.mult' must be of class numeric")
-  if(!dplyr::between(k.mult, 0, 10) | k.mult <= 0){
-    stop("'k.mult' cannot be negative and must be smaller or equal to 10")}
   if(!is.numeric(warn.length)){stop("'warn.length' must be of class numeric")
   } else {if(warn.length <= 0) stop("'warn.length' must be greater than 0")}
 
@@ -453,13 +446,12 @@ goFlux_nokmax <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     # Hutchinson and Mosier
     HM.res <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
                       flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-                      k.max = kappa.max, k.mult = k.mult)
+                      k.max = kappa.max*Inf)
 
     # Flux results
     flux.res.ls[[f]] <- cbind.data.frame(
       UniqueID, LM.res, HM.res, C0, Ct, MDF, prec,
-      flux.term, nb.obs, k.max = kappa.max, k.mult,
-      g.fact = g.factor(HM.res$HM.flux, LM.res$LM.flux))
+      flux.term, nb.obs, g.fact = g.factor(HM.res$HM.flux, LM.res$LM.flux))
 
     # Update progress bar
     setTxtProgressBar(pb, f)

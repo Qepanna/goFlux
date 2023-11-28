@@ -15,7 +15,6 @@ goFlux_nokmax(
   Vcham = NULL,
   Pcham = NULL,
   Tcham = NULL,
-  k.mult = 1,
   warn.length = 60
 )
 }
@@ -71,11 +70,6 @@ not provided, normal atmospheric pressure (101.325 kPa) is used.}
 Alternatively, provide the column \code{Tcham} in \code{dataframe}
 if \code{Tcham} is different between samples. If \code{Tcham} is
 not provided, normal air temperature (15°C) is used.}
-
-\item{k.mult}{numerical value; a multiplier for the allowed kappa-max.
-Default setting is no multiplier (\code{k.mult = 1}).
-\code{k.mult} cannot be negative and must be smaller or
-equal to 10.}
 
 \item{warn.length}{numerical value; limit under which a measurement is
 flagged for being too short (\code{nb.obs < warn.length}).}
