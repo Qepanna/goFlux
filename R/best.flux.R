@@ -327,7 +327,7 @@ best.flux <- function(flux.result,
     LM.p.val <- LM.diagnose <- HM.C0 <- LM.C0 <- LM.Ci <- LM.SE <- HM.SE <-
     MDF <- HM.MAE <- nb.obs <- LM.RMSE <- Ct <- LM.MAE <- UniqueID <- . <-
     C0 <- Ct <- C0.min <- C0.max <- RMSE.lim <- MAE.lim <- MDF.lim <-
-    HM.score <- LM.score <- HM.AICc <- LM.AICc <- SE.lim <- NULL
+    HM.score <- LM.score <- HM.AICc <- LM.AICc <- SE.lim <- g.reverse <- NULL
 
   # Function to find decimal places
   nb.decimal = function(x) {
@@ -348,7 +348,15 @@ best.flux <- function(flux.result,
   # Assume that the best flux is HM.flux and leave *.diagnose empty
   best.flux.df <- flux.result %>%
     mutate(HM.diagnose = "", LM.diagnose = "", best.flux = HM.flux,
-           model = "HM", quality.check = "", HM.score = 0, LM.score = 0)
+           model = "HM", quality.check = "")
+
+  ## Add columns for HM and LM scores ####
+  if(any(grepl(paste(c("\\<MAE\\>", "\\<RMSE\\>", "\\<AICc\\>", "\\<SE\\>"),
+                     collapse = "|"), criteria))){
+
+    best.flux.df <- best.flux.df %>%
+      mutate(HM.score = 0, LM.score = 0)
+  }
 
   ## RMSE ####
   # Reflects the instrument precision. Sensitive to outliers.
@@ -366,17 +374,16 @@ best.flux <- function(flux.result,
       # If HM.RMSE > RMSE.lim, but HM.RMSE <= LM.RMSE, still use HM.flux
       # else, use LM.flux
       mutate(HM.score = if_else(
-        round(HM.RMSE, nb.decimal(prec)) > RMSE.lim &
-          round(HM.RMSE, nb.decimal(prec)) >
-          round(LM.RMSE, nb.decimal(prec)), HM.score+1, HM.score)) %>%
+        round(HM.RMSE, nb.decimal(prec)) > round(RMSE.lim, nb.decimal(prec)) &
+          round(HM.RMSE, nb.decimal(prec)) > round(LM.RMSE, nb.decimal(prec)),
+        HM.score+1, HM.score)) %>%
       mutate(LM.score = if_else(
-        round(HM.RMSE, nb.decimal(prec)) > RMSE.lim &
-          round(HM.RMSE, nb.decimal(prec)) >
-          round(LM.RMSE, nb.decimal(prec)), LM.score, LM.score+1)) %>%
+        round(HM.RMSE, nb.decimal(prec)) > round(RMSE.lim, nb.decimal(prec)) &
+          round(HM.RMSE, nb.decimal(prec)) > round(LM.RMSE, nb.decimal(prec)),
+        LM.score, LM.score+1)) %>%
       # Update LM.diagnose
       mutate(LM.diagnose = if_else(
-        round(LM.RMSE, nb.decimal(prec)) >
-          round(RMSE.lim, nb.decimal(prec)), ifelse(
+        round(LM.RMSE, nb.decimal(prec)) > round(RMSE.lim, nb.decimal(prec)), ifelse(
             LM.diagnose == "", RMSE.LM.diagnostic,
             paste(LM.diagnose, RMSE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
       # Update HM.diagnose
@@ -386,7 +393,7 @@ best.flux <- function(flux.result,
           paste(HM.diagnose, RMSE.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
       # Update quality check
       mutate(quality.check = if_else(
-        round(LM.RMSE, nb.decimal(prec)) > round(RMSE.lim, nb.decimal(prec)) &
+        round(LM.RMSE, nb.decimal(prec)) > round(RMSE.lim, nb.decimal(prec)) |
           round(HM.RMSE, nb.decimal(prec)) > round(RMSE.lim, nb.decimal(prec)), ifelse(
             quality.check == "", RMSE.quality,
             paste(quality.check, RMSE.quality, sep = " | ")), quality.check))
@@ -408,17 +415,16 @@ best.flux <- function(flux.result,
       # If HM.MAE > MAE.lim, but HM.MAE <= LM.MAE, still use HM.flux
       # else, use LM.flux
       mutate(HM.score = if_else(
-        round(HM.MAE, nb.decimal(prec)) > MAE.lim &
-          round(HM.MAE, nb.decimal(prec)) >
-          round(LM.MAE, nb.decimal(prec)), HM.score+1, HM.score)) %>%
+        round(HM.MAE, nb.decimal(prec)) > round(MAE.lim, nb.decimal(prec)) &
+          round(HM.MAE, nb.decimal(prec)) > round(LM.MAE, nb.decimal(prec)),
+        HM.score+1, HM.score)) %>%
       mutate(LM.score = if_else(
-        round(HM.MAE, nb.decimal(prec)) > MAE.lim &
-          round(HM.MAE, nb.decimal(prec)) >
-          round(LM.MAE, nb.decimal(prec)), LM.score, LM.score+1)) %>%
+        round(HM.MAE, nb.decimal(prec)) > round(MAE.lim, nb.decimal(prec)) &
+          round(HM.MAE, nb.decimal(prec)) > round(LM.MAE, nb.decimal(prec)),
+        LM.score, LM.score+1)) %>%
       # Update LM.diagnose
       mutate(LM.diagnose = if_else(
-        round(LM.MAE, nb.decimal(prec)) >
-          round(MAE.lim, nb.decimal(prec)), ifelse(
+        round(LM.MAE, nb.decimal(prec)) > round(MAE.lim, nb.decimal(prec)), ifelse(
             LM.diagnose == "", MAE.LM.diagnostic,
             paste(LM.diagnose, MAE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
       # Update HM.diagnose
@@ -428,7 +434,7 @@ best.flux <- function(flux.result,
           paste(HM.diagnose, MAE.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
       # Update quality check
       mutate(quality.check = if_else(
-        round(LM.MAE, nb.decimal(prec)) > round(MAE.lim, nb.decimal(prec)) &
+        round(LM.MAE, nb.decimal(prec)) > round(MAE.lim, nb.decimal(prec)) |
           round(HM.MAE, nb.decimal(prec)) > round(MAE.lim, nb.decimal(prec)), ifelse(
             quality.check == "", MAE.quality,
             paste(quality.check, MAE.quality, sep = " | ")), quality.check))
@@ -452,17 +458,16 @@ best.flux <- function(flux.result,
       # If HM.SE > SE.lim, but HM.SE <= LM.SE, still use HM.flux
       # else, use LM.flux
       mutate(HM.score = if_else(
-        round(HM.SE, nb.decimal(prec)) > SE.lim &
-          round(HM.SE, nb.decimal(prec)) >
-          round(LM.SE, nb.decimal(prec)), HM.score+1, HM.score)) %>%
+        round(HM.SE, nb.decimal(prec)) > round(SE.lim, nb.decimal(prec)) &
+          round(HM.SE, nb.decimal(prec)) > round(LM.SE, nb.decimal(prec)),
+        HM.score+1, HM.score)) %>%
       mutate(LM.score = if_else(
-        round(HM.SE, nb.decimal(prec)) > SE.lim &
-          round(HM.SE, nb.decimal(prec)) >
-          round(LM.SE, nb.decimal(prec)), LM.score, LM.score+1)) %>%
+        round(HM.SE, nb.decimal(prec)) > round(SE.lim, nb.decimal(prec)) &
+          round(HM.SE, nb.decimal(prec)) > round(LM.SE, nb.decimal(prec)),
+        LM.score, LM.score+1)) %>%
       # Update LM.diagnose
       mutate(LM.diagnose = if_else(
-        round(LM.SE, nb.decimal(prec)) >
-          round(SE.lim, nb.decimal(prec)), ifelse(
+        round(LM.SE, nb.decimal(prec)) > round(SE.lim, nb.decimal(prec)), ifelse(
             LM.diagnose == "", SE.LM.diagnostic,
             paste(LM.diagnose, SE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
       # Update HM.diagnose
@@ -472,7 +477,7 @@ best.flux <- function(flux.result,
           paste(HM.diagnose, SE.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
       # Update quality check
       mutate(quality.check = if_else(
-        round(LM.SE, nb.decimal(prec)) > round(SE.lim, nb.decimal(prec)) &
+        round(LM.SE, nb.decimal(prec)) > round(SE.lim, nb.decimal(prec)) |
           round(HM.SE, nb.decimal(prec)) > round(SE.lim, nb.decimal(prec)), ifelse(
             quality.check == "", SE.quality,
             paste(quality.check, SE.quality, sep = " | ")), quality.check))
@@ -510,22 +515,41 @@ best.flux <- function(flux.result,
   if(any(grepl("\\<g.factor\\>", criteria))) {
 
     g.quality <- paste("g-fact. > ", g.limit, sep = "")
-    g.diagnostic <- "Overestimated flux (g-fact)"
+    g.qual.rev <- paste("g-fact. < ", (1/g.limit), sep = "")
+    g.diagnostic <- "Exaggerated curvature (g-fact)"
 
     best.flux.df <- best.flux.df %>%
       mutate(g.limit = g.limit) %>%
       # If g.fact <= g.limit, use HM.flux
       # else, use LM.flux
-      mutate(best.flux = if_else(g.fact > g.limit, LM.flux, best.flux),
-             model = if_else(g.fact > g.limit, "LM", model)) %>%
+      mutate(best.flux = if_else(abs(g.fact) > g.limit, LM.flux, best.flux),
+             model = if_else(abs(g.fact) > g.limit, "LM", model)) %>%
       # If g.fact > g.limit
-      mutate(HM.diagnose = if_else(g.fact > g.limit, ifelse(
+      mutate(HM.diagnose = if_else(abs(g.fact) > g.limit, ifelse(
         HM.diagnose == "", g.diagnostic,
         paste(HM.diagnose, g.diagnostic, sep = " | ")), HM.diagnose)) %>%
       # If g.fact > g.limit
-      mutate(quality.check = if_else(g.fact > g.limit, ifelse(
+      mutate(quality.check = if_else(abs(g.fact) > g.limit, ifelse(
         quality.check == "", g.quality,
         paste(quality.check, g.quality, sep = " | ")), quality.check))
+
+    if(g.limit > 1){
+      # Reverse g-limit
+      best.flux.df <- best.flux.df %>%
+        mutate(g.reverse = 1/g.limit) %>%
+        # If g.fact >= g.reverse, use HM.flux
+        # else, use LM.flux
+        mutate(best.flux = if_else(abs(g.fact) < g.reverse, LM.flux, best.flux),
+               model = if_else(abs(g.fact) < g.reverse, "LM", model)) %>%
+        # If g.fact < g.reverse
+        mutate(HM.diagnose = if_else(abs(g.fact) < g.reverse, ifelse(
+          HM.diagnose == "", g.diagnostic,
+          paste(HM.diagnose, g.diagnostic, sep = " | ")), HM.diagnose)) %>%
+        # If g.fact < g.reverse
+        mutate(quality.check = if_else(abs(g.fact) < g.reverse, ifelse(
+          quality.check == "", g.qual.rev,
+          paste(quality.check, g.qual.rev, sep = " | ")), quality.check))
+    }
   }
 
   ## kappa ratio ####
