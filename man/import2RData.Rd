@@ -77,8 +77,6 @@ one of the measurements, next to "Date":.
 # The default time zone "UTC" is used in all cases.
 
 # with the Gasmet instrument DX4015
-# Note that the precision of this instrument is currently unknown,
-# so all values are set to 1.
 import2RData(path = "inst/extdata/DX4015", instrument = "DX4015",
              date.format = "ymd", keep_all = FALSE,
              prec = c(1.6, 23, 13, 2, 23, 33))

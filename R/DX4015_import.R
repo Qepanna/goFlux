@@ -252,7 +252,7 @@ DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
 
     # Create output file: change extension to .RData, and
     # add instrument name and "imp" for import to file name
-    file.name <- gsub(".*/", "", sub("\\.txt", "", inputfile))
+    file.name <- gsub(".*/", "", sub("\\.TXT", "", inputfile))
     outputfile <- paste("DX4015_", file.name, "_imp.RData", sep = "")
 
     save(data.raw, file = paste(RData_folder, outputfile, sep = "/"))
