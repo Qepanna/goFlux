@@ -44,7 +44,7 @@
 #' library(dplyr)
 #'
 #' ## with a LGR instrument and an auxiliary file (.txt)
-#' aux.path <- system.file("extdata", "LGR/LGR_aux.txt", package = "GoFluxYourself")
+#' aux.path <- system.file("extdata", "LGR_aux/LGR_aux.txt", package = "GoFluxYourself")
 #' auxfile <- read.delim(aux.path) %>%
 #'   mutate(start.time = as.POSIXct(start.time, tz = "UTC"))
 #' data(LGR_imp)

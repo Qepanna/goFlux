@@ -77,63 +77,75 @@ one of the measurements, next to "Date":.
 # The default time zone "UTC" is used in all cases.
 
 # with the Gasmet instrument DX4015
-import2RData(path = "inst/extdata/DX4015", instrument = "DX4015",
+file.path <- system.file("extdata/DX4015", package = "GoFluxYourself")
+import2RData(path = file.path, instrument = "DX4015",
              date.format = "ymd", keep_all = FALSE,
              prec = c(1.6, 23, 13, 2, 23, 33))
 
 # with the PP-Systems EGM-5
-import2RData(path = "inst/extdata/EGM5", instrument = "EGM5",
+file.path <- system.file("extdata/EGM5", package = "GoFluxYourself")
+import2RData(path = file.path, instrument = "EGM5",
              date.format = "dmy", keep_all = FALSE,
              prec = c(3, 1, 500))
 
 # with the Picarro instrument G2508
-import2RData(path = "inst/extdata/G2508", instrument = "G2508",
+file.path <- system.file("extdata/G2508", package = "GoFluxYourself")
+import2RData(path = file.path, instrument = "G2508",
              date.format = "ymd", keep_all = FALSE,
              prec = c(0.24, 0.3, 5, 0.16, 500))
 
 # with the Picarro instrument G4301
-import2RData(path = "inst/extdata/G4301", instrument = "G4301",
+file.path <- system.file("extdata/G4301", package = "GoFluxYourself")
+import2RData(path = file.path, instrument = "G4301",
              date.format = "ymd", keep_all = FALSE,
              prec = c(0.025, 0.1, 10))
 
 # with the automated chamber ECOFlux (GAIA2TECH)
 # with this instrument, "keep_all" is not a valid argument.
-import2RData(path = "inst/extdata/GAIA", instrument = "GAIA",
+file.path <- system.file("extdata/GAIA", package = "GoFluxYourself")
+import2RData(path = file.path, instrument = "GAIA",
              date.format = "ymd", prec = c(3.5, 0.6, 0.4, 45, 45))
 
 # with Los Gatos Research UGGA (GLA132 series)
-import2RData(path = "inst/extdata/LGR", instrument = "LGR",
+file.path <- system.file("extdata/LGR", package = "GoFluxYourself")
+import2RData(path = file.path, instrument = "LGR",
              date.format = "dmy", keep_all = FALSE,
              prec = c(0.2, 1.4, 50))
 
 # with Los Gatos Research m-GGA (GLA131 series)
-import2RData(path = "inst/extdata/LGR", instrument = "LGR",
+file.path <- system.file("extdata/LGR", package = "GoFluxYourself")
+import2RData(path = file.path, instrument = "LGR",
              date.format = "dmy", keep_all = FALSE,
              prec = c(0.35, 0.9, 200))
 
 # with the LI-COR LI-6400 gas analyzer
-import2RData(path = "inst/extdata/LI6400", instrument = "LI-6400",
+file.path <- system.file("extdata/LI6400", package = "GoFluxYourself")
+import2RData(path = file.path, instrument = "LI-6400",
              date.format = "mdy", keep_all = FALSE,
              prec = c(0.15, 20))
 
 # with the LI-COR LI-7810 gas analyzer
-import2RData(path = "inst/extdata/LI7810", instrument = "LI-7810",
+file.path <- system.file("extdata/LI7810", package = "GoFluxYourself")
+import2RData(path = file.path, instrument = "LI-7810",
              date.format = "ymd", keep_all = FALSE,
              prec = c(3.5, 0.6, 45))
 
 # with the LI-COR LI-7820 gas analyzer
-import2RData(path = "inst/extdata/LI7820", instrument = "LI-7820",
+file.path <- system.file("extdata/LI7820", package = "GoFluxYourself")
+import2RData(path = file.path, instrument = "LI-7820",
              date.format = "ymd", keep_all = FALSE,
              prec = c(0.4, 45))
 
 # with the LI-COR LI-8100 gas analyzer
-import2RData(path = "inst/extdata/LI8100", instrument = "LI-8100",
+file.path <- system.file("extdata/LI8100", package = "GoFluxYourself")
+import2RData(path = file.path, instrument = "LI-8100",
              date.format = "ymd", keep_all = FALSE,
              prec = c(1, 10))
 
 # with the LI-COR smart chamber (LI-8200)
 # with this instrument, "keep_all" and "prec" are not valid arguments.
-import2RData(path = "inst/extdata/LI8200", instrument = "LI-8200",
+file.path <- system.file("extdata/LI8200", package = "GoFluxYourself")
+import2RData(path = file.path, instrument = "LI-8200",
              date.format = "ymd")
 
 }
