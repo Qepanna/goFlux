@@ -58,7 +58,7 @@ Note that this function was designed for the following units in the raw file:
   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
   \item mmol/mol for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
   \item kPa for pressure
-  \item \ifelse{html}{\out{cm<sup>3</sup>}}{\eqn{cm^3}{ASCII}} for volumes
+  \item \ifelse{html}{\out{cm<sup>3</sup>}}{\eqn{cm^[3]}{ASCII}} for volumes
   \item Celsius for temperature}
 If your instrument uses different units, either convert the units after import,
 change the settings on your instrument, or contact the maintainer of this
