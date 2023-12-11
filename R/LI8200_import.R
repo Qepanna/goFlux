@@ -11,8 +11,8 @@
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
 #'                 recommended to use the time zone "UTC" to avoid any issue
 #'                 related to summer time and winter time changes.
-#' @param save logical; if \code{save = TRUE}, saves the file as RData in a
-#'             RData folder in the current working directory. If
+#' @param save logical; if \code{save = TRUE}, saves the file as an .RData file
+#'             in a RData folder in the current working directory. If
 #'             \code{save = FALSE}, returns the file in the Console, or load in
 #'             the Environment if assigned to an object.
 #'
@@ -31,9 +31,9 @@
 #'   \item litters for volumes
 #'   \item kPa for pressure
 #'   \item Celsius for temperature}
-#' If your instrument uses different units, either convert the units after import,
-#' change the settings on your instrument, or contact the maintainer of this
-#' package for support.
+#' If your Smart Chamber uses different units, either convert the units after
+#' import, change the settings on your instrument, or contact the maintainer of
+#' this package for support.
 #'
 #' In addition, soil temperature and moisture are read with a HydraProbe
 #' connected to the Smart Chamber. If you are using a different setup, please
@@ -142,7 +142,8 @@ LI8200_import <- function(inputfile, date.format = "ymd",
     deadband = unlist(deadband.ls),
     Vcham = unlist(Vcham.ls),
     offset = unlist(offset.ls),
-    Area = unlist(Area.ls))
+    Area = unlist(Area.ls)) %>%
+    mutate(Vcham = Vcham/100)
 
   # Create extra columns for CO2, CH4 or N2O, if missing
   cols <- c(co2 = NA_real_, ch4 = NA_real_, n2o = NA_real_)
