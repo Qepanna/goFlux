@@ -100,8 +100,8 @@
 #' \ifelse{html}{\out{µmol kg<sup>-1</sup>h<sup>-1</sup>}}{\eqn{µmol kg^{-1}h^{-1}}{ASCII}}
 #' instead, one would need to multiply the flux results by 3600 to convert from
 #' seconds to hours. To print non-ASCII characters use Unicode. For example, to
-#' print the Greek letter "mu" (\eqn{µ}), use the Unicode \code{\\u03BC}:
-#' \code{flux.unit = "\\u03BCmol~kg^-1*h^-1"}.
+#' print the Greek letter "mu" (\eqn{µ}), use the Unicode \code{\\u00B5}:
+#' \code{flux.unit = "\\u00B5mol~kg^-1*h^-1"}.
 #'
 #' In \code{p.val.disp}, if \code{p.val.disp = "star"}, the \emph{p-values} will
 #' be displayed as star symbols (asterisks) as follows: ***, ** or * for
@@ -109,6 +109,10 @@
 #' \code{p.val.disp = "round"}, the \emph{p-values} are rounded to p < 0.001,
 #' p < 0.01 and p < 0.05. If \code{p.val.disp = "value"}, the actual values are
 #' displayed, rounded to two significant numbers.
+#'
+#' In \code{gastype}, the gas species listed are the ones for which this package
+#' has been adapted. Please write to the maintainer of this package for
+#' adaptation of additional gases.
 #'
 #' @return A list of plots, one per \code{UniqueID}, drawn from flux results (output
 #' from the functions \code{\link[GoFluxYourself]{goFlux}} and
@@ -527,12 +531,12 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
 
   # Define flux units
   if(!is.null(flux.unit)) flux.unit <- flux.unit else {
-    if(gastype == "CO2dry_ppm") flux.unit <- "\u03BCmol~m^-2*s^-1"
+    if(gastype == "CO2dry_ppm") flux.unit <- "\u00B5mol~m^-2*s^-1"
     if(gastype == "CH4dry_ppb") flux.unit <- "nmol~m^-2*s^-1"
     if(gastype == "N2Odry_ppb") flux.unit <- "nmol~m^-2*s^-1"
     if(gastype == "COdry_ppb") flux.unit <- "nmol~m^-2*s^-1"
     if(gastype == "NH3dry_ppb") flux.unit <- "nmol~m^-2*s^-1"
-    if(gastype == "H2O_ppm") flux.unit <- "\u03BCmol~m^-2*s^-1"
+    if(gastype == "H2O_ppm") flux.unit <- "\u00B5mol~m^-2*s^-1"
   }
 
   # Define flux.term units
