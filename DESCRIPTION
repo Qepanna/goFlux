@@ -34,6 +34,7 @@ Collate:
     'LI8200_import.R'
     'LM.flux.R'
     'MDF.R'
+    'N2OM1_import.R'
     'best.flux.R'
     'click.peak.R'
     'click.peak.loop.R'

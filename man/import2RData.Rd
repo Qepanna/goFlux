@@ -14,9 +14,9 @@ files to be imported.}
 \item{instrument}{character string; specifies which instrument was used to
 generate the files contained in the folder path. Choose one
 of the following: "DX4015", "EGM5", "G2508", "G4301" "GAIA",
-"LI-6400", "LI-7810", "LI-7820", "LI-8100", "LI-8200" or
-"LGR". For more information about an instrument, see the
-section "See Also" below.}
+"LI-6400", "LI-7810", "LI-7820", "LI-8100", "LI-8200",
+"LGR" or "N2OM1". For more information about an instrument,
+see the section "See Also" below.}
 
 \item{date.format}{character string; specifies the date format found in the
 raw data file. Choose one of the following: "dmy", "ymd",
@@ -27,7 +27,7 @@ POSIXct format. Default is "UTC". Note about time zone: it is
 recommended to use the time zone "UTC" to avoid any issue
 related to summer time and winter time changes.}
 
-\item{keep_all}{logical; if \code{keep_all = TRUE}, keep all columns from raw
+\item{keep_all}{logical; if \code{keep_all = TRUE}, keep all columns from the raw
 file. The default is \code{keep_all = FALSE}, and columns that
 are not necessary for gas flux calculation are removed.}
 
@@ -44,8 +44,9 @@ Imports all raw gas measurement files contained in a folder.
 Adapted to multiple greenhouse gas analyzers and other instruments:
 \itemize{
 \item \strong{LI-COR}: LI-6400, LI-7810, LI-7820, LI-8100, LI-8200 (smart chamber)
-\item \strong{Los Gatos Research (LGR)}: ultra-portable GGA (GLA132 series) and
+\item \strong{Los Gatos Research (LGR)}: ultra-portable GGA (GLA132 series),
 micro ultra-portable GGA (GLA131 series)
+and N2OM1 (GLA151 series)
 \item \strong{GAIA2TECH (DMR)} automated chamber ECOFlux
 \item \strong{Picarro}: G2508 and G4301
 \item \strong{Gasmet}: DX4015
@@ -63,14 +64,17 @@ one of the columns in the raw data file:
 \item G4301: column DATE
 \item GAIA: column Titles:
 \item LGR: column Time
+\item LI-6400: (see comment below)
 \item LI-7810: column DATE
 \item LI-7820: column DATE
 \item LI-8100: column Date
+\item LI-8200: (see comment below)
+\item N2OM1: column Time
 }
 For the instrument LI-6400, the date is found in one of the first lines in
 a format containing abbreviations, for example "Thr Aug 6 2020", which would
 be the date format "mdy". For the instrument LI-8200, the date is found under
-one of the measurements, next to "Date":.
+one of the measurements, next to '"Date":'.
 }
 \examples{
 # Examples on how to use it with all instruments.
@@ -118,6 +122,12 @@ import2RData(path = file.path, instrument = "LGR",
              date.format = "dmy", keep_all = FALSE,
              prec = c(0.35, 0.9, 200))
 
+# with Los Gatos Research N2OM1 (GLA151 series)
+file.path <- system.file("extdata/N2OM1", package = "GoFluxYourself")
+import2RData(path = file.path, instrument = "N2OM1",
+             date.format = "dmy", keep_all = FALSE,
+             prec = c(0.5, 2, 50))
+
 # with the LI-COR LI-6400 gas analyzer
 file.path <- system.file("extdata/LI6400", package = "GoFluxYourself")
 import2RData(path = file.path, instrument = "LI-6400",
@@ -164,5 +174,6 @@ Import functions for individual instruments:
 \code{\link[GoFluxYourself]{LI7810_import}},
 \code{\link[GoFluxYourself]{LI7820_import}},
 \code{\link[GoFluxYourself]{LI8100_import}},
-\code{\link[GoFluxYourself]{LI8200_import}}
+\code{\link[GoFluxYourself]{LI8200_import}},
+\code{\link[GoFluxYourself]{N2OM1_import}}
 }

@@ -3,8 +3,9 @@
 #' Imports all raw gas measurement files contained in a folder.
 #' Adapted to multiple greenhouse gas analyzers and other instruments:
 #' * \strong{LI-COR}: LI-6400, LI-7810, LI-7820, LI-8100, LI-8200 (smart chamber)
-#' * \strong{Los Gatos Research (LGR)}: ultra-portable GGA (GLA132 series) and
+#' * \strong{Los Gatos Research (LGR)}: ultra-portable GGA (GLA132 series),
 #'                                      micro ultra-portable GGA (GLA131 series)
+#'                                      and N2OM1 (GLA151 series)
 #' * \strong{GAIA2TECH (DMR)} automated chamber ECOFlux
 #' * \strong{Picarro}: G2508 and G4301
 #' * \strong{Gasmet}: DX4015
@@ -17,9 +18,9 @@
 #' @param instrument character string; specifies which instrument was used to
 #'                   generate the files contained in the folder path. Choose one
 #'                   of the following: "DX4015", "EGM5", "G2508", "G4301" "GAIA",
-#'                   "LI-6400", "LI-7810", "LI-7820", "LI-8100", "LI-8200" or
-#'                   "LGR". For more information about an instrument, see the
-#'                   section "See Also" below.
+#'                   "LI-6400", "LI-7810", "LI-7820", "LI-8100", "LI-8200",
+#'                   "LGR" or "N2OM1". For more information about an instrument,
+#'                   see the section "See Also" below.
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
 #'                    or "mdy".
@@ -27,7 +28,7 @@
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
 #'                 recommended to use the time zone "UTC" to avoid any issue
 #'                 related to summer time and winter time changes.
-#' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from raw
+#' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from the raw
 #'                 file. The default is \code{keep_all = FALSE}, and columns that
 #'                 are not necessary for gas flux calculation are removed.
 #' @param prec numerical vector; the precision of the instrument for each gas.
@@ -48,14 +49,17 @@
 #' \item G4301: column DATE
 #' \item GAIA: column Titles:
 #' \item LGR: column Time
+#' \item LI-6400: (see comment below)
 #' \item LI-7810: column DATE
 #' \item LI-7820: column DATE
 #' \item LI-8100: column Date
+#' \item LI-8200: (see comment below)
+#' \item N2OM1: column Time
 #' }
 #' For the instrument LI-6400, the date is found in one of the first lines in
 #' a format containing abbreviations, for example "Thr Aug 6 2020", which would
 #' be the date format "mdy". For the instrument LI-8200, the date is found under
-#' one of the measurements, next to "Date":.
+#' one of the measurements, next to '"Date":'.
 #'
 #' @include GoFluxYourself-package.R
 #' @include DX4015_import.R
@@ -69,6 +73,7 @@
 #' @include LI7820_import.R
 #' @include LI8100_import.R
 #' @include LI8200_import.R
+#' @include N2OM1_import.R
 #'
 #' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
@@ -83,7 +88,8 @@
 #'          \code{\link[GoFluxYourself]{LI7810_import}},
 #'          \code{\link[GoFluxYourself]{LI7820_import}},
 #'          \code{\link[GoFluxYourself]{LI8100_import}},
-#'          \code{\link[GoFluxYourself]{LI8200_import}}
+#'          \code{\link[GoFluxYourself]{LI8200_import}},
+#'          \code{\link[GoFluxYourself]{N2OM1_import}}
 #'
 #' @examples
 #' # Examples on how to use it with all instruments.
@@ -131,6 +137,12 @@
 #'              date.format = "dmy", keep_all = FALSE,
 #'              prec = c(0.35, 0.9, 200))
 #'
+#' # with Los Gatos Research N2OM1 (GLA151 series)
+#' file.path <- system.file("extdata/N2OM1", package = "GoFluxYourself")
+#' import2RData(path = file.path, instrument = "N2OM1",
+#'              date.format = "dmy", keep_all = FALSE,
+#'              prec = c(0.5, 2, 50))
+#'
 #' # with the LI-COR LI-6400 gas analyzer
 #' file.path <- system.file("extdata/LI6400", package = "GoFluxYourself")
 #' import2RData(path = file.path, instrument = "LI-6400",
@@ -173,8 +185,8 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
   if(length(instrument) != 1) stop("'instrument' must be of length 1")
   if(!any(grepl(paste("\\<", instrument, "\\>", sep = ""),
                 c("DX4015", "LGR", "G4301", "G2508", "GAIA", "LI-6400", "EGM5",
-                  "LI-7810", "LI-7820", "LI-8100", "LI-8200")))){
-    stop("'instrument' must be of class character and one of the following: 'DX4015', 'EGM5', 'G2508', 'G4301', 'GAIA', 'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100', 'LI-8200', 'LGR'")}
+                  "LI-7810", "LI-7820", "LI-8100", "LI-8200", "N2OM1")))){
+    stop("'instrument' must be of class character and one of the following: 'DX4015', 'EGM5', 'G2508', 'G4301', 'GAIA', 'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100', 'LI-8200', 'LGR', 'N2OM1'")}
   if(!missing(date.format)){
     if(length(date.format) != 1) stop("'date.format' must be of length 1")
     if(!any(grepl(paste("\\<", date.format, "\\>", sep = ""), c("ymd", "dmy", "mdy")))){
@@ -506,6 +518,36 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
         })
     })
   }
+
+  # N2OM1 ####
+  if(instrument == "N2OM1"){
+
+    # List all the files contained in the specified path
+    file_list <- list.files(path = path, pattern = "\\.txt", full.names = TRUE)
+
+    # Loop through files in "file_list" and apply import functions
+    pblapply(seq_along(file_list), function(i) {
+
+      withCallingHandlers(
+
+        N2OM1_import(inputfile = file_list[i],
+                     date.format = date.format,
+                     timezone = timezone,
+                     save = TRUE,
+                     keep_all = keep_all,
+                     prec = prec),
+
+        error = function(e){
+          errs <<- c(errs, message(
+            paste("Error occurred in file", file_list[[i]],":\n"), e))
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
+    })
+  }
+
   # Print errors and messages after progress bar
   errs <- trimws(errs); for (e in errs) warning(e, call. = F)
   msgs <- trimws(msgs); for (m in msgs) message(m)
