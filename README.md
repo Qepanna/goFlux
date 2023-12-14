@@ -3,6 +3,9 @@
 
 # GoFluxYourself: A user-friendly way to calculate GHG fluxes yourself, regardless of user experience<img src="man/figures/GoFluxYourself.png" align="right" width="200"/>
 
+This document is out of date. Please consult [this
+webpage](https://www.qepanna.quarto.pub/gofluxyourself) instead.
+
 #### BETA VERSION
 
 The package is ready to use, but errors may still occur. Please report
@@ -17,13 +20,13 @@ gas (GHG) fluxes, such as CO<sub>2</sub>, CH<sub>4</sub>,
 N<sub>2</sub>O, NH<sub>3</sub>, CO, and water vapor (H<sub>2</sub>O).
 While linear regression (LM) is commonly used to estimate GHG fluxes,
 this method tends to underestimate the pre-deployment flux
-(*f*<sub>0</sub>). Indeed, a non-linearity is expected when gas
-concentration increases inside a closed chamber, due to changes in
-diffusion gradients between the soil and the air inside the chamber. In
-addition, lateral gas flow and leakage contribute to non-linearity. Many
-alternative to LM have been developed to try and provide a more accurate
-estimation of *f*<sub>0</sub>, for instance the method of [Hutchinson
-and Mosier (HM)
+(*f*<sub>0</sub>). Indeed, non-linearity is expected when the gas
+concentration increases or decreases inside a closed chamber, due to
+changes in gas gradients between the soil and the air inside the
+chamber. In addition, lateral gas flow and leakage contribute to
+non-linearity. Many alternative to LM have been developed to try and
+provide a more accurate estimation of *f*<sub>0</sub>, for instance the
+method of [Hutchinson and Mosier (HM)
 (1981)](https://doi.org/10.2136/sssaj1981.03615995004500020017x), which
 was implemented in the [`HMR`](https://cran.r-project.org/package=HMR)
 package by [Pedersen et al.,
@@ -46,39 +49,39 @@ allowed in the model (see their R package
 on the CRAN). This procedure introduces less arbitrary decisions in the
 flux estimation process.
 
-Previous software that have been developed to calculate GHG fluxes were
-limited in many aspects that this package is meant to overcome. Most
-were limited to the linear regression approach (e.g. [LI-COR
-SoilFluxPro](https://www.licor.com/env/products/soil-flux/soilfluxpro),
-[Flux
+Previous software developed to calculate GHG fluxes are limited in many
+aspects that the GoFluxYourself package is meant to overcome. Most are
+limited to the linear regression approach (e.g. [Flux
 Puppy](https://www.sciencedirect.com/science/article/pii/S0168192319301522),
 and the R packages [`flux`](https://cran.r-project.org/package=flux) and
-[`FluxCalR`](https://github.com/junbinzhao/FluxCalR)), others were
-compatible with only one designated system (e.g. [LI-COR
-SoilFluxPro](https://www.licor.com/env/products/soil-flux/soilfluxpro),
-[Flux
-Puppy](https://www.sciencedirect.com/science/article/pii/S0168192319301522)),
-and some were impractical with large amounts of measurements (e.g. the R
-package [`HMR`](https://cran.r-project.org/package=HMR)) or simply did
-not include data pre-processing (e.g. the R packages
+[`FluxCalR`](https://github.com/junbinzhao/FluxCalR)), others do not
+include data pre-processing (e.g. the R packages
 [`HMR`](https://cran.r-project.org/package=HMR),
 [`flux`](https://cran.r-project.org/package=flux) and
+[`gasfluxes`](https://cran.r-project.org/package=gasfluxes)), or is they
+do, they are compatible with only a few designated systems (e.g. [Flux
+Puppy](https://www.sciencedirect.com/science/article/pii/S0168192319301522)
+and [`FluxCalR`](https://github.com/junbinzhao/FluxCalR)), and almost
+none include an automatic selection of the best flux estimate based on
+linear and non-linear (HM) regressions (e.g. [LI-COR
+SoilFluxPro](https://www.licor.com/env/products/soil-flux/soilfluxpro),
+and all above mentioned software, except for
 [`gasfluxes`](https://cran.r-project.org/package=gasfluxes)).
 
 This new R package, `GoFluxYourself` is meant to be “student proof”,
 meaning that no extensive knowledge or experience is needed to import
-raw data into R, chose the best model to calculate fluxes (LM or HM),
+raw data into R, choose the best model to calculate fluxes (LM or HM),
 quality check the results objectively and obtain high quality flux
 estimates. The package contains a wide range of functions that allows
 the user to import raw data from a variety of instruments (LI-COR, LGR,
-GAIA2TECH, Gasmet and Picarro); calculate fluxes from a variety of GHG
-(CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, NH<sub>3</sub>, CO and
-H<sub>2</sub>O) with both linear (LM) and non-linear (HM) flux
-calculation methods; align instruments clocks after data import;
-interactively identify measurements (start and end time) if there are no
-automatic chamber recordings (e.g. LI-COR smart chamber); plot
-measurements for easy visual inspection; and quality check the
-measurements based on objective criteria and non-arbitrary thresholds.
+GAIA2TECH, Gasmet, Picarro and PP-Systems); calculate fluxes from a
+variety of GHG (CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O,
+NH<sub>3</sub>, CO and H<sub>2</sub>O) with both linear (LM) and
+non-linear (HM) flux calculation methods; align instruments clocks after
+data import; interactively identify measurements (start and end time) if
+there are no automatic chamber recordings (e.g. LI-COR smart chamber);
+plot measurements for easy visual inspection; and quality check the
+measurements based on objective criteria.
 
 > *Three R packages for the Elven-kings under the CRAN,  
 > Seven for the Dwarf-lords in their halls of open software,  
@@ -93,7 +96,7 @@ measurements based on objective criteria and non-arbitrary thresholds.
 
 This package `GoFluxYourself` is meant to be “student proof”, meaning
 that no extensive knowledge or experience is needed to import raw data
-into R (except for knowing how to use R, of course), chose the best
+into R (except for knowing how to use R, of course), choose the best
 model to calculate fluxes (LM or HM, that is the question. -Shakespeare,
 1603), quality check the results objectively (hence the no experience
 needed) and obtain high quality flux estimates from static chamber
@@ -114,9 +117,10 @@ raw data from a variety of instruments:
   an easy import of data from any gas analyzer
 - [**Los Gatos Research (ABB) laser gas
   analyzers**](https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers):
-  Ultra-portable Greenhouse Gas Analyzer (UGGA) and Microportable
-  Greenhouse Gas Analyzer (MGGA) for CO<sub>2</sub>, CH<sub>4</sub> and
-  H<sub>2</sub>O
+  Ultra-portable Greenhouse Gas Analyzer (GLA132-UGGA) and Microportable
+  Greenhouse Gas Analyzer (GLA131-MGGA) for CO<sub>2</sub>,
+  CH<sub>4</sub> and H<sub>2</sub>O, and GLA151-N2OM1 for
+  N<sub>2</sub>O, CH<sub>4</sub> and H<sub>2</sub>O
 - [**Picarro G2508 Gas Concentration
   Analyzer**](https://www.picarro.com/g2508_gas_concentration_analyzer):
   for CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, NH<sub>3</sub> and
@@ -135,7 +139,7 @@ raw data from a variety of instruments:
   Analyzer**](https://ppsystems.com/egm-5/): for CO<sub>2</sub>,
   O<sub>2</sub> and H<sub>2</sub>O
 
-After import, the user can chose from two methods for identification of
+After import, the user can choose from two methods for identification of
 measurements:
 
 - **Manual identification of measurements** - based on `start.time`,
@@ -158,7 +162,7 @@ CO, and H<sub>2</sub>O) using both linear (LM) and non-linear (HM;
 calculation methods. The HM model for the chamber concentration $C_t$ at
 time $t > 0$ after deployment is given by:
 
-$$\mathbf{Eqn~1}~~~~~~C_t = \varphi~+~(C_0 - \varphi)^{-~\kappa~t}$$
+$$\mathbf{Eqn~1}~~~~~~C_t = \varphi~+~(C_0 - \varphi)e^{-~\kappa~t}$$
 
 Where $\varphi$ is the assumed concentration of constant gas source
 below the surface (also known as $C_i$), $C_0$ is the concentration in
@@ -187,7 +191,7 @@ convert the units to obtain a term in nmol or
 
 $$\mathbf{Eqn~3}~~~~~~flux.term = \frac{(1 - H_2O)~V~P}{A~R~T}$$
 
-Where $H_2O$ is the water vapor in mmol·mol<sup>-1</sup>, $V$ is the
+Where $H_2O$ is the water vapor in mol·mol<sup>-1</sup>, $V$ is the
 volume inside the chamber in liters, $P$ is the pressure in kPa, $A$ is
 the surface area inside the chamber in m<sup>2</sup>, $R$ is the
 universal gas constant in L·kPa·K<sup>-1</sup>·mol<sup>-1</sup>. Each
@@ -196,12 +200,12 @@ parameters are measured inside the chamber at $t = 0$.
 ### Automatic selection of the best flux estimate
 
 Following flux calculation, the user can select the best flux estimate
-(LM or HM) based on objective criteria and non-arbitrary thresholds,
-using the `best.flux()` function:
+(LM or HM) based on objective criteria, using the `best.flux()`
+function:
 
-- **Assumed non-linearity**: If all criteria are respected, the best
-  flux estimate is assumed to be the non-linear estimate from the
-  Hutchinson and Mosier model.
+- **Assumed non-linearity**: If all criteria are met, the best flux
+  estimate is assumed to be the non-linear estimate from the Hutchinson
+  and Mosier model.
 - **G-factor**: the ratio between a non-linear flux estimate
   (e.g. Hutchinson and Mosier; HM) and a linear flux estimate.
 - **Kappa ratio**: maximal limit of the ratio between kappa and
@@ -237,7 +241,7 @@ al., 2018](https://doi.org/10.1371/journal.pone.0200876)).
 
 $$\mathbf{Eqn~4}~~~~~~g-factor = \frac{HM.flux}{LM.flux}$$
 
-With the `best.flux()` function, one can chose a limit at which the HM
+With the `best.flux()` function, one can choose a limit at which the HM
 model is deemed to overestimate (*f*<sub>0</sub>). Recommended
 thresholds for the g-factor are \<4 for a flexible threshold, \<2 for a
 medium threshold, or \<1.25 for a more conservative threshold. The
@@ -273,16 +277,16 @@ this maximum curvature.
 
 In the function `best.flux()`, one can choose the linear flux estimate
 over the non-linear flux estimate based on the ratio between kappa and
-kappa-max (`k.ratio`). The ratio is expressed as a percentage, where 1
-indicates `HM.k = k.max`, and 0.5 indicates `HM.k = 0.5*k.max`. The
-default setting is `k.ratio = 1`. If `HM.k/k.max` is larger than
-`k.ratio`, a warning is issued in the columns `HM.diagnose` and
-`quality.check`.
+kappa-max (`k.ratio`). A value of 1 indicates `HM.k = k.max`, and a
+value of e.g. 0.5 indicates `HM.k = 0.5*k.max`. The default setting is
+`k.ratio = 1`. If `HM.k/k.max` is larger than `k.ratio`, a warning is
+issued in the columns `HM.diagnose` and `quality.check`. The ratio is
+expressed as a percentage of kappa-max in the plots.
 
 #### **Indices of model fit**
 
 In the `best.flux()` function, we included multiple choices of indices
-of model fit, described below. One can chose to include however many of
+of model fit, described below. One can choose to include however many of
 them in the function. If multiple of them are included, the selection of
 the best model will be made based on a scoring system. Both models start
 with a score of 0. For each criteria, whichever model performs worst is
@@ -315,7 +319,9 @@ few large errors will have a significant impact on the RMSE. Therefore,
 RMSE will always be larger than or equal to MAE ([Pontius et al.,
 2008](https://doi.org/10.1007/s10651-007-0043-y)).
 
-Mathematically, RMSE is the standard deviation of the residuals:
+Mathematically, RMSE is equivalent to the standard deviation of the
+residuals. Indeed, for a constant gas concentration, the standard
+deviation is expressed as follows:
 
 $$
 \mathbf{Eqn~8}~~~~~~\sigma = \sqrt{\frac{1}{N} \sum_{i = 1}^{N}{({x_i-\mu})^2}}
@@ -343,20 +349,20 @@ functions exactly the same was as MAE in the `best.flux()` function.
 
 ##### **Standard Error**
 
-While the standard deviation tell about how the data points are
-scattered around the true mean, the standard error of a measurement
-tells how accurate that measurement is compared to the true population
-mean ([Altman and Bland,
-2005](https://doi.org/10.1136%2Fbmj.331.7521.903)). If considering the
-standard deviation as used to calculate instrument precision (equation
-8), the instrument standard error (instrument accuracy) is the standard
-deviation divided by the square root of the number of observations:
+While the standard deviation describes how the data points are scattered
+around the true mean, the standard error of a measurement tells how
+accurate that measurement is compared to the true population mean
+([Altman and Bland, 2005](https://doi.org/10.1136%2Fbmj.331.7521.903)).
+If considering the standard deviation as used to calculate instrument
+precision (equation 8), the instrument standard error (instrument
+accuracy) can be defined as the standard deviation divided by the square
+root of the number of observations:
 
 $$\mathbf{Eqn~9}~~~~~~\sigma_\bar{x} = \frac{\sigma}{\sqrt{n}}$$
 
-Practically, this means that a larger sample size increases the accuracy
+Practically, this means that the accuracy increases with the sample size
 of a measurement. In other words, if an instrument is imprecise and the
-measurement has a lot of noise, it is still possible to get a very
+measurement has a lot of noise, it is still possible to get a more
 accurate estimate of the true mean by increasing the number of
 observations. With high-frequency GHG analyzers, that means increasing
 the chamber closure time.
@@ -399,15 +405,15 @@ the lowest score has the best model fit.
 In flux calculation, the linear model contains two parameters: the slope
 and the intercept ($C_0$), whereas the Hutchinson and Mosier model
 (equation 1) contains three parameters: the assumed concentration of
-constant gas source below the surface ($\varphi$), is the concentration
-in the chamber at the moment of chamber closure ($C_0$) and the
-curvature, kappa ($\kappa$). If both models have a very similar fit
-(maximum likelihood), then the linear model would win because it has
-less parameters. However, when the sample size is small (\<40
-observations per parameter; i.e. \<120 observations when calculating
-HM), there is an increased risk that AIC selects a model with too many
-parameters. To address this risk of overfitting, AICc was developed
-([Sugiura, 1978](https://doi.org/10.1080/03610927808827599)):
+constant gas source below the surface ($\varphi$), the concentration in
+the chamber at the moment of chamber closure ($C_0$) and the curvature,
+kappa ($\kappa$). If both models have a very similar fit (maximum
+likelihood), then the linear model would win because it has less
+parameters. However, when the sample size is small (\<40 observations
+per parameter; i.e. \<120 observations when calculating HM), there is an
+increased risk that AIC selects a model with too many parameters. To
+address this risk of overfitting, AICc was developed ([Sugiura,
+1978](https://doi.org/10.1080/03610927808827599)):
 
 $$\mathbf{Eqn~11}~~~~~~AICc = AIC + \frac{2k^2 + 2k}{n - k - 1}$$
 
@@ -420,13 +426,14 @@ model with the lowest AICc wins.
 #### **Intercept**
 
 If the initial gas concentration (*C<sub>0</sub>*) calculated for the
-flux estimates are more or less than 10% of the difference between
-*C<sub>0</sub>* and the final gas concentration at the end of the
-measurement (*C<sub>t</sub>*), a warning is issued in the columns
-`quality.check`, `LM.diagnose` or `HM.diagnose` to warn of an intercept
-out of bounds. Alternatively, one can provide boundaries for the
-intercept, for example: `intercept.lim = c(380, 420)` for a true
-*C<sub>0</sub>* of 400 ppm.
+flux estimates (`HM.C0` and `LM.C0`) deviates from the true
+*C<sub>0</sub>* (measured concentration at $t = 0$) by more or less than
+10% of the difference between *C<sub>0</sub>* and the final gas
+concentration at the end of the measurement (*C<sub>t</sub>*), a warning
+is issued in the columns `quality.check`, `LM.diagnose` or `HM.diagnose`
+to warn of an intercept out of bounds. Alternatively, one can provide
+boundaries for the intercept, for example: `intercept.lim = c(380, 420)`
+for a true *C<sub>0</sub>* of 400 ppm.
 
 #### **Statistically significant flux (*p-value*)**
 
@@ -519,7 +526,8 @@ Note that raw data can also be imported from a multitude of other
 instruments, and example data files are provided for all of them:
 
 - LI-COR: LI-6400, LI-7810, LI-7820, LI-8100, LI-8200 (smart chamber)
-- Los Gatos Research instruments: (e.g. UGGA and m-GGA)
+- Los Gatos Research instruments: GLA131-MGGA, GLA132-UGGA and
+  GLA151-N2OM1
 - GAIA2TECH (DMR) automated chamber ECOFlux
 - Picarro: G2508 and G4301
 - Gasmet: DX4015
@@ -540,6 +548,7 @@ To import multiple files from a folder, use the wrapper function
 ?LI7820_import
 ?LI8100_import
 ?LI8200_import
+?N2OM1_import
 ?import2RData
 ```
 
@@ -547,7 +556,7 @@ To import multiple files from a folder, use the wrapper function
 
 In this example, the `start.time` for each measurement (`UniqueID`) was
 noted manually in the field, and are provided in an auxiliary file
-(`auxfile`).
+(`LGR_aux.txt`).
 
 ``` r
 # Other usefull packages
@@ -619,7 +628,7 @@ CH<sub>4</sub>/N<sub>2</sub>O m<sup>-2</sup>s<sup>-1</sup>, the
 temperature inside the chamber (`Tcham`; °C) and the atmospheric
 pressure inside the chamber (`Pcham`; kPa) are also required. If `Pcham`
 and `Tcham` are missing, normal atmospheric pressure (101.325 kPa) and
-normal air temperature (15 °C) are used.
+an air temperature of 15 °C are used as default.
 
 Additionally, one must provide the surface area inside the chamber
 (`Area`; cm<sup>2</sup>) and the total volume in the system, including
@@ -629,16 +638,17 @@ surface; cm) and the volume of the chamber (`Vcham`; L). In that case,
 the volume inside the tubing and the instruments is considered
 negligible, or it should be added to `Vcham`.
 
-The final output, before flux calculation requires: `UniqueID`, `Etime`,
-`flag`, `Vtot` (or `Vcham` and `offset`), `Area`, `Pcham`, `Tcham`,
-`H2O_ppm` and other gases.
+The final output, before flux calculation with `goFlux()` requires the
+columns: `UniqueID`, `Etime`, `flag`, `Vtot` (or `Vcham` and `offset`),
+`Area`, `Pcham`, `Tcham`, `H2O_ppm` and other gases.
 
 ### Flux calculation
 
 The hardest part is now behind you. All that’s left is to run the flux
-calculation with the `goFlux()` function. Then use the `best.flux()`
-function to select the best flux estimates (LM or HM) with our list of
-non-arbitrary thresholds, and plot the results for visual inspection.
+calculation with the `goFlux()` function for each gas. Then use the
+`best.flux()` function to select the best flux estimates (LM or HM) for
+each gas based on your choice of criteria, and plot the results for
+visual inspection.
 
 ``` r
 # Flux calculation -------------------------------------------------------------
@@ -662,7 +672,7 @@ H2O_flux_res <- best.flux(H2O_flux, criteria = c("MAE", "AICc", "MDF"))
 
 # Make a list of plots of all measurements, for each gastype.
 # With the function flux.plot, all parameters can be displayed.
-# You can chose what parameters to display on the plots.
+# You can choose what parameters to display on the plots.
 plot.legend = c("MAE", "RMSE", "AICc", "k.ratio", "g.factor")
 plot.display = c("MDF", "prec", "nb.obs", "flux.term")
 quality.check = TRUE
