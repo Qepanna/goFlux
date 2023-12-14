@@ -1,7 +1,7 @@
 #' Import function for Los Gatos Research GHG analyzers
 #'
 #' Imports single raw gas measurement files from the ultra-portable GHG analyzers
-#' (UGGA and m-GGA) from Los Gatos Research
+#' (GLA132-UGGA and GLA131-MGGA) from Los Gatos Research
 #' (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}) with the extension .txt
@@ -15,11 +15,11 @@
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
 #'                 recommended to use the time zone "UTC" to avoid any issue
 #'                 related to summer time and winter time changes.
-#' @param save logical; if \code{save = TRUE}, saves the file as RData in a
-#'             RData folder in the current working directory. If
+#' @param save logical; if \code{save = TRUE}, saves the file as an .RData file
+#'             in a RData folder in the current working directory. If
 #'             \code{save = FALSE}, returns the file in the Console, or load in
 #'             the Environment if assigned to an object.
-#' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from raw
+#' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from the raw
 #'                 file. The default is \code{keep_all = FALSE}, and columns that
 #'                 are not necessary for gas flux calculation are removed.
 #' @param prec numerical vector; the precision of the instrument for each gas,
@@ -29,13 +29,14 @@
 #'             ultra-portable GGA (GLA131 series), use
 #'             \code{prec = c(0.35, 0.9, 200)}.
 #'
-#' @returns A data frame containing raw data from LGR GHG analyzer.
+#' @returns A data frame containing raw data from LGR ultra-portable GHG
+#' analyzers (GLA132-UGGA and GLA131-MGGA).
 #'
 #' @include GoFluxYourself-package.R
 #'
 #' @details
 #' In \code{date.format}, the date format refers to a date found in the raw data
-#' file, not the date format in the file name. For the instrument G2508, the date
+#' file, not the date format in the file name. For these instruments, the date
 #' is found in the column "Time".
 #'
 #' Note that this function was designed for the following units in the raw file:
@@ -45,9 +46,9 @@
 #'   \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
 #'   \item Torr for pressure
 #'   \item Celsius for temperature}
-#' If your instrument uses different units, either convert the units after import,
-#' change the settings on your instrument, or contact the maintainer of this
-#' package for support.
+#' If your LGR instrument (UGGA or MGGA) uses different units, either convert
+#' the units after import, change the settings on your instrument, or contact
+#' the maintainer of this package for support.
 #'
 #' The precision of the instrument is needed to restrict kappa-max
 #' (\code{\link[GoFluxYourself]{k.max}}) in the non-linear flux calculation
@@ -59,7 +60,9 @@
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}) to allow for more
 #' curvature, especially for water vapor fluxes, or very long measurements, that
 #' are normally curved. The default values given for instrument precision are
-#' the ones found for the latest model of this instrument, available at the
+#' the ones found online
+#' (at https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers/lgr-icos-ultraportable-analyzers-gla132-series)
+#' for the latest model of this instrument, available at the
 #' time of the creation of this package (11-2023).
 #'
 #' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
@@ -74,7 +77,9 @@
 #'          \code{\link[GoFluxYourself]{LI7810_import}},
 #'          \code{\link[GoFluxYourself]{LI7820_import}},
 #'          \code{\link[GoFluxYourself]{LI8100_import}},
-#'          \code{\link[GoFluxYourself]{LI8200_import}}
+#'          \code{\link[GoFluxYourself]{LI8200_import}},
+#'          \code{\link[GoFluxYourself]{N2OM1_import}}
+#'
 #' @seealso See \code{\link[base]{timezones}} for a description of the underlying
 #'          timezone attribute.
 #'
@@ -160,7 +165,7 @@ LGR_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
 
   if(isTRUE(POSIX.warning == "date.format.error")){
     stop(paste("An error occured while converting DATE and TIME into POSIX.time.",
-               "Verify that 'date.format' corresponds to the column 'DATE' in",
+               "Verify that 'date.format' corresponds to the column 'Time' in",
                "the raw data file. Here is a sample:", data.raw$DATE_TIME[1]))
   } else data.raw$POSIX.time <- try.POSIX
 

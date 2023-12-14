@@ -75,9 +75,9 @@ on the plots. By default, the units are
 next to the best model selected by the function
 \code{\link[GoFluxYourself]{best.flux}}.}
 
-\item{p.val.disp}{character string; how should the \emph{p-value} be displayed in the
-legend above the plot. Choose one of the following: "star",
-"round", "value".}
+\item{p.val.disp}{character string; indicates how the \emph{p-value} should
+be displayed in the legend above the plot. Choose one of
+the following: "star", "round", "value".}
 
 \item{side}{character string; choose a side to display
 \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{mol C[0]}{ASCII}} and
@@ -95,7 +95,12 @@ Returns a list of plots, drawn from flux results (output from the functions
 The plots are customizable.
 }
 \details{
-In \code{plot.legend}, one may choose to display up to 5 additional parameters
+In \code{flux.results}, one may choose to use the output from the
+\code{\link[GoFluxYourself]{goFlux}} function instead. However, in that case,
+any element produced by the function \code{\link[GoFluxYourself]{best.flux}}
+cannot be displayed on the plots.
+
+In \code{plot.legend}, one may choose to display up to five additional parameters
 in a legend above the plots. Some parameters are displayed for both the linear
 model (\code{\link[GoFluxYourself]{LM.flux}}) and the non-linear model
 (\code{\link[GoFluxYourself]{HM.flux}}): Mean Absolute Error (\code{MAE}),
@@ -137,8 +142,8 @@ To convert the units to
 \ifelse{html}{\out{µmol kg<sup>-1</sup>h<sup>-1</sup>}}{\eqn{µmol kg^{-1}h^{-1}}{ASCII}}
 instead, one would need to multiply the flux results by 3600 to convert from
 seconds to hours. To print non-ASCII characters use Unicode. For example, to
-print the Greek letter "mu" (\eqn{µ}), use the Unicode \code{\\u03BC}:
-\code{flux.unit = "\\u03BCmol~kg^-1*h^-1"}.
+print the Greek letter "mu" (\eqn{µ}), use the Unicode \code{\\u00B5}:
+\code{flux.unit = "\\u00B5mol~kg^-1*h^-1"}.
 
 In \code{p.val.disp}, if \code{p.val.disp = "star"}, the \emph{p-values} will
 be displayed as star symbols (asterisks) as follows: ***, ** or * for
@@ -146,6 +151,10 @@ be displayed as star symbols (asterisks) as follows: ***, ** or * for
 \code{p.val.disp = "round"}, the \emph{p-values} are rounded to p < 0.001,
 p < 0.01 and p < 0.05. If \code{p.val.disp = "value"}, the actual values are
 displayed, rounded to two significant numbers.
+
+In \code{gastype}, the gas species listed are the ones for which this package
+has been adapted. Please write to the maintainer of this package for
+adaptation of additional gases.
 }
 \examples{
 data(LGR_manID)

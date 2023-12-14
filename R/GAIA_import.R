@@ -1,4 +1,5 @@
-#' Import function for GAIA synced with multiple chambers and instruments
+#' Import function for the automated chamber ECOFlux (GAIA2TECH) synced with
+#' multiple chambers and instruments
 #'
 #' Imports single raw gas measurement files from the automated chamber
 #' ECOFlux (GAIA2TECH) with the extension .csv
@@ -31,8 +32,8 @@
 #'             "Chamber Idle Closed Dark".
 #' @param background logical; if \code{background = FALSE}, removes all data from
 #'                   \code{activ.cham == "Background"}.
-#' @param save logical; if \code{save = TRUE}, saves the file as RData in a
-#'             RData folder in the current working directory. If
+#' @param save logical; if \code{save = TRUE}, saves the file as an .RData file
+#'             in a RData folder in the current working directory. If
 #'             \code{save = FALSE}, returns the file in the Console, or load in
 #'             the Environment if assigned to an object.
 #' @param prec numerical vector; the precision of the instrument for each gas,
@@ -77,9 +78,9 @@
 #'   \item kPa for pressure
 #'   \item volumetric water content (\%) for soil moisture
 #'   \item Celsius for temperature}
-#' If your instrument uses different units, either convert the units after import,
-#' change the settings on your instrument, or contact the maintainer of this
-#' package for support.
+#' If your LI-COR instruments (LI-7810 and LI-7820) use different units, either
+#' convert the units after import, change the settings on your instrument, or
+#' contact the maintainer of this package for support.
 #'
 #' As opposed to the other import functions, there is no option to "keep_all" with
 #' this instrument. If you would like to import additional data using this
@@ -96,8 +97,10 @@
 #' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}) to allow for more
 #' curvature, especially for water vapor fluxes, or very long measurements, that
 #' are normally curved. The default values given for instrument precision are
-#' the ones found for the latest model of this instrument, available at the
-#' time of the creation of this package (11-2023).
+#' the ones found online for the latest models of the LI-7810 and LI-7820
+#' (at https://www.licor.com/env/products/trace-gas/LI-7810 and
+#' https://www.licor.com/env/products/trace-gas/LI-7820),
+#' available at the time of the creation of this package (11-2023).
 #'
 #' @include GoFluxYourself-package.R
 #'
@@ -113,7 +116,9 @@
 #'          \code{\link[GoFluxYourself]{LI7810_import}},
 #'          \code{\link[GoFluxYourself]{LI7820_import}},
 #'          \code{\link[GoFluxYourself]{LI8100_import}},
-#'          \code{\link[GoFluxYourself]{LI8200_import}}
+#'          \code{\link[GoFluxYourself]{LI8200_import}},
+#'          \code{\link[GoFluxYourself]{N2OM1_import}}
+#'
 #' @seealso See \code{\link[base]{timezones}} for a description of the underlying
 #'          timezone attribute.
 #'

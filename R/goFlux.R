@@ -51,7 +51,7 @@
 #' @param Tcham numerical value; temperature inside the chamber (Celsius).
 #'              Alternatively, provide the column \code{Tcham} in \code{dataframe}
 #'              if \code{Tcham} is different between samples. If \code{Tcham} is
-#'              not provided, normal air temperature (15°C) is used.
+#'              not provided, 15°C is used as default.
 #' @param k.mult numerical value; a multiplier for the allowed kappa-max.
 #'               Default setting is no multiplier (\code{k.mult = 1}).
 #'               \code{k.mult} cannot be negative and must be smaller or
@@ -78,23 +78,47 @@
 #' estimate cannot exceed this maximum curvature.
 #'
 #' All flux estimates, including the \code{\link[GoFluxYourself]{MDF}}, are
-#' multiplied by a \code{\link[GoFluxYourself]{flux.term}} which is used to
-#' correct for water vapor inside the chamber, as well as convert the units to
-#' obtain a term in nmol or
+#' obtained from the multiplication of the slope and the
+#' \code{\link[GoFluxYourself]{flux.term}}, which is used to correct the
+#' pressure inside the chamber (due to water vapor), as well as convert the
+#' units to obtain a term in nmol or
 #' \ifelse{html}{\out{µmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{µmol m^{-2}s^{-1}}{ASCII}}.
 #'
 #' The argument \code{Area} is in \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}},
 #' but the output units from \code{\link[GoFluxYourself]{goFlux}} are in
-#' \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This means that there is a factor
-#' of 10,000 to convert from \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}
+#' \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This is due to the
+#' conversion from \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}
+#' to \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}} within the
+#' function. This means that there is a factor of 10,000 to convert from
+#' \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}
 #' to \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This is important
-#' to take into account if one would provide something else than an \code{Area} in
-#' \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to the function.
+#' to take into account if one would provide something else than an \code{Area}
+#' in \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to the function.
 #' For example, with incubated soil samples, one may provide an amount of soil
-#' (kg) instead of an \code{Area}. To get the right units in that case, multiply the
-#' kilograms of soil by 10,000 to remove the conversion from
-#' \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to
+#' (kg) instead of an area in the column \code{Area}. To get the right units in
+#' that case, multiply the kilograms of soil by 10,000 to remove the conversion
+#' from \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to
 #' \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}.
+#'
+#' In \code{gastype}, the gas species listed are the ones for which this package
+#' has been adapted. Please write to the maintainer of this package for
+#' adaptation of additional gases.
+#'
+#'#' \code{warn.length} is the limit below which the chamber closure time is
+#' flagged for being too short (\code{nb.obs < warn.length}). Portable
+#' greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore,
+#' for the default setting of \code{warn.length = 60}, the chamber closure time
+#' should be approximately one minute (60 seconds). If the number of
+#' observations is smaller than the threshold, a warning is printed: e.g. "Low
+#' number of observations: UniqueID X has 59 observations".
+#'
+#' @references Hüppi et al. (2018). Restricting the nonlinearity parameter in
+#' soil greenhouse gas flux calculation for more reliable flux estimates.
+#' \emph{PloS one}, 13(7), e0200876.
+#'
+#' @references Hutchinson and Mosier (1981). Improved soil cover method for
+#' field measurement of nitrous oxide fluxes.
+#' \emph{Soil Science Society of America Journal}, 45(2), 311-316.
 #'
 #' @returns Returns a data frame with 28 columns: a \code{UniqueID} per
 #' measurement, 11 columns for the linear model results (linear flux estimate

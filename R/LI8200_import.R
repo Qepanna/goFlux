@@ -21,7 +21,7 @@
 #' @details
 #' In \code{date.format}, the date format refers to a date found in the raw data
 #' file, not the date format in the file name. For the instrument LI-8200, the
-#' date is found under one of the measurement, next to "Date":.
+#' date is found under one of the measurements, next to '"Date":'.
 #'
 #' Note that this function was designed for the following units in the raw file:
 #' \itemize{
@@ -39,9 +39,9 @@
 #' connected to the Smart Chamber. If you are using a different setup, please
 #' contact the maintainer of this package for support.
 #'
-#' As opposed to the other import functions, there is no option to "keep_all" with
-#' the Smart Chamber. If you would like to import additional data using this
-#' function, please contact the maintainer of this package for support.
+#' As opposed to the other import functions, there is no option to "keep_all"
+#' with the Smart Chamber. If you would like to import additional data using
+#' this function, please contact the maintainer of this package for support.
 #'
 #' @include GoFluxYourself-package.R
 #'
@@ -57,7 +57,9 @@
 #'          \code{\link[GoFluxYourself]{LI6400_import}},
 #'          \code{\link[GoFluxYourself]{LI7810_import}},
 #'          \code{\link[GoFluxYourself]{LI7820_import}},
-#'          \code{\link[GoFluxYourself]{LI8100_import}}
+#'          \code{\link[GoFluxYourself]{LI8100_import}},
+#'          \code{\link[GoFluxYourself]{N2OM1_import}}
+#'
 #' @seealso See \code{\link[base]{timezones}} for a description of the underlying
 #'          timezone attribute.
 #'

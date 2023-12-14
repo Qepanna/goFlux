@@ -19,8 +19,8 @@ POSIXct format. Default is "UTC". Note about time zone: it is
 recommended to use the time zone "UTC" to avoid any issue
 related to summer time and winter time changes.}
 
-\item{save}{logical; if \code{save = TRUE}, saves the file as RData in a
-RData folder in the current working directory. If
+\item{save}{logical; if \code{save = TRUE}, saves the file as an .RData file
+in a RData folder in the current working directory. If
 \code{save = FALSE}, returns the file in the Console, or load in
 the Environment if assigned to an object.}
 }
@@ -33,7 +33,7 @@ Imports single raw data files from the LI-COR smart chamber (LI-8200)
 \details{
 In \code{date.format}, the date format refers to a date found in the raw data
 file, not the date format in the file name. For the instrument LI-8200, the
-date is found under one of the measurement, next to "Date":.
+date is found under one of the measurements, next to '"Date":'.
 
 Note that this function was designed for the following units in the raw file:
 \itemize{
@@ -43,17 +43,17 @@ Note that this function was designed for the following units in the raw file:
   \item litters for volumes
   \item kPa for pressure
   \item Celsius for temperature}
-If your instrument uses different units, either convert the units after import,
-change the settings on your instrument, or contact the maintainer of this
-package for support.
+If your Smart Chamber uses different units, either convert the units after
+import, change the settings on your instrument, or contact the maintainer of
+this package for support.
 
 In addition, soil temperature and moisture are read with a HydraProbe
 connected to the Smart Chamber. If you are using a different setup, please
 contact the maintainer of this package for support.
 
-As opposed to the other import functions, there is no option to "keep_all" with
-the Smart Chamber. If you would like to import additional data using this
-function, please contact the maintainer of this package for support.
+As opposed to the other import functions, there is no option to "keep_all"
+with the Smart Chamber. If you would like to import additional data using
+this function, please contact the maintainer of this package for support.
 }
 \examples{
 # Load file from downloaded package
@@ -77,7 +77,8 @@ See also, import functions for other instruments:
          \code{\link[GoFluxYourself]{LI6400_import}},
          \code{\link[GoFluxYourself]{LI7810_import}},
          \code{\link[GoFluxYourself]{LI7820_import}},
-         \code{\link[GoFluxYourself]{LI8100_import}}
+         \code{\link[GoFluxYourself]{LI8100_import}},
+         \code{\link[GoFluxYourself]{N2OM1_import}}
 
 See \code{\link[base]{timezones}} for a description of the underlying
          timezone attribute.

@@ -61,7 +61,7 @@
 #' units of the slope to obtain a flux estimate in nmol or
 #' \ifelse{html}{\out{µmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{µmol m^{-2}s^{-1}}{ASCII}}.
 #'
-#' In \code{Ct} and \code{C0}, typical values for forest soil conditions and
+#' In \code{Ct} and \code{C0}, typical values for soil respiration and
 #' 180 seconds of chamber closure are as follows for each \code{gastype}:
 #' \itemize{
 #'   \item CO2dry_ppm:  \code{Ct=1000} ; \code{C0=380}
@@ -69,6 +69,8 @@
 #'   \item N2Odry_ppb:  \code{Ct=500} ; \code{C0=250}
 #'   \item H2O_ppm:     \code{Ct=20000} ; \code{C0=10000}
 #' }
+#' Values of \code{Ct} and \code{C0} will vary depending on ecosystem type and
+#' chamber application scheme.
 #'
 #' @include GoFluxYourself-package.R
 #'

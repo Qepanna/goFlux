@@ -1,7 +1,7 @@
 #' Define measurements' window for manual identification
 #'
 #' Split gas data into one observation window per gas measurement
-#' and create a list of data frame (one data frame per UniqueID).
+#' and create a list of data frames (one data frame per UniqueID).
 #'
 #' @param inputfile data.frame; output from import or align functions.
 #' @param gastype character string; specifies which gas should be displayed on the
@@ -26,10 +26,15 @@
 #' @param shoulder numerical; time before and after measurement in observation
 #'                 window (seconds). Default is 120 seconds.
 #'
-#' @returns a list of data frame, split by UniqueID, merging \code{inputfile},
+#' @returns a list of data frames, split by UniqueID, merging \code{inputfile},
 #'          and \code{auxfile}. Additionally, adds some time (shoulder) before
 #'          and after the chamber closure time to help identify the best window
 #'          of measurement with the function \code{\link[GoFluxYourself]{click.peak}}.
+#'
+#' @details
+#' In \code{gastype}, the gas species listed are the ones for which this package
+#' has been adapted. Please write to the maintainer of this package for
+#' adaptation of additional gases.
 #'
 #' @include GoFluxYourself-package.R
 #'
@@ -321,7 +326,7 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
     }
   }
 
-  # Split data.filter into a list of data frame unique per measurement
+  # Split data.filter into a list of data frames unique per measurement
   flux.unique <- data.filter %>% group_split(start.time) %>% as.list()
 
   if (length(flux.unique) > 20){

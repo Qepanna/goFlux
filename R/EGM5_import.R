@@ -14,11 +14,11 @@
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
 #'                 recommended to use the time zone "UTC" to avoid any issue
 #'                 related to summer time and winter time changes.
-#' @param save logical; if \code{save = TRUE}, saves the file as RData in a
-#'             RData folder in the current working directory. If
+#' @param save logical; if \code{save = TRUE}, saves the file as an .RData file
+#'             in a RData folder in the current working directory. If
 #'             \code{save = FALSE}, returns the file in the Console, or load in
 #'             the Environment if assigned to an object.
-#' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from raw
+#' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from the raw
 #'                 file. The default is \code{keep_all = FALSE}, and columns that
 #'                 are not necessary for gas flux calculation are removed.
 #' @param prec numerical vector; the precision of the instrument for each gas,
@@ -42,9 +42,9 @@
 #'   \item mb for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
 #'   \item mb for pressure
 #'   \item Celsius for temperature}
-#' If your instrument uses different units, either convert the units after import,
-#' change the settings on your instrument, or contact the maintainer of this
-#' package for support.
+#' If your PP-Systems EGM-5 uses different units, either convert the units after
+#' import, change the settings on your instrument, or contact the maintainer of
+#' this package for support.
 #'
 #' The precision of the instrument is needed to restrict kappa-max
 #' (\code{\link[GoFluxYourself]{k.max}}) in the non-linear flux calculation
@@ -56,8 +56,8 @@
 #' \ifelse{html}{\out{O<sub>2</sub>}}{\eqn{O[2]}{ASCII}}) to allow for more
 #' curvature, especially for water vapor fluxes, or very long measurements, that
 #' are normally curved. The default values given for instrument precision are
-#' the ones found for the latest model of this instrument, available at the
-#' time of the creation of this package (11-2023).
+#' the ones provided by the manufacturer upon request, at the time of the
+#' creation of this package (11-2023).
 #'
 #' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
@@ -71,7 +71,9 @@
 #'          \code{\link[GoFluxYourself]{LI7810_import}},
 #'          \code{\link[GoFluxYourself]{LI7820_import}},
 #'          \code{\link[GoFluxYourself]{LI8100_import}},
-#'          \code{\link[GoFluxYourself]{LI8200_import}}
+#'          \code{\link[GoFluxYourself]{LI8200_import}},
+#'          \code{\link[GoFluxYourself]{N2OM1_import}}
+#'
 #' @seealso See \code{\link[base]{timezones}} for a description of the underlying
 #'          timezone attribute.
 #'

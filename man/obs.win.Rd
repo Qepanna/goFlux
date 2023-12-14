@@ -41,14 +41,19 @@ if found in \code{auxfile} or \code{inputfile}.}
 window (seconds). Default is 120 seconds.}
 }
 \value{
-a list of data frame, split by UniqueID, merging \code{inputfile},
+a list of data frames, split by UniqueID, merging \code{inputfile},
          and \code{auxfile}. Additionally, adds some time (shoulder) before
          and after the chamber closure time to help identify the best window
          of measurement with the function \code{\link[GoFluxYourself]{click.peak}}.
 }
 \description{
 Split gas data into one observation window per gas measurement
-and create a list of data frame (one data frame per UniqueID).
+and create a list of data frames (one data frame per UniqueID).
+}
+\details{
+In \code{gastype}, the gas species listed are the ones for which this package
+has been adapted. Please write to the maintainer of this package for
+adaptation of additional gases.
 }
 \examples{
 # How to use in multiple situations:

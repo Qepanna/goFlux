@@ -49,16 +49,21 @@
 #' @param best.model logical; if \code{best.model = TRUE}, display a star sign
 #'                   next to the best model selected by the function
 #'                   \code{\link[GoFluxYourself]{best.flux}}.
-#' @param p.val.disp character string; how should the \emph{p-value} be displayed in the
-#'                   legend above the plot. Choose one of the following: "star",
-#'                   "round", "value".
+#' @param p.val.disp character string; indicates how the \emph{p-value} should
+#'                   be displayed in the legend above the plot. Choose one of
+#'                   the following: "star", "round", "value".
 #' @param side character string; choose a side to display
 #'             \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{mol C[0]}{ASCII}} and
 #'             \ifelse{html}{\out{C<sub>i</sub>}}{\eqn{mol C[i]}{ASCII}} values.
 #'             By default, they are displayed on the left side of the plot.
 #'
 #' @details
-#' In \code{plot.legend}, one may choose to display up to 5 additional parameters
+#' In \code{flux.results}, one may choose to use the output from the
+#' \code{\link[GoFluxYourself]{goFlux}} function instead. However, in that case,
+#' any element produced by the function \code{\link[GoFluxYourself]{best.flux}}
+#' cannot be displayed on the plots.
+#'
+#' In \code{plot.legend}, one may choose to display up to five additional parameters
 #' in a legend above the plots. Some parameters are displayed for both the linear
 #' model (\code{\link[GoFluxYourself]{LM.flux}}) and the non-linear model
 #' (\code{\link[GoFluxYourself]{HM.flux}}): Mean Absolute Error (\code{MAE}),

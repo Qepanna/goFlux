@@ -21,7 +21,8 @@ A numerical value
 \description{
 Calculates the g-factor: the ratio between the flux estimates of a non-linear
 regression model (e.g. Hutchinson and Mosier) and a linear regression model.
-The g-factor should be <4 (flexible threshold), <2 (medium), or <1.25 (conservative).
+The recommended g-factor thresholds are <4 (flexible threshold), <2 (medium),
+or <1.25 (conservative).
 }
 \references{
 Hüppi et al. (2018). Restricting the nonlinearity parameter in

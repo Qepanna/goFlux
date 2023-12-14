@@ -59,13 +59,14 @@
 #'   \item "COdry_ppb": \code{plot.lim = c(0, 200)}
 #'   \item "H2O_ppm": \code{plot.lim = c(10000, 20000)}
 #' }
+#' These values will vary depending on ecosystem type and chamber application scheme.
 #'
-#' \code{warn.length} is the limit under which a measurement is flagged for
-#' being too short (\code{nb.obs < warn.length}). Portable greenhouse gas
-#' analyzers typically measure at a frequency of 1 Hz. Therefore, for the
-#' default setting of \code{warn.length = 60}, the chamber closure time should
-#' be approximately one minute (60 seconds). If the number of observations is
-#' smaller than the threshold, a warning is printed after the loop: "Number of
+#' \code{warn.length} is the limit below which the chamber closure time is
+#' flagged for being too short (\code{nb.obs < warn.length}). Portable
+#' greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore,
+#' for the default setting of \code{warn.length = 60}, the chamber closure time
+#' should be approximately one minute (60 seconds). If the number of
+#' observations is smaller than the threshold, a warning is printed: "Number of
 #' observations for UniqueID: 'UniqueID' is X observations".
 #'
 #' In \code{gastype}, the gas species listed are the ones for which this package

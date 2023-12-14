@@ -152,6 +152,10 @@ For example, with incubated soil samples, one may provide an amount of soil
 kilograms of soil by 10,000 to remove the conversion from
 \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to
 \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}.
+
+In \code{gastype}, the gas species listed are the ones for which this package
+has been adapted. Please write to the maintainer of this package for
+adaptation of additional gases.
 }
 \examples{
 data(LGR_manID)
@@ -159,6 +163,15 @@ CO2_flux <- goFlux_nokmax(LGR_manID, "CO2dry_ppm")
 CH4_flux <- goFlux_nokmax(LGR_manID, "CH4dry_ppb")
 H2O_flux <- goFlux_nokmax(LGR_manID, "H2O_ppm")
 
+}
+\references{
+Hüppi et al. (2018). Restricting the nonlinearity parameter in
+soil greenhouse gas flux calculation for more reliable flux estimates.
+\emph{PloS one}, 13(7), e0200876.
+
+Hutchinson and Mosier (1981). Improved soil cover method for
+field measurement of nitrous oxide fluxes.
+\emph{Soil Science Society of America Journal}, 45(2), 311-316.
 }
 \seealso{
 Look up the functions \code{\link[GoFluxYourself]{MDF}},

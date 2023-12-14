@@ -1,15 +1,17 @@
 #' Automatic selection of best flux estimate
 #'
-#' This automatic selection of the best flux estimate (linear or non-linear) is
-#' based on objective criteria and non-arbitrary thresholds.
+#' This automatic selection of the best flux estimate (linear,
+#' \code{\link[GoFluxYourself]{LM.flux}}; or non-linear, Hutchinson and Mosier
+#' model, \code{\link[GoFluxYourself]{HM.flux}}) is based on objective criteria
+#' and non-arbitrary thresholds.
 #'
 #' @param flux.result data.frame; output from the function
 #'                    \code{\link[GoFluxYourself]{goFlux}}.
 #' @param criteria character vector; criteria used to assess the goodness of fit
-#'                 of the linear and non-linear flux estimates. Must be at least
-#'                 one the following: "MAE", "RMSE", "AICc", "SE", "g.factor",
-#'                 "kappa", "MDF", "nb.obs", "p-value", or "intercept". The
-#'                 default is all of them.
+#'                 of the LM or HM flux estimates. Must be at least one the
+#'                 following: "MAE", "RMSE", "AICc", "SE", "g.factor", "kappa",
+#'                 "MDF", "nb.obs", "p-value", or "intercept". The default is
+#'                 all of them.
 #' @param intercept.lim numerical vector of length 2; inferior and superior
 #'                      limits of the intercept (initial concentration;
 #'                      \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}}).
@@ -20,15 +22,16 @@
 #'                      \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}} and
 #'                      \ifelse{html}{\out{C<sub>t</sub>}}{\eqn{C[t]}{ASCII}}
 #'                      for each measurement.
-#' @param g.limit numerical value; maximal limit of the g-factor (ratio
+#' @param g.limit numerical value; maximum limit of the g-factor (ratio
 #'                between \code{\link[GoFluxYourself]{HM.flux}} and
 #'                \code{\link[GoFluxYourself]{LM.flux}}). Recommended
 #'                thresholds for the g-factor are 4 (flexible), 2 (medium), or
 #'                1.25 (conservative). The default limit is \code{g.limit = 2}.
-#' @param k.ratio numerical value; maximal limit of the ratio between kappa and
+#' @param k.ratio numerical value; maximum limit of the ratio between kappa and
 #'                the kappa-max. Default is \code{k.ratio = 1}.
-#' @param p.val numerical value; a limit for a statistically detectable flux.
-#'              The default threshold is \emph{p-value} < 0.05.
+#' @param p.val numerical value; the minimal limit to indicate a slope
+#'              significantly larger than zero. The default threshold is
+#'              \emph{p-value} < 0.05.
 #' @param warn.length numerical value; limit under which a measurement is flagged for
 #'                    being too short (\code{nb.obs < warn.length}).
 #'
@@ -42,7 +45,7 @@
 #' system. Both models start with a score of 0. For each criteria, whichever
 #' model performs worst is given +1. After all selected criteria have been
 #' evaluated, the model with the lowest score wins. In case of a tie, the
-#' non-linear flux estimate is always chosen by default, as non-linearity is assumed.
+#' HM flux estimate is always chosen by default, as non-linearity is assumed.
 #'
 #' The \code{g.limit} indicates a threshold for the
 #' \code{\link[GoFluxYourself]{g.factor}}, which is the ratio between a
@@ -57,20 +60,20 @@
 #' columns \code{quality.check} and \code{HM.diagnose}.
 #'
 #' The minimal detectable flux (\code{\link[GoFluxYourself]{MDF}}) is calculated
-#' from the instrument precision and measurement time. Below the MDF, the flux
-#' estimate is considered under the detection limit, but not null. Therefore,
+#' from the instrument precision and measurement time. Flux estimates below the
+#' MDF are considered under the detection limit, but not null. Therefore,
 #' the function will not return a 0. There will simply be a warning in the
 #' columns \code{quality.check}, \code{LM.diagnose} or \code{HM.diagnose} to
 #' warn of a flux estimate under the detection limit. No best flux estimate
 #' is chosen based on MDF.
 #'
 #' The parameter kappa determines the curvature of the non-linear regression in
-#' the Hutchinson and Mosier model. A maximal limit of kappa,
+#' the Hutchinson and Mosier model. A maximum value of kappa,
 #' \code{\link[GoFluxYourself]{k.max}} is included in the
-#' \code{\link[GoFluxYourself]{goFlux}} function, so that the non-linear flux
-#' estimate cannot exceed this maximum curvature. In the function
+#' \code{\link[GoFluxYourself]{goFlux}} function, so that the HM regression
+#' cannot exceed this maximum curvature. In the function
 #' \code{\link[GoFluxYourself]{best.flux}}, one can choose the linear flux
-#' estimate over the non-linear flux estimate based on the ratio between kappa
+#' estimate over the HM flux estimate based on the ratio between kappa
 #' and kappa-max (\code{k.ratio}). The ratio is expressed as a percentage, where
 #' 1 indicates \code{HM.k = k.max}, and 0.5 indicates \code{HM.k = 0.5*k.max}.
 #' The default setting is \code{k.ratio = 1}. If \code{HM.k/k.max} is larger
@@ -79,7 +82,9 @@
 #'
 #' If the initial gas concentration
 #' (\ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}}) calculated for the
-#' flux estimates are more or less than 10\% of the difference between
+#' flux estimates (\code{HM.C0} and \code{LM.C0}) deviates from the true
+#' (\ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}}) by more or less than
+#' 10\% of the difference between
 #' \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}} and the final gas
 #' concentration at the end of the measurement
 #' (\ifelse{html}{\out{C<sub>t</sub>}}{\eqn{C[t]}{ASCII}}), a warning is issued
@@ -89,20 +94,28 @@
 #' for a true \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}} of 400 ppm.
 #'
 #' The argument \code{p.val} is only applicable to the linear flux. Under the
-#' defined \emph{p-value}, the linear flux estimate is deemed non-significant,
-#' i. e., flux under the detection limit. The default threshold is
+#' defined \emph{p-value}, the slope of the linear flux estimate is deemed
+#' non-significant, i. e., flux under the detection limit. The default threshold is
 #' \code{p.val = 0.05}. No best flux estimate is chosen based on \emph{p-value}.
 #' If \code{LM.p.val < p.val}, a warning is given in the columns
 #' \code{quality.check} and \code{LM.diagnose} to warn of an estimated flux
-#' under the detection limit.
+#' below the detection limit.
 #'
-#' \code{warn.length} is the limit under which a measurement is flagged for
-#' being too short (\code{nb.obs < warn.length}). With nowadays' portable
-#' greenhouse gas analyzers, the frequency of measurement is usually one
-#' observation per second. Therefore, for the default setting of
-#' \code{warn.length = 60}, the chamber closure time should be approximately
-#' one minute (60 seconds). If the number of observations is smaller than the
-#' threshold, a warning is issued in the column \code{quality.check}.
+#' \code{warn.length} is the limit below which the chamber closure time is
+#' flagged for being too short (\code{nb.obs < warn.length}). Portable
+#' greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore,
+#' for the default setting of \code{warn.length = 60}, the chamber closure time
+#' should be approximately one minute (60 seconds). If the number of
+#' observations  is smaller than the threshold, a warning is issued in the
+#' column \code{quality.check}.
+#'
+#' @references Hüppi et al. (2018). Restricting the nonlinearity parameter in
+#' soil greenhouse gas flux calculation for more reliable flux estimates.
+#' \emph{PloS one}, 13(7), e0200876.
+#'
+#' @references Hutchinson and Mosier (1981). Improved soil cover method for
+#' field measurement of nitrous oxide fluxes.
+#' \emph{Soil Science Society of America Journal}, 45(2), 311-316.
 #'
 #' @returns A data.frame identical to the input \code{flux.result} with the
 #'          additional columns \code{HM.diagnose}, \code{LM.diagnose},
@@ -393,8 +406,8 @@ best.flux <- function(flux.result,
           paste(HM.diagnose, RMSE.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
       # Update quality check
       mutate(quality.check = if_else(
-        round(LM.RMSE, nb.decimal(prec)) > round(RMSE.lim, nb.decimal(prec)) |
-          round(HM.RMSE, nb.decimal(prec)) > round(RMSE.lim, nb.decimal(prec)), ifelse(
+        round(HM.RMSE, nb.decimal(prec)) > round(RMSE.lim, nb.decimal(prec)) &
+          round(HM.RMSE, nb.decimal(prec)) > round(LM.RMSE, nb.decimal(prec)), ifelse(
             quality.check == "", RMSE.quality,
             paste(quality.check, RMSE.quality, sep = " | ")), quality.check))
   }
@@ -434,8 +447,8 @@ best.flux <- function(flux.result,
           paste(HM.diagnose, MAE.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
       # Update quality check
       mutate(quality.check = if_else(
-        round(LM.MAE, nb.decimal(prec)) > round(MAE.lim, nb.decimal(prec)) |
-          round(HM.MAE, nb.decimal(prec)) > round(MAE.lim, nb.decimal(prec)), ifelse(
+        round(HM.MAE, nb.decimal(prec)) > round(MAE.lim, nb.decimal(prec)) &
+          round(HM.MAE, nb.decimal(prec)) > round(LM.MAE, nb.decimal(prec)), ifelse(
             quality.check == "", MAE.quality,
             paste(quality.check, MAE.quality, sep = " | ")), quality.check))
   }
@@ -477,8 +490,8 @@ best.flux <- function(flux.result,
           paste(HM.diagnose, SE.HM.diagnostic, sep = " | ")), HM.diagnose)) %>%
       # Update quality check
       mutate(quality.check = if_else(
-        round(LM.SE, nb.decimal(prec)) > round(SE.lim, nb.decimal(prec)) |
-          round(HM.SE, nb.decimal(prec)) > round(SE.lim, nb.decimal(prec)), ifelse(
+        round(HM.SE, nb.decimal(prec)) > round(SE.lim, nb.decimal(prec)) &
+          round(HM.SE, nb.decimal(prec)) > round(LM.SE, nb.decimal(prec)), ifelse(
             quality.check == "", SE.quality,
             paste(quality.check, SE.quality, sep = " | ")), quality.check))
   }
@@ -553,7 +566,7 @@ best.flux <- function(flux.result,
   }
 
   ## kappa ratio ####
-  # Maximal curvature allowed in non-linear regression (Hutchinson and Mosier)
+  # Maximum curvature allowed in non-linear regression (Hutchinson and Mosier)
   if(any(grepl("\\<kappa\\>", criteria))) {
 
     k.quality <- "kappa max"
