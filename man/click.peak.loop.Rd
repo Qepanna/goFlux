@@ -93,6 +93,7 @@ has been adapted. Please write to the maintainer of this package for
 adaptation of additional gases.
 }
 \examples{
+\dontrun{
 # How to use in multiple situations:
 # Note that gastype = "CO2dry_ppm" is the default setting
 library(dplyr)
@@ -121,7 +122,7 @@ data(LI6400_imp)
 LI6400_ow <- obs.win(inputfile = LI6400_imp, shoulder = 0)
 LI6400_manID <- lapply(seq(1,3), click.peak.loop, flux.unique = LI6400_ow) \%>\%
   map_df(., ~as.data.frame(.x))
-
+}
 }
 \seealso{
 Use the function \code{\link[GoFluxYourself]{click.peak}} for

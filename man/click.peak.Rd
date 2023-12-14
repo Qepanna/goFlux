@@ -86,6 +86,7 @@ has been adapted. Please write to the maintainer of this package for
 adaptation of additional gases.
 }
 \examples{
+\dontrun{
 # How to use in multiple situations:
 # Note that gastype = "CO2dry_ppm" is the default setting
 library(dplyr)
@@ -109,7 +110,7 @@ LI7820_manID <- click.peak(LI7820_ow[[1]], gastype = "N2Odry_ppb", plot.lim = c(
 data(LI6400_imp)
 LI6400_ow <- obs.win(inputfile = LI6400_imp, shoulder = 0)
 LI6400_manID <- click.peak(LI6400_ow[[1]])
-
+}
 }
 \seealso{
 To use the function \code{\link[GoFluxYourself]{click.peak}} in a
