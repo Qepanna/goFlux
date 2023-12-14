@@ -50,9 +50,9 @@
 #' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}) to allow for more
 #' curvature, especially for water vapor fluxes, or very long measurements, that
 #' are normally curved. The default values given for instrument precision are
-#' the ones found online for the latest models of this instrument
-#' (at https://www.licor.com/env/products/trace-gas/LI-7820),
-#' available at the time of the creation of this package (11-2023).
+#' the ones found \href{https://www.licor.com/env/products/trace-gas/LI-7820}{online}
+#' for the latest model of this instrument available at the time of the
+#' creation of this function (11-2023).
 #'
 #' @include GoFluxYourself-package.R
 #'

@@ -68,8 +68,8 @@ instrument precision. If the precision of your instrument is unknown, it is
 better to use a low value (e.g. 1 ppm) to allow for more curvature, especially
 for water vapor fluxes, or very long measurements, that are normally curved.
 The default values given for instrument precision are the ones provided by
-the manufacturer upon request, at the time of the creation of this package
-(11-2023).
+the manufacturer upon request, for the latest model of this instrument
+available at the time of the creation of this function (11-2023).
 }
 \examples{
 # Load file from downloaded package

@@ -75,8 +75,8 @@ better to use a low value (e.g. 1 ppm for
 \ifelse{html}{\out{O<sub>2</sub>}}{\eqn{O[2]}{ASCII}}) to allow for more
 curvature, especially for water vapor fluxes, or very long measurements, that
 are normally curved. The default values given for instrument precision are
-the ones provided by the manufacturer upon request, at the time of the
-creation of this package (11-2023).
+the ones provided by the manufacturer upon request, for the latest model of
+this instrument available at the time of the creation of this function (11-2023).
 }
 \examples{
 # Examples on how to use:

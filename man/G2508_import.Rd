@@ -81,9 +81,9 @@ better to use a low value (e.g. 1 ppm for
 \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}) to allow for more
 curvature, especially for water vapor fluxes, or very long measurements, that
 are normally curved. The default values given for instrument precision are
-the ones found online (at https://www.picarro.com/g2508_gas_concentration_analyzer)
+the ones found \href{https://www.picarro.com/g2508_gas_concentration_analyzer}{online}
 for the latest model of this instrument, available at the time of the
-creation of this package (11-2023).
+creation of this function (11-2023).
 }
 \examples{
 # Load file from downloaded package

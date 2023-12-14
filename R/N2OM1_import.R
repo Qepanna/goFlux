@@ -57,10 +57,9 @@
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}) to allow for more
 #' curvature, especially for water vapor fluxes, or very long measurements, that
 #' are normally curved. The default values given for instrument precision are
-#' the ones found online
-#' (at https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers/lgr-icos-qc-portable-gas-analyzers-gla151-series/lgr-icos-portable-analyzers-gla151-n2om1-919)
-#' for the latest model of this instrument, available at the
-#' time of the creation of this function (12-2023).
+#' the ones found \href{https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers/lgr-icos-qc-portable-gas-analyzers-gla151-series/lgr-icos-portable-analyzers-gla151-n2om1-919}{online}
+#' for the latest model of this instrument available at the time of the
+#' creation of this function (12-2023).
 #'
 #' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.

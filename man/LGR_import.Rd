@@ -79,10 +79,9 @@ better to use a low value (e.g. 1 ppm for
 \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}) to allow for more
 curvature, especially for water vapor fluxes, or very long measurements, that
 are normally curved. The default values given for instrument precision are
-the ones found online
-(at https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers/lgr-icos-ultraportable-analyzers-gla132-series)
-for the latest model of this instrument, available at the
-time of the creation of this package (11-2023).
+the ones found \href{https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers/lgr-icos-ultraportable-analyzers-gla132-series}{online}
+for the latest model of this instrument available at the
+time of the creation of this function (11-2023).
 }
 \examples{
 # Examples on how to use:

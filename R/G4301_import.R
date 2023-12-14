@@ -55,9 +55,9 @@
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}) to allow for more
 #' curvature, especially for water vapor fluxes, or very long measurements, that
 #' are normally curved. The default values given for instrument precision are
-#' the ones found online (at https://www.picarro.com/products/gas-scouter-g4301)
+#' the ones found \href{https://www.picarro.com/products/gas-scouter-g4301}{online}
 #' for the latest model of this instrument, available at the time of the
-#' creation of this package (11-2023).
+#' creation of this function (11-2023).
 #'
 #' @include GoFluxYourself-package.R
 #'
