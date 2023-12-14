@@ -4,7 +4,7 @@
 # GoFluxYourself: A user-friendly way to calculate GHG fluxes yourself, regardless of user experience<img src="man/figures/GoFluxYourself.png" align="right" width="200"/>
 
 This document is out of date. Please consult [this
-webpage](https://www.qepanna.quarto.pub/gofluxyourself) instead.
+webpage](https://qepanna.quarto.pub/gofluxyourself/) instead.
 
 #### BETA VERSION
 
