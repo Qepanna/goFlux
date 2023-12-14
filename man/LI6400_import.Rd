@@ -59,7 +59,8 @@ Note that this function was designed for the following units in the raw file:
   \item mmol/mol for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
   \item kPa for pressure
   \item \ifelse{html}{\out{cm<sup>3</sup> for volumes}}{\eqn{cm^[3] for volumes}{ASCII}}
-  \item Celsius for temperature}
+  \item Celsius for temperature
+  \item \ifelse{html}{\out{µmol photons m<sup>-2</sup>s<sup>-1</sup> for PAR}}{\eqn{µmol photons m^{-2}s^{-1} for PAR}{ASCII}}}
 If your LI-COR LI-6400 uses different units, either convert the units after
 import, change the settings on your instrument, or contact the maintainer of
 this package for support.

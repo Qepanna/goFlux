@@ -77,7 +77,8 @@
 #'   \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}
 #'   \item kPa for pressure
 #'   \item volumetric water content (\%) for soil moisture
-#'   \item Celsius for temperature}
+#'   \item Celsius for temperature
+#'   \item \ifelse{html}{\out{µmol photons m<sup>-2</sup>s<sup>-1</sup> for PAR}}{\eqn{µmol photons m^{-2}s^{-1} for PAR}{ASCII}}}
 #' If your LI-COR instruments (LI-7810 and LI-7820) use different units, either
 #' convert the units after import, change the settings on your instrument, or
 #' contact the maintainer of this package for support.
