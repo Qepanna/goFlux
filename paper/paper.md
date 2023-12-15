@@ -24,7 +24,6 @@ affiliations:
 - name: Department of Geosciences and Natural Resource Management, University of Copenhagen,
     1958 Frederiksberg C, Denmark
   index: 1
-output: pdf_document
 ---
 
 # Summary
