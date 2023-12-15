@@ -12,7 +12,7 @@ data(LI6400_imp)
 }
 \description{
 Raw data from the LI-6400 greenhouse gas analyzer that has
-been processed by the function \code{\link[GoFluxYourself]{LI6400_import}}
+been processed by the function \code{\link[goFlux]{LI6400_import}}
 of this package.
 }
 \examples{

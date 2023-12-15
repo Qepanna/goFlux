@@ -29,19 +29,19 @@
 #' @returns a list of data frames, split by UniqueID, merging \code{inputfile},
 #'          and \code{auxfile}. Additionally, adds some time (shoulder) before
 #'          and after the chamber closure time to help identify the best window
-#'          of measurement with the function \code{\link[GoFluxYourself]{click.peak}}.
+#'          of measurement with the function \code{\link[goFlux]{click.peak}}.
 #'
 #' @details
 #' In \code{gastype}, the gas species listed are the ones for which this package
 #' has been adapted. Please write to the maintainer of this package for
 #' adaptation of additional gases.
 #'
-#' @include GoFluxYourself-package.R
+#' @include goFlux-package.R
 #'
 #' @seealso After defining the observation window with the function \code{obs.win()},
-#'          Use the function \code{\link[GoFluxYourself]{click.peak.loop}} in a
+#'          Use the function \code{\link[goFlux]{click.peak.loop}} in a
 #'          loop with \code{\link[base]{lapply}}, or use the function
-#'          \code{\link[GoFluxYourself]{click.peak}} for a single measurement.
+#'          \code{\link[goFlux]{click.peak}} for a single measurement.
 #'
 #' @examples
 #' # How to use in multiple situations:
@@ -49,7 +49,7 @@
 #' library(dplyr)
 #'
 #' ## with a LGR instrument and an auxiliary file (.txt)
-#' aux.path <- system.file("extdata", "LGR_aux/LGR_aux.txt", package = "GoFluxYourself")
+#' aux.path <- system.file("extdata", "LGR_aux/LGR_aux.txt", package = "goFlux")
 #' auxfile <- read.delim(aux.path) %>%
 #'   mutate(start.time = as.POSIXct(start.time, tz = "UTC"))
 #' data(LGR_imp)

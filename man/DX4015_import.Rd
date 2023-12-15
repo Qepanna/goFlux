@@ -72,8 +72,8 @@ import, change the settings on your instrument, or contact the maintainer of
 this package for support.
 
 The precision of the instrument is needed to restrict kappa-max
-(\code{\link[GoFluxYourself]{k.max}}) in the non-linear flux calculation
-(\code{\link[GoFluxYourself]{HM.flux}}). Kappa-max is inversely proportional to
+(\code{\link[goFlux]{k.max}}) in the non-linear flux calculation
+(\code{\link[goFlux]{HM.flux}}). Kappa-max is inversely proportional to
 instrument precision. If the precision of your instrument is unknown, it is
 better to use a low value (e.g. 1 ppm for
 \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
@@ -88,27 +88,27 @@ this instrument available at the time of the creation of this function (11-2023)
 }
 \examples{
 # Examples on how to use:
-file.path <- system.file("extdata", "DX4015/DX4015.TXT", package = "GoFluxYourself")
+file.path <- system.file("extdata", "DX4015/DX4015.TXT", package = "goFlux")
 
 DX4015_imp <- DX4015_import(inputfile = file.path)
 
 }
 \seealso{
-Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
+Use the wrapper function \code{\link[goFlux]{import2RData}}
          to import multiple files from the same folder path using any instrument.
 
 See also, import functions for other instruments:
-         \code{\link[GoFluxYourself]{EGM5_import}},
-         \code{\link[GoFluxYourself]{G2508_import}},
-         \code{\link[GoFluxYourself]{G4301_import}},
-         \code{\link[GoFluxYourself]{GAIA_import}},
-         \code{\link[GoFluxYourself]{LGR_import}},
-         \code{\link[GoFluxYourself]{LI6400_import}},
-         \code{\link[GoFluxYourself]{LI7810_import}},
-         \code{\link[GoFluxYourself]{LI7820_import}},
-         \code{\link[GoFluxYourself]{LI8100_import}},
-         \code{\link[GoFluxYourself]{LI8200_import}},
-         \code{\link[GoFluxYourself]{N2OM1_import}}
+         \code{\link[goFlux]{EGM5_import}},
+         \code{\link[goFlux]{G2508_import}},
+         \code{\link[goFlux]{G4301_import}},
+         \code{\link[goFlux]{GAIA_import}},
+         \code{\link[goFlux]{LGR_import}},
+         \code{\link[goFlux]{LI6400_import}},
+         \code{\link[goFlux]{LI7810_import}},
+         \code{\link[goFlux]{LI7820_import}},
+         \code{\link[goFlux]{LI8100_import}},
+         \code{\link[goFlux]{LI8200_import}},
+         \code{\link[goFlux]{N2OM1_import}}
 
 See \code{\link[base]{timezones}} for a description of the underlying
          timezone attribute.

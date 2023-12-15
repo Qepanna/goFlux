@@ -12,7 +12,7 @@ data(LI7820_imp)
 }
 \description{
 Raw data from the LI-7820 greenhouse gas analyzer that has
-been processed by the function \code{\link[GoFluxYourself]{LI7820_import}}
+been processed by the function \code{\link[goFlux]{LI7820_import}}
 of this package.
 }
 \examples{

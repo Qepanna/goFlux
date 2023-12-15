@@ -12,7 +12,7 @@ MDF(p, t, flux.term)
 \item{t}{numerical; measurement time (enclosure time; seconds)}
 
 \item{flux.term}{numerical; flux term calculated with the function
-\code{\link[GoFluxYourself]{flux.term}}}
+\code{\link[goFlux]{flux.term}}}
 }
 \value{
 a numerical value
@@ -30,6 +30,6 @@ exchange measured in static chambers with cavity ring-down spectroscopy and
 gas chromatography. \emph{Agricultural and Forest Meteorology}, 211, 48-57.
 }
 \seealso{
-\code{\link[GoFluxYourself]{flux.term}}
+\code{\link[goFlux]{flux.term}}
 }
 \keyword{internal}

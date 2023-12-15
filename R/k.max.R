@@ -7,17 +7,17 @@
 #' \ifelse{html}{\out{s<sup>-1</sup>}}{\eqn{s^{-1}}{ASCII}}.
 #'
 #' @param MDF numerical value; minimal detectable flux, calculated with the function
-#'            \code{\link[GoFluxYourself]{MDF}}
+#'            \code{\link[goFlux]{MDF}}
 #' @param LM.flux numerical value; flux estimate from a linear flux calculation model,
-#'                calculated with the function \code{\link[GoFluxYourself]{LM.flux}}
+#'                calculated with the function \code{\link[goFlux]{LM.flux}}
 #' @param t numerical value; measurement time (enclosure time) (seconds)
 #'
 #' @return A numerical value: the kappa-max.
 #'
-#' @seealso Look up the functions \code{\link[GoFluxYourself]{MDF}} and
-#'          \code{\link[GoFluxYourself]{LM.flux}} of this package
+#' @seealso Look up the functions \code{\link[goFlux]{MDF}} and
+#'          \code{\link[goFlux]{LM.flux}} of this package
 #'          for more information about these parameters.
-#' @seealso Kappa max is used in the function \code{\link[GoFluxYourself]{HM.flux}}
+#' @seealso Kappa max is used in the function \code{\link[goFlux]{HM.flux}}
 #'          to restrict the maximum allowed curvature in the Hutchinson and
 #'          Mosier model.
 #'

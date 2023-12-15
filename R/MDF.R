@@ -6,11 +6,11 @@
 #' @param p numerical; precision of the instrument (same units as measured gas; ex. ppm)
 #' @param t numerical; measurement time (enclosure time; seconds)
 #' @param flux.term numerical; flux term calculated with the function
-#'                  \code{\link[GoFluxYourself]{flux.term}}
+#'                  \code{\link[goFlux]{flux.term}}
 #'
 #' @return a numerical value
 #'
-#' @seealso \code{\link[GoFluxYourself]{flux.term}}
+#' @seealso \code{\link[goFlux]{flux.term}}
 #'
 #' @references Christiansen et al. (2015). Comparison of
 #' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},

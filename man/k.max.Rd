@@ -8,10 +8,10 @@ k.max(MDF, LM.flux, t)
 }
 \arguments{
 \item{MDF}{numerical value; minimal detectable flux, calculated with the function
-\code{\link[GoFluxYourself]{MDF}}}
+\code{\link[goFlux]{MDF}}}
 
 \item{LM.flux}{numerical value; flux estimate from a linear flux calculation model,
-calculated with the function \code{\link[GoFluxYourself]{LM.flux}}}
+calculated with the function \code{\link[goFlux]{LM.flux}}}
 
 \item{t}{numerical value; measurement time (enclosure time) (seconds)}
 }
@@ -31,11 +31,11 @@ soil greenhouse gas flux calculation for more reliable flux estimates.
 \emph{PloS one}, 13(7), e0200876.
 }
 \seealso{
-Look up the functions \code{\link[GoFluxYourself]{MDF}} and
-         \code{\link[GoFluxYourself]{LM.flux}} of this package
+Look up the functions \code{\link[goFlux]{MDF}} and
+         \code{\link[goFlux]{LM.flux}} of this package
          for more information about these parameters.
 
-Kappa max is used in the function \code{\link[GoFluxYourself]{HM.flux}}
+Kappa max is used in the function \code{\link[goFlux]{HM.flux}}
          to restrict the maximum allowed curvature in the Hutchinson and
          Mosier model.
 }

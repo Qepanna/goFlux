@@ -16,11 +16,11 @@ click.peak.loop(
 \arguments{
 \item{x}{a numerical sequence that indicates objects in a list. Must be used
 with \code{\link[base]{lapply}} after the function
-\code{\link[GoFluxYourself]{obs.win}}. See examples below to see
+\code{\link[goFlux]{obs.win}}. See examples below to see
 how to use with \code{\link[base]{lapply}}.}
 
 \item{flux.unique}{data.frame; output from the function
-\code{\link[GoFluxYourself]{obs.win}}.
+\code{\link[goFlux]{obs.win}}.
 Must contain the columns \code{gastype} (see below),
 \code{POSIX.time} and \code{UniqueID}.}
 
@@ -31,7 +31,7 @@ measurements. Must be one of the following: "CO2dry_ppm",
 "H2O_ppm". Default is "CO2dry_ppm".}
 
 \item{sleep}{numerical value; delay before closing the resulting plot. When
-used with the function \code{\link[GoFluxYourself]{click.peak.loop}},
+used with the function \code{\link[goFlux]{click.peak.loop}},
 grants a delay between measurements to visually inspect the
 output before processing the next measurement. Sleep must be
 shorter than 10 seconds.}
@@ -53,9 +53,9 @@ A list of data.frame, split by \code{UniqueID}, identical to the
 \description{
 Identify the start and the end of a measurement by clicking on them in a
 scatter plot. To use in a loop with multiple measurements, first use the
-function \code{\link[GoFluxYourself]{obs.win}} to identify the observation
+function \code{\link[goFlux]{obs.win}} to identify the observation
 window of each measurement and then use the wrapper function
-\code{\link[GoFluxYourself]{click.peak.loop}} with
+\code{\link[goFlux]{click.peak.loop}} with
 \code{\link[base]{lapply}} (see example below).
 }
 \details{
@@ -100,7 +100,7 @@ library(dplyr)
 library(purrr)
 
 ## with a LGR instrument and an auxiliary file (.txt)
-aux.path <- system.file("extdata", "LGR_aux/LGR_aux.txt", package = "GoFluxYourself")
+aux.path <- system.file("extdata", "LGR_aux/LGR_aux.txt", package = "goFlux")
 auxfile <- read.delim(aux.path) \%>\%
   mutate(start.time = as.POSIXct(start.time, tz = "UTC"))
 data(LGR_imp)
@@ -125,8 +125,8 @@ LI6400_manID <- lapply(seq(1,3), click.peak.loop, flux.unique = LI6400_ow) \%>\%
 }
 }
 \seealso{
-Use the function \code{\link[GoFluxYourself]{click.peak}} for
+Use the function \code{\link[goFlux]{click.peak}} for
          individual measurements, instead of using in a loop with
-         \code{\link[GoFluxYourself]{click.peak.loop}}. See also
-         \code{\link[GoFluxYourself]{obs.win}} to prepare a list of data.frame.
+         \code{\link[goFlux]{click.peak.loop}}. See also
+         \code{\link[goFlux]{obs.win}} to prepare a list of data.frame.
 }

@@ -9,10 +9,10 @@ g.factor(HM.flux, LM.flux)
 \arguments{
 \item{HM.flux}{a numerical value; flux estimate from a non-linear
 regression model (e.g. Hutchinson and Mosier). Calculated with
-the \code{\link[GoFluxYourself]{HM.flux}} function of this package.}
+the \code{\link[goFlux]{HM.flux}} function of this package.}
 
 \item{LM.flux}{a numerical value; flux estimate from a linear regression
-model. Calculated with the \code{\link[GoFluxYourself]{LM.flux}}
+model. Calculated with the \code{\link[goFlux]{LM.flux}}
 function of this package.}
 }
 \value{
@@ -30,11 +30,11 @@ soil greenhouse gas flux calculation for more reliable flux estimates.
 \emph{PloS one}, 13(7), e0200876.
 }
 \seealso{
-Look up the functions \code{\link[GoFluxYourself]{HM.flux}} and
-         \code{\link[GoFluxYourself]{LM.flux}} of this package for more
+Look up the functions \code{\link[goFlux]{HM.flux}} and
+         \code{\link[goFlux]{LM.flux}} of this package for more
          information about these parameters.
 
-The g-factor is used in the function \code{\link[GoFluxYourself]{best.flux}}
+The g-factor is used in the function \code{\link[goFlux]{best.flux}}
          to select the best flux estimate.
 }
 \keyword{internal}

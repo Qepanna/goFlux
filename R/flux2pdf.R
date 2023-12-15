@@ -4,7 +4,7 @@
 #' onto the same page.
 #'
 #' @param plot.list a list of plots; output from the function
-#'                  \code{\link[GoFluxYourself]{flux.plot}}.
+#'                  \code{\link[goFlux]{flux.plot}}.
 #' @param outfile a character string indicating the full name of the pdf
 #'                output file (including the path). Default is to save the pdf
 #'                in the working directory, with the name of the plot.list.
@@ -13,11 +13,11 @@
 #'
 #' @return A pdf file containing all plots from plot.list, sorted by UniqueID.
 #'
-#' @include GoFluxYourself-package.R
+#' @include goFlux-package.R
 #'
-#' @seealso See also the function \code{\link[GoFluxYourself]{goFlux}},
-#'          \code{\link[GoFluxYourself]{best.flux}} and
-#'          \code{\link[GoFluxYourself]{flux.plot}}
+#' @seealso See also the function \code{\link[goFlux]{goFlux}},
+#'          \code{\link[goFlux]{best.flux}} and
+#'          \code{\link[goFlux]{flux.plot}}
 #'          for more information about usage.
 #'
 #' @examples

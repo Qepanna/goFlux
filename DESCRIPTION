@@ -1,12 +1,12 @@
-Package: GoFluxYourself
+Package: goFlux
 Type: Package
-Title: GoFluxYourself: A user-friendly R package that helps you calculate GHG fluxes yourself, regardless of user experience
+Title: goFlux: A user-friendly R package that helps you calculate GHG fluxes yourself, regardless of user experience
 Version: 0.1.0
 Authors@R: c(person("Karelle", "Rheault", email = "karh@ign.ku.dk", role = c("cre", "aut", "dtc")),
              person("Klaus", "Steenberg Larsen", email = "ksl@ign.ku.dk", role = c("aut", "ths")))
 Maintainer: Karelle Rheault <karh@ign.ku.dk>
-Description: This package is meant to be "student proof", meaning that no extensive knowledge or experience is needed to import raw data into R, chose the best model to calculate fluxes (LM, HM or no flux), quality check the results objectively and obtain high quality flux estimates.
-    The package contains a wide range of functions that lets the user import raw data from a variety of instruments (LI-COR, LGR, GAIA2TECH and Picarro); calculate fluxes from a variety of GHG (CO2, CH4, N2O and H2O) with both linear (LM) and non-linear (HM) flux calculation methods; align instruments clocks after data import; identify measurements (start and end time) if there are no automatic chamber recordings (e.g. LI-COR smart chamber); plot measurements for easy visual inspection; and quality check the measurements based on objective criteria and non-arbitrary thresholds.
+Description: This package is meant to be "student proof", meaning that no extensive knowledge or experience is needed to import raw data into R, choose the best model to calculate fluxes (LM or HM), quality check the results objectively and obtain high quality flux estimates.
+    The package contains a wide range of functions that lets the user import raw data from a variety of instruments (LI-COR, LGR, GAIA2TECH, Gasmet, PP-Systems and Picarro); calculate fluxes from a variety of GHG (CO2, CH4, N2O, CO, NH3 and H2O) with both linear (LM) and non-linear (HM) flux calculation methods; align instruments clocks after data import; identify measurements (start and end time); plot measurements for easy visual inspection; and quality check the measurements based on objective criteria.
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
@@ -14,7 +14,7 @@ Depends:
     R (>= 3.5.0)
 RoxygenNote: 7.2.3
 Collate: 
-    'GoFluxYourself-package.R'
+    'goFlux-package.R'
     'DX4015_import.R'
     'EGM5_import.R'
     'G2508_import.R'

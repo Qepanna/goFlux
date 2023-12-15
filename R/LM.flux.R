@@ -6,11 +6,11 @@
 #' @param gas.meas numerical vector containing gas measurements (ppm or ppb)
 #' @param time.meas numerical vector containing time stamps (seconds)
 #' @param flux.term numerical value; flux term calculated with the function
-#'                  \code{\link[GoFluxYourself]{flux.term}}
+#'                  \code{\link[goFlux]{flux.term}}
 #'
-#' @seealso Look up the function \code{\link[GoFluxYourself]{flux.term}} of this
+#' @seealso Look up the function \code{\link[goFlux]{flux.term}} of this
 #'          package for more information about this parameter.
-#' @seealso See also the function \code{\link[GoFluxYourself]{HM.flux}}
+#' @seealso See also the function \code{\link[goFlux]{HM.flux}}
 #'          for information about the non-linear regression model used in this package.
 #'
 #' @returns Returns a data frame with 11 columns: linear flux estimate, initial
@@ -30,7 +30,7 @@
 #' \ifelse{html}{\out{nmol/m<sup>2</sup>s}}{\eqn{nmol/m^{2}s}{ASCII}}
 #' (if initial concentration is ppb, e.g. CH4dry_ppb).
 #'
-#' @include GoFluxYourself-package.R
+#' @include goFlux-package.R
 #'
 #' @keywords internal
 #'

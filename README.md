@@ -1,10 +1,10 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# GoFluxYourself: A user-friendly way to calculate GHG fluxes yourself, regardless of user experience<img src="man/figures/GoFluxYourself.png" align="right" width="200"/>
+# goFlux: A user-friendly way to calculate GHG fluxes yourself, regardless of user experience<img src="man/figures/goFlux.png" align="right" width="200"/>
 
 This document is out of date. Please consult [this
-webpage](https://qepanna.quarto.pub/gofluxyourself/) instead.
+webpage](https://qepanna.quarto.pub/goflux/) instead.
 
 #### BETA VERSION
 
@@ -50,37 +50,34 @@ on the CRAN). This procedure introduces less arbitrary decisions in the
 flux estimation process.
 
 Previous software developed to calculate GHG fluxes are limited in many
-aspects that the GoFluxYourself package is meant to overcome. Most are
-limited to the linear regression approach (e.g. [Flux
+aspects that the goFlux package is meant to overcome. Most are limited
+to the linear regression approach (e.g. [Flux
 Puppy](https://www.sciencedirect.com/science/article/pii/S0168192319301522),
 and the R packages [`flux`](https://cran.r-project.org/package=flux) and
 [`FluxCalR`](https://github.com/junbinzhao/FluxCalR)), others do not
 include data pre-processing (e.g. the R packages
 [`HMR`](https://cran.r-project.org/package=HMR),
 [`flux`](https://cran.r-project.org/package=flux) and
-[`gasfluxes`](https://cran.r-project.org/package=gasfluxes)), or is they
+[`gasfluxes`](https://cran.r-project.org/package=gasfluxes)), or if they
 do, they are compatible with only a few designated systems (e.g. [Flux
 Puppy](https://www.sciencedirect.com/science/article/pii/S0168192319301522)
 and [`FluxCalR`](https://github.com/junbinzhao/FluxCalR)), and almost
-none include an automatic selection of the best flux estimate based on
-linear and non-linear (HM) regressions (e.g. [LI-COR
-SoilFluxPro](https://www.licor.com/env/products/soil-flux/soilfluxpro),
-and all above mentioned software, except for
-[`gasfluxes`](https://cran.r-project.org/package=gasfluxes)).
+none include an automatic selection of the best flux estimate (LM or HM)
+based on objective criteria.
 
-This new R package, `GoFluxYourself` is meant to be “student proof”,
-meaning that no extensive knowledge or experience is needed to import
-raw data into R, choose the best model to calculate fluxes (LM or HM),
-quality check the results objectively and obtain high quality flux
-estimates. The package contains a wide range of functions that allows
-the user to import raw data from a variety of instruments (LI-COR, LGR,
-GAIA2TECH, Gasmet, Picarro and PP-Systems); calculate fluxes from a
-variety of GHG (CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O,
-NH<sub>3</sub>, CO and H<sub>2</sub>O) with both linear (LM) and
-non-linear (HM) flux calculation methods; align instruments clocks after
-data import; interactively identify measurements (start and end time) if
-there are no automatic chamber recordings (e.g. LI-COR smart chamber);
-plot measurements for easy visual inspection; and quality check the
+This new R package, `goFlux` is meant to be “student proof”, meaning
+that no extensive knowledge or experience is needed to import raw data
+into R, choose the best model to calculate fluxes (LM or HM), quality
+check the results objectively and obtain high quality flux estimates.
+The package contains a wide range of functions that allows the user to
+import raw data from a variety of instruments (LI-COR, LGR, GAIA2TECH,
+Gasmet, Picarro and PP-Systems); calculate fluxes from a variety of GHG
+(CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, NH<sub>3</sub>, CO and
+H<sub>2</sub>O) with both linear (LM) and non-linear (HM) flux
+calculation methods; align instruments clocks after data import;
+interactively identify measurements (start and end time) if there are no
+automatic chamber recordings (e.g. LI-COR smart chamber); plot
+measurements for easy visual inspection; and quality check the
 measurements based on objective criteria.
 
 > *Three R packages for the Elven-kings under the CRAN,  
@@ -94,13 +91,13 @@ measurements based on objective criteria.
 
 ## About the package
 
-This package `GoFluxYourself` is meant to be “student proof”, meaning
-that no extensive knowledge or experience is needed to import raw data
-into R (except for knowing how to use R, of course), choose the best
-model to calculate fluxes (LM or HM, that is the question. -Shakespeare,
-1603), quality check the results objectively (hence the no experience
-needed) and obtain high quality flux estimates from static chamber
-measurements (wonderful!).
+This package `goFlux` is meant to be “student proof”, meaning that no
+extensive knowledge or experience is needed to import raw data into R
+(except for knowing how to use R, of course), choose the best model to
+calculate fluxes (LM or HM, that is the question. -Shakespeare, 1603),
+quality check the results objectively (hence the no experience needed)
+and obtain high quality flux estimates from static chamber measurements
+(wonderful!).
 
 ### Import and measurement identification
 
@@ -482,17 +479,17 @@ To install a package from GitHub, one must first install the package
 if (!require("remotes", quietly = TRUE)) install.packages("remotes")
 ```
 
-Then, install the `GoFluxYourself` package from GitHub. If it is not the
-first time you install the package, it must first be detached before
-being updated.
+Then, install the `goFlux` package from GitHub. If it is not the first
+time you install the package, it must first be detached before being
+updated.
 
 > The package is actively being updated **every day**. To make sure that
 > you are using the latest version, re-install the package every time
 > you use it.
 
 ``` r
-try(detach("package:GoFluxYourself", unload = TRUE), silent = TRUE)
-remotes::install_github("Qepanna/GoFluxYourself")
+try(detach("package:goFlux", unload = TRUE), silent = TRUE)
+remotes::install_github("Qepanna/goFlux")
 ```
 
 **If prompted, it is recommended to update any pre-installed packages.**
@@ -501,7 +498,7 @@ The functioning of the package depends on many other packages
 `graphics`, `grDevices`, `grid`, `gridExtra`, `lubridate`, `minpack.lm`,
 `msm`, `pbapply`, `plyr`, `purrr`, `rjson`, `rlist`, `SimDesign`,
 `stats`, `stringr`, `tibble`, `tidyr`, `utils`), which will be installed
-when installing `GoFluxYourself`.
+when installing `goFlux`.
 
 Troubleshoot problems with `install_github()`:
 
@@ -512,10 +509,10 @@ Troubleshoot problems with `install_github()`:
 ### Import raw data into R
 
 ``` r
-library(GoFluxYourself)
+library(goFlux)
 
 # Get the example raw file from the package
-file.path <- system.file("extdata", "LGR/LGR.txt", package = "GoFluxYourself")
+file.path <- system.file("extdata", "LGR/LGR.txt", package = "goFlux")
 
 # Import raw data from an LGR gas analyzer
 ?LGR_import
@@ -537,7 +534,7 @@ To import multiple files from a folder, use the wrapper function
 `import2RData()`.
 
 ``` r
-# Get help for import functions from the GoFluxYourself package
+# Get help for import functions from the goFlux package
 ?DX4015_import
 ?EGM5_import
 ?G2508_import
@@ -565,7 +562,7 @@ require(purrr)
 
 # The auxfile requires start.time and UniqueID
 # start.time must be in the format "%Y-%m-%d %H:%M:%S"
-aux.path <- system.file("extdata", "LGR/LGR_aux.txt", package = "GoFluxYourself")
+aux.path <- system.file("extdata", "LGR/LGR_aux.txt", package = "goFlux")
 auxfile <- read.delim(aux.path) %>% 
   mutate(start.time = as.POSIXct(start.time, tz = "UTC"))
 ```
@@ -719,13 +716,13 @@ write.xlsx(H2O_flux_res, file = "H2O_flux_res.xlsx")
 If you get this warning while trying to install an R package from
 GitHub:
 
-    ## Warning: package ‘GoFluxYourself’ is in use and will not be installed
+    ## Warning: package ‘goFlux’ is in use and will not be installed
 
 This error means that the package is loaded. Before re-installing the
 package, you must first detach it:
 
 ``` r
-detach("package:GoFluxYourself", unload = TRUE)
+detach("package:goFlux", unload = TRUE)
 ```
 
 If this does not solve the problem, restart your session and try again.
@@ -736,7 +733,7 @@ If this does not solve the problem, restart your session and try again.
 
 If you get this error while trying to install an R package from GitHub:
 
-    ## Error: Failed to install 'GoFluxYourself' from GitHub:
+    ## Error: Failed to install 'goFlux' from GitHub:
     ##   HTTP error 403.
     ##   API rate limit exceeded for xxx.xxx.xxx.x (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)
     ## 

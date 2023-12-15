@@ -2,13 +2,13 @@
 #'
 #' Identify the start and the end of a measurement by clicking on them in a
 #' scatter plot. To use in a loop with multiple measurements, first apply the
-#' function \code{\link[GoFluxYourself]{obs.win}} to identify the observation
+#' function \code{\link[goFlux]{obs.win}} to identify the observation
 #' window of each measurement and then use the wrapper function
-#' \code{\link[GoFluxYourself]{click.peak.loop}} with
+#' \code{\link[goFlux]{click.peak.loop}} with
 #' \code{\link[base]{lapply}} (see example below).
 #'
 #' @param flux.unique data.frame; output from the function
-#'                    \code{\link[GoFluxYourself]{obs.win}}.
+#'                    \code{\link[goFlux]{obs.win}}.
 #'                    Must contain the columns \code{gastype} (see below),
 #'                    \code{POSIX.time} and \code{UniqueID}.
 #' @param gastype character string; specifies which gas should be displayed on
@@ -17,7 +17,7 @@
 #'                "COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" or
 #'                "H2O_ppm". Default is "CO2dry_ppm".
 #' @param sleep numerical value; delay before closing the resulting plot. When
-#'              used with the function \code{\link[GoFluxYourself]{click.peak.loop}},
+#'              used with the function \code{\link[goFlux]{click.peak.loop}},
 #'              grants a delay between measurements to visually inspect the
 #'              output before processing the next measurement. Sleep must be
 #'              shorter than 10 seconds.
@@ -32,12 +32,12 @@
 #'          additional columns \code{flag}, \code{Etime}, \code{start.time_corr},
 #'          \code{end.time_corr} and \code{obs.length_corr}.
 #'
-#' @include GoFluxYourself-package.R
+#' @include goFlux-package.R
 #'
-#' @seealso To use the function \code{\link[GoFluxYourself]{click.peak}} in a
+#' @seealso To use the function \code{\link[goFlux]{click.peak}} in a
 #'          loop with \code{\link[base]{lapply}}, use
-#'          \code{\link[GoFluxYourself]{click.peak.loop}}. See also
-#'          \code{\link[GoFluxYourself]{obs.win}} to prepare a list of data.frame.
+#'          \code{\link[goFlux]{click.peak.loop}}. See also
+#'          \code{\link[goFlux]{obs.win}} to prepare a list of data.frame.
 #'
 #' @details
 #' The argument \code{plot.lim} is used to remove any data points below and
@@ -80,7 +80,7 @@
 #' library(dplyr)
 #'
 #' ## with a LGR instrument and an auxiliary file (.txt)
-#' aux.path <- system.file("extdata", "LGR_aux/LGR_aux.txt", package = "GoFluxYourself")
+#' aux.path <- system.file("extdata", "LGR_aux/LGR_aux.txt", package = "goFlux")
 #' auxfile <- read.delim(aux.path) %>%
 #'   mutate(start.time = as.POSIXct(start.time, tz = "UTC"))
 #' data(LGR_imp)

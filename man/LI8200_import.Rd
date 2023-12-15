@@ -57,28 +57,28 @@ this function, please contact the maintainer of this package for support.
 }
 \examples{
 # Load file from downloaded package
-file.path <- system.file("extdata", "LI8200/LI8200.json", package = "GoFluxYourself")
+file.path <- system.file("extdata", "LI8200/LI8200.json", package = "goFlux")
 
 # Run function
 LI8200_imp <- LI8200_import(inputfile = file.path)
 
 }
 \seealso{
-Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
+Use the wrapper function \code{\link[goFlux]{import2RData}}
          to import multiple files from the same folder path using any instrument.
 
 See also, import functions for other instruments:
-         \code{\link[GoFluxYourself]{DX4015_import}},
-         \code{\link[GoFluxYourself]{EGM5_import}},
-         \code{\link[GoFluxYourself]{G2508_import}},
-         \code{\link[GoFluxYourself]{G4301_import}},
-         \code{\link[GoFluxYourself]{GAIA_import}},
-         \code{\link[GoFluxYourself]{LGR_import}},
-         \code{\link[GoFluxYourself]{LI6400_import}},
-         \code{\link[GoFluxYourself]{LI7810_import}},
-         \code{\link[GoFluxYourself]{LI7820_import}},
-         \code{\link[GoFluxYourself]{LI8100_import}},
-         \code{\link[GoFluxYourself]{N2OM1_import}}
+         \code{\link[goFlux]{DX4015_import}},
+         \code{\link[goFlux]{EGM5_import}},
+         \code{\link[goFlux]{G2508_import}},
+         \code{\link[goFlux]{G4301_import}},
+         \code{\link[goFlux]{GAIA_import}},
+         \code{\link[goFlux]{LGR_import}},
+         \code{\link[goFlux]{LI6400_import}},
+         \code{\link[goFlux]{LI7810_import}},
+         \code{\link[goFlux]{LI7820_import}},
+         \code{\link[goFlux]{LI8100_import}},
+         \code{\link[goFlux]{N2OM1_import}}
 
 See \code{\link[base]{timezones}} for a description of the underlying
          timezone attribute.

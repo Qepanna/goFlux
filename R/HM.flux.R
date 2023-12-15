@@ -6,19 +6,19 @@
 #' @param gas.meas numerical vector containing gas measurements (ppm or ppb)
 #' @param time.meas numerical vector containing time stamps (seconds)
 #' @param flux.term numerical value; flux term calculated with the function
-#'                  \code{\link[GoFluxYourself]{flux.term}}
+#'                  \code{\link[goFlux]{flux.term}}
 #' @param Ct numerical value; gas concentration after \emph{t} seconds (ppm or ppb).
 #' @param C0 numerical value; initial gas concentration at time 0 second (ppm or ppb).
 #' @param k.max numerical value; kappa-max is the maximal curvature allowed in the
 #'              Hutchinson and Mosier model. Calculated with the
-#'              \code{\link[GoFluxYourself]{k.max}} function.
+#'              \code{\link[goFlux]{k.max}} function.
 #' @param k.mult numerical value; a multiplier for the allowed k.max. Default is no
 #'               multiplier (\code{k.mult = 1}).
 #'
-#' @seealso Look up the functions \code{\link[GoFluxYourself]{flux.term}} and
-#'          \code{\link[GoFluxYourself]{k.max}} of this package for more
+#' @seealso Look up the functions \code{\link[goFlux]{flux.term}} and
+#'          \code{\link[goFlux]{k.max}} of this package for more
 #'          information about these parameters.
-#' @seealso See also the function \code{\link[GoFluxYourself]{LM.flux}} for
+#' @seealso See also the function \code{\link[goFlux]{LM.flux}} for
 #'          information about the linear regression model used in this package.
 #'
 #' @references Hüppi et al. (2018). Restricting the nonlinearity parameter in
@@ -49,14 +49,14 @@
 #' The Hutchinson and Mosier model (HM) is a non-linear model, whose curvature
 #' is controlled by the parameter kappa. A large kappa returns a strong
 #' curvature. A maximum threshold for this parameter, kappa-max
-#' (\code{\link[GoFluxYourself]{k.max}}), can be calculated from the linear
-#' flux estimate (\code{\link[GoFluxYourself]{LM.flux}}), the minimal detectable
-#' flux (\code{\link[GoFluxYourself]{MDF}}) and the time of chamber closure.
+#' (\code{\link[goFlux]{k.max}}), can be calculated from the linear
+#' flux estimate (\code{\link[goFlux]{LM.flux}}), the minimal detectable
+#' flux (\code{\link[goFlux]{MDF}}) and the time of chamber closure.
 #' This limit of kappa-max is included in the
-#' \code{\link[GoFluxYourself]{goFlux}} function, so that the non-linear flux
+#' \code{\link[goFlux]{goFlux}} function, so that the non-linear flux
 #' estimate cannot exceed this maximum curvature.
 #'
-#' The HM slope is multiplied by a \code{\link[GoFluxYourself]{flux.term}} which
+#' The HM slope is multiplied by a \code{\link[goFlux]{flux.term}} which
 #' is used to correct for water vapor inside the chamber, as well as convert the
 #' units of the slope to obtain a flux estimate in nmol or
 #' \ifelse{html}{\out{µmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{µmol m^{-2}s^{-1}}{ASCII}}.
@@ -72,7 +72,7 @@
 #' Values of \code{Ct} and \code{C0} will vary depending on ecosystem type and
 #' chamber application scheme.
 #'
-#' @include GoFluxYourself-package.R
+#' @include goFlux-package.R
 #'
 #' @keywords internal
 #'

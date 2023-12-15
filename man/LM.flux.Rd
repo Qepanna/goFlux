@@ -12,7 +12,7 @@ LM.flux(gas.meas, time.meas, flux.term)
 \item{time.meas}{numerical vector containing time stamps (seconds)}
 
 \item{flux.term}{numerical value; flux term calculated with the function
-\code{\link[GoFluxYourself]{flux.term}}}
+\code{\link[goFlux]{flux.term}}}
 }
 \value{
 Returns a data frame with 11 columns: linear flux estimate, initial
@@ -37,10 +37,10 @@ Flux estimate units are
 (if initial concentration is ppb, e.g. CH4dry_ppb).
 }
 \seealso{
-Look up the function \code{\link[GoFluxYourself]{flux.term}} of this
+Look up the function \code{\link[goFlux]{flux.term}} of this
          package for more information about this parameter.
 
-See also the function \code{\link[GoFluxYourself]{HM.flux}}
+See also the function \code{\link[goFlux]{HM.flux}}
          for information about the non-linear regression model used in this package.
 }
 \keyword{internal}

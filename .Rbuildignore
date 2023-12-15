@@ -6,3 +6,4 @@
 ^README\.Rmd$
 ^\.Rhistory$
 ^\.RDataTmp$
+^\.RData$

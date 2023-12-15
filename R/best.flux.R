@@ -1,12 +1,12 @@
 #' Automatic selection of best flux estimate
 #'
 #' This automatic selection of the best flux estimate (linear,
-#' \code{\link[GoFluxYourself]{LM.flux}}; or non-linear, Hutchinson and Mosier
-#' model, \code{\link[GoFluxYourself]{HM.flux}}) is based on objective criteria
+#' \code{\link[goFlux]{LM.flux}}; or non-linear, Hutchinson and Mosier
+#' model, \code{\link[goFlux]{HM.flux}}) is based on objective criteria
 #' and non-arbitrary thresholds.
 #'
 #' @param flux.result data.frame; output from the function
-#'                    \code{\link[GoFluxYourself]{goFlux}}.
+#'                    \code{\link[goFlux]{goFlux}}.
 #' @param criteria character vector; criteria used to assess the goodness of fit
 #'                 of the LM or HM flux estimates. Must be at least one the
 #'                 following: "MAE", "RMSE", "AICc", "SE", "g.factor", "kappa",
@@ -16,15 +16,15 @@
 #'                      limits of the intercept (initial concentration;
 #'                      \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}}).
 #'                      Must be the same units as \code{gastype} in the
-#'                      \code{\link[GoFluxYourself]{goFlux}} function. If
+#'                      \code{\link[goFlux]{goFlux}} function. If
 #'                      \code{intercept.lim = NULL}, the limits are calculated
 #'                      from the true values of
 #'                      \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{C[0]}{ASCII}} and
 #'                      \ifelse{html}{\out{C<sub>t</sub>}}{\eqn{C[t]}{ASCII}}
 #'                      for each measurement.
 #' @param g.limit numerical value; maximum limit of the g-factor (ratio
-#'                between \code{\link[GoFluxYourself]{HM.flux}} and
-#'                \code{\link[GoFluxYourself]{LM.flux}}). Recommended
+#'                between \code{\link[goFlux]{HM.flux}} and
+#'                \code{\link[goFlux]{LM.flux}}). Recommended
 #'                thresholds for the g-factor are 4 (flexible), 2 (medium), or
 #'                1.25 (conservative). The default limit is \code{g.limit = 2}.
 #' @param k.ratio numerical value; maximum limit of the ratio between kappa and
@@ -48,9 +48,9 @@
 #' HM flux estimate is always chosen by default, as non-linearity is assumed.
 #'
 #' The \code{g.limit} indicates a threshold for the
-#' \code{\link[GoFluxYourself]{g.factor}}, which is the ratio between a
+#' \code{\link[goFlux]{g.factor}}, which is the ratio between a
 #' non-linear flux estimate and a linear flux estimate. With the
-#' \code{\link[GoFluxYourself]{best.flux}} function, one can choose a limit at
+#' \code{\link[goFlux]{best.flux}} function, one can choose a limit at
 #' which the HM model is deemed to overestimate
 #' \ifelse{html}{\out{f<sub>0</sub>}}{\eqn{f[0]}{ASCII}}. Recommended thresholds
 #' for the g-factor are <4 for a flexible threshold, <2 for a medium threshold,
@@ -59,7 +59,7 @@
 #' best flux estimate will switch to LM instead of HM and give a warning in the
 #' columns \code{quality.check} and \code{HM.diagnose}.
 #'
-#' The minimal detectable flux (\code{\link[GoFluxYourself]{MDF}}) is calculated
+#' The minimal detectable flux (\code{\link[goFlux]{MDF}}) is calculated
 #' from the instrument precision and measurement time. Flux estimates below the
 #' MDF are considered under the detection limit, but not null. Therefore,
 #' the function will not return a 0. There will simply be a warning in the
@@ -69,10 +69,10 @@
 #'
 #' The parameter kappa determines the curvature of the non-linear regression in
 #' the Hutchinson and Mosier model. A maximum value of kappa,
-#' \code{\link[GoFluxYourself]{k.max}} is included in the
-#' \code{\link[GoFluxYourself]{goFlux}} function, so that the HM regression
+#' \code{\link[goFlux]{k.max}} is included in the
+#' \code{\link[goFlux]{goFlux}} function, so that the HM regression
 #' cannot exceed this maximum curvature. In the function
-#' \code{\link[GoFluxYourself]{best.flux}}, one can choose the linear flux
+#' \code{\link[goFlux]{best.flux}}, one can choose the linear flux
 #' estimate over the HM flux estimate based on the ratio between kappa
 #' and kappa-max (\code{k.ratio}). The ratio is expressed as a percentage, where
 #' 1 indicates \code{HM.k = k.max}, and 0.5 indicates \code{HM.k = 0.5*k.max}.
@@ -124,21 +124,21 @@
 #'          the limits used for those criteria (e.g. \code{RMSE.lim},
 #'          \code{p.val.lim}, etc.)
 #'
-#' @include GoFluxYourself-package.R
+#' @include goFlux-package.R
 #'
 #' @examples
 #' data(LGR_manID)
 #' LGR_flux <- goFlux(LGR_manID, "CO2dry_ppm")
 #' LGR_res <- best.flux(LGR_flux)
 #'
-#' @seealso Look up the functions \code{\link[GoFluxYourself]{MDF}},
-#'          \code{\link[GoFluxYourself]{flux.term}},
-#'          \code{\link[GoFluxYourself]{g.factor}},
-#'          \code{\link[GoFluxYourself]{k.max}},
-#'          \code{\link[GoFluxYourself]{HM.flux}} and
-#'          \code{\link[GoFluxYourself]{LM.flux}}
+#' @seealso Look up the functions \code{\link[goFlux]{MDF}},
+#'          \code{\link[goFlux]{flux.term}},
+#'          \code{\link[goFlux]{g.factor}},
+#'          \code{\link[goFlux]{k.max}},
+#'          \code{\link[goFlux]{HM.flux}} and
+#'          \code{\link[goFlux]{LM.flux}}
 #'          of this package for more information about these parameters.
-#' @seealso See also the function \code{\link[GoFluxYourself]{goFlux}}
+#' @seealso See also the function \code{\link[goFlux]{goFlux}}
 #'          for more information about usage.
 #'
 #' @export

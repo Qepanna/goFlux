@@ -61,7 +61,7 @@
 #' be the date format "mdy". For the instrument LI-8200, the date is found under
 #' one of the measurements, next to '"Date":'.
 #'
-#' @include GoFluxYourself-package.R
+#' @include goFlux-package.R
 #' @include DX4015_import.R
 #' @include EGM5_import.R
 #' @include G2508_import.R
@@ -75,101 +75,101 @@
 #' @include LI8200_import.R
 #' @include N2OM1_import.R
 #'
-#' @seealso Use the wrapper function \code{\link[GoFluxYourself]{import2RData}}
+#' @seealso Use the wrapper function \code{\link[goFlux]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso Import functions for individual instruments:
-#'          \code{\link[GoFluxYourself]{DX4015_import}},
-#'          \code{\link[GoFluxYourself]{EGM5_import}},
-#'          \code{\link[GoFluxYourself]{G2508_import}},
-#'          \code{\link[GoFluxYourself]{G4301_import}},
-#'          \code{\link[GoFluxYourself]{GAIA_import}},
-#'          \code{\link[GoFluxYourself]{LGR_import}},
-#'          \code{\link[GoFluxYourself]{LI6400_import}},
-#'          \code{\link[GoFluxYourself]{LI7810_import}},
-#'          \code{\link[GoFluxYourself]{LI7820_import}},
-#'          \code{\link[GoFluxYourself]{LI8100_import}},
-#'          \code{\link[GoFluxYourself]{LI8200_import}},
-#'          \code{\link[GoFluxYourself]{N2OM1_import}}
+#'          \code{\link[goFlux]{DX4015_import}},
+#'          \code{\link[goFlux]{EGM5_import}},
+#'          \code{\link[goFlux]{G2508_import}},
+#'          \code{\link[goFlux]{G4301_import}},
+#'          \code{\link[goFlux]{GAIA_import}},
+#'          \code{\link[goFlux]{LGR_import}},
+#'          \code{\link[goFlux]{LI6400_import}},
+#'          \code{\link[goFlux]{LI7810_import}},
+#'          \code{\link[goFlux]{LI7820_import}},
+#'          \code{\link[goFlux]{LI8100_import}},
+#'          \code{\link[goFlux]{LI8200_import}},
+#'          \code{\link[goFlux]{N2OM1_import}}
 #'
 #' @examples
 #' # Examples on how to use it with all instruments.
 #' # The default time zone "UTC" is used in all cases.
 #'
 #' # with the Gasmet instrument DX4015
-#' file.path <- system.file("extdata/DX4015", package = "GoFluxYourself")
+#' file.path <- system.file("extdata/DX4015", package = "goFlux")
 #' import2RData(path = file.path, instrument = "DX4015",
 #'              date.format = "ymd", keep_all = FALSE,
 #'              prec = c(1.6, 23, 13, 2, 23, 33))
 #'
 #' # with the PP-Systems EGM-5
-#' file.path <- system.file("extdata/EGM5", package = "GoFluxYourself")
+#' file.path <- system.file("extdata/EGM5", package = "goFlux")
 #' import2RData(path = file.path, instrument = "EGM5",
 #'              date.format = "dmy", keep_all = FALSE,
 #'              prec = c(3, 1, 500))
 #'
 #' # with the Picarro instrument G2508
-#' file.path <- system.file("extdata/G2508", package = "GoFluxYourself")
+#' file.path <- system.file("extdata/G2508", package = "goFlux")
 #' import2RData(path = file.path, instrument = "G2508",
 #'              date.format = "ymd", keep_all = FALSE,
 #'              prec = c(0.24, 0.3, 5, 0.16, 500))
 #'
 #' # with the Picarro instrument G4301
-#' file.path <- system.file("extdata/G4301", package = "GoFluxYourself")
+#' file.path <- system.file("extdata/G4301", package = "goFlux")
 #' import2RData(path = file.path, instrument = "G4301",
 #'              date.format = "ymd", keep_all = FALSE,
 #'              prec = c(0.025, 0.1, 10))
 #'
 #' # with the automated chamber ECOFlux (GAIA2TECH)
 #' # with this instrument, "keep_all" is not a valid argument.
-#' file.path <- system.file("extdata/GAIA", package = "GoFluxYourself")
+#' file.path <- system.file("extdata/GAIA", package = "goFlux")
 #' import2RData(path = file.path, instrument = "GAIA",
 #'              date.format = "ymd", prec = c(3.5, 0.6, 0.4, 45, 45))
 #'
 #' # with Los Gatos Research UGGA (GLA132 series)
-#' file.path <- system.file("extdata/LGR", package = "GoFluxYourself")
+#' file.path <- system.file("extdata/LGR", package = "goFlux")
 #' import2RData(path = file.path, instrument = "LGR",
 #'              date.format = "dmy", keep_all = FALSE,
 #'              prec = c(0.2, 1.4, 50))
 #'
 #' # with Los Gatos Research m-GGA (GLA131 series)
-#' file.path <- system.file("extdata/LGR", package = "GoFluxYourself")
+#' file.path <- system.file("extdata/LGR", package = "goFlux")
 #' import2RData(path = file.path, instrument = "LGR",
 #'              date.format = "dmy", keep_all = FALSE,
 #'              prec = c(0.35, 0.9, 200))
 #'
 #' # with Los Gatos Research N2OM1 (GLA151 series)
-#' file.path <- system.file("extdata/N2OM1", package = "GoFluxYourself")
+#' file.path <- system.file("extdata/N2OM1", package = "goFlux")
 #' import2RData(path = file.path, instrument = "N2OM1",
 #'              date.format = "dmy", keep_all = FALSE,
 #'              prec = c(0.5, 2, 50))
 #'
 #' # with the LI-COR LI-6400 gas analyzer
-#' file.path <- system.file("extdata/LI6400", package = "GoFluxYourself")
+#' file.path <- system.file("extdata/LI6400", package = "goFlux")
 #' import2RData(path = file.path, instrument = "LI-6400",
 #'              date.format = "mdy", keep_all = FALSE,
 #'              prec = c(0.15, 20))
 #'
 #' # with the LI-COR LI-7810 gas analyzer
-#' file.path <- system.file("extdata/LI7810", package = "GoFluxYourself")
+#' file.path <- system.file("extdata/LI7810", package = "goFlux")
 #' import2RData(path = file.path, instrument = "LI-7810",
 #'              date.format = "ymd", keep_all = FALSE,
 #'              prec = c(3.5, 0.6, 45))
 #'
 #' # with the LI-COR LI-7820 gas analyzer
-#' file.path <- system.file("extdata/LI7820", package = "GoFluxYourself")
+#' file.path <- system.file("extdata/LI7820", package = "goFlux")
 #' import2RData(path = file.path, instrument = "LI-7820",
 #'              date.format = "ymd", keep_all = FALSE,
 #'              prec = c(0.4, 45))
 #'
 #' # with the LI-COR LI-8100 gas analyzer
-#' file.path <- system.file("extdata/LI8100", package = "GoFluxYourself")
+#' file.path <- system.file("extdata/LI8100", package = "goFlux")
 #' import2RData(path = file.path, instrument = "LI-8100",
 #'              date.format = "ymd", keep_all = FALSE,
 #'              prec = c(1, 10))
 #'
 #' # with the LI-COR smart chamber (LI-8200)
 #' # with this instrument, "keep_all" and "prec" are not valid arguments.
-#' file.path <- system.file("extdata/LI8200", package = "GoFluxYourself")
+#' file.path <- system.file("extdata/LI8200", package = "goFlux")
 #' import2RData(path = file.path, instrument = "LI-8200",
 #'              date.format = "ymd")
 #'

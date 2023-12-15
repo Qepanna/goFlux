@@ -1,8 +1,8 @@
 #' goFlux (without kappa-max): a user-friendly GHG fluxes calculation tool
 #'
 #' A wrapper function to calculate GHG fluxes from static chamber measurements.
-#' Calculates linear (\code{\link[GoFluxYourself]{LM.flux}}) and non-linear
-#' fluxes (Hutchinson and Mosier model; \code{\link[GoFluxYourself]{HM.flux}}),
+#' Calculates linear (\code{\link[goFlux]{LM.flux}}) and non-linear
+#' fluxes (Hutchinson and Mosier model; \code{\link[goFlux]{HM.flux}}),
 #' from a variety of greenhouse gasses (
 #' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
@@ -57,10 +57,10 @@
 #'
 #' @details
 #' This function differs from the original version
-#' \code{\link[GoFluxYourself]{goFlux}}. In this version, the non-linear model
-#' is calculated without kappa-max (\code{\link[GoFluxYourself]{k.max}}). In the
+#' \code{\link[goFlux]{goFlux}}. In this version, the non-linear model
+#' is calculated without kappa-max (\code{\link[goFlux]{k.max}}). In the
 #' original version, the kappa-max is estimated using the
-#' \code{\link[GoFluxYourself]{MDF}}.
+#' \code{\link[goFlux]{MDF}}.
 #'
 #' Flux estimate units are
 #' \ifelse{html}{\out{µmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{µmol m^{-2}s^{-1}}{ASCII}}
@@ -68,25 +68,25 @@
 #' \ifelse{html}{\out{nmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{nmol m^{-2}s^{-1}}{ASCII}}
 #' (if initial concentration is ppb, e.g. CH4dry_ppb).
 #'
-#' The \code{\link[GoFluxYourself]{goFlux}} function calculates flux estimates
+#' The \code{\link[goFlux]{goFlux}} function calculates flux estimates
 #' from the linear model (LM) and the Hutchinson and Mosier model (HM). The HM
 #' model is a non-linear model, whose curvature is controlled by the parameter
 #' kappa. A large kappa returns a strong curvature. A maximum threshold for this
-#' parameter, kappa-max (\code{\link[GoFluxYourself]{k.max}}), can be calculated
-#' from the linear flux estimate (\code{\link[GoFluxYourself]{LM.flux}}), the
-#' minimal detectable flux (\code{\link[GoFluxYourself]{MDF}}) and the time of
+#' parameter, kappa-max (\code{\link[goFlux]{k.max}}), can be calculated
+#' from the linear flux estimate (\code{\link[goFlux]{LM.flux}}), the
+#' minimal detectable flux (\code{\link[goFlux]{MDF}}) and the time of
 #' chamber closure. This limit of kappa-max is included in the
-#' \code{\link[GoFluxYourself]{goFlux}} function, so that the non-linear flux
+#' \code{\link[goFlux]{goFlux}} function, so that the non-linear flux
 #' estimate cannot exceed this maximum curvature.
 #'
-#' All flux estimates, including the \code{\link[GoFluxYourself]{MDF}}, are
-#' multiplied by a \code{\link[GoFluxYourself]{flux.term}} which is used to
+#' All flux estimates, including the \code{\link[goFlux]{MDF}}, are
+#' multiplied by a \code{\link[goFlux]{flux.term}} which is used to
 #' correct for water vapor inside the chamber, as well as convert the units to
 #' obtain a term in nmol or
 #' \ifelse{html}{\out{µmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{µmol m^{-2}s^{-1}}{ASCII}}.
 #'
 #' The argument \code{Area} is in \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}},
-#' but the output units from \code{\link[GoFluxYourself]{goFlux}} are in
+#' but the output units from \code{\link[goFlux]{goFlux}} are in
 #' \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This means that there is a factor
 #' of 10,000 to convert from \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}
 #' to \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This is important
@@ -112,14 +112,14 @@
 #'
 #' @returns Returns a data frame with 28 columns: a \code{UniqueID} per
 #' measurement, 11 columns for the linear model results (linear flux estimate
-#' (\code{\link[GoFluxYourself]{LM.flux}}), initial gas concentration
+#' (\code{\link[goFlux]{LM.flux}}), initial gas concentration
 #' (\code{LM.C0}), final gas concentration (\code{LM.Ct}), slope of linear
 #' regression (\code{LM.slope}), mean absolute error (\code{LM.MAE}), root mean
 #' square error (\code{LM.RMSE}), Akaike's information criterion corrected for
 #' small sample size (\code{LM.AICc}), standard error (\code{LM.SE}), relative
 #' standard error (\code{LM.se.rel}), coefficient of determination (\code{LM.r2}),
 #' and \emph{p-value} (\code{LM.p.val})), 11 columns for the non-linear model
-#' results (non-linear flux estimate (\code{\link[GoFluxYourself]{HM.flux}}),
+#' results (non-linear flux estimate (\code{\link[goFlux]{HM.flux}}),
 #' initial gas concentration (\code{HM.C0}), the assumed concentration of
 #' constant gas source below the surface (\code{HM.Ci}), slope at \code{t=0}
 #' (\code{HM.slope}), mean absolute error (\code{HM.MAE}), root mean square error
@@ -127,14 +127,14 @@
 #' size (\code{HM.AICc}), standard error (\code{HM.SE}), relative standard error
 #' (\code{HM.se.rel}), coefficient of determination (\code{HM.r2}), and curvature
 #' (kappa; \code{HM.k}), as well as the minimal detectable flux
-#' (\code{\link[GoFluxYourself]{MDF}}), the precision of the instrument
-#' (\code{prec}), the flux term (\code{\link[GoFluxYourself]{flux.term}}),
-#' kappa-max (\code{\link[GoFluxYourself]{k.max}}), the g factor (g.fact;
-#' \code{\link[GoFluxYourself]{g.factor}}), the number of observations used
+#' (\code{\link[goFlux]{MDF}}), the precision of the instrument
+#' (\code{prec}), the flux term (\code{\link[goFlux]{flux.term}}),
+#' kappa-max (\code{\link[goFlux]{k.max}}), the g factor (g.fact;
+#' \code{\link[goFlux]{g.factor}}), the number of observations used
 #' (\code{nb.obs}) and the true initial gas concentration (\code{C0}) and final
 #' gas concentration (\code{Ct}).
 #'
-#' @include GoFluxYourself-package.R
+#' @include goFlux-package.R
 #' @include flux.term.R
 #' @include MDF.R
 #' @include LM.flux.R
@@ -142,25 +142,25 @@
 #' @include g.factor.R
 #' @include k.max.R
 #'
-#' @seealso Look up the functions \code{\link[GoFluxYourself]{MDF}},
-#'          \code{\link[GoFluxYourself]{flux.term}},
-#'          \code{\link[GoFluxYourself]{g.factor}},
-#'          \code{\link[GoFluxYourself]{k.max}},
-#'          \code{\link[GoFluxYourself]{HM.flux}} and
-#'          \code{\link[GoFluxYourself]{LM.flux}} of this package for more
+#' @seealso Look up the functions \code{\link[goFlux]{MDF}},
+#'          \code{\link[goFlux]{flux.term}},
+#'          \code{\link[goFlux]{g.factor}},
+#'          \code{\link[goFlux]{k.max}},
+#'          \code{\link[goFlux]{HM.flux}} and
+#'          \code{\link[goFlux]{LM.flux}} of this package for more
 #'          information about these parameters.
 #'
 #' @seealso See also the import functions to find the
 #'          default instrument precision for each instrument:
-#'          \code{\link[GoFluxYourself]{DX4015_import}},
-#'          \code{\link[GoFluxYourself]{G2508_import}},
-#'          \code{\link[GoFluxYourself]{GAIA_import}},
-#'          \code{\link[GoFluxYourself]{LGR_import}},
-#'          \code{\link[GoFluxYourself]{LI6400_import}},
-#'          \code{\link[GoFluxYourself]{LI7810_import}},
-#'          \code{\link[GoFluxYourself]{LI7820_import}},
-#'          \code{\link[GoFluxYourself]{LI8100_import}},
-#'          \code{\link[GoFluxYourself]{LI8200_import}}
+#'          \code{\link[goFlux]{DX4015_import}},
+#'          \code{\link[goFlux]{G2508_import}},
+#'          \code{\link[goFlux]{GAIA_import}},
+#'          \code{\link[goFlux]{LGR_import}},
+#'          \code{\link[goFlux]{LI6400_import}},
+#'          \code{\link[goFlux]{LI7810_import}},
+#'          \code{\link[goFlux]{LI7820_import}},
+#'          \code{\link[goFlux]{LI8100_import}},
+#'          \code{\link[goFlux]{LI8200_import}}
 #'
 #' @examples
 #' data(LGR_manID)

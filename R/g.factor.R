@@ -7,15 +7,15 @@
 #'
 #' @param HM.flux a numerical value; flux estimate from a non-linear
 #'                regression model (e.g. Hutchinson and Mosier). Calculated with
-#'                the \code{\link[GoFluxYourself]{HM.flux}} function of this package.
+#'                the \code{\link[goFlux]{HM.flux}} function of this package.
 #' @param LM.flux a numerical value; flux estimate from a linear regression
-#'                model. Calculated with the \code{\link[GoFluxYourself]{LM.flux}}
+#'                model. Calculated with the \code{\link[goFlux]{LM.flux}}
 #'                function of this package.
 #'
-#' @seealso Look up the functions \code{\link[GoFluxYourself]{HM.flux}} and
-#'          \code{\link[GoFluxYourself]{LM.flux}} of this package for more
+#' @seealso Look up the functions \code{\link[goFlux]{HM.flux}} and
+#'          \code{\link[goFlux]{LM.flux}} of this package for more
 #'          information about these parameters.
-#' @seealso The g-factor is used in the function \code{\link[GoFluxYourself]{best.flux}}
+#' @seealso The g-factor is used in the function \code{\link[goFlux]{best.flux}}
 #'          to select the best flux estimate.
 #'
 #' @references Hüppi et al. (2018). Restricting the nonlinearity parameter in

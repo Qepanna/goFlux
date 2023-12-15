@@ -8,7 +8,7 @@ flux2pdf(plot.list, outfile = NULL, width = 11.6, height = 8.2)
 }
 \arguments{
 \item{plot.list}{a list of plots; output from the function
-\code{\link[GoFluxYourself]{flux.plot}}.}
+\code{\link[goFlux]{flux.plot}}.}
 
 \item{outfile}{a character string indicating the full name of the pdf
 output file (including the path). Default is to save the pdf
@@ -39,8 +39,8 @@ flux2pdf(LGR_plots)
 
 }
 \seealso{
-See also the function \code{\link[GoFluxYourself]{goFlux}},
-         \code{\link[GoFluxYourself]{best.flux}} and
-         \code{\link[GoFluxYourself]{flux.plot}}
+See also the function \code{\link[goFlux]{goFlux}},
+         \code{\link[goFlux]{best.flux}} and
+         \code{\link[goFlux]{flux.plot}}
          for more information about usage.
 }

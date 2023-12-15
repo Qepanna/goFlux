@@ -21,12 +21,12 @@ flux.plot(
 }
 \arguments{
 \item{flux.results}{a data.frame; output from the function
-\code{\link[GoFluxYourself]{best.flux}}}
+\code{\link[goFlux]{best.flux}}}
 
 \item{dataframe}{a data.frame containing gas measurements (see \code{gastype}
 below) and the following columns: \code{UniqueID}, \code{Etime}
 and \code{flag} (same \code{dataframe} as used with the function
-\code{\link[GoFluxYourself]{goFlux}}).}
+\code{\link[goFlux]{goFlux}}).}
 
 \item{gastype}{character string; specifies which column was used for the
 flux calculations. Must be one of the following: "CO2dry_ppm",
@@ -51,7 +51,7 @@ displayed on the plot. Choose from the following: "C0",
 
 \item{quality.check}{logical; if \code{quality.check = TRUE}, the column
 \code{quality.check} (output from the function
-\code{\link[GoFluxYourself]{best.flux}}) is displayed
+\code{\link[goFlux]{best.flux}}) is displayed
 below the plot.}
 
 \item{flux.unit}{character string; flux units to be displayed on the plots.
@@ -73,7 +73,7 @@ on the plots. By default, the units are
 
 \item{best.model}{logical; if \code{best.model = TRUE}, display a star sign
 next to the best model selected by the function
-\code{\link[GoFluxYourself]{best.flux}}.}
+\code{\link[goFlux]{best.flux}}.}
 
 \item{p.val.disp}{character string; indicates how the \emph{p-value} should
 be displayed in the legend above the plot. Choose one of
@@ -86,31 +86,31 @@ By default, they are displayed on the left side of the plot.}
 }
 \value{
 A list of plots, one per \code{UniqueID}, drawn from flux results (output
-from the functions \code{\link[GoFluxYourself]{goFlux}} and
-\code{\link[GoFluxYourself]{best.flux}}).
+from the functions \code{\link[goFlux]{goFlux}} and
+\code{\link[goFlux]{best.flux}}).
 }
 \description{
 Returns a list of plots, drawn from flux results (output from the functions
-\code{\link[GoFluxYourself]{goFlux}} and \code{\link[GoFluxYourself]{best.flux}}).
+\code{\link[goFlux]{goFlux}} and \code{\link[goFlux]{best.flux}}).
 The plots are customizable.
 }
 \details{
 In \code{flux.results}, one may choose to use the output from the
-\code{\link[GoFluxYourself]{goFlux}} function instead. However, in that case,
-any element produced by the function \code{\link[GoFluxYourself]{best.flux}}
+\code{\link[goFlux]{goFlux}} function instead. However, in that case,
+any element produced by the function \code{\link[goFlux]{best.flux}}
 cannot be displayed on the plots.
 
 In \code{plot.legend}, one may choose to display up to five additional parameters
 in a legend above the plots. Some parameters are displayed for both the linear
-model (\code{\link[GoFluxYourself]{LM.flux}}) and the non-linear model
-(\code{\link[GoFluxYourself]{HM.flux}}): Mean Absolute Error (\code{MAE}),
+model (\code{\link[goFlux]{LM.flux}}) and the non-linear model
+(\code{\link[goFlux]{HM.flux}}): Mean Absolute Error (\code{MAE}),
 Root Mean Square Error (\code{RMSE}), Aikaike's Information Criterion
 corrected for small sample size (\code{LM.AICc}), Standard Error (\code{SE}),
 relative Standard Error (\code{SErel}), and coefficient of determination
 (\code{r2}). The \emph{p-value} (\code{LM.p.val}) is displayed for the linear
 model only. The kappa (\code{HM.k}), kappa-max
-(\code{\link[GoFluxYourself]{k.max}}), kappa ratio (\code{k.ratio}) and
-g-factor (\code{\link[GoFluxYourself]{g.factor}}) are displayed for the
+(\code{\link[goFlux]{k.max}}), kappa ratio (\code{k.ratio}) and
+g-factor (\code{\link[goFlux]{g.factor}}) are displayed for the
 Hutchinson and Mosier model only. One may choose to display no additional
 parameter with \code{plot.legend = NULL}.
 
@@ -119,8 +119,8 @@ The initial gas concentration (\code{C0}) for both models, the assumed
 concentration of constant gas source below the surface (\code{Ci}) calculated
 from the Hutchinson and Mosier model, the number of observations
 (\code{nb.obs}) flagged, the Minimal Detectable Flux
-(\code{\link[GoFluxYourself]{MDF}}), the flux term
-(\code{\link[GoFluxYourself]{flux.term}}), the instrument precision
+(\code{\link[goFlux]{MDF}}), the flux term
+(\code{\link[goFlux]{flux.term}}), the instrument precision
 (\code{prec}), the chamber closure (\code{cham.close}) and opening
 (\code{cham.open}) (indicated with a green star), and the data points between
 chamber closure and opening that have been removed (\code{crop}) (indicated
@@ -136,7 +136,7 @@ displayed at the bottom of the plot.
 In \code{flux.unit}, remember to multiply the flux results with an appropriate
 factor to convert the results from a unit to another. If kilograms of soil
 were used to calculate the fluxes (see the details section of the function
-\code{\link[GoFluxYourself]{goFlux}}), the units would be
+\code{\link[goFlux]{goFlux}}), the units would be
 \ifelse{html}{\out{µmol kg<sup>-1</sup>s<sup>-1</sup>}}{\eqn{µmol kg^{-1}s^{-1}}{ASCII}}.
 To convert the units to
 \ifelse{html}{\out{µmol kg<sup>-1</sup>h<sup>-1</sup>}}{\eqn{µmol kg^{-1}h^{-1}}{ASCII}}
@@ -169,16 +169,16 @@ LGR_plots <- flux.plot(
 
 }
 \seealso{
-See also the functions \code{\link[GoFluxYourself]{goFlux}},
-         \code{\link[GoFluxYourself]{best.flux}} and
-         \code{\link[GoFluxYourself]{flux2pdf}}
+See also the functions \code{\link[goFlux]{goFlux}},
+         \code{\link[goFlux]{best.flux}} and
+         \code{\link[goFlux]{flux2pdf}}
          for more information about usage.
 
-Look up the functions \code{\link[GoFluxYourself]{g.factor}},
-         \code{\link[GoFluxYourself]{k.max}},
-         \code{\link[GoFluxYourself]{MDF}},
-         \code{\link[GoFluxYourself]{flux.term}},
-         \code{\link[GoFluxYourself]{LM.flux}} and
-         \code{\link[GoFluxYourself]{HM.flux}} for more information about
+Look up the functions \code{\link[goFlux]{g.factor}},
+         \code{\link[goFlux]{k.max}},
+         \code{\link[goFlux]{MDF}},
+         \code{\link[goFlux]{flux.term}},
+         \code{\link[goFlux]{LM.flux}} and
+         \code{\link[goFlux]{HM.flux}} for more information about
          these parameters.
 }
