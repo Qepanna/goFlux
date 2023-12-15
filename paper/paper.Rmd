@@ -6,7 +6,6 @@ tags:
 - greenhouse gas fluxes
 - closed chamber
 date: "15 December 2023"
-output: github_document
 authors:
 - name: Karelle Rheault
   orcid: "0000-0002-4888-7232"
