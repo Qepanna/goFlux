@@ -6,12 +6,12 @@
 This document is out of date. Please consult [this
 webpage](https://qepanna.quarto.pub/goflux/) instead.
 
-#### BETA VERSION
+#### FIRST RELEASE
 
-The package is ready to use, but errors may still occur. Please report
-any issues to the maintainer, Karelle Rheault (<karh@ign.ku.dk>),
-including script and raw data if necessary. Thank you for helping me in
-the development of this tool! 🙏
+The package is ready to use and fully functional, but errors may still
+occur. Please report any issues to the maintainer, Karelle Rheault
+(<karh@ign.ku.dk>), including script and raw data if necessary. Thank
+you for helping me in the development of this tool! 🙏
 
 ### One Package to rule them all
 
