@@ -463,12 +463,12 @@ and save the plots as pdf using `flux2pdf()`.
 Here is a simple example on how to use the package with a single raw
 file from LGR gas analyzers.
 
-> BETA VERSION
+> FIRST RELEASE
 >
-> The package is ready to use, but errors may still occur. Please report
-> any issues to the maintainer, Karelle Rheault (<karh@ign.ku.dk>),
-> including script and raw data if necessary. Thank you for helping me
-> in the development of this tool! 🙏
+> The package is ready to use and fully functional, but errors may still
+> occur. Please report any issues to the maintainer, Karelle Rheault
+> (<karh@ign.ku.dk>), including script and raw data if necessary. Thank
+> you for helping me in the development of this tool! 🙏
 
 ### Installation
 
