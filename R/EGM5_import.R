@@ -24,6 +24,10 @@
 #' @param prec numerical vector; the precision of the instrument for each gas,
 #'             in the following order: "CO2dry_ppm", "O2dry_pct" and H2O_ppm".
 #'             The default is \code{prec = c(3, 1, 500)}.
+#' @param proc.data.field numeric value; select the process data field used with
+#'                        the EGM-5. There are 5 different modes available: (1)
+#'                        Measure mode; (2) SRC or Custom mode; (3) CPY mode;
+#'                        (4) Injection mode; or (5) Static mode.
 #'
 #' @returns A data frame containing raw data from the PP-Systems EGM-5 Portable
 #' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} Gas Analyzer.
@@ -59,6 +63,11 @@
 #' the ones provided by the manufacturer upon request, for the latest model of
 #' this instrument available at the time of the creation of this function (11-2023).
 #'
+#' Look up the
+#' \href{https://ppsystems.com/download/technical_manuals/80109-1-EGM-5_Operation_V103.pdf}{EGM-5 Operation Manual}
+#' at page 90 for more details about the different Process Data Fields
+#' (\code{proc.data.field}).
+#'
 #' @seealso Use the wrapper function \code{\link[goFlux]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso See also, import functions for other instruments:
@@ -81,12 +90,16 @@
 #' # Examples on how to use:
 #' file.path <- system.file("extdata", "EGM5/EGM5.TXT", package = "goFlux")
 #'
-#' EGM5_imp <- EGM5_import(inputfile = file.path)
+#' # The value used in this example corresponds to the Process Data Field
+#' # "SRC or Custom mode", which was used to generate the example file provided
+#' # with this package.
+#' EGM5_imp <- EGM5_import(inputfile = file.path, proc.data.field = 2)
 #'
 #' @export
 #'
 EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
-                       save = FALSE, keep_all = FALSE, prec = c(3, 1, 500)){
+                       save = FALSE, keep_all = FALSE, prec = c(3, 1, 500),
+                       proc.data.field){
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")
@@ -100,6 +113,10 @@ EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
   if(is.null(prec)) stop("'prec' is required") else{
     if(!is.numeric(prec)) stop("'prec' must be of class numeric") else{
       if(length(prec) != 3) stop("'prec' must be of length 3")}}
+  if (missing(proc.data.field)) stop("'proc.data.field' is required") else{
+    if(!is.numeric(proc.data.field)) stop("'proc.data.field' must be of class numeric") else{
+      if(!between(proc.data.field, 1,5)) stop("'proc.data.field' must be a value from 1 to 5")}}
+
 
   # Assign NULL to variables without binding
   POSIX.time <- DATE_TIME <- H2O_ppm <- Time <- . <- Plot_No <- start_flag <-
@@ -109,8 +126,13 @@ EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
     start.time <- end.time <- cham.open <- NH3 <- NH3wet_ppm <- NH3dry_ppb <-
     CO2dry_ppm <- POSIX.warning <- CO2_ppm <- CO2wet_ppm <- NULL
 
+  # Column names
+  col.names <- read.delim(inputfile, sep = ",", nrows = 0) %>% names(.)
+
   # Load data file
-  data.raw <- read.delim(inputfile, sep = ",") %>%
+  data.raw <- read.delim(inputfile, sep = ",", header = F) %>%
+    # Rename headers
+    rename_all(~c(col.names, paste("param", seq(1,5), sep = ""))) %>%
     # Detect start.time
     mutate(start_flag = if_else(
       row_number() %in% (which(.$Tag.M3. == "Start")+1), 1, 0)) %>%
@@ -129,9 +151,14 @@ EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
     mutate(Plot_No = as.character(Plot_No)) %>%
     # Correct Date characters
     mutate(Date = gsub("/", "-", Date)) %>%
+    # Find and rename Tag
+    rename(Tag = grep("Tag", names(.), value = T)) %>%
+    # Find and rename SWC
+    rename(SWC = grep("Msoil", names(.), value = T)) %>%
+    rename(SWC = grep("RH", names(.), value = T)) %>%
     # Rename columns
     rename(CO2wet_ppm = CO2, O2wet_pct = O2, DATE = Date, TIME = Time,
-           Tcham = Tair, SWC = Msoil, H2O_mb = H2O, Tag = Tag.M3.) %>%
+           Tcham = Tair, H2O_mb = H2O) %>%
     # Convert H2O_mb to ppm
     mutate(H2O_ppm = (H2O_mb / Pressure)*1000)
 
@@ -149,14 +176,35 @@ EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
   if(keep_all == FALSE){
     if(sum(data.raw$H2O_ppm) > 0){
       data.raw <- data.raw %>%
-        select(DATE, TIME, Plot_No, Obs, CO2dry_ppm, O2dry_pct,
-               H2O_ppm, PAR, Tsoil, Tcham, SWC)
+        select(DATE, TIME, Plot_No, Obs, CO2dry_ppm, O2dry_pct, H2O_ppm, PAR,
+               Tsoil, Tcham, SWC, param1, param2, param3, param4, param5)
     } else {
       data.raw <- data.raw %>%
-        select(DATE, TIME, Plot_No, Obs, CO2wet_ppm, O2wet_pct,
-               PAR, Tsoil, Tcham, SWC)
+        select(DATE, TIME, Plot_No, Obs, CO2wet_ppm, O2wet_pct, PAR, Tsoil,
+               Tcham, SWC, param1, param2, param3, param4, param5)
     }
   }
+
+  # Rename Process Data Fields
+  if(proc.data.field == 1){ # Measure mode
+    data.raw <- data.raw %>% rename(
+      Probe = param1, Bat.pct = param2, Zero.pct = param3,
+      Bat.volt = param4, Bat.time = param5)}
+  if(proc.data.field == 2){ # SRC or Custom mode
+    data.raw <- data.raw %>% rename(
+      Process = param1, DC = param2, DT = param3,
+      SRL.ass = param4, SRQ.ass = param5)}
+  if(proc.data.field == 3){ # CPY mode
+    data.raw <- data.raw %>% rename(
+      Process = param1, DC.inv = param2, DT = param3,
+      SRL.res = param4, SRQ.res = param5)}
+  if(proc.data.field == 4){ # Injection mode
+    data.raw <- data.raw %>% rename(
+      Process = param1, C_F = param2, Volume = param3,
+      Base = param4, CO2.int = param5)}
+  if(proc.data.field == 5){ # Static mode
+    data.raw <- data.raw %>% rename(
+      Process = param1, na_1 = param2, DT = param3, CO2 = param4, na_2 = param5)}
 
   # Create a new column containing date and time (POSIX format)
   tryCatch(

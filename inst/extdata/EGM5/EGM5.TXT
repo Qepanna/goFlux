@@ -1,4 +1,4 @@
-Tag(M3),Date,Time,Plot_No,Rec_No,CO2,Pressure,Flow,H2O,Tsen,O2,Error,Aux_V,PAR,Tsoil,Tair,Msoil,x1,x2,x3,x4,x5
+Tag(M3),Date,Time,Plot_No,Rec_No,CO2,Pressure,Flow,H2O,Tsen,O2,Error,Aux_V,PAR,Tsoil,Tair,Msoil
 
 R5,11/10/23,09:23:59,     1,   584,   415,  953.1, 300, 0.0, 0.0, 0.0,  0, 0.0000,     0,23.5,22.3, 0.0, 13,    95,  96.72,  8.185,   553
 Zero
