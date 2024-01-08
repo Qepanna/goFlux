@@ -3,9 +3,6 @@
 
 # goFlux: A user-friendly way to calculate GHG fluxes yourself, regardless of user experience<img src="man/figures/goFlux.png" align="right" width="200"/>
 
-This document is out of date. Please consult [this
-webpage](https://qepanna.quarto.pub/goflux/) instead.
-
 #### FIRST RELEASE
 
 The package is ready to use and fully functional, but errors may still
@@ -98,6 +95,9 @@ calculate fluxes (LM or HM, that is the question. -Shakespeare, 1603),
 quality check the results objectively (hence the no experience needed)
 and obtain high quality flux estimates from static chamber measurements
 (wonderful!).
+
+Look up [this webpage](https://qepanna.quarto.pub/goflux/) for a
+demonstration of the package usage.
 
 ### Import and measurement identification
 
@@ -458,19 +458,7 @@ Finally, after finding the best flux estimates, one can plot the results
 and visually inspect the measurements using the function `flux.plot()`
 and save the plots as pdf using `flux2pdf()`.
 
-## How to use
-
-Here is a simple example on how to use the package with a single raw
-file from LGR gas analyzers.
-
-> FIRST RELEASE
->
-> The package is ready to use and fully functional, but errors may still
-> occur. Please report any issues to the maintainer, Karelle Rheault
-> (<karh@ign.ku.dk>), including script and raw data if necessary. Thank
-> you for helping me in the development of this tool! 🙏
-
-### Installation
+## Installation
 
 To install a package from GitHub, one must first install the package
 `remotes` from the CRAN:
@@ -500,218 +488,9 @@ The functioning of the package depends on many other packages
 `stats`, `stringr`, `tibble`, `tidyr`, `utils`), which will be installed
 when installing `goFlux`.
 
-Troubleshoot problems with `install_github()`:
+### Troubleshoot problems with `install_github()`
 
-- [Warning: package is in use and will not be
-  installed](#warning-package-is-in-use-and-will-not-be-installed)
-- [Error: API rate limit exceeded](#error-api-rate-limit-exceeded)
-
-### Import raw data into R
-
-``` r
-library(goFlux)
-
-# Get the example raw file from the package
-file.path <- system.file("extdata", "LGR/LGR.txt", package = "goFlux")
-
-# Import raw data from an LGR gas analyzer
-?LGR_import
-LGR_imp <- LGR_import(inputfile = file.path)
-```
-
-Note that raw data can also be imported from a multitude of other
-instruments, and example data files are provided for all of them:
-
-- LI-COR: LI-6400, LI-7810, LI-7820, LI-8100, LI-8200 (smart chamber)
-- Los Gatos Research instruments: GLA131-MGGA, GLA132-UGGA and
-  GLA151-N2OM1
-- GAIA2TECH (DMR) automated chamber ECOFlux
-- Picarro: G2508 and G4301
-- Gasmet: DX4015
-- PP-Systems: EGM-5
-
-To import multiple files from a folder, use the wrapper function
-`import2RData()`.
-
-``` r
-# Get help for import functions from the goFlux package
-?DX4015_import
-?EGM5_import
-?G2508_import
-?G4301_import
-?GAIA_import
-?LI6400_import
-?LI7810_import
-?LI7820_import
-?LI8100_import
-?LI8200_import
-?N2OM1_import
-?import2RData
-```
-
-### Manual identification of measurements
-
-In this example, the `start.time` for each measurement (`UniqueID`) was
-noted manually in the field, and are provided in an auxiliary file
-(`LGR_aux.txt`).
-
-``` r
-# Other usefull packages
-require(dplyr)
-require(purrr)
-
-# The auxfile requires start.time and UniqueID
-# start.time must be in the format "%Y-%m-%d %H:%M:%S"
-aux.path <- system.file("extdata", "LGR/LGR_aux.txt", package = "goFlux")
-auxfile <- read.delim(aux.path) %>% 
-  mutate(start.time = as.POSIXct(start.time, tz = "UTC"))
-```
-
-When running the function `click.peak()`, for each measurement, a window
-will open, in which you must click on the start point and the end point.
-The observation window is based on the `start.time` given in the
-`auxfile`, the length of the measurement (`obs.length`), and a
-`shoulder` before `start.time` and after `start.time + obs.length`. In
-this example, the observation time is 3 minutes (180 seconds) and the
-shoulder is 30 seconds. Therefore, the observation window shows 30
-seconds before the `start.time` and 210 seconds after.
-
-``` r
-?obs.win
-
-# Define the measurements' window of observation
-LGR_ow <- obs.win(inputfile = LGR_imp, auxfile = auxfile,
-                  obs.length = 180, shoulder = 30)
-```
-
-![](man/figures/click.peak1.png)
-
-Pay attention to the warning message given by `obs.win()` when there are
-more than 20 measurements (which is not the case in this example).
-
-Note that for more than one gas measurement, it is better to use the
-function `click.peak.loop()` with `lapply()` rather than using
-`click.peak()` for each measurement individually.
-
-``` r
-?click.peak
-?click.peak.loop
-
-# Manually identify measurements by clicking on the start and end points
-LGR_manID <- lapply(seq_along(LGR_ow), click.peak.loop, flux.unique = LGR_ow) %>%
-  map_df(., ~as.data.frame(.x))
-```
-
-If the number of observation is under a certain threshold
-(`warn.length = 60`), a warning will be given after clicking on the
-start and end points as such:
-
-    ## Warning message: Number of observations for UniqueID: 733_C_C is 59 observations
-
-Otherwise, if the number of observation satisfies this threshold, then
-the following message is given instead:
-
-    ## Good window of observation for UniqueID: 733a_C_C
-
-Between each measurement, the result of the `click.peak()` function is
-displayed for 3 seconds. To increase this delay, change the parameter
-`sleep` in the function `click.peak.loop()`.
-
-![](man/figures/click.peak2.png)
-
-To convert the flux estimate’s units into nmol
-CO<sub>2</sub>/H<sub>2</sub>O m<sup>-2</sup>s<sup>-1</sup> or µmol
-CH<sub>4</sub>/N<sub>2</sub>O m<sup>-2</sup>s<sup>-1</sup>, the
-temperature inside the chamber (`Tcham`; °C) and the atmospheric
-pressure inside the chamber (`Pcham`; kPa) are also required. If `Pcham`
-and `Tcham` are missing, normal atmospheric pressure (101.325 kPa) and
-an air temperature of 15 °C are used as default.
-
-Additionally, one must provide the surface area inside the chamber
-(`Area`; cm<sup>2</sup>) and the total volume in the system, including
-tubing, instruments and chamber (`Vtot`; L). If `Vtot` is missing, one
-must provide an offset (distance between the chamber and the soil
-surface; cm) and the volume of the chamber (`Vcham`; L). In that case,
-the volume inside the tubing and the instruments is considered
-negligible, or it should be added to `Vcham`.
-
-The final output, before flux calculation with `goFlux()` requires the
-columns: `UniqueID`, `Etime`, `flag`, `Vtot` (or `Vcham` and `offset`),
-`Area`, `Pcham`, `Tcham`, `H2O_ppm` and other gases.
-
-### Flux calculation
-
-The hardest part is now behind you. All that’s left is to run the flux
-calculation with the `goFlux()` function for each gas. Then use the
-`best.flux()` function to select the best flux estimates (LM or HM) for
-each gas based on your choice of criteria, and plot the results for
-visual inspection.
-
-``` r
-# Flux calculation -------------------------------------------------------------
-?goFlux
-?best.flux
-
-# Calculate fluxes for all gas types
-CO2_flux <- goFlux(LGR_manID, "CO2dry_ppm")
-CH4_flux <- goFlux(LGR_manID, "CH4dry_ppb")
-H2O_flux <- goFlux(LGR_manID, "H2O_ppm")
-
-# Use best.flux to select the best flux estimates (LM or HM)
-# based on a list of criteria
-CO2_flux_res <- best.flux(CO2_flux, criteria = c("MAE", "g.factor", "MDF"))
-CH4_flux_res <- best.flux(CH4_flux, criteria = c("MAE", "g.factor", "MDF"))
-H2O_flux_res <- best.flux(H2O_flux, criteria = c("MAE", "AICc", "MDF"))
-
-# Plots results ----------------------------------------------------------------
-?flux.plot
-?flux2pdf
-
-# Make a list of plots of all measurements, for each gastype.
-# With the function flux.plot, all parameters can be displayed.
-# You can choose what parameters to display on the plots.
-plot.legend = c("MAE", "RMSE", "AICc", "k.ratio", "g.factor")
-plot.display = c("MDF", "prec", "nb.obs", "flux.term")
-quality.check = TRUE
-
-CO2_flux_plots <- flux.plot(CO2_flux_res, LGR_manID, "CO2dry_ppm", shoulder=20,
-                            plot.legend, plot.display, quality.check)
-CH4_flux_plots <- flux.plot(CH4_flux_res, LGR_manID, "CH4dry_ppb", shoulder=20,
-                            plot.legend, plot.display, quality.check)
-H2O_flux_plots <- flux.plot(H2O_flux_res, LGR_manID, "H2O_ppm", shoulder=20, 
-                            plot.legend, plot.display, quality.check)
-
-# Combine plot lists into one list
-flux_plot.ls <- c(CO2_flux_plots, CH4_flux_plots, H2O_flux_plots)
-
-# Save plots to pdf
-flux2pdf(flux_plot.ls, outfile = "demo.results.pdf")
-```
-
-Here is an example of how the plots are saved as pdf:
-
-![](man/figures/demo.results_Page_4.png)
-
-You can then save the results as RData or in an Excel sheet to further
-process the results.
-
-``` r
-require(openxlsx)
-
-# Save RData
-save(CO2_flux_res, file = "CO2_flux_res.RData")
-save(CH4_flux_res, file = "CH4_flux_res.RData")
-save(H2O_flux_res, file = "H2O_flux_res.RData")
-
-# Save to Excel
-write.xlsx(CO2_flux_res, file = "CO2_flux_res.xlsx")
-write.xlsx(CH4_flux_res, file = "CH4_flux_res.xlsx")
-write.xlsx(H2O_flux_res, file = "H2O_flux_res.xlsx")
-```
-
-## Troubleshoot problems with `install_github()`
-
-### Warning: package is in use and will not be installed
+#### Warning: package is in use and will not be installed
 
 If you get this warning while trying to install an R package from
 GitHub:
@@ -729,7 +508,7 @@ If this does not solve the problem, restart your session and try again.
 
 ------------------------------------------------------------------------
 
-### Error: API rate limit exceeded
+#### Error: API rate limit exceeded
 
 If you get this error while trying to install an R package from GitHub:
 
@@ -744,7 +523,7 @@ If you get this error while trying to install an R package from GitHub:
     ##   - Use `usethis::create_github_token()` to create a Personal Access Token.
     ##   - Use `usethis::edit_r_environ()` and add the token as `GITHUB_PAT`.
 
-#### Step 1: Set up a GitHub account
+##### Step 1: Set up a GitHub account
 
 **Go to <https://github.com/join> .**
 
@@ -752,7 +531,7 @@ If you get this error while trying to install an R package from GitHub:
 
 2.  Choose Sign up for GitHub, and then follow the instructions.
 
-#### Step 2: Create a GitHub token
+##### Step 2: Create a GitHub token
 
 Run in R:
 
@@ -762,7 +541,7 @@ usethis::create_github_token()
 
 On pop-up website, generate and copy your token.
 
-#### Step 3: Set your GitHub PAT from R
+##### Step 3: Set your GitHub PAT from R
 
 Run in R with your own token generated in step 2:
 
