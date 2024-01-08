@@ -59,7 +59,6 @@
 <div class="section level1">
 <div class="page-header"><h1 id="goflux-a-user-friendly-way-to-calculate-ghg-fluxes-yourself-regardless-of-user-experience">goFlux: A user-friendly way to calculate GHG fluxes yourself, regardless of user experience<img src="reference/figures/goFlux.png" align="right" width="200"><a class="anchor" aria-label="anchor" href="#goflux-a-user-friendly-way-to-calculate-ghg-fluxes-yourself-regardless-of-user-experience"></a>
 </h1></div>
-<p>This document is out of date. Please consult <a href="https://qepanna.quarto.pub/goflux/" class="external-link">this webpage</a> instead.</p>
 <div class="section level4">
 <h4 id="first-release">FIRST RELEASE<a class="anchor" aria-label="anchor" href="#first-release"></a>
 </h4>
@@ -86,6 +85,7 @@ In the Land of GitHub where the Shadows lie.</em></p>
 <h2 id="about-the-package">About the package<a class="anchor" aria-label="anchor" href="#about-the-package"></a>
 </h2>
 <p>This package <code>goFlux</code> is meant to be “student proof”, meaning that no extensive knowledge or experience is needed to import raw data into R (except for knowing how to use R, of course), choose the best model to calculate fluxes (LM or HM, that is the question. -Shakespeare, 1603), quality check the results objectively (hence the no experience needed) and obtain high quality flux estimates from static chamber measurements (wonderful!).</p>
+<p>Look up <a href="https://qepanna.quarto.pub/goflux/" class="external-link">this webpage</a> for a demonstration of the package usage.</p>
 <div class="section level3">
 <h3 id="import-and-measurement-identification">Import and measurement identification<a class="anchor" aria-label="anchor" href="#import-and-measurement-identification"></a>
 </h3>
@@ -255,16 +255,8 @@ $$</span></p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="how-to-use">How to use<a class="anchor" aria-label="anchor" href="#how-to-use"></a>
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>Here is a simple example on how to use the package with a single raw file from LGR gas analyzers.</p>
-<blockquote>
-<p>FIRST RELEASE</p>
-<p>The package is ready to use and fully functional, but errors may still occur. Please report any issues to the maintainer, Karelle Rheault (<a href="mailto:karh@ign.ku.dk" class="email">karh@ign.ku.dk</a>), including script and raw data if necessary. Thank you for helping me in the development of this tool! 🙏</p>
-</blockquote>
-<div class="section level3">
-<h3 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
-</h3>
 <p>To install a package from GitHub, one must first install the package <code>remotes</code> from the CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://remotes.r-lib.org" class="external-link">"remotes"</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span></code></pre></div>
@@ -276,202 +268,59 @@ $$</span></p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/detach.html" class="external-link">detach</a></span><span class="op">(</span><span class="st">"package:goFlux"</span>, unload <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"Qepanna/goFlux"</span><span class="op">)</span></span></code></pre></div>
 <p><strong>If prompted, it is recommended to update any pre-installed packages.</strong> The functioning of the package depends on many other packages (<code>AICcmodavg</code>, <code>data.table</code>, <code>dplyr</code>, <code>ggnewscale</code>, <code>ggplot2</code>, <code>ggstar</code>, <code>graphics</code>, <code>grDevices</code>, <code>grid</code>, <code>gridExtra</code>, <code>lubridate</code>, <code>minpack.lm</code>, <code>msm</code>, <code>pbapply</code>, <code>plyr</code>, <code>purrr</code>, <code>rjson</code>, <code>rlist</code>, <code>SimDesign</code>, <code>stats</code>, <code>stringr</code>, <code>tibble</code>, <code>tidyr</code>, <code>utils</code>), which will be installed when installing <code>goFlux</code>.</p>
-<p>Troubleshoot problems with <code>install_github()</code>:</p>
-<ul>
-<li><a href="#warning-package-is-in-use-and-will-not-be-installed">Warning: package is in use and will not be installed</a></li>
-<li><a href="#error-api-rate-limit-exceeded">Error: API rate limit exceeded</a></li>
-</ul>
-</div>
 <div class="section level3">
-<h3 id="import-raw-data-into-r">Import raw data into R<a class="anchor" aria-label="anchor" href="#import-raw-data-into-r"></a>
-</h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">goFlux</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Get the example raw file from the package</span></span>
-<span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"LGR/LGR.txt"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Import raw data from an LGR gas analyzer</span></span>
-<span><span class="op">?</span><span class="va">LGR_import</span></span>
-<span><span class="va">LGR_imp</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/LGR_import.html">LGR_import</a></span><span class="op">(</span>inputfile <span class="op">=</span> <span class="va">file.path</span><span class="op">)</span></span></code></pre></div>
-<p>Note that raw data can also be imported from a multitude of other instruments, and example data files are provided for all of them:</p>
-<ul>
-<li>LI-COR: LI-6400, LI-7810, LI-7820, LI-8100, LI-8200 (smart chamber)</li>
-<li>Los Gatos Research instruments: GLA131-MGGA, GLA132-UGGA and GLA151-N2OM1</li>
-<li>GAIA2TECH (DMR) automated chamber ECOFlux</li>
-<li>Picarro: G2508 and G4301</li>
-<li>Gasmet: DX4015</li>
-<li>PP-Systems: EGM-5</li>
-</ul>
-<p>To import multiple files from a folder, use the wrapper function <code><a href="reference/import2RData.html">import2RData()</a></code>.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Get help for import functions from the goFlux package</span></span>
-<span><span class="op">?</span><span class="va">DX4015_import</span></span>
-<span><span class="op">?</span><span class="va">EGM5_import</span></span>
-<span><span class="op">?</span><span class="va">G2508_import</span></span>
-<span><span class="op">?</span><span class="va">G4301_import</span></span>
-<span><span class="op">?</span><span class="va">GAIA_import</span></span>
-<span><span class="op">?</span><span class="va">LI6400_import</span></span>
-<span><span class="op">?</span><span class="va">LI7810_import</span></span>
-<span><span class="op">?</span><span class="va">LI7820_import</span></span>
-<span><span class="op">?</span><span class="va">LI8100_import</span></span>
-<span><span class="op">?</span><span class="va">LI8200_import</span></span>
-<span><span class="op">?</span><span class="va">N2OM1_import</span></span>
-<span><span class="op">?</span><span class="va">import2RData</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="manual-identification-of-measurements">Manual identification of measurements<a class="anchor" aria-label="anchor" href="#manual-identification-of-measurements"></a>
-</h3>
-<p>In this example, the <code>start.time</code> for each measurement (<code>UniqueID</code>) was noted manually in the field, and are provided in an auxiliary file (<code>LGR_aux.txt</code>).</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Other usefull packages</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://purrr.tidyverse.org/" class="external-link">purrr</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># The auxfile requires start.time and UniqueID</span></span>
-<span><span class="co"># start.time must be in the format "%Y-%m-%d %H:%M:%S"</span></span>
-<span><span class="va">aux.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"LGR/LGR_aux.txt"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span>
-<span><span class="va">auxfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.delim</a></span><span class="op">(</span><span class="va">aux.path</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>start.time <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct</a></span><span class="op">(</span><span class="va">start.time</span>, tz <span class="op">=</span> <span class="st">"UTC"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>When running the function <code><a href="reference/click.peak.html">click.peak()</a></code>, for each measurement, a window will open, in which you must click on the start point and the end point. The observation window is based on the <code>start.time</code> given in the <code>auxfile</code>, the length of the measurement (<code>obs.length</code>), and a <code>shoulder</code> before <code>start.time</code> and after <code>start.time + obs.length</code>. In this example, the observation time is 3 minutes (180 seconds) and the shoulder is 30 seconds. Therefore, the observation window shows 30 seconds before the <code>start.time</code> and 210 seconds after.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="op">?</span><span class="va">obs.win</span></span>
-<span></span>
-<span><span class="co"># Define the measurements' window of observation</span></span>
-<span><span class="va">LGR_ow</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/obs.win.html">obs.win</a></span><span class="op">(</span>inputfile <span class="op">=</span> <span class="va">LGR_imp</span>, auxfile <span class="op">=</span> <span class="va">auxfile</span>,</span>
-<span>                  obs.length <span class="op">=</span> <span class="fl">180</span>, shoulder <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/click.peak1.png"></p>
-<p>Pay attention to the warning message given by <code><a href="reference/obs.win.html">obs.win()</a></code> when there are more than 20 measurements (which is not the case in this example).</p>
-<p>Note that for more than one gas measurement, it is better to use the function <code><a href="reference/click.peak.loop.html">click.peak.loop()</a></code> with <code><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply()</a></code> rather than using <code><a href="reference/click.peak.html">click.peak()</a></code> for each measurement individually.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="op">?</span><span class="va">click.peak</span></span>
-<span><span class="op">?</span><span class="va">click.peak.loop</span></span>
-<span></span>
-<span><span class="co"># Manually identify measurements by clicking on the start and end points</span></span>
-<span><span class="va">LGR_manID</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">LGR_ow</span><span class="op">)</span>, <span class="va">click.peak.loop</span>, flux.unique <span class="op">=</span> <span class="va">LGR_ow</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://purrr.tidyverse.org/reference/map_dfr.html" class="external-link">map_df</a></span><span class="op">(</span><span class="va">.</span>, <span class="op">~</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>If the number of observation is under a certain threshold (<code>warn.length = 60</code>), a warning will be given after clicking on the start and end points as such:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Warning message: Number of observations for UniqueID: 733_C_C is 59 observations</span></span></code></pre></div>
-<p>Otherwise, if the number of observation satisfies this threshold, then the following message is given instead:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Good window of observation for UniqueID: 733a_C_C</span></span></code></pre></div>
-<p>Between each measurement, the result of the <code><a href="reference/click.peak.html">click.peak()</a></code> function is displayed for 3 seconds. To increase this delay, change the parameter <code>sleep</code> in the function <code><a href="reference/click.peak.loop.html">click.peak.loop()</a></code>.</p>
-<p><img src="reference/figures/click.peak2.png"></p>
-<p>To convert the flux estimate’s units into nmol CO<sub>2</sub>/H<sub>2</sub>O m<sup>-2</sup>s<sup>-1</sup> or µmol CH<sub>4</sub>/N<sub>2</sub>O m<sup>-2</sup>s<sup>-1</sup>, the temperature inside the chamber (<code>Tcham</code>; °C) and the atmospheric pressure inside the chamber (<code>Pcham</code>; kPa) are also required. If <code>Pcham</code> and <code>Tcham</code> are missing, normal atmospheric pressure (101.325 kPa) and an air temperature of 15 °C are used as default.</p>
-<p>Additionally, one must provide the surface area inside the chamber (<code>Area</code>; cm<sup>2</sup>) and the total volume in the system, including tubing, instruments and chamber (<code>Vtot</code>; L). If <code>Vtot</code> is missing, one must provide an offset (distance between the chamber and the soil surface; cm) and the volume of the chamber (<code>Vcham</code>; L). In that case, the volume inside the tubing and the instruments is considered negligible, or it should be added to <code>Vcham</code>.</p>
-<p>The final output, before flux calculation with <code><a href="reference/goFlux.html">goFlux()</a></code> requires the columns: <code>UniqueID</code>, <code>Etime</code>, <code>flag</code>, <code>Vtot</code> (or <code>Vcham</code> and <code>offset</code>), <code>Area</code>, <code>Pcham</code>, <code>Tcham</code>, <code>H2O_ppm</code> and other gases.</p>
-</div>
-<div class="section level3">
-<h3 id="flux-calculation-1">Flux calculation<a class="anchor" aria-label="anchor" href="#flux-calculation-1"></a>
-</h3>
-<p>The hardest part is now behind you. All that’s left is to run the flux calculation with the <code><a href="reference/goFlux.html">goFlux()</a></code> function for each gas. Then use the <code><a href="reference/best.flux.html">best.flux()</a></code> function to select the best flux estimates (LM or HM) for each gas based on your choice of criteria, and plot the results for visual inspection.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Flux calculation -------------------------------------------------------------</span></span>
-<span><span class="op">?</span><span class="va">goFlux</span></span>
-<span><span class="op">?</span><span class="va">best.flux</span></span>
-<span></span>
-<span><span class="co"># Calculate fluxes for all gas types</span></span>
-<span><span class="va">CO2_flux</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/goFlux.html">goFlux</a></span><span class="op">(</span><span class="va">LGR_manID</span>, <span class="st">"CO2dry_ppm"</span><span class="op">)</span></span>
-<span><span class="va">CH4_flux</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/goFlux.html">goFlux</a></span><span class="op">(</span><span class="va">LGR_manID</span>, <span class="st">"CH4dry_ppb"</span><span class="op">)</span></span>
-<span><span class="va">H2O_flux</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/goFlux.html">goFlux</a></span><span class="op">(</span><span class="va">LGR_manID</span>, <span class="st">"H2O_ppm"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Use best.flux to select the best flux estimates (LM or HM)</span></span>
-<span><span class="co"># based on a list of criteria</span></span>
-<span><span class="va">CO2_flux_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/best.flux.html">best.flux</a></span><span class="op">(</span><span class="va">CO2_flux</span>, criteria <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MAE"</span>, <span class="st">"g.factor"</span>, <span class="st">"MDF"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">CH4_flux_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/best.flux.html">best.flux</a></span><span class="op">(</span><span class="va">CH4_flux</span>, criteria <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MAE"</span>, <span class="st">"g.factor"</span>, <span class="st">"MDF"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">H2O_flux_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/best.flux.html">best.flux</a></span><span class="op">(</span><span class="va">H2O_flux</span>, criteria <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MAE"</span>, <span class="st">"AICc"</span>, <span class="st">"MDF"</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Plots results ----------------------------------------------------------------</span></span>
-<span><span class="op">?</span><span class="va">flux.plot</span></span>
-<span><span class="op">?</span><span class="va">flux2pdf</span></span>
-<span></span>
-<span><span class="co"># Make a list of plots of all measurements, for each gastype.</span></span>
-<span><span class="co"># With the function flux.plot, all parameters can be displayed.</span></span>
-<span><span class="co"># You can choose what parameters to display on the plots.</span></span>
-<span><span class="va">plot.legend</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MAE"</span>, <span class="st">"RMSE"</span>, <span class="st">"AICc"</span>, <span class="st">"k.ratio"</span>, <span class="st">"g.factor"</span><span class="op">)</span></span>
-<span><span class="va">plot.display</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MDF"</span>, <span class="st">"prec"</span>, <span class="st">"nb.obs"</span>, <span class="st">"flux.term"</span><span class="op">)</span></span>
-<span><span class="va">quality.check</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span></span>
-<span><span class="va">CO2_flux_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/flux.plot.html">flux.plot</a></span><span class="op">(</span><span class="va">CO2_flux_res</span>, <span class="va">LGR_manID</span>, <span class="st">"CO2dry_ppm"</span>, shoulder<span class="op">=</span><span class="fl">20</span>,</span>
-<span>                            <span class="va">plot.legend</span>, <span class="va">plot.display</span>, <span class="va">quality.check</span><span class="op">)</span></span>
-<span><span class="va">CH4_flux_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/flux.plot.html">flux.plot</a></span><span class="op">(</span><span class="va">CH4_flux_res</span>, <span class="va">LGR_manID</span>, <span class="st">"CH4dry_ppb"</span>, shoulder<span class="op">=</span><span class="fl">20</span>,</span>
-<span>                            <span class="va">plot.legend</span>, <span class="va">plot.display</span>, <span class="va">quality.check</span><span class="op">)</span></span>
-<span><span class="va">H2O_flux_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/flux.plot.html">flux.plot</a></span><span class="op">(</span><span class="va">H2O_flux_res</span>, <span class="va">LGR_manID</span>, <span class="st">"H2O_ppm"</span>, shoulder<span class="op">=</span><span class="fl">20</span>, </span>
-<span>                            <span class="va">plot.legend</span>, <span class="va">plot.display</span>, <span class="va">quality.check</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Combine plot lists into one list</span></span>
-<span><span class="va">flux_plot.ls</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">CO2_flux_plots</span>, <span class="va">CH4_flux_plots</span>, <span class="va">H2O_flux_plots</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Save plots to pdf</span></span>
-<span><span class="fu"><a href="reference/flux2pdf.html">flux2pdf</a></span><span class="op">(</span><span class="va">flux_plot.ls</span>, outfile <span class="op">=</span> <span class="st">"demo.results.pdf"</span><span class="op">)</span></span></code></pre></div>
-<p>Here is an example of how the plots are saved as pdf:</p>
-<p><img src="reference/figures/demo.results_Page_4.png"></p>
-<p>You can then save the results as RData or in an Excel sheet to further process the results.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://ycphs.github.io/openxlsx/index.html" class="external-link">openxlsx</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Save RData</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/save.html" class="external-link">save</a></span><span class="op">(</span><span class="va">CO2_flux_res</span>, file <span class="op">=</span> <span class="st">"CO2_flux_res.RData"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/save.html" class="external-link">save</a></span><span class="op">(</span><span class="va">CH4_flux_res</span>, file <span class="op">=</span> <span class="st">"CH4_flux_res.RData"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/save.html" class="external-link">save</a></span><span class="op">(</span><span class="va">H2O_flux_res</span>, file <span class="op">=</span> <span class="st">"H2O_flux_res.RData"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Save to Excel</span></span>
-<span><span class="fu">write.xlsx</span><span class="op">(</span><span class="va">CO2_flux_res</span>, file <span class="op">=</span> <span class="st">"CO2_flux_res.xlsx"</span><span class="op">)</span></span>
-<span><span class="fu">write.xlsx</span><span class="op">(</span><span class="va">CH4_flux_res</span>, file <span class="op">=</span> <span class="st">"CH4_flux_res.xlsx"</span><span class="op">)</span></span>
-<span><span class="fu">write.xlsx</span><span class="op">(</span><span class="va">H2O_flux_res</span>, file <span class="op">=</span> <span class="st">"H2O_flux_res.xlsx"</span><span class="op">)</span></span></code></pre></div>
-</div>
-</div>
-<div class="section level2">
-<h2 id="troubleshoot-problems-with-install_github">Troubleshoot problems with <code>install_github()</code>
+<h3 id="troubleshoot-problems-with-install_github">Troubleshoot problems with <code>install_github()</code>
 <a class="anchor" aria-label="anchor" href="#troubleshoot-problems-with-install_github"></a>
-</h2>
-<div class="section level3">
-<h3 id="warning-package-is-in-use-and-will-not-be-installed">Warning: package is in use and will not be installed<a class="anchor" aria-label="anchor" href="#warning-package-is-in-use-and-will-not-be-installed"></a>
 </h3>
+<div class="section level4">
+<h4 id="warning-package-is-in-use-and-will-not-be-installed">Warning: package is in use and will not be installed<a class="anchor" aria-label="anchor" href="#warning-package-is-in-use-and-will-not-be-installed"></a>
+</h4>
 <p>If you get this warning while trying to install an R package from GitHub:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Warning: package ‘goFlux’ is in use and will not be installed</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Warning: package ‘goFlux’ is in use and will not be installed</span></span></code></pre></div>
 <p>This error means that the package is loaded. Before re-installing the package, you must first detach it:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/detach.html" class="external-link">detach</a></span><span class="op">(</span><span class="st">"package:goFlux"</span>, unload <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>If this does not solve the problem, restart your session and try again.</p>
 <hr>
 </div>
-<div class="section level3">
-<h3 id="error-api-rate-limit-exceeded">Error: API rate limit exceeded<a class="anchor" aria-label="anchor" href="#error-api-rate-limit-exceeded"></a>
-</h3>
-<p>If you get this error while trying to install an R package from GitHub:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Error: Failed to install 'goFlux' from GitHub:</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="do">##   HTTP error 403.</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="do">##   API rate limit exceeded for xxx.xxx.xxx.x (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="do">##   Rate limit remaining: 0/60</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="do">##   Rate limit reset at: 2023-10-16 09:08:07 UTC</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="do">##   To increase your GitHub API rate limit</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Use `usethis::create_github_token()` to create a Personal Access Token.</span></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Use `usethis::edit_r_environ()` and add the token as `GITHUB_PAT`.</span></span></code></pre></div>
 <div class="section level4">
-<h4 id="step-1-set-up-a-github-account">Step 1: Set up a GitHub account<a class="anchor" aria-label="anchor" href="#step-1-set-up-a-github-account"></a>
+<h4 id="error-api-rate-limit-exceeded">Error: API rate limit exceeded<a class="anchor" aria-label="anchor" href="#error-api-rate-limit-exceeded"></a>
 </h4>
+<p>If you get this error while trying to install an R package from GitHub:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Error: Failed to install 'goFlux' from GitHub:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="do">##   HTTP error 403.</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="do">##   API rate limit exceeded for xxx.xxx.xxx.x (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="do">##   Rate limit remaining: 0/60</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="do">##   Rate limit reset at: 2023-10-16 09:08:07 UTC</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="do">##   To increase your GitHub API rate limit</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Use `usethis::create_github_token()` to create a Personal Access Token.</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="do">##   - Use `usethis::edit_r_environ()` and add the token as `GITHUB_PAT`.</span></span></code></pre></div>
+<div class="section level5">
+<h5 id="step-1-set-up-a-github-account">Step 1: Set up a GitHub account<a class="anchor" aria-label="anchor" href="#step-1-set-up-a-github-account"></a>
+</h5>
 <p><strong>Go to <a href="https://github.com/join" class="external-link uri">https://github.com/join</a> .</strong></p>
 <ol style="list-style-type: decimal">
 <li><p>Type a user name, your email address, and a password.</p></li>
 <li><p>Choose Sign up for GitHub, and then follow the instructions.</p></li>
 </ol>
 </div>
-<div class="section level4">
-<h4 id="step-2-create-a-github-token">Step 2: Create a GitHub token<a class="anchor" aria-label="anchor" href="#step-2-create-a-github-token"></a>
-</h4>
+<div class="section level5">
+<h5 id="step-2-create-a-github-token">Step 2: Create a GitHub token<a class="anchor" aria-label="anchor" href="#step-2-create-a-github-token"></a>
+</h5>
 <p>Run in R:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">usethis</span><span class="fu">::</span><span class="fu">create_github_token</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>On pop-up website, generate and copy your token.</p>
 </div>
-<div class="section level4">
-<h4 id="step-3-set-your-github-pat-from-r">Step 3: Set your GitHub PAT from R<a class="anchor" aria-label="anchor" href="#step-3-set-your-github-pat-from-r"></a>
-</h4>
+<div class="section level5">
+<h5 id="step-3-set-your-github-pat-from-r">Step 3: Set your GitHub PAT from R<a class="anchor" aria-label="anchor" href="#step-3-set-your-github-pat-from-r"></a>
+</h5>
 <p>Run in R with your own token generated in step 2:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">credentials</span><span class="fu">::</span><span class="fu">set_github_pat</span><span class="op">(</span><span class="st">"YourTokeninStep2"</span><span class="op">)</span></span></code></pre></div>
+</div>
 </div>
 </div>
 </div>
