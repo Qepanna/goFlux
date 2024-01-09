@@ -47,7 +47,7 @@ of each instrument, to know what values to use.}
 the EGM-5. There are 5 different modes available: (1)
 Measure mode; (2) SRC or Custom mode; (3) CPY mode;
 (4) Injection mode; or (5) Static mode. If no value
-specified, the parameters will be named "param1",
+is specified, the parameters will be named "param1",
 "param2", "param3", "param4" and "param5".}
 }
 \value{
@@ -108,7 +108,7 @@ import2RData(path = file.path, instrument = "DX4015",
              prec = c(1.6, 23, 13, 2, 23, 33))
 
 # with the PP-Systems EGM-5
-# The argument proc.data.field is used with the EGM5 instrument only.
+# The argument proc.data.field is used with the PP-System EGM-5 instrument only.
 file.path <- system.file("extdata/EGM5", package = "goFlux")
 import2RData(path = file.path, instrument = "EGM5",
              date.format = "dmy", keep_all = FALSE,

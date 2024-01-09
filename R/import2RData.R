@@ -114,7 +114,7 @@
 #'              prec = c(1.6, 23, 13, 2, 23, 33))
 #'
 #' # with the PP-Systems EGM-5
-#' # The argument proc.data.field is used with the EGM5 instrument only.
+#' # The argument proc.data.field is used with the PP-System EGM-5 instrument only.
 #' file.path <- system.file("extdata/EGM5", package = "goFlux")
 #' import2RData(path = file.path, instrument = "EGM5",
 #'              date.format = "dmy", keep_all = FALSE,
