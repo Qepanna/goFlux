@@ -4,7 +4,15 @@
 \alias{import2RData}
 \title{Looping function for quick import of multiple raw gas measurement files}
 \usage{
-import2RData(path, instrument, date.format, timezone = "UTC", keep_all, prec)
+import2RData(
+  path,
+  instrument,
+  date.format,
+  timezone = "UTC",
+  keep_all,
+  prec,
+  proc.data.field = NULL
+)
 }
 \arguments{
 \item{path}{character string; a folder path containing all files to be imported.
@@ -34,6 +42,13 @@ are not necessary for gas flux calculation are removed.}
 \item{prec}{numerical vector; the precision of the instrument for each gas.
 Look at the examples below, or the help for each import function
 of each instrument, to know what values to use.}
+
+\item{proc.data.field}{numeric value; select the process data field used with
+the EGM-5. There are 5 different modes available: (1)
+Measure mode; (2) SRC or Custom mode; (3) CPY mode;
+(4) Injection mode; or (5) Static mode. If no value
+specified, the parameters will be named "param1",
+"param2", "param3", "param4" and "param5".}
 }
 \value{
 A data frame saved as RData in a newly created folder, RData, into
@@ -75,6 +90,12 @@ For the instrument LI-6400, the date is found in one of the first lines in
 a format containing abbreviations, for example "Thr Aug 6 2020", which would
 be the date format "mdy". For the instrument LI-8200, the date is found under
 one of the measurements, next to '"Date":'.
+
+The argument \code{proc.data.field} is used with the PP-Sytems EGM-5
+instrument only. Look up the
+\href{https://ppsystems.com/download/technical_manuals/80109-1-EGM-5_Operation_V103.pdf}{EGM-5 Operation Manual}
+at page 90 for more details about the different Process Data Fields
+(\code{proc.data.field}).
 }
 \examples{
 # Examples on how to use it with all instruments.
@@ -87,10 +108,11 @@ import2RData(path = file.path, instrument = "DX4015",
              prec = c(1.6, 23, 13, 2, 23, 33))
 
 # with the PP-Systems EGM-5
+# The argument proc.data.field is used with the EGM5 instrument only.
 file.path <- system.file("extdata/EGM5", package = "goFlux")
 import2RData(path = file.path, instrument = "EGM5",
              date.format = "dmy", keep_all = FALSE,
-             prec = c(3, 1, 500))
+             prec = c(3, 1, 500), proc.data.field = 2)
 
 # with the Picarro instrument G2508
 file.path <- system.file("extdata/G2508", package = "goFlux")

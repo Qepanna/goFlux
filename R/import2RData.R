@@ -34,6 +34,12 @@
 #' @param prec numerical vector; the precision of the instrument for each gas.
 #'             Look at the examples below, or the help for each import function
 #'             of each instrument, to know what values to use.
+#' @param proc.data.field numeric value; select the process data field used with
+#'                        the EGM-5. There are 5 different modes available: (1)
+#'                        Measure mode; (2) SRC or Custom mode; (3) CPY mode;
+#'                        (4) Injection mode; or (5) Static mode. If no value
+#'                        is specified, the parameters will be named "param1",
+#'                        "param2", "param3", "param4" and "param5".
 #'
 #' @returns A data frame saved as RData in a newly created folder, RData, into
 #'          the working directory.
@@ -60,6 +66,12 @@
 #' a format containing abbreviations, for example "Thr Aug 6 2020", which would
 #' be the date format "mdy". For the instrument LI-8200, the date is found under
 #' one of the measurements, next to '"Date":'.
+#'
+#' The argument \code{proc.data.field} is used with the PP-Sytems EGM-5
+#' instrument only. Look up the
+#' \href{https://ppsystems.com/download/technical_manuals/80109-1-EGM-5_Operation_V103.pdf}{EGM-5 Operation Manual}
+#' at page 90 for more details about the different Process Data Fields
+#' (\code{proc.data.field}).
 #'
 #' @include goFlux-package.R
 #' @include DX4015_import.R
@@ -102,10 +114,11 @@
 #'              prec = c(1.6, 23, 13, 2, 23, 33))
 #'
 #' # with the PP-Systems EGM-5
+#' # The argument proc.data.field is used with the EGM5 instrument only.
 #' file.path <- system.file("extdata/EGM5", package = "goFlux")
 #' import2RData(path = file.path, instrument = "EGM5",
 #'              date.format = "dmy", keep_all = FALSE,
-#'              prec = c(3, 1, 500))
+#'              prec = c(3, 1, 500), proc.data.field = 2)
 #'
 #' # with the Picarro instrument G2508
 #' file.path <- system.file("extdata/G2508", package = "goFlux")
@@ -176,7 +189,7 @@
 #' @export
 #'
 import2RData <- function(path, instrument, date.format, timezone = "UTC",
-                         keep_all, prec){
+                         keep_all, prec, proc.data.field = NULL){
 
   # Check arguments ####
   if(missing(path)) stop("'path' is required")
@@ -192,6 +205,9 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
     if(!any(grepl(paste("\\<", date.format, "\\>", sep = ""), c("ymd", "dmy", "mdy")))){
       stop("'date.format' must be of class character and one of the following: 'ymd', 'dmy' or 'mdy'")}}
   if (!is.character(timezone)) stop("'timezone' must be of class character")
+  if(!is.null(proc.data.field)){
+    if(!is.numeric(proc.data.field)) stop("'proc.data.field' must be of class numeric") else{
+      if(!between(proc.data.field, 1,5)) stop("'proc.data.field' must be a value from 1 to 5")}}
 
   # FUNCTION STARTS ####
 
@@ -245,11 +261,12 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
       withCallingHandlers(
 
         EGM5_import(inputfile = file_list[i],
-                      date.format = date.format,
-                      timezone = timezone,
-                      save = TRUE,
-                      keep_all = keep_all,
-                      prec = prec),
+                    date.format = date.format,
+                    timezone = timezone,
+                    save = TRUE,
+                    keep_all = keep_all,
+                    prec = prec,
+                    proc.data.field = proc.data.field),
 
         error = function(e){
           errs <<- c(errs, message(
