@@ -28,7 +28,7 @@
 #'                        the EGM-5. There are 5 different modes available: (1)
 #'                        Measure mode; (2) SRC or Custom mode; (3) CPY mode;
 #'                        (4) Injection mode; or (5) Static mode. If no value
-#'                        specified, the parameters will be named "param1",
+#'                        is specified, the parameters will be named "param1",
 #'                        "param2", "param3", "param4" and "param5".
 #'
 #' @returns A data frame containing raw data from the PP-Systems EGM-5 Portable
