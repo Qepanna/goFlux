@@ -7,3 +7,6 @@
 ^\.Rhistory$
 ^\.RDataTmp$
 ^\.RData$
+^.github$
+^paper$
+^LICENSE$
