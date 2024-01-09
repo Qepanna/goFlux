@@ -27,7 +27,9 @@
 #' @param proc.data.field numeric value; select the process data field used with
 #'                        the EGM-5. There are 5 different modes available: (1)
 #'                        Measure mode; (2) SRC or Custom mode; (3) CPY mode;
-#'                        (4) Injection mode; or (5) Static mode.
+#'                        (4) Injection mode; or (5) Static mode. If no value
+#'                        specified, the parameters will be named "param1",
+#'                        "param2", "param3", "param4" and "param5".
 #'
 #' @returns A data frame containing raw data from the PP-Systems EGM-5 Portable
 #' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} Gas Analyzer.
@@ -90,16 +92,13 @@
 #' # Examples on how to use:
 #' file.path <- system.file("extdata", "EGM5/EGM5.TXT", package = "goFlux")
 #'
-#' # The value used in this example corresponds to the Process Data Field
-#' # "SRC or Custom mode", which was used to generate the example file provided
-#' # with this package.
-#' EGM5_imp <- EGM5_import(inputfile = file.path, proc.data.field = 2)
+#' EGM5_imp <- EGM5_import(inputfile = file.path)
 #'
 #' @export
 #'
 EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
                        save = FALSE, keep_all = FALSE, prec = c(3, 1, 500),
-                       proc.data.field){
+                       proc.data.field = NULL){
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")
@@ -113,7 +112,7 @@ EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
   if(is.null(prec)) stop("'prec' is required") else{
     if(!is.numeric(prec)) stop("'prec' must be of class numeric") else{
       if(length(prec) != 3) stop("'prec' must be of length 3")}}
-  if (missing(proc.data.field)) stop("'proc.data.field' is required") else{
+  if(!is.null(proc.data.field)){
     if(!is.numeric(proc.data.field)) stop("'proc.data.field' must be of class numeric") else{
       if(!between(proc.data.field, 1,5)) stop("'proc.data.field' must be a value from 1 to 5")}}
 
@@ -124,7 +123,8 @@ EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
     H2O_mb <- Pressure <- O2wet_pct <- O2wet_ppm <- O2dry_ppm <- DATE <-
     TIME <- O2dry_pct <- PAR <- Tsoil <- Tcham <- SWC <- chamID <-
     start.time <- end.time <- cham.open <- NH3 <- NH3wet_ppm <- NH3dry_ppb <-
-    CO2dry_ppm <- POSIX.warning <- CO2_ppm <- CO2wet_ppm <- NULL
+    CO2dry_ppm <- POSIX.warning <- CO2_ppm <- CO2wet_ppm <- param1 <-
+    param2 <- param3 <- param4 <- param5 <- NULL
 
   # Column names
   col.names <- read.delim(inputfile, sep = ",", nrows = 0) %>% names(.)
@@ -186,25 +186,27 @@ EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
   }
 
   # Rename Process Data Fields
-  if(proc.data.field == 1){ # Measure mode
-    data.raw <- data.raw %>% rename(
-      Probe = param1, Bat.pct = param2, Zero.pct = param3,
-      Bat.volt = param4, Bat.time = param5)}
-  if(proc.data.field == 2){ # SRC or Custom mode
-    data.raw <- data.raw %>% rename(
-      Process = param1, DC = param2, DT = param3,
-      SRL.ass = param4, SRQ.ass = param5)}
-  if(proc.data.field == 3){ # CPY mode
-    data.raw <- data.raw %>% rename(
-      Process = param1, DC.inv = param2, DT = param3,
-      SRL.res = param4, SRQ.res = param5)}
-  if(proc.data.field == 4){ # Injection mode
-    data.raw <- data.raw %>% rename(
-      Process = param1, C_F = param2, Volume = param3,
-      Base = param4, CO2.int = param5)}
-  if(proc.data.field == 5){ # Static mode
-    data.raw <- data.raw %>% rename(
-      Process = param1, na_1 = param2, DT = param3, CO2 = param4, na_2 = param5)}
+  if(!is.null(proc.data.field)){
+    if(proc.data.field == 1){ # Measure mode
+      data.raw <- data.raw %>% rename(
+        Probe = param1, Bat.pct = param2, Zero.pct = param3,
+        Bat.volt = param4, Bat.time = param5)}
+    if(proc.data.field == 2){ # SRC or Custom mode
+      data.raw <- data.raw %>% rename(
+        Process = param1, DC = param2, DT = param3,
+        SRL.ass = param4, SRQ.ass = param5)}
+    if(proc.data.field == 3){ # CPY mode
+      data.raw <- data.raw %>% rename(
+        Process = param1, DC.inv = param2, DT = param3,
+        SRL.res = param4, SRQ.res = param5)}
+    if(proc.data.field == 4){ # Injection mode
+      data.raw <- data.raw %>% rename(
+        Process = param1, C_F = param2, Volume = param3,
+        Base = param4, CO2.int = param5)}
+    if(proc.data.field == 5){ # Static mode
+      data.raw <- data.raw %>% rename(
+        Process = param1, na_1 = param2, DT = param3, CO2 = param4, na_2 = param5)}
+  }
 
   # Create a new column containing date and time (POSIX format)
   tryCatch(

@@ -11,7 +11,8 @@ EGM5_import(
   timezone = "UTC",
   save = FALSE,
   keep_all = FALSE,
-  prec = c(3, 1, 500)
+  prec = c(3, 1, 500),
+  proc.data.field = NULL
 )
 }
 \arguments{
@@ -39,6 +40,13 @@ are not necessary for gas flux calculation are removed.}
 \item{prec}{numerical vector; the precision of the instrument for each gas,
 in the following order: "CO2dry_ppm", "O2dry_pct" and H2O_ppm".
 The default is \code{prec = c(3, 1, 500)}.}
+
+\item{proc.data.field}{numeric value; select the process data field used with
+the EGM-5. There are 5 different modes available: (1)
+Measure mode; (2) SRC or Custom mode; (3) CPY mode;
+(4) Injection mode; or (5) Static mode. If no value
+specified, the parameters will be named "param1",
+"param2", "param3", "param4" and "param5".}
 }
 \value{
 A data frame containing raw data from the PP-Systems EGM-5 Portable
@@ -77,6 +85,11 @@ curvature, especially for water vapor fluxes, or very long measurements, that
 are normally curved. The default values given for instrument precision are
 the ones provided by the manufacturer upon request, for the latest model of
 this instrument available at the time of the creation of this function (11-2023).
+
+Look up the
+\href{https://ppsystems.com/download/technical_manuals/80109-1-EGM-5_Operation_V103.pdf}{EGM-5 Operation Manual}
+at page 90 for more details about the different Process Data Fields
+(\code{proc.data.field}).
 }
 \examples{
 # Examples on how to use:
