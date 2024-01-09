@@ -24,6 +24,7 @@
 #' @importFrom dplyr reframe
 #' @importFrom dplyr relocate
 #' @importFrom dplyr rename
+#' @importFrom dplyr rename_all
 #' @importFrom dplyr right_join
 #' @importFrom dplyr row_number
 #' @importFrom dplyr select
