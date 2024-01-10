@@ -480,7 +480,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
 
     # Compare results, with and without kappa max.
     # Select the result with the smallest curvature.
-    if(HM.K$HM.k <= HM.noK$HM.k) HM.res <- HM.K else HM.res <- HM.noK
+    if(abs(HM.K$HM.k) <= abs(HM.noK$HM.k)) HM.res <- HM.K else HM.res <- HM.noK
 
     # Flux results
     flux.res.ls[[f]] <- cbind.data.frame(
