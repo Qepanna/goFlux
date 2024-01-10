@@ -10,3 +10,4 @@
 ^.github$
 ^paper$
 ^LICENSE$
+^RData$
