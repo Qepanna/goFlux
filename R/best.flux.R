@@ -519,7 +519,7 @@ best.flux <- function(flux.result,
                     collapse = "|"), criteria))){
 
     best.flux.df <- best.flux.df %>%
-      mutate(best.flux = if_else(HM.score > LM.score, HM.flux, LM.flux),
+      mutate(best.flux = if_else(HM.score > LM.score, LM.flux, best.flux),
              model = if_else(HM.score > LM.score, "LM", model))
   }
 
