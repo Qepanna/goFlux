@@ -556,3 +556,10 @@ Authors: Karelle Rheault and Klaus Steenberg Larsen
 To report problems, seek support or contribute to the package, please
 contact the maintainer, Karelle Rheault (<karh@ign.ku.dk>). Suggestions
 for new features or improvements are always welcome.
+
+## Acknowledgements
+
+This software development was supported by the SilvaNova project funded
+by the NOVO Nordisk Foundation (grant no. NNF20OC0059948).
+
+[<img src="man/figures/SilvaNova_logo.jpg" width="198" />](https://ign.ku.dk/english/silvanova/)     [<img src="man/figures/NovoNordisk_fonden_logo.png" width="128" />](https://novonordiskfonden.dk/en/)
