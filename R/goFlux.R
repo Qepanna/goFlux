@@ -486,11 +486,29 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
                       k.max = kappa.max, k.mult = k.mult)
     },
     # Catch warning with sample size too small
-    warning = function(w) {size.warning <<- w})
+    warning = function(w) size.warning <<- w)
+
+    # Hutchison and Mosier without kappa max
+    HM.noK <- suppressWarnings(
+      HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
+              flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
+              k.max = kappa.max*Inf))
+
+    # Hutchinson and Mosier with
+    HM.K <- suppressWarnings(
+      HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
+              flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
+              k.max = kappa.max, k.mult = k.mult))
 
     # Compare results, with and without kappa max.
     # Select the result with the smallest curvature.
     if(abs(HM.K$HM.k) <= abs(HM.noK$HM.k)) HM.res <- HM.K else HM.res <- HM.noK
+
+    # Print warnings
+    if(isTRUE(grepl("sample size", size.warning$message))){
+      warning("Sample size is too small for UniqueID ", UniqueID,
+              ". Results may be meanignless or missing.")
+    }
 
     # Flux results
     flux.res.ls[[f]] <- cbind.data.frame(
@@ -500,14 +518,6 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
 
     # Update progress bar
     setTxtProgressBar(pb, f)
-
-    # Print warnings
-    if(isTRUE(grepl("sample size", size.warning$message))){
-      warning("Sample size is too small for UniqueID ", UniqueID,
-              ". Results may be meanignless or missing.")
-    }
-
-
 
   }
 
