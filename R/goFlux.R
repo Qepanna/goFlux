@@ -465,18 +465,28 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     Ct.best <- if_else(between(Ct, Ct.lim.flux[1], Ct.lim.flux[2]), Ct, Ct.flux)
     C0.best <- if_else(between(C0, C0.lim.flux[1], C0.lim.flux[2]), C0, C0.flux)
 
+    if(abs(C.diff.flux) < 1){
+      Ct.best <- floor(Ct.best) - 0.5
+      C0.best <- ceiling(C0.best) + 0.5
+    }
+
     # Calculate kappa thresholds based on MDF, LM.flux and Etime
     kappa.max <- abs(k.max(MDF, LM.res$LM.flux, (max(data_split[[f]]$Etime)+1)))
 
-    # Hutchison and Mosier without kappa max
-    HM.noK <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
-                      flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-                      k.max = kappa.max*Inf)
+    tryCatch({
+      size.warning <- NULL
+      # Hutchison and Mosier without kappa max
+      HM.noK <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
+                        flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
+                        k.max = kappa.max*Inf)
 
-    # Hutchinson and Mosier with
-    HM.K <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
-                    flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-                    k.max = kappa.max, k.mult = k.mult)
+      # Hutchinson and Mosier with
+      HM.K <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
+                      flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
+                      k.max = kappa.max, k.mult = k.mult)
+    },
+    # Catch warning with sample size too small
+    warning = function(w) {size.warning <<- w})
 
     # Compare results, with and without kappa max.
     # Select the result with the smallest curvature.
@@ -490,6 +500,14 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
 
     # Update progress bar
     setTxtProgressBar(pb, f)
+
+    # Print warnings
+    if(isTRUE(grepl("sample size", size.warning$message))){
+      warning("Sample size is too small for UniqueID ", UniqueID,
+              ". Results may be meanignless or missing.")
+    }
+
+
 
   }
 
