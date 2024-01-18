@@ -142,7 +142,7 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
   if(sleep < 0) stop("'sleep' cannot be negative")
 
   # Assign NULL to variables without binding ####
-  flag <- . <- POSIX.time <- NULL
+  flag <- . <- POSIX.time <- identify.error <- rownum <- NULL
 
   # Function that takes a break for a few seconds between each loop
   sleeploop <- function(x)
@@ -168,34 +168,60 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
   ylim.max <- ifelse(ylim[2] > plot.lim[2], plot.lim[2], ylim[2])
 
   # Open plot in a new window to avoid problems with the identify function
-  device <- getOption("device")
-  options(device = "X11")
-  dev.new(noRStudioGD = TRUE, width = 14, height = 8)
+  tryCatch(
+    {
+      # Modify default settings for graphic device
+      device <- getOption("device")
+      options(device = "X11")
 
-  # Plot individual measurements
-  plot(flux.meas ~ time.meas,
-       main = paste(unique(flux.unique$UniqueID)),
-       xlab = "Time", ylab = gastype, xaxt = 'n',
-       ylim = c(ylim.min, ylim.max))
+      # Open a new window
+      dev.new(noRStudioGD = TRUE, width = 14, height = 8)
 
-  # Force axis.POSIXct to use the right time zone
-  time.zone <- attr(time.meas, "tzone")
-  Sys.setenv(TZ = time.zone)
-  axis.POSIXct(1, at = seq(min(time.meas), max(time.meas), by = "10 secs"),
-               format = "%H:%M:%S")
-  Sys.unsetenv("TZ") # change back to default
+      # Plot individual measurements
+      plot(flux.meas ~ time.meas,
+           main = paste(unique(flux.unique$UniqueID)),
+           xlab = "Time", ylab = gastype, xaxt = 'n',
+           ylim = c(ylim.min, ylim.max))
 
-  # Use the identify function to select start and end points
-  rownum <- identify(time.meas, flux.meas, pos = FALSE, n = 2, plot = TRUE,
-                     atpen = FALSE, offset = 0.5, tolerance = 0.25)
+      # Force axis.POSIXct to use the right time zone
+      time.zone <- attr(time.meas, "tzone")
+      Sys.setenv(TZ = time.zone)
+      axis.POSIXct(1, at = seq(min(time.meas), max(time.meas), by = "10 secs"),
+                   format = "%H:%M:%S")
+      Sys.unsetenv("TZ") # change back to default
 
-  # Close identify plot
-  dev.flush()
-  dev.off()
+      # Use the identify function to select start and end points
+      rownum <- identify(time.meas, flux.meas, pos = FALSE, n = 2, plot = TRUE,
+                         atpen = FALSE, offset = 0.5, tolerance = 0.25)
+    },
+    # Catch error "graphics device closed during call to locator or identify"
+    error = function(e) {identify.error <<- e}
+  )
+
+  if(isTRUE(identify.error[[1]] == "graphics device closed during call to locator or identify")){
+
+    # Revert back to default settings for graphic device
+    options(device = device)
+
+    # Close identify plot
+    dev.flush()
+    dev.off()
+
+    # Stop and return error
+    stop(identify.error[[1]])
+
+  } else {
+
+    # Close identify plot
+    dev.flush()
+    dev.off()
+
+  }
 
   # Assign fictional values to rownum for the function check to work
   if(length(rownum) < 2){rownum <- c(1,2)}
 
+  # Extract data from the identification
   start.time_corr <- time.meas[rownum[1]]
   end.time_corr <- time.meas[rownum[2]]
   flux.flag <- which(between(time.meas, start.time_corr, end.time_corr))
@@ -236,6 +262,8 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
   # Wait a few seconds before closing the window to inspect the plot
   if(!is.null(sleep) | sleep > 0) sleeploop(sleep)
   dev.off()
+
+  # Revert back to default settings for graphic device
   options(device = device)
 
   # Print warning if nb.obs < warn.length (default 60 observations)
