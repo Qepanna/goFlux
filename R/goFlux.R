@@ -466,8 +466,8 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     C0.best <- if_else(between(C0, C0.lim.flux[1], C0.lim.flux[2]), C0, C0.flux)
 
     if(abs(C.diff.flux) < 1){
-      Ct.best <- floor(Ct.best) - 0.5
-      C0.best <- ceiling(C0.best) + 0.5
+      Ct.best <- floor(Ct.best) - 1
+      C0.best <- ceiling(C0.best) + 1
     }
 
     # Calculate kappa thresholds based on MDF, LM.flux and Etime
