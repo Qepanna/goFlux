@@ -79,6 +79,9 @@
 HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
                     Ct = NULL, C0 = NULL, k.mult = 1) {
 
+  # Assign NULL to variables without binding
+  HM.warning <- HM.error <- HM.problem <- AICc.warning <- NULL
+
   # Root Mean Squared Error (RMSE)
   RMSE <- function(gas.meas, fit.val){
     sqrt(sum((na.omit(gas.meas - fit.val))^2) / length(na.omit(gas.meas)))
@@ -96,20 +99,26 @@ HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
   start <- list(Ci=Ct, C0=C0, k=0)
 
   # Run the model using the nlsLM function from the minpack.lm package
-  HM <- try(nlsLM(HMmod,
-                  data = cbind.data.frame(conc = gas.meas, t = time.meas),
-                  lower = c(Ci=0, C0=0, k=-1),
-                  upper = c(Ci=Inf, C0=Inf, k=k.max*k.mult),
-                  start = start,
-                  na.action = na.exclude,
-                  control = nls.lm.control(
-                    ftol = sqrt(.Machine$double.eps),
-                    ptol = sqrt(.Machine$double.eps),
-                    gtol = 0, diag = list(), epsfcn = 0, factor = 100,
-                    maxfev = integer(), maxiter = 1000, nprint = 0)))
+  HM <- tryCatch({
+    nlsLM(HMmod,
+          data = cbind.data.frame(conc = gas.meas, t = time.meas),
+          lower = c(Ci=0, C0=0, k=-1),
+          upper = c(Ci=Inf, C0=Inf, k=k.max*k.mult),
+          start = start,
+          na.action = na.exclude,
+          control = nls.lm.control(
+            ftol = sqrt(.Machine$double.eps),
+            ptol = sqrt(.Machine$double.eps),
+            gtol = 0, diag = list(), epsfcn = 0, factor = 100,
+            maxfev = integer(), maxiter = 1000, nprint = 0))
+  },
+  # Catch any warning
+  warning = function(w) HM.warning <<- w,
+  # Catch error with singular gradient
+  error = function(e) HM.error <<- e)
 
   # If no error encountered,
-  if(!inherits(HM, "try-error")){
+  if(!inherits(HM, "simpleError") & !inherits(HM, "simpleWarning")){
 
     # then extract values from the HM model
     HM.Ci <- coef(summary(HM))[1,1]
@@ -127,7 +136,9 @@ HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
     HM.SE <- deltamethod(as.formula(form), coef(HM), vcov(HM))
 
     # Indices of model fit
-    HM.AICc <- AICc(HM)
+    ## Catch warning with sample size too small with AICc
+    tryCatch(AICc(HM), warning = function(w) AICc.warning <<- w)
+    HM.AICc <- suppressWarnings(AICc(HM))
     HM.se.rel <- (HM.SE / HM.flux) * 100
     HM.r2 <- as.numeric(summary(lm(fitted(HM) ~ gas.meas))[9])[1]
     HM.RMSE <- RMSE(gas.meas, fitted(HM))
@@ -138,9 +149,13 @@ HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
                                    HM.RMSE, HM.AICc, HM.SE, HM.se.rel, HM.r2, HM.k)
 
   } else {
+
     HM_results <- cbind.data.frame(HM.flux = NA, HM.C0 = NA, HM.Ci = NA,
                                    HM.slope = NA, HM.MAE = NA, HM.RMSE = NA,
                                    HM.AICc = NA, HM.SE = NA, HM.se.rel = NA,
                                    HM.r2 = NA, HM.k = NA)
   }
+
+
+  return(list(HM_results, HM.error, HM.warning, AICc.warning))
 }

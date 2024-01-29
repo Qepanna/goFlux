@@ -369,7 +369,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     dataframe <- dataframe %>% mutate(Tcham = 15)
   }
 
-  # Rename chamID to UniqueID
+  # Create UniqueID from chamID, if missing
   if(!any(grepl("\\<UniqueID\\>", names(dataframe)))){
     if(any(grepl("\\<chamID\\>", names(dataframe)))){
       dataframe <- dataframe %>% mutate(UniqueID = paste(chamID, DATE, sep = "_"))}
@@ -446,9 +446,10 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     gas.meas <- Reduce("c", data_split[[f]][, gastype])
 
     # Linear model
-    LM.res <- LM.flux(gas.meas = gas.meas,
-                      time.meas = data_split[[f]]$Etime,
-                      flux.term = flux.term)
+    LM.res <- suppressWarnings(
+      LM.flux(gas.meas = gas.meas,
+              time.meas = data_split[[f]]$Etime,
+              flux.term = flux.term))
 
     # Calculate C0 and Ct and their boundaries based on LM.flux
     C0.flux <- LM.res$LM.C0
@@ -473,41 +474,61 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     # Calculate kappa thresholds based on MDF, LM.flux and Etime
     kappa.max <- abs(k.max(MDF, LM.res$LM.flux, (max(data_split[[f]]$Etime)+1)))
 
-    tryCatch({
-      size.warning <- NULL
-      # Hutchison and Mosier without kappa max
-      HM.noK <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
+    # Try to catch errors and warnings from HM calculation
+    HM.catch <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
                         flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
                         k.max = kappa.max*Inf)
 
-      # Hutchinson and Mosier with
+    # If there is an error with singular gradient
+    if(inherits(HM.catch[[2]], "simpleError")){
+
+      # Print warning
+      if(isTRUE(grepl("singular gradient", HM.catch[[2]]$message))){
+        warning("Flux estimate is too close to zero to estimate HM flux in UniqueID ",
+                UniqueID, ". goFlux returned NA for this UniqueID.")
+      } else {
+        message("Error in UniqueID ", UniqueID, ": ", HM.catch[[2]]$message)
+      }
+
+      # Return data frame
+      HM.res <- HM.catch[[1]]
+    }
+
+    # If there is no error
+    if(!inherits(HM.catch[[2]], "simpleError")){
+
+      # But there is a warning with HM
+      if(inherits(HM.catch[[3]], "simpleWarning")){
+
+        # Print warning
+        message("Error in UniqueID ", UniqueID, ": ", HM.catch[[3]]$message)
+      }
+
+      # Or there is a warning with AICc
+      if(inherits(HM.catch[[4]], "simpleWarning")){
+
+        # Print warning
+        if(isTRUE(grepl("sample size", HM.catch[[4]]$message))){
+          warning("Sample size is too small for UniqueID ", UniqueID,
+                  ". Results may be meanignless or missing.")
+        } else {
+          message("Error in UniqueID ", UniqueID, ": ", HM.catch[[4]]$message)
+        }
+      }
+
+      # Hutchison and Mosier without kappa max
+      HM.noK <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
+                        flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
+                        k.max = kappa.max*Inf)[[1]]
+
+      # Hutchinson and Mosier with kappa max
       HM.K <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
                       flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-                      k.max = kappa.max, k.mult = k.mult)
-    },
-    # Catch warning with sample size too small
-    warning = function(w) size.warning <<- w)
+                      k.max = kappa.max, k.mult = k.mult)[[1]]
 
-    # Hutchison and Mosier without kappa max
-    HM.noK <- suppressWarnings(
-      HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
-              flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-              k.max = kappa.max*Inf))
-
-    # Hutchinson and Mosier with
-    HM.K <- suppressWarnings(
-      HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
-              flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-              k.max = kappa.max, k.mult = k.mult))
-
-    # Compare results, with and without kappa max.
-    # Select the result with the smallest curvature.
-    if(abs(HM.K$HM.k) <= abs(HM.noK$HM.k)) HM.res <- HM.K else HM.res <- HM.noK
-
-    # Print warnings
-    if(isTRUE(grepl("sample size", size.warning$message))){
-      warning("Sample size is too small for UniqueID ", UniqueID,
-              ". Results may be meanignless or missing.")
+      # Compare results, with and without kappa max.
+      # Select the result with the smallest curvature.
+      if(abs(HM.K$HM.k) <= abs(HM.noK$HM.k)) HM.res <- HM.K else HM.res <- HM.noK
     }
 
     # Flux results

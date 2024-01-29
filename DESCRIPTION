@@ -12,7 +12,7 @@ Encoding: UTF-8
 LazyData: true
 Depends: 
     R (>= 3.5.0)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Collate: 
     'goFlux-package.R'
     'DX4015_import.R'

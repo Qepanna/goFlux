@@ -51,7 +51,7 @@
 #' @param Tcham numerical value; temperature inside the chamber (Celsius).
 #'              Alternatively, provide the column \code{Tcham} in \code{dataframe}
 #'              if \code{Tcham} is different between samples. If \code{Tcham} is
-#'              not provided, normal air temperature (15°C) is used.
+#'              not provided, 15°C is used as default.
 #' @param warn.length numerical value; limit under which a measurement is
 #'                    flagged for being too short (\code{nb.obs < warn.length}).
 #'
@@ -80,27 +80,39 @@
 #' estimate cannot exceed this maximum curvature.
 #'
 #' All flux estimates, including the \code{\link[goFlux]{MDF}}, are
-#' multiplied by a \code{\link[goFlux]{flux.term}} which is used to
-#' correct for water vapor inside the chamber, as well as convert the units to
-#' obtain a term in nmol or
+#' obtained from the multiplication of the slope and the
+#' \code{\link[goFlux]{flux.term}}, which is used to correct the
+#' pressure inside the chamber (due to water vapor), as well as convert the
+#' units to obtain a term in nmol or
 #' \ifelse{html}{\out{µmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{µmol m^{-2}s^{-1}}{ASCII}}.
 #'
 #' The argument \code{Area} is in \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}},
 #' but the output units from \code{\link[goFlux]{goFlux}} are in
-#' \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This means that there is a factor
-#' of 10,000 to convert from \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}
+#' \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This is due to the
+#' conversion from \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}
+#' to \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}} within the
+#' function. This means that there is a factor of 10,000 to convert from
+#' \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}
 #' to \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This is important
-#' to take into account if one would provide something else than an \code{Area} in
-#' \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to the function.
+#' to take into account if one would provide something else than an \code{Area}
+#' in \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to the function.
 #' For example, with incubated soil samples, one may provide an amount of soil
-#' (kg) instead of an \code{Area}. To get the right units in that case, multiply the
-#' kilograms of soil by 10,000 to remove the conversion from
-#' \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to
+#' (kg) instead of an area in the column \code{Area}. To get the right units in
+#' that case, multiply the kilograms of soil by 10,000 to remove the conversion
+#' from \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to
 #' \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}.
 #'
 #' In \code{gastype}, the gas species listed are the ones for which this package
 #' has been adapted. Please write to the maintainer of this package for
 #' adaptation of additional gases.
+#'
+#'#' \code{warn.length} is the limit below which the chamber closure time is
+#' flagged for being too short (\code{nb.obs < warn.length}). Portable
+#' greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore,
+#' for the default setting of \code{warn.length = 60}, the chamber closure time
+#' should be approximately one minute (60 seconds). If the number of
+#' observations is smaller than the threshold, a warning is printed: e.g. "Low
+#' number of observations: UniqueID X has 59 observations".
 #'
 #' @references Hüppi et al. (2018). Restricting the nonlinearity parameter in
 #' soil greenhouse gas flux calculation for more reliable flux estimates.
@@ -356,7 +368,7 @@ goFlux_nokmax <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     dataframe <- dataframe %>% mutate(Tcham = 15)
   }
 
-  # Rename chamID to UniqueID
+  # Create UniqueID from chamID, if missing
   if(!any(grepl("\\<UniqueID\\>", names(dataframe)))){
     if(any(grepl("\\<chamID\\>", names(dataframe)))){
       dataframe <- dataframe %>% mutate(UniqueID = paste(chamID, DATE, sep = "_"))}
@@ -433,9 +445,10 @@ goFlux_nokmax <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     gas.meas <- Reduce("c", data_split[[f]][, gastype])
 
     # Linear model
-    LM.res <- LM.flux(gas.meas = gas.meas,
-                      time.meas = data_split[[f]]$Etime,
-                      flux.term = flux.term)
+    LM.res <- suppressWarnings(
+      LM.flux(gas.meas = gas.meas,
+              time.meas = data_split[[f]]$Etime,
+              flux.term = flux.term))
 
     # Calculate C0 and Ct and their boundaries based on LM.flux
     C0.flux <- LM.res$LM.C0
@@ -448,17 +461,63 @@ goFlux_nokmax <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     C0 <- first(gas.meas)
     Ct <- last(gas.meas)
 
-    # Chose the right C0 and Ct
+    # Choose the right C0 and Ct
     Ct.best <- if_else(between(Ct, Ct.lim.flux[1], Ct.lim.flux[2]), Ct, Ct.flux)
     C0.best <- if_else(between(C0, C0.lim.flux[1], C0.lim.flux[2]), C0, C0.flux)
+
+    if(abs(C.diff.flux) < 1){
+      Ct.best <- floor(Ct.best) - 1
+      C0.best <- ceiling(C0.best) + 1
+    }
 
     # Calculate kappa thresholds based on MDF, LM.flux and Etime
     kappa.max <- abs(k.max(MDF, LM.res$LM.flux, (max(data_split[[f]]$Etime)+1)))
 
-    # Hutchinson and Mosier
-    HM.res <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
-                      flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-                      k.max = kappa.max*Inf)
+    # Try to catch errors and warnings from HM calculation
+    HM.catch <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
+                        flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
+                        k.max = kappa.max*Inf)
+
+    # If there is an error with singular gradient
+    if(inherits(HM.catch[[2]], "simpleError")){
+
+      # Print warning
+      if(isTRUE(grepl("singular gradient", HM.catch[[2]]$message))){
+        warning("Flux estimate is too close to zero to estimate HM flux in UniqueID ",
+                UniqueID, ". goFlux returned NA for this UniqueID.")
+      } else {
+        message("Error in UniqueID ", UniqueID, ": ", HM.catch[[2]]$message)
+      }
+
+      # Return data frame
+      HM.res <- HM.catch[[1]]
+    }
+
+    # If there is no error
+    if(!inherits(HM.catch[[2]], "simpleError")){
+
+      # But there is a warning with HM
+      if(inherits(HM.catch[[3]], "simpleWarning")){
+
+        # Print warning
+        message("Error in UniqueID ", UniqueID, ": ", HM.catch[[3]]$message)
+      }
+
+      # Or there is a warning with AICc
+      if(inherits(HM.catch[[4]], "simpleWarning")){
+
+        # Print warning
+        if(isTRUE(grepl("sample size", HM.catch[[4]]$message))){
+          warning("Sample size is too small for UniqueID ", UniqueID,
+                  ". Results may be meanignless or missing.")
+        } else {
+          message("Error in UniqueID ", UniqueID, ": ", HM.catch[[4]]$message)
+        }
+      }
+
+      # Hutchison and Mosier without kappa max
+      HM.res <- HM.catch[[1]]
+    }
 
     # Flux results
     flux.res.ls[[f]] <- cbind.data.frame(
