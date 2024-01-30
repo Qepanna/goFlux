@@ -146,7 +146,7 @@ not provided, normal atmospheric pressure (101.325 kPa) is used.</p></dd>
 <dd><p>numerical value; temperature inside the chamber (Celsius).
 Alternatively, provide the column <code>Tcham</code> in <code>dataframe</code>
 if <code>Tcham</code> is different between samples. If <code>Tcham</code> is
-not provided, normal air temperature (15°C) is used.</p></dd>
+not provided, 15°C is used as default.</p></dd>
 
 
 <dt>warn.length</dt>
@@ -207,25 +207,36 @@ chamber closure. This limit of kappa-max is included in the
 <code><a href="goFlux.html">goFlux</a></code> function, so that the non-linear flux
 estimate cannot exceed this maximum curvature.</p>
 <p>All flux estimates, including the <code><a href="MDF.html">MDF</a></code>, are
-multiplied by a <code><a href="flux.term.html">flux.term</a></code> which is used to
-correct for water vapor inside the chamber, as well as convert the units to
-obtain a term in nmol or
+obtained from the multiplication of the slope and the
+<code><a href="flux.term.html">flux.term</a></code>, which is used to correct the
+pressure inside the chamber (due to water vapor), as well as convert the
+units to obtain a term in nmol or
 µmol m<sup>-2</sup>s<sup>-1</sup>.</p>
 <p>The argument <code>Area</code> is in (cm<sup>2</sup>),
 but the output units from <code><a href="goFlux.html">goFlux</a></code> are in
-(m<sup>2</sup>). This means that there is a factor
-of 10,000 to convert from (cm<sup>2</sup>)
+(m<sup>2</sup>). This is due to the
+conversion from (cm<sup>2</sup>)
+to (m<sup>2</sup>) within the
+function. This means that there is a factor of 10,000 to convert from
+(cm<sup>2</sup>)
 to (m<sup>2</sup>). This is important
-to take into account if one would provide something else than an <code>Area</code> in
-(cm<sup>2</sup>) to the function.
+to take into account if one would provide something else than an <code>Area</code>
+in (cm<sup>2</sup>) to the function.
 For example, with incubated soil samples, one may provide an amount of soil
-(kg) instead of an <code>Area</code>. To get the right units in that case, multiply the
-kilograms of soil by 10,000 to remove the conversion from
-(cm<sup>2</sup>) to
+(kg) instead of an area in the column <code>Area</code>. To get the right units in
+that case, multiply the kilograms of soil by 10,000 to remove the conversion
+from (cm<sup>2</sup>) to
 (m<sup>2</sup>).</p>
 <p>In <code>gastype</code>, the gas species listed are the ones for which this package
 has been adapted. Please write to the maintainer of this package for
 adaptation of additional gases.</p>
+<p>#' <code>warn.length</code> is the limit below which the chamber closure time is
+flagged for being too short (<code>nb.obs &lt; warn.length</code>). Portable
+greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore,
+for the default setting of <code>warn.length = 60</code>, the chamber closure time
+should be approximately one minute (60 seconds). If the number of
+observations is smaller than the threshold, a warning is printed: e.g. "Low
+number of observations: UniqueID X has 59 observations".</p>
     </div>
     <div id="references">
     <h2>References</h2>
