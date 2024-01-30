@@ -68,9 +68,9 @@ into R, choose the best model to calculate fluxes (LM or HM), quality
 check the results objectively and obtain high quality flux estimates.
 The package contains a wide range of functions that allows the user to
 import raw data from a variety of instruments (LI-COR, LGR, GAIA2TECH,
-Gasmet, Picarro and PP-Systems); calculate fluxes from a variety of GHG
-(CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, NH<sub>3</sub>, CO and
-H<sub>2</sub>O) with both linear (LM) and non-linear (HM) flux
+Gasmet, Picarro, Aeris and PP-Systems); calculate fluxes from a variety
+of GHG (CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, NH<sub>3</sub>,
+CO and H<sub>2</sub>O) with both linear (LM) and non-linear (HM) flux
 calculation methods; align instruments clocks after data import;
 interactively identify measurements (start and end time) if there are no
 automatic chamber recordings (e.g. LI-COR smart chamber); plot
@@ -135,6 +135,11 @@ raw data from a variety of instruments:
 - [**PP-Systems EGM-5 Portable CO<sub>2</sub> Gas
   Analyzer**](https://ppsystems.com/egm-5/): for CO<sub>2</sub>,
   O<sub>2</sub> and H<sub>2</sub>O
+- [**Aeris technologies MIRA Ultra Gas
+  Analyzers**](https://aerissensors.com/ultra-series/):
+  N<sub>2</sub>O/CO<sub>2</sub> high accuracy analyzer (+H<sub>2</sub>O)
+  and CH<sub>4</sub>/C<sub>2</sub>H<sub>6</sub> Natural Gas Leak
+  Detection System (+H<sub>2</sub>O)
 
 After import, the user can choose from two methods for identification of
 measurements:

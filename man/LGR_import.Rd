@@ -36,7 +36,7 @@ file. The default is \code{keep_all = FALSE}, and columns that
 are not necessary for gas flux calculation are removed.}
 
 \item{prec}{numerical vector; the precision of the instrument for each gas,
-in the following order: "CO2dry_ppm", CH4dry_ppb" and H2O_ppm".
+in the following order: "CO2dry_ppm", "CH4dry_ppb" and "H2O_ppm".
 The default is \code{prec = c(0.2, 1.4, 50)}, which corresponds
 to the ultra-portable GGA (GLA132 series). For the micro
 ultra-portable GGA (GLA131 series), use
@@ -105,7 +105,9 @@ See also, import functions for other instruments:
          \code{\link[goFlux]{LI7820_import}},
          \code{\link[goFlux]{LI8100_import}},
          \code{\link[goFlux]{LI8200_import}},
-         \code{\link[goFlux]{N2OM1_import}}
+         \code{\link[goFlux]{N2OM1_import}},
+         \code{\link[goFlux]{uCH4_import}},
+         \code{\link[goFlux]{uN2O_import}}
 
 See \code{\link[base]{timezones}} for a description of the underlying
          timezone attribute.

@@ -48,4 +48,6 @@ Collate:
     'import2RData.R'
     'obs.win.R'
     'seq.rep.R'
+    'uCH4_import.R'
+    'uN2O_import.R'
 Imports: AICcmodavg, data.table, dplyr, ggnewscale, ggplot2, ggstar, graphics, grDevices, grid, gridExtra, lubridate, minpack.lm, msm, pbapply, plyr, purrr, rjson, rlist, SimDesign, stats, stringr, tibble, tidyr, utils

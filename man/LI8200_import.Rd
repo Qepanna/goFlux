@@ -78,7 +78,9 @@ See also, import functions for other instruments:
          \code{\link[goFlux]{LI7810_import}},
          \code{\link[goFlux]{LI7820_import}},
          \code{\link[goFlux]{LI8100_import}},
-         \code{\link[goFlux]{N2OM1_import}}
+         \code{\link[goFlux]{N2OM1_import}},
+         \code{\link[goFlux]{uCH4_import}},
+         \code{\link[goFlux]{uN2O_import}}
 
 See \code{\link[base]{timezones}} for a description of the underlying
          timezone attribute.

@@ -65,7 +65,7 @@ in a RData folder in the current working directory. If
 the Environment if assigned to an object.}
 
 \item{prec}{numerical vector; the precision of the instrument for each gas,
-in the following order: "CO2dry_ppm", CH4dry_ppb", "N2Odry_ppb"
+in the following order: "CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb"
 "H2O_ppm_LI7810" and "H2O_ppm_LI7820". The default is
 \code{prec = c(3.5, 0.6, 0.4, 45, 45)}.}
 
@@ -165,7 +165,9 @@ See also, import functions for other instruments:
          \code{\link[goFlux]{LI7820_import}},
          \code{\link[goFlux]{LI8100_import}},
          \code{\link[goFlux]{LI8200_import}},
-         \code{\link[goFlux]{N2OM1_import}}
+         \code{\link[goFlux]{N2OM1_import}},
+         \code{\link[goFlux]{uCH4_import}},
+         \code{\link[goFlux]{uN2O_import}}
 
 See \code{\link[base]{timezones}} for a description of the underlying
          timezone attribute.
