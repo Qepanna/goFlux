@@ -24,8 +24,8 @@
 #'                 file. The default is \code{keep_all = FALSE}, and columns that
 #'                 are not necessary for gas flux calculation are removed.
 #' @param prec numerical vector; the precision of the instrument for each gas,
-#'             in the following order: "CO2dry_ppm", CH4dry_ppb", "N2Odry_ppb",
-#'             "NH3dry_ppb" and H2O_ppm". The default is
+#'             in the following order: "CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb",
+#'             "NH3dry_ppb" and "H2O_ppm". The default is
 #'             \code{prec = c(0.24, 0.3, 5, 0.16, 500)}.
 #'
 #' @returns A data frame containing raw data from Picarro G2508 GHG analyzer.
@@ -79,7 +79,9 @@
 #'          \code{\link[goFlux]{LI7820_import}},
 #'          \code{\link[goFlux]{LI8100_import}},
 #'          \code{\link[goFlux]{LI8200_import}},
-#'          \code{\link[goFlux]{N2OM1_import}}
+#'          \code{\link[goFlux]{N2OM1_import}},
+#'          \code{\link[goFlux]{uCH4_import}},
+#'          \code{\link[goFlux]{uN2O_import}}
 #'
 #' @seealso See \code{\link[base]{timezones}} for a description of the underlying
 #'          timezone attribute.
@@ -114,80 +116,100 @@ G2508_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   H2O <- N2O_dry30s <- N2O_dry <- CH4_dry <- CO2_dry <- TIME <- DATE <- NH3 <-
     N2Odry_ppb <- CH4dry_ppb <- H2O_ppm <- NH3wet_ppm <- H2O_mmol <-
     POSIX.warning <- N2Odry_30s_ppb <- CO2dry_ppm <- CH4dry_ppm <-
-    NH3dry_ppb <- N2Odry_30s_ppm <- N2Odry_ppm <- NULL
+    NH3dry_ppb <- N2Odry_30s_ppm <- N2Odry_ppm <- import.error <- NULL
 
-  # Import raw data file from G2508 (.dat)
-  data.raw <- read.delim(inputfile, sep = "") %>%
-    # Standardize column names
-    rename(CO2dry_ppm = CO2_dry, CH4dry_ppm = CH4_dry, N2Odry_ppm = N2O_dry,
-           N2Odry_30s_ppm = N2O_dry30s, H2O_mmol = H2O) %>%
-    # Convert column class automatically
-    type.convert(as.is = TRUE) %>%
-    # Convert mmol into ppm for H2O and ppm into ppb for N2O and CH4
-    mutate(H2O_ppm = H2O_mmol*1000,
-           N2Odry_ppb = N2Odry_ppm*1000,
-           N2Odry_30s_ppb = N2Odry_30s_ppm*1000,
-           CH4dry_ppb = CH4dry_ppm*1000) %>%
-    # Water compensation in NH3
-    mutate(NH3wet_ppm = NH3/1000) %>%
-    mutate(NH3dry_ppb = (NH3wet_ppm/(1-H2O_ppm/1000000))*1000) %>%
-    # Remove NAs and negative gas measurements, if any
-    filter(N2Odry_ppb > 0) %>%
-    filter(NH3dry_ppb > 0) %>%
-    filter(CH4dry_ppb > 0) %>%
-    filter(H2O_ppm > 0)
+  # Input file name
+  inputfile.name <- gsub(".*/", "", inputfile)
 
-  # Keep only useful columns for gas flux calculation
-  if(keep_all == FALSE){
-    data.raw <- data.raw %>%
-      select(DATE, TIME, CO2dry_ppm, CH4dry_ppb, N2Odry_ppb, N2Odry_30s_ppb,
-             NH3dry_ppb, H2O_ppm)}
-
-  # Create a new column containing date and time (POSIX format)
-  tryCatch(
-    {op <- options()
-    options(digits.secs=6)
-    if(date.format == "dmy"){
-      try.POSIX <- as.POSIXct(dmy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone),
-                              format = "%Y-%m-%d %H:%M:%OS")
-    } else if(date.format == "mdy"){
-      try.POSIX <- as.POSIXct(mdy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone),
-                              format = "%Y-%m-%d %H:%M:%OS")
-    } else if(date.format == "ymd"){
-      try.POSIX <- as.POSIXct(ymd_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone),
-                              format = "%Y-%m-%d %H:%M:%OS")}
-    options(op)}, warning = function(w) {POSIX.warning <<- "date.format.error"}
+  # Try to load data file
+  try.import <- tryCatch(
+    {read.delim(inputfile, sep = "")},
+    error = function(e) {import.error <<- e}
   )
 
-  if(isTRUE(POSIX.warning == "date.format.error")){
-    stop(paste("An error occured while converting DATE and TIME into POSIX.time.",
-               "Verify that 'date.format' corresponds to the column 'DATE' in",
-               "the raw data file. Here is a sample:", data.raw$DATE[1]))
-  } else data.raw$POSIX.time <- try.POSIX
+  if(inherits(try.import, "simpleError")){
+    warning("Error occurred in file ", inputfile.name, ":\n", "   ",
+            import.error, call. = F)
+  } else {
 
-  # Add instrument precision for each gas
-  data.raw <- data.raw %>%
-    mutate(CO2_prec = prec[1], CH4_prec = prec[2], N2O_prec = prec[3],
-           NH3_prec = prec[4], H2O_prec = prec[5])
+    # Import raw data file from G2508 (.dat)
+    data.raw <- try.import %>%
+      # Standardize column names
+      rename(CO2dry_ppm = CO2_dry, CH4dry_ppm = CH4_dry, N2Odry_ppm = N2O_dry,
+             N2Odry_30s_ppm = N2O_dry30s, H2O_mmol = H2O) %>%
+      # Convert column class automatically
+      type.convert(as.is = TRUE) %>%
+      # Convert mmol into ppm for H2O and ppm into ppb for N2O and CH4
+      mutate(H2O_ppm = H2O_mmol*1000,
+             N2Odry_ppb = N2Odry_ppm*1000,
+             N2Odry_30s_ppb = N2Odry_30s_ppm*1000,
+             CH4dry_ppb = CH4dry_ppm*1000) %>%
+      # Water compensation in NH3
+      mutate(NH3wet_ppm = NH3/1000) %>%
+      mutate(NH3dry_ppb = (NH3wet_ppm/(1-H2O_ppm/1000000))*1000) %>%
+      # Remove NAs and negative gas measurements, if any
+      filter(N2Odry_ppb > 0) %>%
+      filter(NH3dry_ppb > 0) %>%
+      filter(CH4dry_ppb > 0) %>%
+      filter(H2O_ppm > 0)
 
-  # Save cleaned data file
-  if(save == TRUE){
-    # Create RData folder in working directory
-    RData_folder <- paste(getwd(), "RData", sep = "/")
-    if(dir.exists(RData_folder) == FALSE){dir.create(RData_folder)}
+    # Keep only useful columns for gas flux calculation
+    if(keep_all == FALSE){
+      data.raw <- data.raw %>%
+        select(DATE, TIME, CO2dry_ppm, CH4dry_ppb, N2Odry_ppb, N2Odry_30s_ppb,
+               NH3dry_ppb, H2O_ppm)}
 
-    # Create output file: change extension to .RData, and
-    # add instrument name and "imp" for import to file name
-    file.name <- gsub(".*/", "", sub("\\.dat", "", inputfile))
-    outputfile <- paste("G2508_", file.name, "_imp.RData", sep = "")
+    # Create a new column containing date and time (POSIX format)
+    tryCatch(
+      {op <- options()
+      options(digits.secs=6)
+      if(date.format == "dmy"){
+        try.POSIX <- as.POSIXct(dmy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone),
+                                format = "%Y-%m-%d %H:%M:%OS")
+      } else if(date.format == "mdy"){
+        try.POSIX <- as.POSIXct(mdy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone),
+                                format = "%Y-%m-%d %H:%M:%OS")
+      } else if(date.format == "ymd"){
+        try.POSIX <- as.POSIXct(ymd_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone),
+                                format = "%Y-%m-%d %H:%M:%OS")}
+      options(op)}, warning = function(w) {POSIX.warning <<- "date.format.error"}
+    )
 
-    save(data.raw, file = paste(RData_folder, outputfile, sep = "/"))
+    if(isTRUE(POSIX.warning == "date.format.error")){
+      warning("Error occurred in file ", inputfile.name, ":\n",
+              "   An error occured while converting DATE and TIME into POSIX.time.\n",
+              "   Verify that the 'date.format' you specified (", date.format,
+              ") corresponds to the\n",
+              "   column 'DATE' in the raw data file. Here is a sample: ",
+              data.raw$DATE[1], "\n", call. = F)
+    } else {
+      data.raw$POSIX.time <- try.POSIX
 
-    message(file.name, " saved as ", outputfile, " in RData folder, in working directory", sep = "")
+      # Add instrument precision for each gas
+      data.raw <- data.raw %>%
+        mutate(CO2_prec = prec[1], CH4_prec = prec[2], N2O_prec = prec[3],
+               NH3_prec = prec[4], H2O_prec = prec[5])
+
+      # Save cleaned data file
+      if(save == TRUE){
+        # Create RData folder in working directory
+        RData_folder <- paste(getwd(), "RData", sep = "/")
+        if(dir.exists(RData_folder) == FALSE){dir.create(RData_folder)}
+
+        # Create output file: change extension to .RData, and
+        # add instrument name and "imp" for import to file name
+        file.name <- gsub(".*/", "", sub("\\.dat", "", inputfile))
+        outputfile <- paste("G2508_", file.name, "_imp.RData", sep = "")
+
+        save(data.raw, file = paste(RData_folder, outputfile, sep = "/"))
+
+        message(inputfile.name, " saved as ", outputfile,
+                " in RData folder, in working directory\n", sep = "")
+      }
+
+      if(save == FALSE){
+        return(data.raw)
+      }
+    }
   }
-
-  if(save == FALSE){
-    return(data.raw)
-  }
-
 }

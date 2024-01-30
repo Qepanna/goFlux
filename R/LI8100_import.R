@@ -21,8 +21,8 @@
 #'                 file. The default is \code{keep_all = FALSE}, and columns that
 #'                 are not necessary for gas flux calculation are removed.
 #' @param prec numerical vector; the precision of the instrument for each gas,
-#'             in the following order: "CO2dry_ppm" and H2O_ppm". The default is
-#'             \code{prec = c(1, 10)}.
+#'             in the following order: "CO2dry_ppm" and "H2O_ppm". The default
+#'             is \code{prec = c(1, 10)}.
 #'
 #' @returns A data frame containing raw data from LI-COR GHG analyzer LI-8100.
 #'
@@ -65,7 +65,9 @@
 #'          \code{\link[goFlux]{LI7810_import}},
 #'          \code{\link[goFlux]{LI7820_import}},
 #'          \code{\link[goFlux]{LI8200_import}},
-#'          \code{\link[goFlux]{N2OM1_import}}
+#'          \code{\link[goFlux]{N2OM1_import}},
+#'          \code{\link[goFlux]{uCH4_import}},
+#'          \code{\link[goFlux]{uN2O_import}}
 #'
 #' @seealso See \code{\link[base]{timezones}} for a description of the underlying
 #'          timezone attribute.
@@ -96,115 +98,136 @@ LI8100_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       if(length(prec) != 2) stop("'prec' must be of length 2")}}
 
   # Assign NULL to variables without binding
-  Type <- Etime <- Tcham <- Pressure <- H2O <- Cdry <- V1 <- V2 <- V3 <-
-    V4 <- H2O_mmol <- DATE_TIME <- Obs <- . <- cham.close <- cham.open <-
-    deadband <- start.time <- obs.start <- POSIX.time <- plotID <-
+  Type <- Etime <- Tcham <- Pressure <- H2O <- . <- Cdry <- V1 <- V2 <- V3 <-
+    V4 <- H2O_mmol <- DATE_TIME <- Obs <- cham.close <- cham.open <- plotID <-
+    deadband <- start.time <- obs.start <- POSIX.time <- import.error <-
     Date <- CO2dry_ppm <- POSIX.warning <- H2O_ppm <- Pcham <- NULL
 
-  # Find how many rows need to be skipped
-  skip.rows <- as.numeric(which(read.delim(inputfile) == "Type"))[1]
+  # Input file name
+  inputfile.name <- gsub(".*/", "", inputfile)
 
-  # Import raw data file from LI8100 (.81x)
-  data.raw <- read.delim(inputfile, skip = skip.rows) %>%
-    # Keep only Type == 1, as everything else is metadata
-    filter(Type == "1") %>%
-    # Standardize column names
-    rename(DATE_TIME = Date, Pcham = Pressure, H2O_mmol = H2O, CO2dry_ppm = Cdry) %>%
-    # Convert column class automatically
-    type.convert(as.is = TRUE) %>%
-    # Remove NAs and negative gas measurements, if any
-    filter(CO2dry_ppm > 0) %>%
-    filter(H2O_mmol > 0) %>%
-    # Convert mmol into ppm for H2O
-    mutate(H2O_ppm = H2O_mmol*1000) %>%
-    # Detect new observations
-    arrange(DATE_TIME) %>%
-    mutate(Obs = ifelse(is.na(Etime - lag(Etime)), 0, Etime - lag(Etime))) %>%
-    mutate(Obs = rleid(cumsum(Obs < 0)))
-
-  # Keep only useful columns for gas flux calculation
-  if(keep_all == FALSE){
-    data.raw <- data.raw %>%
-      select(Obs, DATE_TIME, Etime, H2O_ppm, CO2dry_ppm,
-             Tcham, Pcham, V1, V2, V3, V4)}
-
-  # Create a new column containing date and time (POSIX format)
-  tryCatch(
-    {if(date.format == "dmy"){
-      try.POSIX <- as.POSIXct(dmy_hms(data.raw$DATE_TIME, tz = timezone))
-    } else if(date.format == "mdy"){
-      try.POSIX <- as.POSIXct(mdy_hms(data.raw$DATE_TIME, tz = timezone))
-    } else if(date.format == "ymd"){
-      try.POSIX <- as.POSIXct(ymd_hms(data.raw$DATE_TIME, tz = timezone))
-    }}, warning = function(w) {POSIX.warning <<- "date.format.error"}
+  # Try to load data file
+  try.import <- tryCatch(
+    {read.delim(inputfile)},
+    error = function(e) {import.error <<- e}
   )
 
-  if(isTRUE(POSIX.warning == "date.format.error")){
-    stop(paste("An error occured while converting DATE and TIME into POSIX.time.",
-               "Verify that 'date.format' corresponds to the column 'DATE' in",
-               "the raw data file. Here is a sample:", data.raw$DATE_TIME[1]))
-  } else data.raw$POSIX.time <- try.POSIX
-
-  # Import metadata from LI8100 (.81x)
-  meta <- read.delim(inputfile, header = F) %>% select(c(1:2)) %>%
-    filter(V1 == "Obs#:" | V1 == "Label:" | V1 == "Area:" | V1 == "Vcham:" |
-             V1 == "Offset:" | V1 == "Dead Band:")
-
-  if (nrow(meta)/6 == ceiling(nrow(meta)/6)) {
-    metadata <- meta %>% reframe(
-      Obs = as.numeric(.[which(.[,1] == "Obs#:"),2]),
-      plotID = .[which(.[,1] == "Label:"),2],
-      Area = as.numeric(.[which(.[,1] == "Area:"),2]),
-      Vcham = as.numeric(.[which(.[,1] == "Vcham:"),2]),
-      offset = as.numeric(.[which(.[,1] == "Offset:"),2]),
-      deadband = as.numeric(ms(meta[which(meta[,1] == "Dead Band:"),2]), units = "secs"))
+  if(inherits(try.import, "simpleError")){
+    warning("Error occurred in file ", inputfile.name, ":\n", "   ",
+            import.error, call. = F)
   } else {
-    metadata <- meta %>% reframe(
-      Obs = as.numeric(.[which(.[,1] == "Obs#:"),2]),
-      plotID = .[which(.[,1] == "Label:"),2],
-      Area = as.numeric(.[which(.[,1] == "Area:"),2]),
-      Vcham = as.numeric(.[which(.[,1] == "Vcham:"),2]),
-      offset = as.numeric(.[which(.[,1] == "Offset:"),2]),
-      deadband = c(as.numeric(ms(meta[which(meta[,1] == "Dead Band:"),2]), units = "secs"),
-                   last(as.numeric(ms(meta[which(meta[,1] == "Dead Band:"),2]), units = "secs"))))
+
+    # Find how many rows need to be skipped
+    skip.rows <- as.numeric(which(try.import == "Type"))[1]
+
+    # Import raw data file from LI8100 (.81x)
+    data.raw <- read.delim(inputfile, skip = skip.rows) %>%
+      # Keep only Type == 1, as everything else is metadata
+      filter(Type == "1") %>%
+      # Standardize column names
+      rename(DATE_TIME = Date, Pcham = Pressure, H2O_mmol = H2O, CO2dry_ppm = Cdry) %>%
+      # Convert column class automatically
+      type.convert(as.is = TRUE) %>%
+      # Remove NAs and negative gas measurements, if any
+      filter(CO2dry_ppm > 0) %>%
+      filter(H2O_mmol > 0) %>%
+      # Convert mmol into ppm for H2O
+      mutate(H2O_ppm = H2O_mmol*1000) %>%
+      # Detect new observations
+      arrange(DATE_TIME) %>%
+      mutate(Obs = ifelse(is.na(Etime - lag(Etime)), 0, Etime - lag(Etime))) %>%
+      mutate(Obs = rleid(cumsum(Obs < 0)))
+
+    # Keep only useful columns for gas flux calculation
+    if(keep_all == FALSE){
+      data.raw <- data.raw %>%
+        select(Obs, DATE_TIME, Etime, H2O_ppm, CO2dry_ppm,
+               Tcham, Pcham, V1, V2, V3, V4)}
+
+    # Create a new column containing date and time (POSIX format)
+    tryCatch(
+      {if(date.format == "dmy"){
+        try.POSIX <- as.POSIXct(dmy_hms(data.raw$DATE_TIME, tz = timezone))
+      } else if(date.format == "mdy"){
+        try.POSIX <- as.POSIXct(mdy_hms(data.raw$DATE_TIME, tz = timezone))
+      } else if(date.format == "ymd"){
+        try.POSIX <- as.POSIXct(ymd_hms(data.raw$DATE_TIME, tz = timezone))
+      }}, warning = function(w) {POSIX.warning <<- "date.format.error"}
+    )
+
+    if(isTRUE(POSIX.warning == "date.format.error")){
+      warning("Error occurred in file ", inputfile.name, ":\n",
+              "   An error occured while converting DATE and TIME into POSIX.time.\n",
+              "   Verify that the 'date.format' you specified (", date.format,
+              ") corresponds to the\n",
+              "   column 'DATE' in the raw data file. Here is a sample: ",
+              data.raw$DATE_TIME[1], "\n", call. = F)
+    } else {
+
+      data.raw$POSIX.time <- try.POSIX
+
+      # Import metadata from LI8100 (.81x)
+      meta <- read.delim(inputfile, header = F) %>% select(c(1:2)) %>%
+        filter(V1 == "Obs#:" | V1 == "Label:" | V1 == "Area:" | V1 == "Vcham:" |
+                 V1 == "Offset:" | V1 == "Dead Band:")
+
+      if (nrow(meta)/6 == ceiling(nrow(meta)/6)) {
+        metadata <- meta %>% reframe(
+          Obs = as.numeric(.[which(.[,1] == "Obs#:"),2]),
+          plotID = .[which(.[,1] == "Label:"),2],
+          Area = as.numeric(.[which(.[,1] == "Area:"),2]),
+          Vcham = as.numeric(.[which(.[,1] == "Vcham:"),2]),
+          offset = as.numeric(.[which(.[,1] == "Offset:"),2]),
+          deadband = as.numeric(ms(meta[which(meta[,1] == "Dead Band:"),2]), units = "secs"))
+      } else {
+        metadata <- meta %>% reframe(
+          Obs = as.numeric(.[which(.[,1] == "Obs#:"),2]),
+          plotID = .[which(.[,1] == "Label:"),2],
+          Area = as.numeric(.[which(.[,1] == "Area:"),2]),
+          Vcham = as.numeric(.[which(.[,1] == "Vcham:"),2]),
+          offset = as.numeric(.[which(.[,1] == "Offset:"),2]),
+          deadband = c(as.numeric(ms(meta[which(meta[,1] == "Dead Band:"),2]), units = "secs"),
+                       last(as.numeric(ms(meta[which(meta[,1] == "Dead Band:"),2]), units = "secs"))))
+      }
+
+      # Add metadata to data.raw
+      data.raw <- data.raw %>%
+        left_join(metadata, by = "Obs") %>% group_by(Obs) %>%
+        # Calculate cham.close, cham.open, flag and correct negative values of Etime
+        mutate(cham.close = POSIX.time[which(Etime == 0)],
+               cham.open = max(na.omit(POSIX.time)),
+               obs.start = min(na.omit(POSIX.time))) %>%
+        ungroup() %>%
+        mutate(DATE = substr(POSIX.time, 0, 10),
+               chamID = paste(plotID, Obs, sep = "_"),
+               start.time = cham.close + deadband,
+               Etime = as.numeric(POSIX.time - start.time, units = "secs"),
+               flag = if_else(between(POSIX.time, start.time, cham.open), 1, 0))
+
+      # Add instrument precision for each gas
+      data.raw <- data.raw %>%
+        mutate(CO2_prec = prec[1], H2O_prec = prec[2])
+
+      # Save cleaned data file
+      if(save == TRUE){
+        # Create RData folder in working directory
+        RData_folder <- paste(getwd(), "RData", sep = "/")
+        if(dir.exists(RData_folder) == FALSE){dir.create(RData_folder)}
+
+        # Create output file: change extension to .RData, and
+        # add instrument name and "imp" for import to file name
+        file.name <- gsub(".*/", "", sub("\\.81x", "", inputfile))
+        outputfile <- paste("LI8100_", file.name, "_imp.RData", sep = "")
+
+        save(data.raw, file = paste(RData_folder, outputfile, sep = "/"))
+
+        message(inputfile.name, " saved as ", outputfile,
+                " in RData folder, in working directory\n", sep = "")
+      }
+
+      if(save == FALSE){
+        return(data.raw)
+      }
+    }
   }
-
-  # Add metadata to data.raw
-  data.raw <- data.raw %>%
-    left_join(metadata, by = "Obs") %>% group_by(Obs) %>%
-    # Calculate cham.close, cham.open, flag and correct negative values of Etime
-    mutate(cham.close = POSIX.time[which(Etime == 0)],
-           cham.open = max(na.omit(POSIX.time)),
-           obs.start = min(na.omit(POSIX.time))) %>%
-    ungroup() %>%
-    mutate(DATE = substr(POSIX.time, 0, 10),
-           chamID = paste(plotID, Obs, sep = "_"),
-           start.time = cham.close + deadband,
-           Etime = as.numeric(POSIX.time - start.time, units = "secs"),
-           flag = if_else(between(POSIX.time, start.time, cham.open), 1, 0))
-
-  # Add instrument precision for each gas
-  data.raw <- data.raw %>%
-    mutate(CO2_prec = prec[1], H2O_prec = prec[2])
-
-  # Save cleaned data file
-  if(save == TRUE){
-    # Create RData folder in working directory
-    RData_folder <- paste(getwd(), "RData", sep = "/")
-    if(dir.exists(RData_folder) == FALSE){dir.create(RData_folder)}
-
-    # Create output file: change extension to .RData, and
-    # add instrument name and "imp" for import to file name
-    file.name <- gsub(".*/", "", sub("\\.81x", "", inputfile))
-    outputfile <- paste("LI8100_", file.name, "_imp.RData", sep = "")
-
-    save(data.raw, file = paste(RData_folder, outputfile, sep = "/"))
-
-    message(file.name, " saved as ", outputfile, " in RData folder, in working directory", sep = "")
-  }
-
-  if(save == FALSE){
-    return(data.raw)
-  }
-
 }

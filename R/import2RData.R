@@ -217,6 +217,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
   # Catch errors and messages from import function to print after progress bar
   errs <- character(0)
   msgs <- character(0)
+  warn <- character(0)
 
   # DX4015 ####
   if(instrument == "DX4015"){
@@ -238,8 +239,12 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                       prec = prec),
 
         error = function(e){
-          errs <<- c(errs, message(
-            paste("Error occurred in file", file_list[[i]],":\n"), e))
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
         },
         message = function(m){
           msgs <<- c(msgs, conditionMessage(m))
@@ -269,8 +274,12 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                     proc.data.field = proc.data.field),
 
         error = function(e){
-          errs <<- c(errs, message(
-            paste("Error occurred in file", file_list[[i]],":\n"), e))
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
         },
         message = function(m){
           msgs <<- c(msgs, conditionMessage(m))
@@ -299,8 +308,12 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                      prec = prec),
 
         error = function(e){
-          errs <<- c(errs, message(
-            paste("Error occurred in file", file_list[[i]],":\n"), e))
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
         },
         message = function(m){
           msgs <<- c(msgs, conditionMessage(m))
@@ -329,8 +342,12 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                      prec = prec),
 
         error = function(e){
-          errs <<- c(errs, message(
-            paste("Error occurred in file", file_list[[i]],":\n"), e))
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
         },
         message = function(m){
           msgs <<- c(msgs, conditionMessage(m))
@@ -357,8 +374,12 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                     prec = prec),
 
         error = function(e){
-          errs <<- c(errs, message(
-            paste("Error occurred in file", file_list[[i]],":\n"), e))
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
         },
         message = function(m){
           msgs <<- c(msgs, conditionMessage(m))
@@ -386,8 +407,12 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                    prec = prec),
 
         error = function(e){
-          errs <<- c(errs, message(
-            paste("Error occurred in file", file_list[[i]],":\n"), e))
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
         },
         message = function(m){
           msgs <<- c(msgs, conditionMessage(m))
@@ -415,8 +440,12 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                       prec = prec),
 
         error = function(e){
-          errs <<- c(errs, message(
-            paste("Error occurred in file", file_list[[i]],":\n"), e))
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
         },
         message = function(m){
           msgs <<- c(msgs, conditionMessage(m))
@@ -444,8 +473,12 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                       prec = prec),
 
         error = function(e){
-          errs <<- c(errs, message(
-            paste("Error occurred in file", file_list[[i]],":\n"), e))
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
         },
         message = function(m){
           msgs <<- c(msgs, conditionMessage(m))
@@ -473,8 +506,12 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                       prec = prec),
 
         error = function(e){
-          errs <<- c(errs, message(
-            paste("Error occurred in file", file_list[[i]],":\n"), e))
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
         },
         message = function(m){
           msgs <<- c(msgs, conditionMessage(m))
@@ -502,8 +539,12 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                       prec = prec),
 
         error = function(e){
-          errs <<- c(errs, message(
-            paste("Error occurred in file", file_list[[i]],":\n"), e))
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
         },
         message = function(m){
           msgs <<- c(msgs, conditionMessage(m))
@@ -523,11 +564,18 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
       withCallingHandlers(
 
-        LI8200_import(inputfile = file_list[i], save = TRUE),
+        LI8200_import(inputfile = file_list[i],
+                      date.format = date.format,
+                      timezone = timezone,
+                      save = TRUE),
 
         error = function(e){
-          errs <<- c(errs, message(
-            paste("Error occurred in file", file_list[[i]],":\n"), e))
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
         },
         message = function(m){
           msgs <<- c(msgs, conditionMessage(m))
@@ -555,8 +603,78 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                      prec = prec),
 
         error = function(e){
-          errs <<- c(errs, message(
-            paste("Error occurred in file", file_list[[i]],":\n"), e))
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
+    })
+  }
+
+  # uCH4 ####
+  if(instrument == "uCH4"){
+
+    # List all the files contained in the specified path
+    file_list <- list.files(path = path, pattern = "\\.txt", full.names = TRUE)
+
+    # Loop through files in "file_list" and apply import functions
+    pblapply(seq_along(file_list), function(i) {
+
+      withCallingHandlers(
+
+        uCH4_import(inputfile = file_list[i],
+                    date.format = date.format,
+                    timezone = timezone,
+                    save = TRUE,
+                    keep_all = keep_all,
+                    prec = prec),
+
+        error = function(e){
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
+    })
+  }
+
+  # uN2O ####
+  if(instrument == "uN2O"){
+
+    # List all the files contained in the specified path
+    file_list <- list.files(path = path, pattern = "\\.txt", full.names = TRUE)
+
+    # Loop through files in "file_list" and apply import functions
+    pblapply(seq_along(file_list), function(i) {
+
+      withCallingHandlers(
+
+        uN2O_import(inputfile = file_list[i],
+                     date.format = date.format,
+                     timezone = timezone,
+                     save = TRUE,
+                     keep_all = keep_all,
+                     prec = prec),
+
+        error = function(e){
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
         },
         message = function(m){
           msgs <<- c(msgs, conditionMessage(m))
@@ -566,6 +684,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
   }
 
   # Print errors and messages after progress bar
-  errs <- trimws(errs); for (e in errs) warning(e, call. = F)
   msgs <- trimws(msgs); for (m in msgs) message(m)
+  errs <- trimws(errs); for (e in errs) warning(e, call. = F)
+  warn <- trimws(warn); for (w in warn) warning(w, call. = F)
 }

@@ -22,7 +22,7 @@
 #'                 file. The default is \code{keep_all = FALSE}, and columns that
 #'                 are not necessary for gas flux calculation are removed.
 #' @param prec numerical vector; the precision of the instrument for each gas,
-#'             in the following order: "CO2dry_ppm", "O2dry_pct" and H2O_ppm".
+#'             in the following order: "CO2dry_ppm", "O2dry_pct" and "H2O_ppm".
 #'             The default is \code{prec = c(3, 1, 500)}.
 #' @param proc.data.field numeric value; select the process data field used with
 #'                        the EGM-5. There are 5 different modes available: (1)
@@ -83,7 +83,9 @@
 #'          \code{\link[goFlux]{LI7820_import}},
 #'          \code{\link[goFlux]{LI8100_import}},
 #'          \code{\link[goFlux]{LI8200_import}},
-#'          \code{\link[goFlux]{N2OM1_import}}
+#'          \code{\link[goFlux]{N2OM1_import}},
+#'          \code{\link[goFlux]{uCH4_import}},
+#'          \code{\link[goFlux]{uN2O_import}}
 #'
 #' @seealso See \code{\link[base]{timezones}} for a description of the underlying
 #'          timezone attribute.
@@ -124,144 +126,172 @@ EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
     TIME <- O2dry_pct <- PAR <- Tsoil <- Tcham <- SWC <- chamID <-
     start.time <- end.time <- cham.open <- NH3 <- NH3wet_ppm <- NH3dry_ppb <-
     CO2dry_ppm <- POSIX.warning <- CO2_ppm <- CO2wet_ppm <- param1 <-
-    param2 <- param3 <- param4 <- param5 <- NULL
+    param2 <- param3 <- param4 <- param5 <- import.error <- NULL
 
-  # Column names
-  col.names <- read.delim(inputfile, sep = ",", nrows = 0) %>% names(.)
+  # Input file name
+  inputfile.name <- gsub(".*/", "", inputfile)
 
-  # Load data file
-  data.raw <- read.delim(inputfile, sep = ",", header = F) %>%
-    # Rename headers
-    rename_all(~c(col.names, paste("param", seq(1,5), sep = ""))) %>%
-    # Detect start.time
-    mutate(start_flag = if_else(
-      row_number() %in% (which(.$Tag.M3. == "Start")+1), 1, 0)) %>%
-    # Convert column classes
-    mutate(across(Plot_No:ncol(.), as.numeric)) %>%
-    # Remove NAs and negative gas measurements, if any
-    drop_na() %>%
-    # Detect new observations
-    mutate(Obs = rleid(cumsum(start_flag == 1))) %>%
-    # Remove measurements with less than 5 observations
-    group_by(Obs) %>% mutate(nb.obs = n()) %>% ungroup() %>%
-    filter(nb.obs > 5) %>% select(!nb.obs) %>%
-    # Correct Obs
-    mutate(Obs = rleid(cumsum(start_flag == 1))) %>% select(!start_flag) %>%
-    # Plot_No must be as.character
-    mutate(Plot_No = as.character(Plot_No)) %>%
-    # Correct Date characters
-    mutate(Date = gsub("/", "-", Date)) %>%
-    # Find and rename Tag
-    rename(Tag = grep("Tag", names(.), value = T)) %>%
-    # Find and rename SWC
-    rename(SWC = grep("Msoil", names(.), value = T)) %>%
-    rename(SWC = grep("RH", names(.), value = T)) %>%
-    # Rename columns
-    rename(CO2wet_ppm = CO2, O2wet_pct = O2, DATE = Date, TIME = Time,
-           Tcham = Tair, H2O_mb = H2O) %>%
-    # Convert H2O_mb to ppm
-    mutate(H2O_ppm = (H2O_mb / Pressure)*1000)
-
-  # Compensate for water vapor
-  if(sum(data.raw$H2O_ppm) > 0){
-    data.raw <- data.raw %>%
-      mutate(CO2dry_ppm = CO2wet_ppm/(1-H2O_ppm/1000000)) %>%
-      mutate(O2wet_ppm = O2wet_pct * 10000,
-             O2dry_ppm = O2wet_ppm/(1-H2O_ppm/1000000),
-             O2dry_pct = O2dry_ppm / 10000) %>%
-      select(!c(O2dry_ppm, O2wet_ppm))
-  }
-
-  # Keep only useful columns for gas flux calculation
-  if(keep_all == FALSE){
-    if(sum(data.raw$H2O_ppm) > 0){
-      data.raw <- data.raw %>%
-        select(DATE, TIME, Plot_No, Obs, CO2dry_ppm, O2dry_pct, H2O_ppm, PAR,
-               Tsoil, Tcham, SWC, param1, param2, param3, param4, param5)
-    } else {
-      data.raw <- data.raw %>%
-        select(DATE, TIME, Plot_No, Obs, CO2wet_ppm, O2wet_pct, PAR, Tsoil,
-               Tcham, SWC, param1, param2, param3, param4, param5)
-    }
-  }
-
-  # Rename Process Data Fields
-  if(!is.null(proc.data.field)){
-    if(proc.data.field == 1){ # Measure mode
-      data.raw <- data.raw %>% rename(
-        Probe = param1, Bat.pct = param2, Zero.pct = param3,
-        Bat.volt = param4, Bat.time = param5)}
-    if(proc.data.field == 2){ # SRC or Custom mode
-      data.raw <- data.raw %>% rename(
-        Process = param1, DC = param2, DT = param3,
-        SRL.ass = param4, SRQ.ass = param5)}
-    if(proc.data.field == 3){ # CPY mode
-      data.raw <- data.raw %>% rename(
-        Process = param1, DC.inv = param2, DT = param3,
-        SRL.res = param4, SRQ.res = param5)}
-    if(proc.data.field == 4){ # Injection mode
-      data.raw <- data.raw %>% rename(
-        Process = param1, C_F = param2, Volume = param3,
-        Base = param4, CO2.int = param5)}
-    if(proc.data.field == 5){ # Static mode
-      data.raw <- data.raw %>% rename(
-        Process = param1, na_1 = param2, DT = param3, CO2 = param4, na_2 = param5)}
-  }
-
-  # Create a new column containing date and time (POSIX format)
-  tryCatch(
-    {if(date.format == "dmy"){
-      try.POSIX <- as.POSIXct(dmy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone))
-    } else if(date.format == "mdy"){
-      try.POSIX <- as.POSIXct(mdy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone))
-    } else if(date.format == "ymd"){
-      try.POSIX <- as.POSIXct(ymd_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone))
-    }}, warning = function(w) {POSIX.warning <<- "date.format.error"}
+  # Try to load data file
+  try.import <- tryCatch(
+    {read.delim(inputfile, sep = ",", nrows = 0)},
+    error = function(e) {import.error <<- e}
   )
 
-  if(isTRUE(POSIX.warning == "date.format.error")){
-    stop(paste("An error occured while converting DATE and TIME into POSIX.time.",
-               "Verify that 'date.format' corresponds to the column 'DATE' in",
-               "the raw data file. Here is a sample:", data.raw$DATE[1]))
-  } else data.raw$POSIX.time <- try.POSIX
+  if(inherits(try.import, "simpleError")){
+    warning("Error occurred in file ", inputfile.name, ":\n", "   ",
+            import.error, call. = F)
+  } else {
 
-  data.raw <- data.raw %>%
-    # Correct DATE
-    mutate(DATE = substr(POSIX.time, 0, 10)) %>%
-    # Create chamID
-    mutate(chamID = paste(Plot_No, Obs, DATE, sep = "_")) %>%
-    # Add start.time and end.time
-    group_by(chamID) %>%
-    mutate(start.time = first(POSIX.time),
-           end.time = last(POSIX.time)) %>% ungroup() %>%
-    # Add cham.close and cham.open
-    mutate(cham.close = start.time, cham.open = end.time) %>%
-    # Calculate Etime
-    mutate(Etime = as.numeric(POSIX.time - start.time, units = "secs"),
-           flag = if_else(between(POSIX.time, start.time, cham.open), 1, 0))
+    # Column names
+    col.names <- try.import %>% names(.)
 
-  # Add instrument precision for each gas
-  data.raw <- data.raw %>%
-    mutate(CO2_prec = prec[1], O2_prec = prec[2],  H2O_prec = prec[3])
+    # Load data file
+    data.raw <- read.delim(inputfile, sep = ",", header = F) %>%
+      # Rename headers
+      rename_all(~c(col.names, paste("param", seq(1,5), sep = ""))) %>%
+      # Detect start.time
+      mutate(start_flag = if_else(
+        row_number() %in% (which(.$Tag.M3. == "Start")+1), 1, 0))
 
-  # Save cleaned data file
-  if(save == TRUE){
-    # Create RData folder in working directory
-    RData_folder <- paste(getwd(), "RData", sep = "/")
-    if(dir.exists(RData_folder) == FALSE){dir.create(RData_folder)}
+    # Convert column classes
+    suppressWarnings(
+      data.raw <- data.raw %>%
+        mutate(across(Plot_No:ncol(.), as.numeric))
+    )
 
-    # Create output file: change extension to .RData, and
-    # add instrument name and "imp" for import to file name
-    file.name <- gsub(".*/", "", sub("\\.TXT", "", inputfile))
-    outputfile <- paste("EGM5_", file.name, "_imp.RData", sep = "")
+    # Clean data frame
+    data.raw <- data.raw %>%
+      # Remove NAs and negative gas measurements, if any
+      drop_na() %>%
+      # Detect new observations
+      mutate(Obs = rleid(cumsum(start_flag == 1))) %>%
+      # Remove measurements with less than 5 observations
+      group_by(Obs) %>% mutate(nb.obs = n()) %>% ungroup() %>%
+      filter(nb.obs > 5) %>% select(!nb.obs) %>%
+      # Correct Obs
+      mutate(Obs = rleid(cumsum(start_flag == 1))) %>% select(!start_flag) %>%
+      # Plot_No must be as.character
+      mutate(Plot_No = as.character(Plot_No)) %>%
+      # Correct Date characters
+      mutate(Date = gsub("/", "-", Date)) %>%
+      # Find and rename Tag
+      rename(Tag = grep("Tag", names(.), value = T)) %>%
+      # Find and rename SWC
+      rename(SWC = grep("Msoil", names(.), value = T)) %>%
+      rename(SWC = grep("RH", names(.), value = T)) %>%
+      # Rename columns
+      rename(CO2wet_ppm = CO2, O2wet_pct = O2, DATE = Date, TIME = Time,
+             Tcham = Tair, H2O_mb = H2O) %>%
+      # Convert H2O_mb to ppm
+      mutate(H2O_ppm = (H2O_mb / Pressure)*1000)
 
-    save(data.raw, file = paste(RData_folder, outputfile, sep = "/"))
+    # Compensate for water vapor
+    if(sum(data.raw$H2O_ppm) > 0){
+      data.raw <- data.raw %>%
+        mutate(CO2dry_ppm = CO2wet_ppm/(1-H2O_ppm/1000000)) %>%
+        mutate(O2wet_ppm = O2wet_pct * 10000,
+               O2dry_ppm = O2wet_ppm/(1-H2O_ppm/1000000),
+               O2dry_pct = O2dry_ppm / 10000) %>%
+        select(!c(O2dry_ppm, O2wet_ppm))
+    }
 
-    message(file.name, " saved as ", outputfile, " in RData folder, in working directory", sep = "")
+    # Keep only useful columns for gas flux calculation
+    if(keep_all == FALSE){
+      if(sum(data.raw$H2O_ppm) > 0){
+        data.raw <- data.raw %>%
+          select(DATE, TIME, Plot_No, Obs, CO2dry_ppm, O2dry_pct, H2O_ppm, PAR,
+                 Tsoil, Tcham, SWC, param1, param2, param3, param4, param5)
+      } else {
+        data.raw <- data.raw %>%
+          select(DATE, TIME, Plot_No, Obs, CO2wet_ppm, O2wet_pct, PAR, Tsoil,
+                 Tcham, SWC, param1, param2, param3, param4, param5)
+      }
+    }
+
+    # Rename Process Data Fields
+    if(!is.null(proc.data.field)){
+      if(proc.data.field == 1){ # Measure mode
+        data.raw <- data.raw %>% rename(
+          Probe = param1, Bat.pct = param2, Zero.pct = param3,
+          Bat.volt = param4, Bat.time = param5)}
+      if(proc.data.field == 2){ # SRC or Custom mode
+        data.raw <- data.raw %>% rename(
+          Process = param1, DC = param2, DT = param3,
+          SRL.ass = param4, SRQ.ass = param5)}
+      if(proc.data.field == 3){ # CPY mode
+        data.raw <- data.raw %>% rename(
+          Process = param1, DC.inv = param2, DT = param3,
+          SRL.res = param4, SRQ.res = param5)}
+      if(proc.data.field == 4){ # Injection mode
+        data.raw <- data.raw %>% rename(
+          Process = param1, C_F = param2, Volume = param3,
+          Base = param4, CO2.int = param5)}
+      if(proc.data.field == 5){ # Static mode
+        data.raw <- data.raw %>% rename(
+          Process = param1, na_1 = param2, DT = param3, CO2 = param4, na_2 = param5)}
+    }
+
+    # Create a new column containing date and time (POSIX format)
+    tryCatch(
+      {if(date.format == "dmy"){
+        try.POSIX <- as.POSIXct(dmy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone))
+      } else if(date.format == "mdy"){
+        try.POSIX <- as.POSIXct(mdy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone))
+      } else if(date.format == "ymd"){
+        try.POSIX <- as.POSIXct(ymd_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone))
+      }}, warning = function(w) {POSIX.warning <<- "date.format.error"}
+    )
+
+    if(isTRUE(POSIX.warning == "date.format.error")){
+      warning("Error occurred in file ", inputfile.name, ":\n",
+              "   An error occured while converting DATE and TIME into POSIX.time.\n",
+              "   Verify that the 'date.format' you specified (", date.format,
+              ") corresponds to the\n",
+              "   column 'DATE' in the raw data file. Here is a sample: ",
+              data.raw$DATE[1], "\n", call. = F)
+    } else {
+
+      data.raw$POSIX.time <- try.POSIX
+
+      data.raw <- data.raw %>%
+        # Correct DATE
+        mutate(DATE = substr(POSIX.time, 0, 10)) %>%
+        # Create chamID
+        mutate(chamID = paste(Plot_No, Obs, DATE, sep = "_")) %>%
+        # Add start.time and end.time
+        group_by(chamID) %>%
+        mutate(start.time = first(POSIX.time),
+               end.time = last(POSIX.time)) %>% ungroup() %>%
+        # Add cham.close and cham.open
+        mutate(cham.close = start.time, cham.open = end.time) %>%
+        # Calculate Etime
+        mutate(Etime = as.numeric(POSIX.time - start.time, units = "secs"),
+               flag = if_else(between(POSIX.time, start.time, cham.open), 1, 0))
+
+      # Add instrument precision for each gas
+      data.raw <- data.raw %>%
+        mutate(CO2_prec = prec[1], O2_prec = prec[2],  H2O_prec = prec[3])
+
+      # Save cleaned data file
+      if(save == TRUE){
+        # Create RData folder in working directory
+        RData_folder <- paste(getwd(), "RData", sep = "/")
+        if(dir.exists(RData_folder) == FALSE){dir.create(RData_folder)}
+
+        # Create output file: change extension to .RData, and
+        # add instrument name and "imp" for import to file name
+        file.name <- gsub(".*/", "", sub("\\.TXT", "", inputfile))
+        outputfile <- paste("EGM5_", file.name, "_imp.RData", sep = "")
+
+        save(data.raw, file = paste(RData_folder, outputfile, sep = "/"))
+
+        message(inputfile.name, " saved as ", outputfile,
+                " in RData folder, in working directory\n", sep = "")
+      }
+
+      if(save == FALSE){
+        return(data.raw)
+      }
+    }
   }
-
-  if(save == FALSE){
-    return(data.raw)
-  }
-
 }

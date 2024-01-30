@@ -58,7 +58,9 @@
 #'          \code{\link[goFlux]{LI7810_import}},
 #'          \code{\link[goFlux]{LI7820_import}},
 #'          \code{\link[goFlux]{LI8100_import}},
-#'          \code{\link[goFlux]{N2OM1_import}}
+#'          \code{\link[goFlux]{N2OM1_import}},
+#'          \code{\link[goFlux]{uCH4_import}},
+#'          \code{\link[goFlux]{uN2O_import}}
 #'
 #' @seealso See \code{\link[base]{timezones}} for a description of the underlying
 #'          timezone attribute.
@@ -86,137 +88,158 @@ LI8200_import <- function(inputfile, date.format = "ymd",
 
   # Assign NULL to variables without binding
   h2o <- cham.close <- deadband <- POSIX.time <- plotID <- n2o <- Etime <-
-    ch4 <- co2 <- H2O_ppm <- chamber_t <- chamber_p <- Vcham <- Area <-
-    soilp_m <- . <- soilp_t <- DATE <- cham.open <- start.time <-
-    N2Odry_ppb <- CH4dry_ppb <- CO2dry_ppm <- POSIX.warning <- NULL
+    import.error <- H2O_ppm <- chamber_t <- chamber_p <- Vcham <- Area <-
+    soilp_m <- . <- soilp_t <- DATE <- cham.open <- start.time <- co2 <-
+    N2Odry_ppb <- CH4dry_ppb <- CO2dry_ppm <- POSIX.warning <- ch4 <- NULL
 
-  # Load data file
-  data.raw.ls <- fromJSON(file = inputfile)
+  # Input file name
+  inputfile.name <- gsub(".*/", "", inputfile)
 
-  # Create empty lists to extract objects from lists of data.raw.ls
-  df.ls <- list()
-  plotID.ls <- list()
-  cham.close.ls <- list()
-  deadband.ls <- list()
-  Vcham.ls <- list()
-  offset.ls <- list()
-  Area.ls <- list()
-
-  # Loop through data.raw.ls
-  for (i in 1:length(data.raw.ls$datasets)) {
-    # loop through all measurements reps
-    all.reps <- data.raw.ls$datasets[[i]][[1]]$reps
-    # Extract plotID from list "datasets"
-    plotID.ls[[i]] <- names(data.raw.ls$datasets[[i]])
-    if(length(all.reps) > 0) {
-      rep.ls <- list()
-      for (j in 1:length(all.reps)) {
-        # Extract gas measurements from "data"
-        rep.ls[[j]] <- all.reps[[j]]$data
-        # Extract chamber closure time from "Date"
-        cham.close.ls[[i]] <- all.reps[[j]]$header$Date
-        # Extract deadband before measurement start from "DeadBand"
-        deadband.ls[[i]] <- all.reps[[j]]$header$DeadBand
-        # Extract chamber volume from "Vcham"
-        Vcham.ls[[i]] <- all.reps[[j]]$header$TotalVolume
-        # Extract chamber offset (collar height) from "Offset"
-        offset.ls[[i]] <- all.reps[[j]]$header$Offset
-        # Extract chamber Area (collar inner Area) from "Area"
-        Area.ls[[i]] <- all.reps[[j]]$header$Area
-      }
-      # Convert list of data into a dataframe
-      df.ls[[i]] <- map_df(rep.ls, ~as.data.frame(.x), .id="rep")
-
-    } else {
-      cham.close.ls[[i]] <- NA
-      deadband.ls[[i]] <- NA
-      Vcham.ls[[i]] <- NA
-      offset.ls[[i]] <- NA
-      Area.ls[[i]] <- NA
-    }
-  }
-
-  # Convert lists of metadata into matrix
-  metadata <- cbind.data.frame(
-    Obs = as.character(c(1:length(data.raw.ls$datasets))),
-    plotID = unlist(plotID.ls),
-    cham.close = unlist(cham.close.ls),
-    deadband = unlist(deadband.ls),
-    Vcham = unlist(Vcham.ls),
-    offset = unlist(offset.ls),
-    Area = unlist(Area.ls)) %>%
-    mutate(Vcham = Vcham/100)
-
-  # Create extra columns for CO2, CH4 or N2O, if missing
-  cols <- c(co2 = NA_real_, ch4 = NA_real_, n2o = NA_real_)
-
-  # Convert list of dataframe into a dataframe
-  data.raw <- map_df(df.ls, ~as.data.frame(.x), .id="Obs") %>%
-    # Add metadata and extra columns for additional gases
-    left_join(as.data.frame(metadata), by = "Obs")%>%
-    add_column(!!!cols[!names(cols) %in% names(.)]) %>%
-    # Convert H2O_mmol/mol into H2O_ppm
-    mutate(H2O_ppm = h2o*1000)
-
-  # Convert time to POSIXct format
-  tryCatch(
-    {if(date.format == "dmy"){
-      try.POSIX <- as.POSIXct(dmy_hms(data.raw$cham.close, tz = timezone))
-    } else if(date.format == "mdy"){
-      try.POSIX <- as.POSIXct(mdy_hms(data.raw$cham.close, tz = timezone))
-    } else if(date.format == "ymd"){
-      try.POSIX <- as.POSIXct(ymd_hms(data.raw$cham.close, tz = timezone))
-    }}, warning = function(w) {POSIX.warning <<- "date.format.error"}
+  # Try to load data file
+  try.import <- tryCatch(
+    {fromJSON(file = inputfile)},
+    error = function(e) {import.error <<- e}
   )
 
-  if(isTRUE(POSIX.warning == "date.format.error")){
-    stop(paste("An error occured while converting DATE and TIME into POSIX.time.",
-               "Verify that 'date.format' corresponds to the column 'Date' in",
-               "the raw data file. Here is a sample:", data.raw$cham.close[1]))
-  } else data.raw$cham.close <- try.POSIX
+  if(inherits(try.import, "simpleError")){
+    warning("Error occurred in file ", inputfile.name, ":\n", "   ",
+            import.error, call. = F)
+  } else {
 
-  data.raw <- data.raw %>%
-    # Create a column for POSIX time
-    mutate(POSIX.time = cham.close + timestamp,
-           Etime = timestamp - deadband,
-           DATE = substr(POSIX.time, 0, 10)) %>%
-    # Select and rename useful columns
-    select(POSIX.time, plotID, rep, cham.close, deadband, Etime,
-           N2Odry_ppb = n2o, CH4dry_ppb = ch4, CO2dry_ppm = co2, H2O_ppm,
-           Tcham = chamber_t, Pcham = chamber_p, Vcham, Area,
-           SWC = soilp_m, Tsoil = soilp_t, DATE) %>%
-    # Add start.time and cham.open (POSIX.time)
-    group_by(plotID, rep) %>%
-    mutate(start.time = cham.close + deadband,
-           cham.open = last(POSIX.time)) %>%
-    ungroup() %>%
-    # Create chamID and flag
-    mutate(chamID = paste(plotID, rep, sep = "_"),
-           flag = if_else(between(POSIX.time, start.time, cham.open), 1, 0)) %>%
-    # Remove negative gas measurements, if any
-    filter(CO2dry_ppm > 0 | is.na(CO2dry_ppm)) %>%
-    filter(CH4dry_ppb > 0 | is.na(CH4dry_ppb)) %>%
-    filter(H2O_ppm > 0 | is.na(H2O_ppm)) %>%
-    filter(N2Odry_ppb > 0 | is.na(N2Odry_ppb))
+    # Load data file
+    data.raw.ls <- try.import
 
-  # Save cleaned data file
-  if(save == TRUE){
-    # Create RData folder in working directory
-    RData_folder <- paste(getwd(), "RData", sep = "/")
-    if(dir.exists(RData_folder) == FALSE){dir.create(RData_folder)}
+    # Create empty lists to extract objects from lists of data.raw.ls
+    df.ls <- list()
+    plotID.ls <- list()
+    cham.close.ls <- list()
+    deadband.ls <- list()
+    Vcham.ls <- list()
+    offset.ls <- list()
+    Area.ls <- list()
 
-    # Create output file: change extension to .RData, and
-    # add instrument name and "imp" for import to file name
-    file.name <- gsub(".*/", "", sub("\\.json", "", inputfile))
-    outputfile <- paste("LI8200_", file.name, "_imp.RData", sep = "")
+    # Loop through data.raw.ls
+    for (i in 1:length(data.raw.ls$datasets)) {
+      # loop through all measurements reps
+      all.reps <- data.raw.ls$datasets[[i]][[1]]$reps
+      # Extract plotID from list "datasets"
+      plotID.ls[[i]] <- names(data.raw.ls$datasets[[i]])
+      if(length(all.reps) > 0) {
+        rep.ls <- list()
+        for (j in 1:length(all.reps)) {
+          # Extract gas measurements from "data"
+          rep.ls[[j]] <- all.reps[[j]]$data
+          # Extract chamber closure time from "Date"
+          cham.close.ls[[i]] <- all.reps[[j]]$header$Date
+          # Extract deadband before measurement start from "DeadBand"
+          deadband.ls[[i]] <- all.reps[[j]]$header$DeadBand
+          # Extract chamber volume from "Vcham"
+          Vcham.ls[[i]] <- all.reps[[j]]$header$TotalVolume
+          # Extract chamber offset (collar height) from "Offset"
+          offset.ls[[i]] <- all.reps[[j]]$header$Offset
+          # Extract chamber Area (collar inner Area) from "Area"
+          Area.ls[[i]] <- all.reps[[j]]$header$Area
+        }
+        # Convert list of data into a dataframe
+        df.ls[[i]] <- map_df(rep.ls, ~as.data.frame(.x), .id="rep")
 
-    save(data.raw, file = paste(RData_folder, outputfile, sep = "/"))
+      } else {
+        cham.close.ls[[i]] <- NA
+        deadband.ls[[i]] <- NA
+        Vcham.ls[[i]] <- NA
+        offset.ls[[i]] <- NA
+        Area.ls[[i]] <- NA
+      }
+    }
 
-    message(file.name, " saved as ", outputfile, " in RData folder, in working directory", sep = "")
+    # Convert lists of metadata into matrix
+    metadata <- cbind.data.frame(
+      Obs = as.character(c(1:length(data.raw.ls$datasets))),
+      plotID = unlist(plotID.ls),
+      cham.close = unlist(cham.close.ls),
+      deadband = unlist(deadband.ls),
+      Vcham = unlist(Vcham.ls),
+      offset = unlist(offset.ls),
+      Area = unlist(Area.ls)) %>%
+      mutate(Vcham = Vcham/100)
+
+    # Create extra columns for CO2, CH4 or N2O, if missing
+    cols <- c(co2 = NA_real_, ch4 = NA_real_, n2o = NA_real_)
+
+    # Convert list of dataframe into a dataframe
+    data.raw <- map_df(df.ls, ~as.data.frame(.x), .id="Obs") %>%
+      # Add metadata and extra columns for additional gases
+      left_join(as.data.frame(metadata), by = "Obs")%>%
+      add_column(!!!cols[!names(cols) %in% names(.)]) %>%
+      # Convert H2O_mmol/mol into H2O_ppm
+      mutate(H2O_ppm = h2o*1000)
+
+    # Convert time to POSIXct format
+    tryCatch(
+      {if(date.format == "dmy"){
+        try.POSIX <- as.POSIXct(dmy_hms(data.raw$cham.close, tz = timezone))
+      } else if(date.format == "mdy"){
+        try.POSIX <- as.POSIXct(mdy_hms(data.raw$cham.close, tz = timezone))
+      } else if(date.format == "ymd"){
+        try.POSIX <- as.POSIXct(ymd_hms(data.raw$cham.close, tz = timezone))
+      }}, warning = function(w) {POSIX.warning <<- "date.format.error"}
+    )
+
+    if(isTRUE(POSIX.warning == "date.format.error")){
+      warning("Error occurred in file ", inputfile.name, ":\n",
+              "   An error occured while converting DATE and TIME into POSIX.time.\n",
+              "   Verify that the 'date.format' you specified (", date.format,
+              ") corresponds to the\n",
+              "   column 'Date' in the raw data file. Here is a sample: ",
+              data.raw$cham.close[1], "\n", call. = F)
+    } else {
+
+      data.raw$cham.close <- try.POSIX
+
+      data.raw <- data.raw %>%
+        # Create a column for POSIX time
+        mutate(POSIX.time = cham.close + timestamp,
+               Etime = timestamp - deadband,
+               DATE = substr(POSIX.time, 0, 10)) %>%
+        # Select and rename useful columns
+        select(POSIX.time, plotID, rep, cham.close, deadband, Etime,
+               N2Odry_ppb = n2o, CH4dry_ppb = ch4, CO2dry_ppm = co2, H2O_ppm,
+               Tcham = chamber_t, Pcham = chamber_p, Vcham, Area,
+               SWC = soilp_m, Tsoil = soilp_t, DATE) %>%
+        # Add start.time and cham.open (POSIX.time)
+        group_by(plotID, rep) %>%
+        mutate(start.time = cham.close + deadband,
+               cham.open = last(POSIX.time)) %>%
+        ungroup() %>%
+        # Create chamID and flag
+        mutate(chamID = paste(plotID, rep, sep = "_"),
+               flag = if_else(between(POSIX.time, start.time, cham.open), 1, 0)) %>%
+        # Remove negative gas measurements, if any
+        filter(CO2dry_ppm > 0 | is.na(CO2dry_ppm)) %>%
+        filter(CH4dry_ppb > 0 | is.na(CH4dry_ppb)) %>%
+        filter(H2O_ppm > 0 | is.na(H2O_ppm)) %>%
+        filter(N2Odry_ppb > 0 | is.na(N2Odry_ppb))
+
+      # Save cleaned data file
+      if(save == TRUE){
+        # Create RData folder in working directory
+        RData_folder <- paste(getwd(), "RData", sep = "/")
+        if(dir.exists(RData_folder) == FALSE){dir.create(RData_folder)}
+
+        # Create output file: change extension to .RData, and
+        # add instrument name and "imp" for import to file name
+        file.name <- gsub(".*/", "", sub("\\.json", "", inputfile))
+        outputfile <- paste("LI8200_", file.name, "_imp.RData", sep = "")
+
+        save(data.raw, file = paste(RData_folder, outputfile, sep = "/"))
+
+        message(inputfile.name, " saved as ", outputfile,
+                " in RData folder, in working directory\n", sep = "")
+      }
+
+      if(save == FALSE){
+        return(data.raw)
+      }
+    }
   }
-
-  if(save == FALSE){
-    return(data.raw)
-  }
-
 }
