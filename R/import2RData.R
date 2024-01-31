@@ -186,6 +186,18 @@
 #' import2RData(path = file.path, instrument = "LI-8200",
 #'              date.format = "ymd")
 #'
+#' # with the Aeris Technologies MIRA Ultra CH4/C2H6 analyzer
+#' file.path <- system.file("extdata/uCH4", package = "goFlux")
+#' import2RData(path = file.path, instrument = "uCH4",
+#'              date.format = "mdy", keep_all = FALSE,
+#'              prec = c(1, 0.5, 1))
+#'
+#' # with the Aeris Technologies MIRA Ultra N2O/CO2 analyzer
+#' file.path <- system.file("extdata/uN2O", package = "goFlux")
+#' import2RData(path = file.path, instrument = "uN2O",
+#'              date.format = "mdy", keep_all = FALSE,
+#'              prec = c(0.2, 0.2, 1))
+#'
 #' @export
 #'
 import2RData <- function(path, instrument, date.format, timezone = "UTC",
@@ -198,8 +210,9 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
   if(length(instrument) != 1) stop("'instrument' must be of length 1")
   if(!any(grepl(paste("\\<", instrument, "\\>", sep = ""),
                 c("DX4015", "LGR", "G4301", "G2508", "GAIA", "LI-6400", "EGM5",
-                  "LI-7810", "LI-7820", "LI-8100", "LI-8200", "N2OM1")))){
-    stop("'instrument' must be of class character and one of the following: 'DX4015', 'EGM5', 'G2508', 'G4301', 'GAIA', 'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100', 'LI-8200', 'LGR', 'N2OM1'")}
+                  "LI-7810", "LI-7820", "LI-8100", "LI-8200", "N2OM1", "uCH4",
+                  "uN2O")))){
+    stop("'instrument' must be of class character and one of the following: 'DX4015', 'EGM5', 'G2508', 'G4301', 'GAIA', 'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100', 'LI-8200', 'LGR', 'N2OM1', 'uCH4', 'uN2O'")}
   if(!missing(date.format)){
     if(length(date.format) != 1) stop("'date.format' must be of length 1")
     if(!any(grepl(paste("\\<", date.format, "\\>", sep = ""), c("ymd", "dmy", "mdy")))){
