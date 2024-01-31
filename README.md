@@ -466,10 +466,10 @@ and save the plots as pdf using `flux2pdf()`.
 ## Installation
 
 To install a package from GitHub, one must first install the package
-`remotes` from the CRAN:
+`devtools` from the CRAN:
 
 ``` r
-if (!require("remotes", quietly = TRUE)) install.packages("remotes")
+if (!require("devtools", quietly = TRUE)) install.packages("devtools")
 ```
 
 Then, install the `goFlux` package from GitHub. If it is not the first
@@ -482,7 +482,7 @@ updated.
 
 ``` r
 try(detach("package:goFlux", unload = TRUE), silent = TRUE)
-remotes::install_github("Qepanna/goFlux")
+devtools::install_github("Qepanna/goFlux")
 ```
 
 **If prompted, it is recommended to update any pre-installed packages.**
