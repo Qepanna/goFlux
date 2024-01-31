@@ -184,13 +184,13 @@ import2RData(path = file.path, instrument = "LI-8200",
 file.path <- system.file("extdata/uCH4", package = "goFlux")
 import2RData(path = file.path, instrument = "uCH4",
              date.format = "mdy", keep_all = FALSE,
-             prec = c(1, 0.5, 1))
+             prec = c(1, 0.5, 15))
 
 # with the Aeris Technologies MIRA Ultra N2O/CO2 analyzer
 file.path <- system.file("extdata/uN2O", package = "goFlux")
 import2RData(path = file.path, instrument = "uN2O",
              date.format = "mdy", keep_all = FALSE,
-             prec = c(0.2, 0.2, 1))
+             prec = c(0.2, 0.2, 15))
 
 }
 \seealso{

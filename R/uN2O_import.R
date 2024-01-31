@@ -29,8 +29,7 @@
 #'                 are not necessary for gas flux calculation are removed.
 #' @param prec numerical vector; the precision of the instrument for each gas,
 #'             in the following order: "CO2dry_ppm", "N2O_ppb" and "H2O_ppm".
-#'             The default is \code{prec = c(0.2, 0.2, 1)}. The precision for
-#'             water vapor is currently unknown, and a default of 1 ppm is used.
+#'             The default is \code{prec = c(0.2, 0.2, 15)}.
 #'
 #' @returns A data frame containing raw data from the MIRA Ultra
 #' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}/
@@ -101,7 +100,7 @@
 #' @export
 #'
 uN2O_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
-                        save = FALSE, keep_all = FALSE, prec = c(0.2, 0.2, 1)){
+                        save = FALSE, keep_all = FALSE, prec = c(0.2, 0.2, 15)){
 
   # Test
   inputfile = "inst/extdata/uN2O/uN2O.txt"

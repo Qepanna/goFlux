@@ -13,7 +13,7 @@ uCH4_import(
   timezone = "UTC",
   save = FALSE,
   keep_all = FALSE,
-  prec = c(1, 0.5, 1)
+  prec = c(1, 0.5, 15)
 )
 }
 \arguments{
@@ -40,7 +40,7 @@ are not necessary for gas flux calculation are removed.}
 
 \item{prec}{numerical vector; the precision of the instrument for each gas,
 in the following order: "CH4_ppb", "C2H6dry_ppb" and "H2O_ppm".
-The default is \code{prec = c(1, 0.5, 1)}. The precision for
+The default is \code{prec = c(1, 0.5, 15)}. The precision for
 water vapor is currently unknown, and a default of 1 ppm is used.}
 }
 \value{
@@ -88,8 +88,7 @@ curvature, especially for water vapor fluxes, or very long measurements, that
 are normally curved. The default values given for instrument precision are
 the ones found \href{https://aerissensors.com/mira-pico-mobile-lds/s}{online}
 for the latest model of this instrument available at the
-time of the creation of this function (01-2024). The precision for water
-vapor is currently unknown, and a default of 1 ppm is used.
+time of the creation of this function (01-2024).
 }
 \examples{
 # Examples on how to use:

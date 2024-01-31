@@ -13,7 +13,7 @@ uN2O_import(
   timezone = "UTC",
   save = FALSE,
   keep_all = FALSE,
-  prec = c(0.2, 0.2, 1)
+  prec = c(0.2, 0.2, 15)
 )
 }
 \arguments{
@@ -40,8 +40,7 @@ are not necessary for gas flux calculation are removed.}
 
 \item{prec}{numerical vector; the precision of the instrument for each gas,
 in the following order: "CO2dry_ppm", "N2O_ppb" and "H2O_ppm".
-The default is \code{prec = c(0.2, 0.2, 1)}. The precision for
-water vapor is currently unknown, and a default of 1 ppm is used.}
+The default is \code{prec = c(0.2, 0.2, 15)}.}
 }
 \value{
 A data frame containing raw data from the MIRA Ultra

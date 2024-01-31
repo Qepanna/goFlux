@@ -29,7 +29,7 @@
 #'                 are not necessary for gas flux calculation are removed.
 #' @param prec numerical vector; the precision of the instrument for each gas,
 #'             in the following order: "CH4_ppb", "C2H6dry_ppb" and "H2O_ppm".
-#'             The default is \code{prec = c(1, 0.5, 1)}. The precision for
+#'             The default is \code{prec = c(1, 0.5, 15)}. The precision for
 #'             water vapor is currently unknown, and a default of 1 ppm is used.
 #'
 #' @returns A data frame containing raw data from the MIRA Ultra
@@ -69,8 +69,7 @@
 #' are normally curved. The default values given for instrument precision are
 #' the ones found \href{https://aerissensors.com/mira-pico-mobile-lds/s}{online}
 #' for the latest model of this instrument available at the
-#' time of the creation of this function (01-2024). The precision for water
-#' vapor is currently unknown, and a default of 1 ppm is used.
+#' time of the creation of this function (01-2024).
 #'
 #' @seealso Use the wrapper function \code{\link[goFlux]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
@@ -101,7 +100,7 @@
 #' @export
 #'
 uCH4_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
-                        save = FALSE, keep_all = FALSE, prec = c(1, 0.5, 1)){
+                        save = FALSE, keep_all = FALSE, prec = c(1, 0.5, 15)){
 
   # Test
   inputfile = "inst/extdata/uCH4/uCH4.txt"
