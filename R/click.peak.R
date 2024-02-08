@@ -208,7 +208,8 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
     dev.off()
 
     # Stop and return error
-    stop(identify.error[[1]])
+    warning(paste(identify.error[[1]], "for UniqueID:",
+                  unique(flux.unique$UniqueID)), call. = FALSE)
 
   } else {
 
@@ -216,66 +217,65 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
     dev.flush()
     dev.off()
 
+    # Assign fictional values to rownum for the function check to work
+    if(length(rownum) < 2){rownum <- c(1,1)}
+
+    # Extract data from the identification
+    start.time_corr <- time.meas[rownum[1]]
+    end.time_corr <- time.meas[rownum[2]]
+    flux.flag <- which(between(time.meas, start.time_corr, end.time_corr))
+
+    # Based on these identifications, the flagging and Etime columns are added
+    flux.corr <- flux.unique %>%
+      # 0 == no measurement, 1 == measurement point to be used for flux calculation
+      mutate(flag = if_else(row_number() %in% flux.flag, 1, 0)) %>%
+      # Set to 0 at start of measurement and count seconds to end of measurement
+      mutate(Etime = as.numeric(POSIX.time - start.time_corr, units = "secs")) %>%
+      # Add start.time_corr and end.time_corr
+      mutate(start.time_corr = start.time_corr,
+             end.time_corr = end.time_corr) %>%
+      # Add obs.length
+      mutate(obs.length_corr = as.numeric(end.time_corr - start.time_corr, units = "secs"))
+
+    # xaxis in validation plot: get lowest and highest Etime, rounded around 30s
+    xmin <- min(round_any(flux.corr$Etime, 30, f = floor)) %>% if_else(. == 0, -15, .)
+    xmax <- max(round_any(flux.corr$Etime, 30, f = ceiling)) %>% if_else(. == 0, 15, .)
+    xmult <- (xmax + abs(xmin))/30
+
+    # yaxis in validation plot: zoom on the selected values
+    ymax2 <- flux.corr %>% filter(flag == 1) %>% select(all_of(gastype)) %>% max()
+    ymin2 <- flux.corr %>% filter(flag == 1) %>% select(all_of(gastype)) %>% min()
+    ydiff2 <- ymax2 - ymin2
+
+    ylim2 <- c(ymin2 - ydiff2, ymax2 + ydiff2)
+    ylim.min2 <- ifelse(ylim2[1] < ylim.min, ylim.min, ylim2[1])
+    ylim.max2 <- ifelse(ylim2[2] > ylim.max, ylim.max, ylim2[2])
+
+    # Inspect the full data set to see if it looks OK
+    dev.new(noRStudioGD = TRUE, width = 14, height = 8)
+    plot(flux.meas ~ flux.corr$Etime, col = flux.corr$flag+1,
+         main = paste(unique(flux.corr$UniqueID)),
+         xlab = "Etime", ylab = gastype, xaxp = c(xmin, xmax, xmult),
+         ylim = c(ylim.min2, ylim.max2))
+
+    # Wait a few seconds before closing the window to inspect the plot
+    if(!is.null(sleep) | sleep > 0) sleeploop(sleep)
+    dev.off()
+
+    # Revert back to default settings for graphic device
+    options(device = device)
+
+    # Print warning if nb.obs < warn.length (default 60 observations)
+    if(nrow(filter(flux.corr, flag == 1)) < warn.length){
+      warning("Number of observations for UniqueID: ", unique(flux.corr$UniqueID),
+              " is ", nrow(filter(flux.corr, flag == 1)), " observations",
+              call. = FALSE)
+    } else {
+      message("Good window of observation for UniqueID: ", unique(flux.corr$UniqueID))
+    }
+
+    # Return results
+    return(flux.corr)
+
   }
-
-  # Assign fictional values to rownum for the function check to work
-  if(length(rownum) < 2){rownum <- c(1,2)}
-
-  # Extract data from the identification
-  start.time_corr <- time.meas[rownum[1]]
-  end.time_corr <- time.meas[rownum[2]]
-  flux.flag <- which(between(time.meas, start.time_corr, end.time_corr))
-
-  # Based on these identifications, the flagging and Etime columns are added
-  flux.corr <- flux.unique %>%
-    # 0 == no measurement, 1 == measurement point to be used for flux calculation
-    mutate(flag = if_else(row_number() %in% flux.flag, 1, 0)) %>%
-    # Set to 0 at start of measurement and count seconds to end of measurement
-    mutate(Etime = as.numeric(POSIX.time - start.time_corr, units = "secs")) %>%
-    # Add start.time_corr and end.time_corr
-    mutate(start.time_corr = start.time_corr,
-           end.time_corr = end.time_corr) %>%
-    # Add obs.length
-    mutate(obs.length_corr = as.numeric(end.time_corr - start.time_corr, units = "secs"))
-
-  # xaxis in validation plot: get lowest and highest Etime, rounded around 30s
-  xmin <- min(round_any(flux.corr$Etime, 30, f = floor)) %>% if_else(. == 0, -15, .)
-  xmax <- max(round_any(flux.corr$Etime, 30, f = ceiling)) %>% if_else(. == 0, 15, .)
-  xmult <- (xmax + abs(xmin))/30
-
-  # yaxis in validation plot: zoom on the selected values
-  ymax2 <- flux.corr %>% filter(flag == 1) %>% select(all_of(gastype)) %>% max()
-  ymin2 <- flux.corr %>% filter(flag == 1) %>% select(all_of(gastype)) %>% min()
-  ydiff2 <- ymax2 - ymin2
-
-  ylim2 <- c(ymin2 - ydiff2, ymax2 + ydiff2)
-  ylim.min2 <- ifelse(ylim2[1] < ylim.min, ylim.min, ylim2[1])
-  ylim.max2 <- ifelse(ylim2[2] > ylim.max, ylim.max, ylim2[2])
-
-  # Inspect the full data set to see if it looks OK
-  dev.new(noRStudioGD = TRUE, width = 14, height = 8)
-  plot(flux.meas ~ flux.corr$Etime, col = flux.corr$flag+1,
-       main = paste(unique(flux.corr$UniqueID)),
-       xlab = "Etime", ylab = gastype, xaxp = c(xmin, xmax, xmult),
-       ylim = c(ylim.min2, ylim.max2))
-
-  # Wait a few seconds before closing the window to inspect the plot
-  if(!is.null(sleep) | sleep > 0) sleeploop(sleep)
-  dev.off()
-
-  # Revert back to default settings for graphic device
-  options(device = device)
-
-  # Print warning if nb.obs < warn.length (default 60 observations)
-  if(nrow(filter(flux.corr, flag == 1)) < warn.length){
-    warning("Number of observations for UniqueID: ", unique(flux.corr$UniqueID),
-            " is ", nrow(filter(flux.corr, flag == 1)), " observations",
-            call. = FALSE)
-  } else {
-    message("Good window of observation for UniqueID: ", unique(flux.corr$UniqueID))
-  }
-
-  # Return results
-  return(flux.corr)
-
 }
