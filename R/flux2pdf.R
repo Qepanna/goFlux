@@ -79,7 +79,7 @@ flux2pdf <- function(plot.list, outfile = NULL,
 
   # Create an outfile if missing
   if (is.null(outfile)) {
-    outfile <- paste(getwd(), deparse(substitute(plot.list)), ".pdf")
+    outfile <- paste(getwd(), "/", deparse(substitute(plot.list)), ".pdf", sep = "")
   }
   # Print pdf
   if(length(outplot) > 10000) stop("The outfile contains more than 10,000 pages. 'plots.list' must be reduced.")
