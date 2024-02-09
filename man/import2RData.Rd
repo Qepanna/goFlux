@@ -85,6 +85,8 @@ one of the columns in the raw data file:
 \item LI-8100: column Date
 \item LI-8200: (see comment below)
 \item N2OM1: column Time
+\item uCH4: column Time Stamp
+\item uN2O: column Time Stamp
 }
 For the instrument LI-6400, the date is found in one of the first lines in
 a format containing abbreviations, for example "Thr Aug 6 2020", which would
@@ -209,5 +211,7 @@ Import functions for individual instruments:
 \code{\link[goFlux]{LI7820_import}},
 \code{\link[goFlux]{LI8100_import}},
 \code{\link[goFlux]{LI8200_import}},
-\code{\link[goFlux]{N2OM1_import}}
+\code{\link[goFlux]{N2OM1_import}},
+\code{\link[goFlux]{uCH4_import}},
+\code{\link[goFlux]{uN2O_import}}
 }
