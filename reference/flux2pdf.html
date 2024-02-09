@@ -88,17 +88,19 @@ in the working directory, with the name of the plot.list.</p></dd>
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">LGR_manID</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">LGR_flux</span> <span class="op">&lt;-</span> <span class="fu"><a href="goFlux.html">goFlux</a></span><span class="op">(</span><span class="va">LGR_manID</span>, <span class="st">"CO2dry_ppm"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in if (abs(HM.K$HM.k) &lt;= abs(HM.noK$HM.k)) HM.res &lt;- HM.K else HM.res &lt;- HM.noK:</span> missing value where TRUE/FALSE needed</span>
 <span class="r-in"><span><span class="va">criteria</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MAE"</span>, <span class="st">"g.factor"</span>, <span class="st">"MDF"</span>, <span class="st">"SErel"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">LGR_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="best.flux.html">best.flux</a></span><span class="op">(</span><span class="va">LGR_flux</span>, <span class="va">criteria</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'LGR_flux' not found</span>
 <span class="r-in"><span><span class="va">LGR_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="flux.plot.html">flux.plot</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  flux.results <span class="op">=</span> <span class="va">LGR_res</span>, dataframe <span class="op">=</span> <span class="va">LGR_manID</span>,</span></span>
 <span class="r-in"><span>  gastype <span class="op">=</span> <span class="st">"CO2dry_ppm"</span>, quality.check <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>  plot.legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MAE"</span>, <span class="st">"RMSE"</span>, <span class="st">"k.ratio"</span>, <span class="st">"g.factor"</span>, <span class="st">"SErel"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  plot.display <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ci"</span>, <span class="st">"C0"</span>, <span class="st">"MDF"</span>, <span class="st">"prec"</span>, <span class="st">"nb.obs"</span>, <span class="st">"flux.term"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'LGR_res' not found</span>
 <span class="r-in"><span><span class="fu">flux2pdf</span><span class="op">(</span><span class="va">LGR_plots</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> agg_png </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       2 </span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'LGR_plots' not found</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

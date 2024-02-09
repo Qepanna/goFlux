@@ -222,8 +222,10 @@ field measurement of nitrous oxide fluxes.
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">LGR_manID</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">LGR_flux</span> <span class="op">&lt;-</span> <span class="fu"><a href="goFlux.html">goFlux</a></span><span class="op">(</span><span class="va">LGR_manID</span>, <span class="st">"CO2dry_ppm"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in if (abs(HM.K$HM.k) &lt;= abs(HM.noK$HM.k)) HM.res &lt;- HM.K else HM.res &lt;- HM.noK:</span> missing value where TRUE/FALSE needed</span>
 <span class="r-in"><span><span class="va">LGR_res</span> <span class="op">&lt;-</span> <span class="fu">best.flux</span><span class="op">(</span><span class="va">LGR_flux</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'LGR_flux' not found</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

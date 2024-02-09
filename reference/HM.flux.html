@@ -51,6 +51,7 @@ model, and then extracts values from the model fit.</p>
 <span>  <span class="va">time.meas</span>,</span>
 <span>  <span class="va">flux.term</span>,</span>
 <span>  <span class="va">k.max</span>,</span>
+<span>  <span class="va">k.min</span>,</span>
 <span>  Ct <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  C0 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  k.mult <span class="op">=</span> <span class="fl">1</span></span>
@@ -76,6 +77,13 @@ model, and then extracts values from the model fit.</p>
 <dd><p>numerical value; kappa-max is the maximal curvature allowed in the
 Hutchinson and Mosier model. Calculated with the
 <code><a href="k.max.html">k.max</a></code> function.</p></dd>
+
+
+<dt>k.min</dt>
+<dd><p>numerical value; a lower boundary value for kappa in the HM model.
+To allow for a log-like curvature, set <code>k.min</code> below 0 (ex. -1),
+otherwise it should be just above 0 (ex. 10^-8). k.min cannot be
+0 as this would result in a singular gradient.</p></dd>
 
 
 <dt>Ct</dt>

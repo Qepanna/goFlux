@@ -72,7 +72,8 @@ H<sub>2</sub>O).</p>
 <span>  Pcham <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  Tcham <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  k.mult <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  warn.length <span class="op">=</span> <span class="fl">60</span></span>
+<span>  warn.length <span class="op">=</span> <span class="fl">60</span>,</span>
+<span>  k.min <span class="op">=</span> <span class="fl">10</span><span class="op">^</span><span class="op">-</span><span class="fl">8</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -161,6 +162,11 @@ equal to 10.</p></dd>
 <dd><p>numerical value; limit under which a measurement is
 flagged for being too short (<code>nb.obs &lt; warn.length</code>).</p></dd>
 
+
+<dt>k.min</dt>
+<dd><p>numerical value; a lower boundary value for kappa in the HM model.
+Default is <code>k.min = 10^-8</code></p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -208,7 +214,10 @@ from the linear flux estimate (<code><a href="LM.flux.html">LM.flux</a></code>),
 minimal detectable flux (<code><a href="MDF.html">MDF</a></code>) and the time of
 chamber closure. This limit of kappa-max is included in the
 <code>goFlux</code> function, so that the non-linear flux
-estimate cannot exceed this maximum curvature.</p>
+estimate cannot exceed this maximum curvature. Inversely, one can set a
+minimal threshold for kappa: to allow for a log-like curvature, set
+<code>k.min</code> below 0 (ex. -1), otherwise it should be just above 0
+(ex. 10^-8). k.min cannot be 0 as this would result in a singular gradient.</p>
 <p>All flux estimates, including the <code><a href="MDF.html">MDF</a></code>, are
 obtained from the multiplication of the slope and the
 <code><a href="flux.term.html">flux.term</a></code>, which is used to correct the
@@ -262,25 +271,33 @@ field measurement of nitrous oxide fluxes.
 <p>See also the import functions to find the
          default instrument precision for each instrument:
          <code><a href="DX4015_import.html">DX4015_import</a></code>,
+         <code><a href="EGM5_import.html">EGM5_import</a></code>,
          <code><a href="G2508_import.html">G2508_import</a></code>,
+         <code><a href="G4301_import.html">G4301_import</a></code>,
          <code><a href="GAIA_import.html">GAIA_import</a></code>,
          <code><a href="LGR_import.html">LGR_import</a></code>,
          <code><a href="LI6400_import.html">LI6400_import</a></code>,
          <code><a href="LI7810_import.html">LI7810_import</a></code>,
          <code><a href="LI7820_import.html">LI7820_import</a></code>,
          <code><a href="LI8100_import.html">LI8100_import</a></code>,
-         <code><a href="LI8200_import.html">LI8200_import</a></code></p></div>
+         <code><a href="LI8200_import.html">LI8200_import</a></code>,
+         <code><a href="N2OM1_import.html">N2OM1_import</a></code>,
+         <code><a href="uCH4_import.html">uCH4_import</a></code>,
+         <code><a href="uN2O_import.html">uN2O_import</a></code></p></div>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">LGR_manID</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">CO2_flux</span> <span class="op">&lt;-</span> <span class="fu">goFlux</span><span class="op">(</span><span class="va">LGR_manID</span>, <span class="st">"CO2dry_ppm"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in if (abs(HM.K$HM.k) &lt;= abs(HM.noK$HM.k)) HM.res &lt;- HM.K else HM.res &lt;- HM.noK:</span> missing value where TRUE/FALSE needed</span>
 <span class="r-in"><span><span class="va">CH4_flux</span> <span class="op">&lt;-</span> <span class="fu">goFlux</span><span class="op">(</span><span class="va">LGR_manID</span>, <span class="st">"CH4dry_ppb"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in if (abs(HM.K$HM.k) &lt;= abs(HM.noK$HM.k)) HM.res &lt;- HM.K else HM.res &lt;- HM.noK:</span> missing value where TRUE/FALSE needed</span>
 <span class="r-in"><span><span class="va">H2O_flux</span> <span class="op">&lt;-</span> <span class="fu">goFlux</span><span class="op">(</span><span class="va">LGR_manID</span>, <span class="st">"H2O_ppm"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in if (abs(HM.K$HM.k) &lt;= abs(HM.noK$HM.k)) HM.res &lt;- HM.K else HM.res &lt;- HM.noK:</span> missing value where TRUE/FALSE needed</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
