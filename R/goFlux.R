@@ -58,6 +58,8 @@
 #'               equal to 10.
 #' @param warn.length numerical value; limit under which a measurement is
 #'                    flagged for being too short (\code{nb.obs < warn.length}).
+#' @param k.min numerical value; a lower boundary value for kappa in the HM model.
+#'              Default is \code{k.min = 10^-8}
 #'
 #' @details
 #' Flux estimate units are
@@ -75,7 +77,10 @@
 #' minimal detectable flux (\code{\link[goFlux]{MDF}}) and the time of
 #' chamber closure. This limit of kappa-max is included in the
 #' \code{\link[goFlux]{goFlux}} function, so that the non-linear flux
-#' estimate cannot exceed this maximum curvature.
+#' estimate cannot exceed this maximum curvature. Inversely, one can set a
+#' minimal threshold for kappa: to allow for a log-like curvature, set
+#' \code{k.min} below 0 (ex. -1), otherwise it should be just above 0
+#' (ex. 10^-8). \code{k.min} cannot be 0 as this would result in a singular gradient.
 #'
 #' All flux estimates, including the \code{\link[goFlux]{MDF}}, are
 #' obtained from the multiplication of the slope and the
@@ -104,7 +109,7 @@
 #' has been adapted. Please write to the maintainer of this package for
 #' adaptation of additional gases.
 #'
-#'#' \code{warn.length} is the limit below which the chamber closure time is
+#' \code{warn.length} is the limit below which the chamber closure time is
 #' flagged for being too short (\code{nb.obs < warn.length}). Portable
 #' greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore,
 #' for the default setting of \code{warn.length = 60}, the chamber closure time
@@ -163,14 +168,19 @@
 #' @seealso See also the import functions to find the
 #'          default instrument precision for each instrument:
 #'          \code{\link[goFlux]{DX4015_import}},
+#'          \code{\link[goFlux]{EGM5_import}},
 #'          \code{\link[goFlux]{G2508_import}},
+#'          \code{\link[goFlux]{G4301_import}},
 #'          \code{\link[goFlux]{GAIA_import}},
 #'          \code{\link[goFlux]{LGR_import}},
 #'          \code{\link[goFlux]{LI6400_import}},
 #'          \code{\link[goFlux]{LI7810_import}},
 #'          \code{\link[goFlux]{LI7820_import}},
 #'          \code{\link[goFlux]{LI8100_import}},
-#'          \code{\link[goFlux]{LI8200_import}}
+#'          \code{\link[goFlux]{LI8200_import}},
+#'          \code{\link[goFlux]{N2OM1_import}},
+#'          \code{\link[goFlux]{uCH4_import}},
+#'          \code{\link[goFlux]{uN2O_import}}
 #'
 #' @examples
 #' data(LGR_manID)
@@ -182,7 +192,8 @@
 #'
 goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
                    Area = NULL, offset = NULL, Vtot = NULL, Vcham = NULL,
-                   Pcham = NULL, Tcham = NULL, k.mult = 1, warn.length = 60){
+                   Pcham = NULL, Tcham = NULL, k.mult = 1,
+                   warn.length = 60, k.min = 10^-8){
 
   # Check arguments ####
   if(!is.numeric(k.mult)) stop("'k.mult' must be of class numeric")
@@ -190,6 +201,8 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     stop("'k.mult' cannot be negative and must be smaller or equal to 10")}
   if(!is.numeric(warn.length)){stop("'warn.length' must be of class numeric")
   } else {if(warn.length <= 0) stop("'warn.length' must be greater than 0")}
+  if(!is.numeric(k.min)){stop("'k.min' must be of class numeric")
+  } else {if(k.min == 0) stop("'k.min' must be different from 0")}
 
   ## Check dataframe ####
   if(missing(dataframe)) stop("'dataframe' is required")
@@ -458,7 +471,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     C0.lim.flux <- c(C0.flux-C.diff.flux*0.2, C0.flux+C.diff.flux*0.2)
     Ct.lim.flux <- c(Ct.flux-C.diff.flux*0.2, Ct.flux+C.diff.flux*0.2)
 
-    # Calculate C0 and Ct and their boundaries based on raw data
+    # Get C0 and Ct from raw data
     C0 <- first(gas.meas)
     Ct <- last(gas.meas)
 
@@ -466,6 +479,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     Ct.best <- if_else(between(Ct, Ct.lim.flux[1], Ct.lim.flux[2]), Ct, Ct.flux)
     C0.best <- if_else(between(C0, C0.lim.flux[1], C0.lim.flux[2]), C0, C0.flux)
 
+    # Adjust C0 and Ct if the different between them is smaller than 1
     if(abs(C.diff.flux) < 1){
       Ct.best <- floor(Ct.best) - 1
       C0.best <- ceiling(C0.best) + 1
@@ -477,7 +491,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     # Try to catch errors and warnings from HM calculation
     HM.catch <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
                         flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-                        k.max = kappa.max*Inf)
+                        k.max = kappa.max*Inf, k.min = k.min)
 
     # If there is an error with singular gradient
     if(inherits(HM.catch[[2]], "simpleError")){

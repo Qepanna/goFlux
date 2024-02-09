@@ -9,6 +9,7 @@ HM.flux(
   time.meas,
   flux.term,
   k.max,
+  k.min,
   Ct = NULL,
   C0 = NULL,
   k.mult = 1
@@ -25,6 +26,11 @@ HM.flux(
 \item{k.max}{numerical value; kappa-max is the maximal curvature allowed in the
 Hutchinson and Mosier model. Calculated with the
 \code{\link[goFlux]{k.max}} function.}
+
+\item{k.min}{numerical value; a lower boundary value for kappa in the HM model.
+To allow for a log-like curvature, set \code{k.min} below 0 (ex. -1),
+otherwise it should be just above 0 (ex. 10^-8). k.min cannot be
+0 as this would result in a singular gradient.}
 
 \item{Ct}{numerical value; gas concentration after \emph{t} seconds (ppm or ppb).}
 

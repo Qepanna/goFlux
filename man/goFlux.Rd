@@ -16,7 +16,8 @@ goFlux(
   Pcham = NULL,
   Tcham = NULL,
   k.mult = 1,
-  warn.length = 60
+  warn.length = 60,
+  k.min = 10^-8
 )
 }
 \arguments{
@@ -79,6 +80,9 @@ equal to 10.}
 
 \item{warn.length}{numerical value; limit under which a measurement is
 flagged for being too short (\code{nb.obs < warn.length}).}
+
+\item{k.min}{numerical value; a lower boundary value for kappa in the HM model.
+Default is \code{k.min = 10^-8}}
 }
 \value{
 Returns a data frame with 28 columns: a \code{UniqueID} per
@@ -132,7 +136,10 @@ from the linear flux estimate (\code{\link[goFlux]{LM.flux}}), the
 minimal detectable flux (\code{\link[goFlux]{MDF}}) and the time of
 chamber closure. This limit of kappa-max is included in the
 \code{\link[goFlux]{goFlux}} function, so that the non-linear flux
-estimate cannot exceed this maximum curvature.
+estimate cannot exceed this maximum curvature. Inversely, one can set a
+minimal threshold for kappa: to allow for a log-like curvature, set
+\code{k.min} below 0 (ex. -1), otherwise it should be just above 0
+(ex. 10^-8). k.min cannot be 0 as this would result in a singular gradient.
 
 All flux estimates, including the \code{\link[goFlux]{MDF}}, are
 obtained from the multiplication of the slope and the
@@ -197,12 +204,17 @@ Look up the functions \code{\link[goFlux]{MDF}},
 See also the import functions to find the
          default instrument precision for each instrument:
          \code{\link[goFlux]{DX4015_import}},
+         \code{\link[goFlux]{EGM5_import}},
          \code{\link[goFlux]{G2508_import}},
+         \code{\link[goFlux]{G4301_import}},
          \code{\link[goFlux]{GAIA_import}},
          \code{\link[goFlux]{LGR_import}},
          \code{\link[goFlux]{LI6400_import}},
          \code{\link[goFlux]{LI7810_import}},
          \code{\link[goFlux]{LI7820_import}},
          \code{\link[goFlux]{LI8100_import}},
-         \code{\link[goFlux]{LI8200_import}}
+         \code{\link[goFlux]{LI8200_import}},
+         \code{\link[goFlux]{N2OM1_import}},
+         \code{\link[goFlux]{uCH4_import}},
+         \code{\link[goFlux]{uN2O_import}}
 }

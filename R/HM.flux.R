@@ -12,6 +12,10 @@
 #' @param k.max numerical value; kappa-max is the maximal curvature allowed in the
 #'              Hutchinson and Mosier model. Calculated with the
 #'              \code{\link[goFlux]{k.max}} function.
+#' @param k.min numerical value; a lower boundary value for kappa in the HM model.
+#'              To allow for a log-like curvature, set \code{k.min} below 0 (ex. -1),
+#'              otherwise it should be just above 0 (ex. 10^-8). k.min cannot be
+#'              0 as this would result in a singular gradient.
 #' @param k.mult numerical value; a multiplier for the allowed k.max. Default is no
 #'               multiplier (\code{k.mult = 1}).
 #'
@@ -76,7 +80,7 @@
 #'
 #' @keywords internal
 #'
-HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
+HM.flux <- function(gas.meas, time.meas, flux.term, k.max, k.min,
                     Ct = NULL, C0 = NULL, k.mult = 1) {
 
   # Assign NULL to variables without binding
@@ -102,7 +106,7 @@ HM.flux <- function(gas.meas, time.meas, flux.term, k.max,
   HM <- tryCatch({
     nlsLM(HMmod,
           data = cbind.data.frame(conc = gas.meas, t = time.meas),
-          lower = c(Ci=0, C0=0, k=-1),
+          lower = c(Ci=0, C0=0, k=k.min),
           upper = c(Ci=Inf, C0=Inf, k=k.max*k.mult),
           start = start,
           na.action = na.exclude,
