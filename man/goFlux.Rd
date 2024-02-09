@@ -139,7 +139,7 @@ chamber closure. This limit of kappa-max is included in the
 estimate cannot exceed this maximum curvature. Inversely, one can set a
 minimal threshold for kappa: to allow for a log-like curvature, set
 \code{k.min} below 0 (ex. -1), otherwise it should be just above 0
-(ex. 10^-8). k.min cannot be 0 as this would result in a singular gradient.
+(ex. 10^-8). \code{k.min} cannot be 0 as this would result in a singular gradient.
 
 All flux estimates, including the \code{\link[goFlux]{MDF}}, are
 obtained from the multiplication of the slope and the
@@ -168,7 +168,7 @@ In \code{gastype}, the gas species listed are the ones for which this package
 has been adapted. Please write to the maintainer of this package for
 adaptation of additional gases.
 
-#' \code{warn.length} is the limit below which the chamber closure time is
+\code{warn.length} is the limit below which the chamber closure time is
 flagged for being too short (\code{nb.obs < warn.length}). Portable
 greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore,
 for the default setting of \code{warn.length = 60}, the chamber closure time

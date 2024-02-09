@@ -533,12 +533,12 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
       # Hutchison and Mosier without kappa max
       HM.noK <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
                         flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-                        k.max = kappa.max*Inf)[[1]]
+                        k.max = kappa.max*Inf, k.min = k.min)[[1]]
 
       # Hutchinson and Mosier with kappa max
       HM.K <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
                       flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-                      k.max = kappa.max, k.mult = k.mult)[[1]]
+                      k.max = kappa.max, k.mult = k.mult, k.min = k.min)[[1]]
 
       # Compare results, with and without kappa max.
       # Select the result with the smallest curvature.
