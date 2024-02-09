@@ -70,6 +70,9 @@
 #' at page 90 for more details about the different Process Data Fields
 #' (\code{proc.data.field}).
 #'
+#' Note that the default file extension for this instrument is .TXT, however,
+#' it is also possible to use with a .csv file format.
+#'
 #' @seealso Use the wrapper function \code{\link[goFlux]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso See also, import functions for other instruments:
@@ -99,8 +102,8 @@
 #' @export
 #'
 EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
-                       save = FALSE, keep_all = FALSE, prec = c(3, 1, 500),
-                       proc.data.field = NULL){
+                        save = FALSE, keep_all = FALSE, prec = c(3, 1, 500),
+                        proc.data.field = NULL){
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")
@@ -117,7 +120,6 @@ EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
   if(!is.null(proc.data.field)){
     if(!is.numeric(proc.data.field)) stop("'proc.data.field' must be of class numeric") else{
       if(!between(proc.data.field, 1,5)) stop("'proc.data.field' must be a value from 1 to 5")}}
-
 
   # Assign NULL to variables without binding
   POSIX.time <- DATE_TIME <- H2O_ppm <- Time <- . <- Plot_No <- start_flag <-
@@ -148,7 +150,7 @@ EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
     # Load data file
     data.raw <- read.delim(inputfile, sep = ",", header = F) %>%
       # Rename headers
-      rename_all(~c(col.names, paste("param", seq(1,5), sep = ""))) %>%
+      rename_all(~c(col.names[1:17], paste("param", seq(1,5), sep = ""))) %>%
       # Detect start.time
       mutate(start_flag = if_else(
         row_number() %in% (which(.$Tag.M3. == "Start")+1), 1, 0))

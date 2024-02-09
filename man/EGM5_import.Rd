@@ -90,6 +90,9 @@ Look up the
 \href{https://ppsystems.com/download/technical_manuals/80109-1-EGM-5_Operation_V103.pdf}{EGM-5 Operation Manual}
 at page 90 for more details about the different Process Data Fields
 (\code{proc.data.field}).
+
+Note that the default file extension for this instrument is .TXT, however,
+it is also possible to use with a .csv file format.
 }
 \examples{
 # Examples on how to use:
