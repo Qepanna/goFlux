@@ -102,14 +102,6 @@
 uCH4_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
                         save = FALSE, keep_all = FALSE, prec = c(1, 0.5, 15)){
 
-  # Test
-  inputfile = "inst/extdata/uCH4/uCH4.txt"
-  date.format = "mdy"
-  timezone = "UTC"
-  save = FALSE
-  keep_all = FALSE
-  prec = c(1, 0.5, 1)
-
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")
   if (!is.character(inputfile)) stop("'inputfile' must be of class character")

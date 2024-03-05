@@ -102,14 +102,6 @@
 uN2O_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
                         save = FALSE, keep_all = FALSE, prec = c(0.2, 0.2, 15)){
 
-  # Test
-  inputfile = "inst/extdata/uN2O/uN2O.txt"
-  date.format = "mdy"
-  timezone = "UTC"
-  save = FALSE
-  keep_all = FALSE
-  prec = c(0.2, 0.2, 1)
-
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")
   if (!is.character(inputfile)) stop("'inputfile' must be of class character")
