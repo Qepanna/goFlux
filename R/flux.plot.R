@@ -9,7 +9,8 @@
 #' @param dataframe a data.frame containing gas measurements (see \code{gastype}
 #'                  below) and the following columns: \code{UniqueID}, \code{Etime}
 #'                  and \code{flag} (same \code{dataframe} as used with the function
-#'                  \code{\link[goFlux]{goFlux}}).
+#'                  \code{\link[goFlux]{goFlux}}). \code{chamID} may be used
+#'                  instead of \code{UniqueID}.
 #' @param gastype character string; specifies which column was used for the
 #'                flux calculations. Must be one of the following: "CO2dry_ppm",
 #'                "COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" or "H2O_ppm".
@@ -194,9 +195,9 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
   if(any(grepl("\\<POSIX.time\\>", names(dataframe))) & !is.POSIXct(dataframe$POSIX.time)){
     stop("'POSIX.time' in 'dataframe' must be of class POSIXct")}
 
-  ### UniqueID ####
-  if(!any(grepl("\\<UniqueID\\>", names(dataframe)))){
-    stop("'UniqueID' is required and was not found in 'dataframe'")}
+  ### UniqueID (or chamID) ####
+  if(!any(grepl(paste(c("\\<UniqueID\\>", "\\<chamID\\>"), collapse = "|"), names(dataframe)))){
+    stop("'dataframe' must contain 'UniqueID'")}
 
   ## Check flux.results ####
   if(missing(flux.results)) stop("'flux.results' is required")
@@ -206,6 +207,12 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
   ### UniqueID ####
   if(!any(grepl("\\<UniqueID\\>", names(flux.results)))){
     stop("'UniqueID' is required and was not found in 'flux.results'")}
+
+  # Create UniqueID from chamID, if missing
+  if(!any(grepl("\\<UniqueID\\>", names(dataframe)))){
+    if(any(grepl("\\<chamID\\>", names(dataframe)))){
+      dataframe <- dataframe %>% mutate(UniqueID = paste(chamID, DATE, sep = "_"))}
+  }
 
   ### Is there any match between dataframe and flux.results?
   if(!any(unique(dataframe$UniqueID) %in% unique(flux.results$UniqueID))){
@@ -478,8 +485,8 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
   UniqueID <- HM.Ci <- HM.C0 <- HM.k <- . <- flag <- start.Etime <-
     end.Etime <- Etime <- x <- y <- content <- color <- POSIX.time <-
     HM.C0.display <- LM.C0.display <- quality.check.display <-
-    cham.open.display <- nb.obs.display <- prec.display <-
-    flux.term.display <- cham.close.display <- MDF.display <-
+    cham.open.display <- nb.obs.display <- prec.display <- chamID <-
+    flux.term.display <- cham.close.display <- MDF.display <- DATE <-
     HM.Ci.display <- legend.flux <- legend.MAE <- legend.AICc <-
     legend.RMSE <- legend.se.rel <- legend.se <- legend.r2 <-
     legend.LM.p.val <- legend.g.factor <- legend.HM.k <- legend.k.max <-

@@ -26,7 +26,8 @@ flux.plot(
 \item{dataframe}{a data.frame containing gas measurements (see \code{gastype}
 below) and the following columns: \code{UniqueID}, \code{Etime}
 and \code{flag} (same \code{dataframe} as used with the function
-\code{\link[goFlux]{goFlux}}).}
+\code{\link[goFlux]{goFlux}}). \code{chamID} may be used
+instead of \code{UniqueID}.}
 
 \item{gastype}{character string; specifies which column was used for the
 flux calculations. Must be one of the following: "CO2dry_ppm",
