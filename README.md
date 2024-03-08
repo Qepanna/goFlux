@@ -145,18 +145,18 @@ After import, the user can choose from two methods for identification of
 measurements:
 
 - **Manual identification of measurements** - based on `start.time`,
-  provided separately in an auxiliary file. The function `obs.win()`
+  provided separately in an auxiliary file. The function `obs.win`
   splits the imported data into a list of data frame (divided by
   `UniqueID`) and creates an observation window around the `start.time`
   to allow for a manual selection of the start and end points of each
-  measurements, using the function `click.peak.loop()`.
+  measurements, using the function `click.peak.loop`.
 - **Automatic selection of measurements** - based on automatic
   recordings of chamber opening and closing from an instrument such as
   the LI-COR Smart Chamber or the GAIATECH Automated ECOFlux chamber.
 
 ### Flux calculation
 
-The function `goFlux()` calculates fluxes from a variety of greenhouse
+The function `goFlux` calculates fluxes from a variety of greenhouse
 gases (CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, NH<sub>3</sub>,
 CO, and H<sub>2</sub>O) using both linear (LM) and non-linear (HM;
 [Hutchinson and Mosier,
@@ -182,9 +182,9 @@ $$\mathbf{Eqn~2}~~~~~~k.max = \frac{LM.flux}{MDF~\times~t}$$
 Where $LM.flux$ and $MDF$ have the same units (nmol or
 µmol·m<sup>-2</sup>·s<sup>-1</sup>) and $t$ is in seconds. Therefore,
 the units of kappa-max is s<sup>-1</sup>. This limit of kappa-max is
-included in the `goFlux()` function, so that the non-linear flux
-estimate cannot exceed this maximum curvature. See below for more
-details about the minimal detectable flux (MDF).
+included in the `goFlux` function, so that the non-linear flux estimate
+cannot exceed this maximum curvature. See below for more details about
+the minimal detectable flux (MDF).
 
 All flux estimates, including the MDF, are multiplied by a $flux.term$
 which is used to correct for water vapor inside the chamber, as well as
@@ -202,8 +202,7 @@ parameters are measured inside the chamber at $t = 0$.
 ### Automatic selection of the best flux estimate
 
 Following flux calculation, the user can select the best flux estimate
-(LM or HM) based on objective criteria, using the `best.flux()`
-function:
+(LM or HM) based on objective criteria, using the `best.flux` function:
 
 - **Assumed non-linearity**: If all criteria are met, the best flux
   estimate is assumed to be the non-linear estimate from the Hutchinson
@@ -218,7 +217,7 @@ function:
   indices of model fit, measurements can be flagged “noisy” using these
   criteria.
 
-In addition, the `best.flux()` function can flag measurements that are
+In addition, the `best.flux` function can flag measurements that are
 below detection limit (MDF and *p-value*), out of bounds (intercept), or
 too short (number of observations).
 
@@ -243,7 +242,7 @@ al., 2018](https://doi.org/10.1371/journal.pone.0200876)).
 
 $$\mathbf{Eqn~4}~~~~~~g-factor = \frac{HM.flux}{LM.flux}$$
 
-With the `best.flux()` function, one can choose a limit at which the HM
+With the `best.flux` function, one can choose a limit at which the HM
 model is deemed to overestimate (*f*<sub>0</sub>). Recommended
 thresholds for the g-factor are \<4 for a flexible threshold, \<2 for a
 medium threshold, or \<1.25 for a more conservative threshold. The
@@ -274,10 +273,10 @@ No best flux estimate is chosen based on MDF.
 The parameter kappa determines the curvature of the non-linear
 regression in the Hutchinson and Mosier model, as shown in equation 1.
 The limit of kappa-max, as calculated in equation 2, is included in the
-`goFlux()` function, so that the non-linear flux estimate cannot exceed
+`goFlux` function, so that the non-linear flux estimate cannot exceed
 this maximum curvature.
 
-In the function `best.flux()`, one can choose the linear flux estimate
+In the function `best.flux`, one can choose the linear flux estimate
 over the non-linear flux estimate based on the ratio between kappa and
 kappa-max (`k.ratio`). A value of 1 indicates `HM.k = k.max`, and a
 value of e.g. 0.5 indicates `HM.k = 0.5*k.max`. The default setting is
@@ -287,8 +286,8 @@ expressed as a percentage of kappa-max in the plots.
 
 #### **Indices of model fit**
 
-In the `best.flux()` function, we included multiple choices of indices
-of model fit, described below. One can choose to include however many of
+In the `best.flux` function, we included multiple choices of indices of
+model fit, described below. One can choose to include however many of
 them in the function. If multiple of them are included, the selection of
 the best model will be made based on a scoring system. Both models start
 with a score of 0. For each criteria, whichever model performs worst is
@@ -341,13 +340,13 @@ instrument precision to determine if a measurement is noisy. For a MAE
 or RMSE larger than the instrument precision, the measurement is
 considered to have more noise than normally expected.
 
-If MAE is chosen as a criteria in `best.flux()`, the model with the
+If MAE is chosen as a criteria in `best.flux`, the model with the
 smallest MAE is chosen. If both models have a MAE smaller than the
 instrument precision, the non-linear flux estimate is always chosen by
 default, as non-linearity is assumed. When MAE is larger than the
 instrument precision, a warning is given in the columns `quality.check`,
 `LM.diagnose` or `HM.diagnose` to warn of a noisy measurement. RMSE
-functions exactly the same was as MAE in the `best.flux()` function.
+functions exactly the same was as MAE in the `best.flux` function.
 
 ##### **Standard Error**
 
@@ -370,7 +369,7 @@ observations. With high-frequency GHG analyzers, that means increasing
 the chamber closure time.
 
 To calculate the standard error of a regression, one can use the delta
-method (`deltamethod()` from the `msm` package), which propagates the
+method (`deltamethod` from the `msm` package), which propagates the
 total error of the flux calculation for each parameter included in the
 formula. The delta method approximates the standard error of a
 regression $g(X)$ of a random variable $X = (x_1, x_2, ...)$, given
@@ -378,9 +377,9 @@ estimates of the mean and covariance matrix of $X$ ([Oehlert,
 1992](https://doi.org/10.2307/2684406); [Mandel,
 2013](https://doi.org/10.1080/00031305.2013.783880)).
 
-In the function `best.flux()`, the standard error (SE) of the
-measurements can be compared to the standard error of the instrument
-($\sigma_\bar{x}$). If SE is chosen as a criteria in `best.flux()`, the
+In the function `best.flux`, the standard error (SE) of the measurements
+can be compared to the standard error of the instrument
+($\sigma_\bar{x}$). If SE is chosen as a criteria in `best.flux`, the
 model with the smallest SE is chosen. If both models have a SE smaller
 than the instrument precision, the non-linear flux estimate is always
 chosen by default, as non-linearity is assumed. When SE is larger than
@@ -422,8 +421,8 @@ $$\mathbf{Eqn~11}~~~~~~AICc = AIC + \frac{2k^2 + 2k}{n - k - 1}$$
 Where $n$ denotes the number of observations and $k$ the number of
 parameters in the model.
 
-If AICc is selected as a criteria in the `best.flux()` function, the
-model with the lowest AICc wins.
+If AICc is selected as a criteria in the `best.flux` function, the model
+with the lowest AICc wins.
 
 #### **Intercept**
 
@@ -460,8 +459,8 @@ issued in the column `quality.check`.
 ### Visual inspection
 
 Finally, after finding the best flux estimates, one can plot the results
-and visually inspect the measurements using the function `flux.plot()`
-and save the plots as pdf using `flux2pdf()`.
+and visually inspect the measurements using the function `flux.plot` and
+save the plots as pdf using `flux2pdf`.
 
 ## Installation
 
@@ -493,7 +492,7 @@ The functioning of the package depends on many other packages
 `stats`, `stringr`, `tibble`, `tidyr`, `utils`), which will be installed
 when installing `goFlux`.
 
-### Troubleshoot problems with `install_github()`
+### Troubleshoot problems with `install_github`
 
 #### Warning: package is in use and will not be installed
 
