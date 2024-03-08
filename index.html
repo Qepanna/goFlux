@@ -259,12 +259,12 @@ $$</span></p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>To install a package from GitHub, one must first install the package <code>devtools</code> from the CRAN:</p>
+<p>To install a package from GitHub, one can use the package <code>devtools</code> (or <code>remotes</code>) from the CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://devtools.r-lib.org/" class="external-link">"devtools"</a></span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></span></code></pre></div>
 <p>Then, install the <code>goFlux</code> package from GitHub. If it is not the first time you install the package, it must first be detached before being updated.</p>
 <blockquote>
-<p>The package is actively being updated <strong>every day</strong>. To make sure that you are using the latest version, re-install the package every time you use it.</p>
+<p>The package is constantly being updated with new functions or de-bugging. To make sure that you are using the latest version, re-install the package every time you use it.</p>
 </blockquote>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/detach.html" class="external-link">detach</a></span><span class="op">(</span><span class="st">"package:goFlux"</span>, unload <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -299,6 +299,7 @@ $$</span></p>
 <span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="do">##   To increase your GitHub API rate limit</span></span>
 <span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="do">##   - Use `usethis::create_github_token()` to create a Personal Access Token.</span></span>
 <span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="do">##   - Use `usethis::edit_r_environ()` and add the token as `GITHUB_PAT`.</span></span></code></pre></div>
+<p>This error can occur while using the package <code>remotes</code> to install an R package from GitHub. Try using the package <code>devtools</code> instead. If the error still occurs, follow the instructions below.</p>
 <div class="section level5">
 <h5 id="step-1-set-up-a-github-account">Step 1: Set up a GitHub account<a class="anchor" aria-label="anchor" href="#step-1-set-up-a-github-account"></a>
 </h5>
