@@ -465,8 +465,8 @@ and save the plots as pdf using `flux2pdf()`.
 
 ## Installation
 
-To install a package from GitHub, one must first install the package
-`devtools` from the CRAN:
+To install a package from GitHub, one can use the package `devtools` (or
+`remotes`) from the CRAN:
 
 ``` r
 if (!require("devtools", quietly = TRUE)) install.packages("devtools")
@@ -476,9 +476,9 @@ Then, install the `goFlux` package from GitHub. If it is not the first
 time you install the package, it must first be detached before being
 updated.
 
-> The package is actively being updated **every day**. To make sure that
-> you are using the latest version, re-install the package every time
-> you use it.
+> The package is constantly being updated with new functions or
+> de-bugging. To make sure that you are using the latest version,
+> re-install the package every time you use it.
 
 ``` r
 try(detach("package:goFlux", unload = TRUE), silent = TRUE)
@@ -527,6 +527,10 @@ If you get this error while trying to install an R package from GitHub:
     ##   To increase your GitHub API rate limit
     ##   - Use `usethis::create_github_token()` to create a Personal Access Token.
     ##   - Use `usethis::edit_r_environ()` and add the token as `GITHUB_PAT`.
+
+This error can occur while using the package `remotes` to install an R
+package from GitHub. Try using the package `devtools` instead. If the
+error still occurs, follow the instructions below.
 
 ##### Step 1: Set up a GitHub account
 
