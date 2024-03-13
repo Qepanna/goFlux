@@ -172,8 +172,8 @@ LI6400_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
         # pressing start, Etime below 4 seconds is not possible.
         filter(Etime > 4) %>%
         # Remove NAs and negative gas measurements, if any
-        filter(CO2dry_ppm > 0) %>%
-        filter(H2O_mmol > 0) %>%
+        filter(CO2dry_ppm >= 0) %>%
+        filter(H2O_mmol >= 0) %>%
         # Convert mmol into ppm for H2O
         mutate(H2O_ppm = H2O_mmol*1000) %>%
         # Create new columns containing date and time (POSIX format)

@@ -238,11 +238,11 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       mutate_at(c("CO2dry_ppm", "CH4dry_ppb", "H2O_ppm_LI7810", "N2Odry_ppb",
                   "H2O_ppm_LI7820"), as.numeric) %>%
       # Remove negative gas measurements, if any
-      filter(CO2dry_ppm > 0 | is.na(CO2dry_ppm)) %>%
-      filter(CH4dry_ppb > 0 | is.na(CH4dry_ppb)) %>%
-      filter(H2O_ppm_LI7810 > 0 | is.na(H2O_ppm_LI7810)) %>%
-      filter(N2Odry_ppb > 0 | is.na(N2Odry_ppb)) %>%
-      filter(H2O_ppm_LI7820 > 0 | is.na(H2O_ppm_LI7820))
+      filter(CO2dry_ppm >= 0 | is.na(CO2dry_ppm)) %>%
+      filter(CH4dry_ppb >= 0 | is.na(CH4dry_ppb)) %>%
+      filter(H2O_ppm_LI7810 >= 0 | is.na(H2O_ppm_LI7810)) %>%
+      filter(N2Odry_ppb >= 0 | is.na(N2Odry_ppb)) %>%
+      filter(H2O_ppm_LI7820 >= 0 | is.na(H2O_ppm_LI7820))
 
     # Group together all columns containing information and merge data
     if (pivot == "long"){ # pivot long: only one column per parameter

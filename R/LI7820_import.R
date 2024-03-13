@@ -132,8 +132,8 @@ LI7820_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       # Standardize column names
       rename(N2Odry_ppb = N2O, H2O_ppm = H2O) %>%
       # Remove NAs and negative gas measurements, if any
-      filter(N2Odry_ppb > 0) %>%
-      filter(H2O_ppm > 0)
+      filter(N2Odry_ppb >= 0) %>%
+      filter(H2O_ppm >= 0)
 
     # Keep only useful columns for gas flux calculation
     if(keep_all == FALSE){

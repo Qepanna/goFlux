@@ -185,7 +185,11 @@ EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
       rename(CO2wet_ppm = CO2, O2wet_pct = O2, DATE = Date, TIME = Time,
              Tcham = Tair, H2O_mb = H2O) %>%
       # Convert H2O_mb to ppm
-      mutate(H2O_ppm = (H2O_mb / Pressure)*1000)
+      mutate(H2O_ppm = (H2O_mb / Pressure)*1000) %>%
+      # Remove NAs and negative gas measurements, if any
+      filter(CO2wet_ppm >= 0) %>%
+      filter(O2wet_pct >= 0) %>%
+      filter(H2O_ppm >= 0)
 
     # Compensate for water vapor
     if(sum(data.raw$H2O_ppm) > 0){

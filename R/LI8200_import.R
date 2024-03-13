@@ -215,10 +215,10 @@ LI8200_import <- function(inputfile, date.format = "ymd",
         mutate(chamID = paste(plotID, rep, sep = "_"),
                flag = if_else(between(POSIX.time, start.time, cham.open), 1, 0)) %>%
         # Remove negative gas measurements, if any
-        filter(CO2dry_ppm > 0 | is.na(CO2dry_ppm)) %>%
-        filter(CH4dry_ppb > 0 | is.na(CH4dry_ppb)) %>%
-        filter(H2O_ppm > 0 | is.na(H2O_ppm)) %>%
-        filter(N2Odry_ppb > 0 | is.na(N2Odry_ppb))
+        filter(CO2dry_ppm >= 0 | is.na(CO2dry_ppm)) %>%
+        filter(CH4dry_ppb >= 0 | is.na(CH4dry_ppb)) %>%
+        filter(H2O_ppm >= 0 | is.na(H2O_ppm)) %>%
+        filter(N2Odry_ppb >= 0 | is.na(N2Odry_ppb))
 
       # Save cleaned data file
       if(save == TRUE){

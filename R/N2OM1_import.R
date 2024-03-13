@@ -149,9 +149,9 @@ N2OM1_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
       mutate(N2Odry_ppb = N2Odry_ppm*1000) %>%
       mutate(CH4dry_ppb = CH4dry_ppm*1000) %>%
       # Remove NAs and negative gas measurements, if any
-      filter(N2Odry_ppb > 0) %>%
-      filter(CH4dry_ppb > 0) %>%
-      filter(H2O_ppm > 0) %>%
+      filter(N2Odry_ppb >= 0) %>%
+      filter(CH4dry_ppb >= 0) %>%
+      filter(H2O_ppm >= 0) %>%
       # Replace characters in Time ("/" -> "-") and remove first space
       mutate(DATE_TIME = gsub("/", "-", sub("  ", "" , Time)))
 

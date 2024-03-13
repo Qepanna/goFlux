@@ -151,9 +151,9 @@ LGR_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
       # Convert ppm into ppb for CH4dry
       mutate(CH4dry_ppb = CH4dry_ppm*1000) %>%
       # Remove NAs and negative gas measurements, if any
-      filter(CO2dry_ppm > 0) %>%
-      filter(CH4dry_ppb > 0) %>%
-      filter(H2O_ppm > 0) %>%
+      filter(CO2dry_ppm >= 0) %>%
+      filter(CH4dry_ppb >= 0) %>%
+      filter(H2O_ppm >= 0) %>%
       # Replace characters in Time ("/" -> "-") and remove first space
       mutate(DATE_TIME = gsub("/", "-", sub(" ", "" , Time)))
 

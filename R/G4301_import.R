@@ -135,8 +135,8 @@ G4301_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       mutate(H2O_ppm = H2O_mmol*1000,
              CH4dry_ppb = CH4dry_ppm*1000) %>%
       # Remove NAs and negative gas measurements, if any
-      filter(CH4dry_ppb > 0) %>%
-      filter(H2O_ppm > 0)
+      filter(CH4dry_ppb >= 0) %>%
+      filter(H2O_ppm >= 0)
 
     # Keep only useful columns for gas flux calculation
     if(keep_all == FALSE){

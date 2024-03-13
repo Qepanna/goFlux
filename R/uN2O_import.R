@@ -147,9 +147,9 @@ uN2O_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
       # Convert ppm into ppb for N2Odry
       mutate(N2Odry_ppb = N2Odry_ppm*1000) %>%
       # Remove NAs and negative gas measurements, if any
-      filter(CO2dry_ppm > 0) %>%
-      filter(N2Odry_ppb > 0) %>%
-      filter(H2O_ppm > 0) %>%
+      filter(CO2dry_ppm >= 0) %>%
+      filter(N2Odry_ppb >= 0) %>%
+      filter(H2O_ppm >= 0) %>%
       # Replace characters in Time ("/" -> "-") and remove first space
       mutate(DATE_TIME = gsub("/", "-", Time))
 
