@@ -141,8 +141,8 @@ raw data from a variety of instruments:
   and CH<sub>4</sub>/C<sub>2</sub>H<sub>6</sub> Natural Gas Leak
   Detection System (+H<sub>2</sub>O)
 
-After import, the user can choose from two methods for identification of
-measurements:
+After import, the user can choose from two methods to define the start
+and end points of each measurement and assign a UniqueID:
 
 - **Manual identification of measurements** - based on `start.time`,
   provided separately in an auxiliary file. The function `obs.win`
@@ -153,6 +153,11 @@ measurements:
 - **Automatic selection of measurements** - based on automatic
   recordings of chamber opening and closing from an instrument such as
   the LI-COR Smart Chamber or the GAIATECH Automated ECOFlux chamber.
+
+Follow these links for more details and demonstrations about [importing
+raw data](https://qepanna.quarto.pub/goflux/import.html) from the listed
+instruments, or the [identification of
+measurements](https://qepanna.quarto.pub/goflux/manualID.html).
 
 ### Flux calculation
 
@@ -199,6 +204,9 @@ the surface area inside the chamber in m<sup>2</sup>, $R$ is the
 universal gas constant in L·kPa·K<sup>-1</sup>·mol<sup>-1</sup>. Each
 parameters are measured inside the chamber at $t = 0$.
 
+More details and demonstrations about the function `goFlux` can be found
+[here](https://qepanna.quarto.pub/goflux/goFlux.html).
+
 ### Automatic selection of the best flux estimate
 
 Following flux calculation, the user can select the best flux estimate
@@ -233,6 +241,9 @@ too short (number of observations).
 
 By default, all criteria are included:
 `criteria = c("MAE", "RMSE", "AICc", "SE", "g-factor", "kappa", "MDF", "nb.obs", "p-value", "intercept")`
+
+A demonstration of the usage of the function `best.flux` can be found
+[here](https://qepanna.quarto.pub/goflux/bestflux.html).
 
 #### **G-factor**
 
@@ -293,7 +304,9 @@ the best model will be made based on a scoring system. Both models start
 with a score of 0. For each criteria, whichever model performs worst is
 given +1. After all selected criteria have been evaluated, the model
 with the lowest score wins. In case of a tie, the non-linear flux
-estimate is always chosen by default, as non-linearity is assumed.
+estimate is always chosen by default, as non-linearity is assumed. The
+score is printed in the output data frame in the columns `HM.score` and
+`LM.score`.
 
 ##### **Mean Absolute Error (MAE) and Root Mean Square Error (RMSE)**
 
@@ -461,6 +474,9 @@ issued in the column `quality.check`.
 Finally, after finding the best flux estimates, one can plot the results
 and visually inspect the measurements using the function `flux.plot` and
 save the plots as pdf using `flux2pdf`.
+
+Find out more about these functions
+[here](https://qepanna.quarto.pub/goflux/flux2pdf.html).
 
 ## Installation
 
