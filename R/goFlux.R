@@ -210,7 +210,8 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     stop("'dataframe' must be of class data.frame")}
 
   ### gastype and match in dataframe ####
-  if(missing(gastype)) stop("'gastype' is required")
+  if(missing(gastype)){
+    stop("'gastype' must be one of the following: 'CO2dry_ppm', 'CH4dry_ppb', 'COdry_ppb', 'N2Odry_ppb', 'NH3dry_ppb' or 'H2O_ppm'")}
   if(!is.null(gastype) & !is.character(gastype)) stop("'gastype' must be a character string")
   if(!any(grepl(paste("\\<", gastype, "\\>", sep = ""),
                 c("CO2dry_ppm", "CH4dry_ppb", "COdry_ppb", "N2Odry_ppb", "NH3dry_ppb", "H2O_ppm")))){
