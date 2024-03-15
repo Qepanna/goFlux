@@ -110,13 +110,14 @@ In the Land of GitHub where the Shadows lie.</em></p>
 <li>
 <a href="https://aerissensors.com/ultra-series/" class="external-link"><strong>Aeris technologies MIRA Ultra Gas Analyzers</strong></a>: N<sub>2</sub>O/CO<sub>2</sub> high accuracy analyzer (+H<sub>2</sub>O) and CH<sub>4</sub>/C<sub>2</sub>H<sub>6</sub> Natural Gas Leak Detection System (+H<sub>2</sub>O)</li>
 </ul>
-<p>After import, the user can choose from two methods for identification of measurements:</p>
+<p>After import, the user can choose from two methods to define the start and end points of each measurement and assign a UniqueID:</p>
 <ul>
 <li>
 <strong>Manual identification of measurements</strong> - based on <code>start.time</code>, provided separately in an auxiliary file. The function <code>obs.win</code> splits the imported data into a list of data frame (divided by <code>UniqueID</code>) and creates an observation window around the <code>start.time</code> to allow for a manual selection of the start and end points of each measurements, using the function <code>click.peak.loop</code>.</li>
 <li>
 <strong>Automatic selection of measurements</strong> - based on automatic recordings of chamber opening and closing from an instrument such as the LI-COR Smart Chamber or the GAIATECH Automated ECOFlux chamber.</li>
 </ul>
+<p>Follow these links for more details and demonstrations about <a href="https://qepanna.quarto.pub/goflux/import.html" class="external-link">importing raw data</a> from the listed instruments, or the <a href="https://qepanna.quarto.pub/goflux/manualID.html" class="external-link">identification of measurements</a>.</p>
 </div>
 <div class="section level3">
 <h3 id="flux-calculation">Flux calculation<a class="anchor" aria-label="anchor" href="#flux-calculation"></a>
@@ -130,6 +131,7 @@ In the Land of GitHub where the Shadows lie.</em></p>
 <p>All flux estimates, including the MDF, are multiplied by a <span class="math inline"><em>f</em><em>l</em><em>u</em><em>x</em>.<em>t</em><em>e</em><em>r</em><em>m</em></span> which is used to correct for water vapor inside the chamber, as well as convert the units to obtain a term in nmol or µmol·m<sup>-2</sup>·s<sup>-1</sup>:</p>
 <p><span class="math display">$$\mathbf{Eqn~3}~~~~~~flux.term = \frac{(1 - H_2O)~V~P}{A~R~T}$$</span></p>
 <p>Where <span class="math inline"><em>H</em><sub>2</sub><em>O</em></span> is the water vapor in mol·mol<sup>-1</sup>, <span class="math inline"><em>V</em></span> is the volume inside the chamber in liters, <span class="math inline"><em>P</em></span> is the pressure in kPa, <span class="math inline"><em>A</em></span> is the surface area inside the chamber in m<sup>2</sup>, <span class="math inline"><em>R</em></span> is the universal gas constant in L·kPa·K<sup>-1</sup>·mol<sup>-1</sup>. Each parameters are measured inside the chamber at <span class="math inline"><em>t</em> = 0</span>.</p>
+<p>More details and demonstrations about the function <code>goFlux</code> can be found <a href="https://qepanna.quarto.pub/goflux/goFlux.html" class="external-link">here</a>.</p>
 </div>
 <div class="section level3">
 <h3 id="automatic-selection-of-the-best-flux-estimate">Automatic selection of the best flux estimate<a class="anchor" aria-label="anchor" href="#automatic-selection-of-the-best-flux-estimate"></a>
@@ -157,6 +159,7 @@ In the Land of GitHub where the Shadows lie.</em></p>
 <strong>Number of observations</strong>: limit under which a measurement is flagged for being too short.</li>
 </ul>
 <p>By default, all criteria are included: <code>criteria = c("MAE", "RMSE", "AICc", "SE", "g-factor", "kappa", "MDF", "nb.obs", "p-value", "intercept")</code></p>
+<p>A demonstration of the usage of the function <code>best.flux</code> can be found <a href="https://qepanna.quarto.pub/goflux/bestflux.html" class="external-link">here</a>.</p>
 <div class="section level4">
 <h4 id="g-factor">
 <strong>G-factor</strong><a class="anchor" aria-label="anchor" href="#g-factor"></a>
@@ -185,7 +188,7 @@ In the Land of GitHub where the Shadows lie.</em></p>
 <h4 id="indices-of-model-fit">
 <strong>Indices of model fit</strong><a class="anchor" aria-label="anchor" href="#indices-of-model-fit"></a>
 </h4>
-<p>In the <code>best.flux</code> function, we included multiple choices of indices of model fit, described below. One can choose to include however many of them in the function. If multiple of them are included, the selection of the best model will be made based on a scoring system. Both models start with a score of 0. For each criteria, whichever model performs worst is given +1. After all selected criteria have been evaluated, the model with the lowest score wins. In case of a tie, the non-linear flux estimate is always chosen by default, as non-linearity is assumed.</p>
+<p>In the <code>best.flux</code> function, we included multiple choices of indices of model fit, described below. One can choose to include however many of them in the function. If multiple of them are included, the selection of the best model will be made based on a scoring system. Both models start with a score of 0. For each criteria, whichever model performs worst is given +1. After all selected criteria have been evaluated, the model with the lowest score wins. In case of a tie, the non-linear flux estimate is always chosen by default, as non-linearity is assumed. The score is printed in the output data frame in the columns <code>HM.score</code> and <code>LM.score</code>.</p>
 <div class="section level5">
 <h5 id="mean-absolute-error-mae-and-root-mean-square-error-rmse">
 <strong>Mean Absolute Error (MAE) and Root Mean Square Error (RMSE)</strong><a class="anchor" aria-label="anchor" href="#mean-absolute-error-mae-and-root-mean-square-error-rmse"></a>
@@ -254,6 +257,7 @@ $$</span></p>
 <h3 id="visual-inspection">Visual inspection<a class="anchor" aria-label="anchor" href="#visual-inspection"></a>
 </h3>
 <p>Finally, after finding the best flux estimates, one can plot the results and visually inspect the measurements using the function <code>flux.plot</code> and save the plots as pdf using <code>flux2pdf</code>.</p>
+<p>Find out more about these functions <a href="https://qepanna.quarto.pub/goflux/flux2pdf.html" class="external-link">here</a>.</p>
 </div>
 </div>
 <div class="section level2">
