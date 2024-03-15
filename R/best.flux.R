@@ -2,8 +2,7 @@
 #'
 #' This automatic selection of the best flux estimate (linear,
 #' \code{\link[goFlux]{LM.flux}}; or non-linear, Hutchinson and Mosier
-#' model, \code{\link[goFlux]{HM.flux}}) is based on objective criteria
-#' and non-arbitrary thresholds.
+#' model, \code{\link[goFlux]{HM.flux}}) is based on objective criteria.
 #'
 #' @param flux.result data.frame; output from the function
 #'                    \code{\link[goFlux]{goFlux}}.
@@ -46,6 +45,7 @@
 #' model performs worst is given +1. After all selected criteria have been
 #' evaluated, the model with the lowest score wins. In case of a tie, the
 #' HM flux estimate is always chosen by default, as non-linearity is assumed.
+#' The score is printed in the columns HM.score and LM.score.
 #'
 #' The \code{g.limit} indicates a threshold for the
 #' \code{\link[goFlux]{g.factor}}, which is the ratio between a
@@ -59,13 +59,13 @@
 #' best flux estimate will switch to LM instead of HM and give a warning in the
 #' columns \code{quality.check} and \code{HM.diagnose}.
 #'
-#' The minimal detectable flux (\code{\link[goFlux]{MDF}}) is calculated
-#' from the instrument precision and measurement time. Flux estimates below the
-#' MDF are considered under the detection limit, but not null. Therefore,
-#' the function will not return a 0. There will simply be a warning in the
-#' columns \code{quality.check}, \code{LM.diagnose} or \code{HM.diagnose} to
-#' warn of a flux estimate under the detection limit. No best flux estimate
-#' is chosen based on MDF.
+#' The minimal detectable flux (\code{\link[goFlux]{MDF}}) is calculated from
+#' the instrument precision, the measurement time and the flux.term. Flux
+#' estimates below the MDF are considered under the detection limit, but not
+#' null. Therefore, the function will not return a 0. There will simply be a
+#' warning in the columns \code{quality.check}, \code{LM.diagnose} or
+#' \code{HM.diagnose} to warn of a flux estimate under the detection limit. No
+#' best flux estimate is chosen based on MDF.
 #'
 #' The parameter kappa determines the curvature of the non-linear regression in
 #' the Hutchinson and Mosier model. A maximum value of kappa,
@@ -117,12 +117,12 @@
 #' field measurement of nitrous oxide fluxes.
 #' \emph{Soil Science Society of America Journal}, 45(2), 311-316.
 #'
-#' @returns A data.frame identical to the input \code{flux.result} with the
-#'          additional columns \code{HM.diagnose}, \code{LM.diagnose},
-#'          \code{best.flux}, \code{model} and \code{quality.check}. For each
-#'          criteria selected, an additional column is also added to specify
-#'          the limits used for those criteria (e.g. \code{RMSE.lim},
-#'          \code{p.val.lim}, etc.)
+#' @returns A data.frame identical to the input \code{flux.result} (output from
+#'          goFlux) with the additional columns \code{HM.diagnose},
+#'          \code{LM.diagnose}, \code{best.flux}, \code{model} and
+#'          \code{quality.check}. For each criteria selected, an additional
+#'          column is also added to specify the limits used for those criteria
+#'          (e.g. \code{RMSE.lim}, \code{p.val.lim}, etc.)
 #'
 #' @include goFlux-package.R
 #'
