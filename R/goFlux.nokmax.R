@@ -181,13 +181,13 @@
 #'
 #' @examples
 #' data(manID.UGGA)
-#' CO2_flux <- goFlux_nokmax(manID.UGGA, "CO2dry_ppm")
-#' CH4_flux <- goFlux_nokmax(manID.UGGA, "CH4dry_ppb")
-#' H2O_flux <- goFlux_nokmax(manID.UGGA, "H2O_ppm")
+#' CO2_flux <- goFlux.nokmax(manID.UGGA, "CO2dry_ppm")
+#' CH4_flux <- goFlux.nokmax(manID.UGGA, "CH4dry_ppb")
+#' H2O_flux <- goFlux.nokmax(manID.UGGA, "H2O_ppm")
 #'
 #' @export
 #'
-goFlux_nokmax <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
+goFlux.nokmax <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
                           Area = NULL, offset = NULL, Vtot = NULL, Vcham = NULL,
                           Pcham = NULL, Tcham = NULL, warn.length = 60){
 
