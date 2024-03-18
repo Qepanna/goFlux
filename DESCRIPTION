@@ -40,7 +40,6 @@ Collate:
     'k.max.R'
     'goFlux.R'
     'goFlux.nokmax.R'
-    'goFlux_nokmax.R'
     'imp.LI6400-data.R'
     'imp.LI7820-data.R'
     'imp.LI8200-data.R'
