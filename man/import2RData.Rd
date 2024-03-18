@@ -23,7 +23,7 @@ files to be imported.}
 generate the files contained in the folder path. Choose one
 of the following: "DX4015", "EGM5", "G2508", "G4301" "GAIA",
 "LI-6400", "LI-7810", "LI-7820", "LI-8100", "LI-8200",
-"LGR" or "N2OM1". For more information about an instrument,
+"UGGA" or "N2OM1". For more information about an instrument,
 see the section "See Also" below.}
 
 \item{date.format}{character string; specifies the date format found in the
@@ -78,7 +78,7 @@ one of the columns in the raw data file:
 \item G2508: column DATE
 \item G4301: column DATE
 \item GAIA: column Titles:
-\item LGR: column Time
+\item UGGA: column Time
 \item LI-6400: (see comment below)
 \item LI-7810: column DATE
 \item LI-7820: column DATE
@@ -135,14 +135,14 @@ import2RData(path = file.path, instrument = "GAIA",
              date.format = "ymd", prec = c(3.5, 0.6, 0.4, 45, 45))
 
 # with Los Gatos Research UGGA (GLA132 series)
-file.path <- system.file("extdata/LGR", package = "goFlux")
-import2RData(path = file.path, instrument = "LGR",
+file.path <- system.file("extdata/UGGA", package = "goFlux")
+import2RData(path = file.path, instrument = "UGGA",
              date.format = "dmy", keep_all = FALSE,
              prec = c(0.2, 1.4, 50))
 
 # with Los Gatos Research m-GGA (GLA131 series)
-file.path <- system.file("extdata/LGR", package = "goFlux")
-import2RData(path = file.path, instrument = "LGR",
+file.path <- system.file("extdata/UGGA", package = "goFlux")
+import2RData(path = file.path, instrument = "UGGA",
              date.format = "dmy", keep_all = FALSE,
              prec = c(0.35, 0.9, 200))
 
@@ -200,18 +200,18 @@ Use the wrapper function \code{\link[goFlux]{import2RData}}
 to import multiple files from the same folder path using any instrument.
 
 Import functions for individual instruments:
-\code{\link[goFlux]{DX4015_import}},
-\code{\link[goFlux]{EGM5_import}},
-\code{\link[goFlux]{G2508_import}},
-\code{\link[goFlux]{G4301_import}},
-\code{\link[goFlux]{GAIA_import}},
-\code{\link[goFlux]{LGR_import}},
-\code{\link[goFlux]{LI6400_import}},
-\code{\link[goFlux]{LI7810_import}},
-\code{\link[goFlux]{LI7820_import}},
-\code{\link[goFlux]{LI8100_import}},
-\code{\link[goFlux]{LI8200_import}},
-\code{\link[goFlux]{N2OM1_import}},
-\code{\link[goFlux]{uCH4_import}},
-\code{\link[goFlux]{uN2O_import}}
+\code{\link[goFlux]{import.DX4015}},
+\code{\link[goFlux]{import.EGM5}},
+\code{\link[goFlux]{import.G2508}},
+\code{\link[goFlux]{import.G4301}},
+\code{\link[goFlux]{import.GAIA}},
+\code{\link[goFlux]{import.LI6400}},
+\code{\link[goFlux]{import.LI7810}},
+\code{\link[goFlux]{import.LI7820}},
+\code{\link[goFlux]{import.LI8100}},
+\code{\link[goFlux]{import.LI8200}},
+\code{\link[goFlux]{import.N2OM1}},
+\code{\link[goFlux]{import.uCH4}},
+\code{\link[goFlux]{import.uN2O}},
+\code{\link[goFlux]{import.UGGA}}
 }

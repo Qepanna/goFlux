@@ -21,16 +21,16 @@
 #'          for more information about usage.
 #'
 #' @examples
-#' data(LGR_manID)
-#' LGR_flux <- goFlux(LGR_manID, "CO2dry_ppm")
+#' data(manID.UGGA)
+#' CO2_flux <- goFlux(manID.UGGA, "CO2dry_ppm")
 #' criteria <- c("MAE", "g.factor", "MDF", "SErel")
-#' LGR_res <- best.flux(LGR_flux, criteria)
-#' LGR_plots <- flux.plot(
-#'   flux.results = LGR_res, dataframe = LGR_manID,
+#' CO2_best <- best.flux(CO2_flux, criteria)
+#' CO2_plots <- flux.plot(
+#'   flux.results = CO2_best, dataframe = manID.UGGA,
 #'   gastype = "CO2dry_ppm", quality.check = FALSE,
 #'   plot.legend = c("MAE", "RMSE", "k.ratio", "g.factor", "SErel"),
 #'   plot.display = c("Ci", "C0", "MDF", "prec", "nb.obs", "flux.term"))
-#' flux2pdf(LGR_plots)
+#' flux2pdf(CO2_plots)
 #'
 #' @export
 #'

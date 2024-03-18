@@ -19,7 +19,7 @@
 #'                   generate the files contained in the folder path. Choose one
 #'                   of the following: "DX4015", "EGM5", "G2508", "G4301" "GAIA",
 #'                   "LI-6400", "LI-7810", "LI-7820", "LI-8100", "LI-8200",
-#'                   "LGR" or "N2OM1". For more information about an instrument,
+#'                   "UGGA" or "N2OM1". For more information about an instrument,
 #'                   see the section "See Also" below.
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
@@ -54,7 +54,7 @@
 #' \item G2508: column DATE
 #' \item G4301: column DATE
 #' \item GAIA: column Titles:
-#' \item LGR: column Time
+#' \item UGGA: column Time
 #' \item LI-6400: (see comment below)
 #' \item LI-7810: column DATE
 #' \item LI-7820: column DATE
@@ -94,20 +94,20 @@
 #' @seealso Use the wrapper function \code{\link[goFlux]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso Import functions for individual instruments:
-#'          \code{\link[goFlux]{DX4015_import}},
-#'          \code{\link[goFlux]{EGM5_import}},
-#'          \code{\link[goFlux]{G2508_import}},
-#'          \code{\link[goFlux]{G4301_import}},
-#'          \code{\link[goFlux]{GAIA_import}},
-#'          \code{\link[goFlux]{LGR_import}},
-#'          \code{\link[goFlux]{LI6400_import}},
-#'          \code{\link[goFlux]{LI7810_import}},
-#'          \code{\link[goFlux]{LI7820_import}},
-#'          \code{\link[goFlux]{LI8100_import}},
-#'          \code{\link[goFlux]{LI8200_import}},
-#'          \code{\link[goFlux]{N2OM1_import}},
-#'          \code{\link[goFlux]{uCH4_import}},
-#'          \code{\link[goFlux]{uN2O_import}}
+#'          \code{\link[goFlux]{import.DX4015}},
+#'          \code{\link[goFlux]{import.EGM5}},
+#'          \code{\link[goFlux]{import.G2508}},
+#'          \code{\link[goFlux]{import.G4301}},
+#'          \code{\link[goFlux]{import.GAIA}},
+#'          \code{\link[goFlux]{import.LI6400}},
+#'          \code{\link[goFlux]{import.LI7810}},
+#'          \code{\link[goFlux]{import.LI7820}},
+#'          \code{\link[goFlux]{import.LI8100}},
+#'          \code{\link[goFlux]{import.LI8200}},
+#'          \code{\link[goFlux]{import.N2OM1}},
+#'          \code{\link[goFlux]{import.uCH4}},
+#'          \code{\link[goFlux]{import.uN2O}},
+#'          \code{\link[goFlux]{import.UGGA}}
 #'
 #' @examples
 #' # Examples on how to use it with all instruments.
@@ -145,14 +145,14 @@
 #'              date.format = "ymd", prec = c(3.5, 0.6, 0.4, 45, 45))
 #'
 #' # with Los Gatos Research UGGA (GLA132 series)
-#' file.path <- system.file("extdata/LGR", package = "goFlux")
-#' import2RData(path = file.path, instrument = "LGR",
+#' file.path <- system.file("extdata/UGGA", package = "goFlux")
+#' import2RData(path = file.path, instrument = "UGGA",
 #'              date.format = "dmy", keep_all = FALSE,
 #'              prec = c(0.2, 1.4, 50))
 #'
 #' # with Los Gatos Research m-GGA (GLA131 series)
-#' file.path <- system.file("extdata/LGR", package = "goFlux")
-#' import2RData(path = file.path, instrument = "LGR",
+#' file.path <- system.file("extdata/UGGA", package = "goFlux")
+#' import2RData(path = file.path, instrument = "UGGA",
 #'              date.format = "dmy", keep_all = FALSE,
 #'              prec = c(0.35, 0.9, 200))
 #'
@@ -215,10 +215,10 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
   if(missing(instrument)) stop("'instrument' is required")
   if(length(instrument) != 1) stop("'instrument' must be of length 1")
   if(!any(grepl(paste("\\<", instrument, "\\>", sep = ""),
-                c("DX4015", "LGR", "G4301", "G2508", "GAIA", "LI-6400", "EGM5",
+                c("DX4015", "UGGA", "G4301", "G2508", "GAIA", "LI-6400", "EGM5",
                   "LI-7810", "LI-7820", "LI-8100", "LI-8200", "N2OM1", "uCH4",
                   "uN2O")))){
-    stop("'instrument' must be of class character and one of the following: 'DX4015', 'EGM5', 'G2508', 'G4301', 'GAIA', 'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100', 'LI-8200', 'LGR', 'N2OM1', 'uCH4', 'uN2O'")}
+    stop("'instrument' must be of class character and one of the following: 'DX4015', 'EGM5', 'G2508', 'G4301', 'GAIA', 'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100', 'LI-8200', 'UGGA', 'N2OM1', 'uCH4', 'uN2O'")}
   if(!missing(date.format)){
     if(length(date.format) != 1) stop("'date.format' must be of length 1")
     if(!any(grepl(paste("\\<", date.format, "\\>", sep = ""), c("ymd", "dmy", "mdy")))){
@@ -250,7 +250,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
       withCallingHandlers(
 
-        DX4015_import(inputfile = file_list[i],
+        import.DX4015(inputfile = file_list[i],
                       date.format = date.format,
                       timezone = timezone,
                       save = TRUE,
@@ -284,7 +284,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
       withCallingHandlers(
 
-        EGM5_import(inputfile = file_list[i],
+        import.EGM5(inputfile = file_list[i],
                     date.format = date.format,
                     timezone = timezone,
                     save = TRUE,
@@ -319,7 +319,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
       withCallingHandlers(
 
-        G2508_import(inputfile = file_list[i],
+        import.G2508(inputfile = file_list[i],
                      date.format = date.format,
                      timezone = timezone,
                      save = TRUE,
@@ -353,7 +353,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
       withCallingHandlers(
 
-        G4301_import(inputfile = file_list[i],
+        import.G4301(inputfile = file_list[i],
                      date.format = date.format,
                      timezone = timezone,
                      save = TRUE,
@@ -386,7 +386,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
       withCallingHandlers(
 
-        GAIA_import(inputfile = file_list[i],
+        import.GAIA(inputfile = file_list[i],
                     date.format = date.format,
                     timezone = timezone,
                     save = TRUE,
@@ -408,7 +408,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
   }
 
   # Los Gatos Research ####
-  if(instrument == "LGR"){
+  if(instrument == "UGGA"){
 
     # List all the files contained in the specified path
     file_list <- list.files(path = path, pattern = "\\.txt", full.names = TRUE)
@@ -418,7 +418,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
       withCallingHandlers(
 
-        LGR_import(inputfile = file_list[i],
+        import.UGGA(inputfile = file_list[i],
                    date.format = date.format,
                    timezone = timezone,
                    save = TRUE,
@@ -451,7 +451,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
       withCallingHandlers(
 
-        LI6400_import(inputfile = file_list[i],
+        import.LI6400(inputfile = file_list[i],
                       date.format = date.format,
                       timezone = timezone,
                       save = TRUE,
@@ -484,7 +484,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
       withCallingHandlers(
 
-        LI7810_import(inputfile = file_list[i],
+        import.LI7810(inputfile = file_list[i],
                       date.format = date.format,
                       timezone = timezone,
                       save = TRUE,
@@ -517,7 +517,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
       withCallingHandlers(
 
-        LI7820_import(inputfile = file_list[i],
+        import.LI7820(inputfile = file_list[i],
                       date.format = date.format,
                       timezone = timezone,
                       save = TRUE,
@@ -550,7 +550,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
       withCallingHandlers(
 
-        LI8100_import(inputfile = file_list[i],
+        import.LI8100(inputfile = file_list[i],
                       date.format = date.format,
                       timezone = timezone,
                       save = TRUE,
@@ -583,7 +583,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
       withCallingHandlers(
 
-        LI8200_import(inputfile = file_list[i],
+        import.LI8200(inputfile = file_list[i],
                       date.format = date.format,
                       timezone = timezone,
                       save = TRUE),
@@ -614,7 +614,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
       withCallingHandlers(
 
-        N2OM1_import(inputfile = file_list[i],
+        import.N2OM1(inputfile = file_list[i],
                      date.format = date.format,
                      timezone = timezone,
                      save = TRUE,
@@ -647,7 +647,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
       withCallingHandlers(
 
-        uCH4_import(inputfile = file_list[i],
+        import.uCH4(inputfile = file_list[i],
                     date.format = date.format,
                     timezone = timezone,
                     save = TRUE,
@@ -680,7 +680,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
       withCallingHandlers(
 
-        uN2O_import(inputfile = file_list[i],
+        import.uN2O(inputfile = file_list[i],
                      date.format = date.format,
                      timezone = timezone,
                      save = TRUE,

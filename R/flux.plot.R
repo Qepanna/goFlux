@@ -140,12 +140,12 @@
 #'          these parameters.
 #'
 #' @examples
-#' data(LGR_manID)
-#' LGR_flux <- goFlux(LGR_manID, "CO2dry_ppm")
+#' data(manID.UGGA)
+#' CO2_flux <- goFlux(manID.UGGA, "CO2dry_ppm")
 #' criteria <- c("MAE", "AICc", "g.factor", "MDF")
-#' LGR_res <- best.flux(LGR_flux, criteria)
-#' LGR_plots <- flux.plot(
-#'   flux.results = LGR_res, dataframe = LGR_manID,
+#' CO2_best <- best.flux(CO2_flux, criteria)
+#' CO2_plots <- flux.plot(
+#'   flux.results = CO2_best, dataframe = manID.UGGA,
 #'   gastype = "CO2dry_ppm", quality.check = TRUE,
 #'   plot.legend = c("MAE", "AICc", "k.ratio", "g.factor"),
 #'   plot.display = c("Ci", "C0", "MDF", "prec", "nb.obs", "flux.term"))

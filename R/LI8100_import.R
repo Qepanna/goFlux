@@ -55,19 +55,19 @@
 #' @seealso Use the wrapper function \code{\link[goFlux]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso See also, import functions for other instruments:
-#'          \code{\link[goFlux]{DX4015_import}},
-#'          \code{\link[goFlux]{EGM5_import}},
-#'          \code{\link[goFlux]{G2508_import}},
-#'          \code{\link[goFlux]{G4301_import}},
-#'          \code{\link[goFlux]{GAIA_import}},
-#'          \code{\link[goFlux]{LGR_import}},
-#'          \code{\link[goFlux]{LI6400_import}},
-#'          \code{\link[goFlux]{LI7810_import}},
-#'          \code{\link[goFlux]{LI7820_import}},
-#'          \code{\link[goFlux]{LI8200_import}},
-#'          \code{\link[goFlux]{N2OM1_import}},
-#'          \code{\link[goFlux]{uCH4_import}},
-#'          \code{\link[goFlux]{uN2O_import}}
+#'          \code{\link[goFlux]{import.DX4015}},
+#'          \code{\link[goFlux]{import.EGM5}},
+#'          \code{\link[goFlux]{import.G2508}},
+#'          \code{\link[goFlux]{import.G4301}},
+#'          \code{\link[goFlux]{import.GAIA}},
+#'          \code{\link[goFlux]{import.LI6400}},
+#'          \code{\link[goFlux]{import.LI7810}},
+#'          \code{\link[goFlux]{import.LI7820}},
+#'          \code{\link[goFlux]{import.LI8200}},
+#'          \code{\link[goFlux]{import.N2OM1}},
+#'          \code{\link[goFlux]{import.uCH4}},
+#'          \code{\link[goFlux]{import.uN2O}},
+#'          \code{\link[goFlux]{import.UGGA}}
 #'
 #' @seealso See \code{\link[base]{timezones}} for a description of the underlying
 #'          timezone attribute.
@@ -77,7 +77,7 @@
 #' file.path <- system.file("extdata", "LI8100/LI8100.81x", package = "goFlux")
 #'
 #' # Run function
-#' LI8100_imp <- LI8100_import(inputfile = file.path)
+#' imp.LI8100 <- import.LI8100(inputfile = file.path)
 #'
 #' @export
 #'
@@ -208,6 +208,12 @@ LI8100_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       data.raw <- data.raw %>%
         mutate(CO2_prec = prec[1], H2O_prec = prec[2])
 
+      # New function name
+      if (as.character(match.call()[[1]]) == "LI8100_import") {
+        warning(paste("All import functions have changed names in this new version of goFlux.",
+                      "\nIn the future, use import.LI8100() instead of LI8100_import()"), call. = FALSE)
+      }
+
       # Save cleaned data file
       if(save == TRUE){
         # Create RData folder in working directory
@@ -231,3 +237,7 @@ LI8100_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
     }
   }
 }
+
+#' @export
+#' @rdname LI8100_import
+import.LI8100 <- LI8100_import

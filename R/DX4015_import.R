@@ -70,19 +70,19 @@
 #' @seealso Use the wrapper function \code{\link[goFlux]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso See also, import functions for other instruments:
-#'          \code{\link[goFlux]{EGM5_import}},
-#'          \code{\link[goFlux]{G2508_import}},
-#'          \code{\link[goFlux]{G4301_import}},
-#'          \code{\link[goFlux]{GAIA_import}},
-#'          \code{\link[goFlux]{LGR_import}},
-#'          \code{\link[goFlux]{LI6400_import}},
-#'          \code{\link[goFlux]{LI7810_import}},
-#'          \code{\link[goFlux]{LI7820_import}},
-#'          \code{\link[goFlux]{LI8100_import}},
-#'          \code{\link[goFlux]{LI8200_import}},
-#'          \code{\link[goFlux]{N2OM1_import}},
-#'          \code{\link[goFlux]{uCH4_import}},
-#'          \code{\link[goFlux]{uN2O_import}}
+#'          \code{\link[goFlux]{import.EGM5}},
+#'          \code{\link[goFlux]{import.G2508}},
+#'          \code{\link[goFlux]{import.G4301}},
+#'          \code{\link[goFlux]{import.GAIA}},
+#'          \code{\link[goFlux]{import.LI6400}},
+#'          \code{\link[goFlux]{import.LI7810}},
+#'          \code{\link[goFlux]{import.LI7820}},
+#'          \code{\link[goFlux]{import.LI8100}},
+#'          \code{\link[goFlux]{import.LI8200}},
+#'          \code{\link[goFlux]{import.N2OM1}},
+#'          \code{\link[goFlux]{import.uCH4}},
+#'          \code{\link[goFlux]{import.uN2O}},
+#'          \code{\link[goFlux]{import.UGGA}}
 #'
 #' @seealso See \code{\link[base]{timezones}} for a description of the underlying
 #'          timezone attribute.
@@ -91,7 +91,7 @@
 #' # Examples on how to use:
 #' file.path <- system.file("extdata", "DX4015/DX4015.TXT", package = "goFlux")
 #'
-#' DX4015_imp <- DX4015_import(inputfile = file.path)
+#' imp.DX4015 <- import.DX4015(inputfile = file.path)
 #'
 #' @export
 #'
@@ -267,6 +267,12 @@ DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
         mutate(CO2_prec = prec[1], CO_prec = prec[2], CH4_prec = prec[3],
                N2O_prec = prec[4], NH3_prec = prec[5], H2O_prec = prec[6])
 
+      # New function name
+      if (as.character(match.call()[[1]]) == "DX4015_import") {
+        warning(paste("All import functions have changed names in this new version of goFlux.",
+                      "\nIn the future, use import.DX4015() instead of DX4015_import()"), call. = FALSE)
+      }
+
       # Save cleaned data file
       if(save == TRUE){
         # Create RData folder in working directory
@@ -291,3 +297,6 @@ DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   }
 }
 
+#' @export
+#' @rdname DX4015_import
+import.DX4015 <- DX4015_import

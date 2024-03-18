@@ -2,10 +2,34 @@
 % Please edit documentation in R/GAIA_import.R
 \name{GAIA_import}
 \alias{GAIA_import}
+\alias{import.GAIA}
 \title{Import function for the automated chamber ECOFlux (GAIA2TECH) synced with
 multiple chambers and instruments}
 \usage{
 GAIA_import(
+  inputfile,
+  date.format = "ymd",
+  timezone = "UTC",
+  pivot = "long",
+  active = TRUE,
+  flag = c(7, 11),
+  background = FALSE,
+  save = FALSE,
+  prec = c(3.5, 0.6, 0.4, 45, 45),
+  CH.col = "COM5A0",
+  SWC.col = "1C08_Soil.Moisture",
+  Tsoil.col = "1C07_Soil.Temperature",
+  Tcham.col = "2C07_Chamber.Temperature",
+  PAR.col = "3C07_Sunlight",
+  Op.stat.col = "0C06_OperatingStatus",
+  CO2.col = "XT2C05_CO2",
+  CH4.col = "XT2C04_CH4",
+  H2O1.col = "XT2C06_H2O",
+  N2O.col = "XT3C04_N2O",
+  H2O2.col = "XT3C05_H2O"
+)
+
+import.GAIA(
   inputfile,
   date.format = "ymd",
   timezone = "UTC",
@@ -147,7 +171,7 @@ available at the time of the creation of this function (11-2023).
 # Examples on how to use:
 file.path <- system.file("extdata", "GAIA/GAIA.csv", package = "goFlux")
 
-GAIA_imp <- GAIA_import(inputfile = file.path)
+imp.GAIA <- import.GAIA(inputfile = file.path)
 
 }
 \seealso{
@@ -155,19 +179,19 @@ Use the wrapper function \code{\link[goFlux]{import2RData}}
          to import multiple files from the same folder path using any instrument.
 
 See also, import functions for other instruments:
-         \code{\link[goFlux]{DX4015_import}},
-         \code{\link[goFlux]{EGM5_import}},
-         \code{\link[goFlux]{G2508_import}},
-         \code{\link[goFlux]{G4301_import}},
-         \code{\link[goFlux]{LGR_import}},
-         \code{\link[goFlux]{LI6400_import}},
-         \code{\link[goFlux]{LI7810_import}},
-         \code{\link[goFlux]{LI7820_import}},
-         \code{\link[goFlux]{LI8100_import}},
-         \code{\link[goFlux]{LI8200_import}},
-         \code{\link[goFlux]{N2OM1_import}},
-         \code{\link[goFlux]{uCH4_import}},
-         \code{\link[goFlux]{uN2O_import}}
+         \code{\link[goFlux]{import.DX4015}},
+         \code{\link[goFlux]{import.EGM5}},
+         \code{\link[goFlux]{import.G2508}},
+         \code{\link[goFlux]{import.G4301}},
+         \code{\link[goFlux]{import.LI6400}},
+         \code{\link[goFlux]{import.LI7810}},
+         \code{\link[goFlux]{import.LI7820}},
+         \code{\link[goFlux]{import.LI8100}},
+         \code{\link[goFlux]{import.LI8200}},
+         \code{\link[goFlux]{import.N2OM1}},
+         \code{\link[goFlux]{import.uCH4}},
+         \code{\link[goFlux]{import.uN2O}},
+         \code{\link[goFlux]{import.UGGA}}
 
 See \code{\link[base]{timezones}} for a description of the underlying
          timezone attribute.

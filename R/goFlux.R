@@ -167,26 +167,26 @@
 #'
 #' @seealso See also the import functions to find the
 #'          default instrument precision for each instrument:
-#'          \code{\link[goFlux]{DX4015_import}},
-#'          \code{\link[goFlux]{EGM5_import}},
-#'          \code{\link[goFlux]{G2508_import}},
-#'          \code{\link[goFlux]{G4301_import}},
-#'          \code{\link[goFlux]{GAIA_import}},
-#'          \code{\link[goFlux]{LGR_import}},
-#'          \code{\link[goFlux]{LI6400_import}},
-#'          \code{\link[goFlux]{LI7810_import}},
-#'          \code{\link[goFlux]{LI7820_import}},
-#'          \code{\link[goFlux]{LI8100_import}},
-#'          \code{\link[goFlux]{LI8200_import}},
-#'          \code{\link[goFlux]{N2OM1_import}},
-#'          \code{\link[goFlux]{uCH4_import}},
-#'          \code{\link[goFlux]{uN2O_import}}
+#'          \code{\link[goFlux]{import.DX4015}},
+#'          \code{\link[goFlux]{import.EGM5}},
+#'          \code{\link[goFlux]{import.G2508}},
+#'          \code{\link[goFlux]{import.G4301}},
+#'          \code{\link[goFlux]{import.GAIA}},
+#'          \code{\link[goFlux]{import.LI6400}},
+#'          \code{\link[goFlux]{import.LI7810}},
+#'          \code{\link[goFlux]{import.LI7820}},
+#'          \code{\link[goFlux]{import.LI8100}},
+#'          \code{\link[goFlux]{import.LI8200}},
+#'          \code{\link[goFlux]{import.N2OM1}},
+#'          \code{\link[goFlux]{import.uCH4}},
+#'          \code{\link[goFlux]{import.uN2O}},
+#'          \code{\link[goFlux]{import.UGGA}}
 #'
 #' @examples
-#' data(LGR_manID)
-#' CO2_flux <- goFlux(LGR_manID, "CO2dry_ppm")
-#' CH4_flux <- goFlux(LGR_manID, "CH4dry_ppb")
-#' H2O_flux <- goFlux(LGR_manID, "H2O_ppm")
+#' data(manID.UGGA)
+#' CO2_flux <- goFlux(manID.UGGA, "CO2dry_ppm")
+#' CH4_flux <- goFlux(manID.UGGA, "CH4dry_ppb")
+#' H2O_flux <- goFlux(manID.UGGA, "H2O_ppm")
 #'
 #' @export
 #'

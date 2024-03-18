@@ -1,4 +1,4 @@
-#' Import function for Los Gatos Research GHG analyzers
+#' Import function for the Los Gatos Research GHG analyzers UGGA and MGGA
 #'
 #' Imports single raw gas measurement files from the ultra-portable GHG analyzers
 #' (GLA132-UGGA and GLA131-MGGA) from Los Gatos Research
@@ -67,28 +67,28 @@
 #' @seealso Use the wrapper function \code{\link[goFlux]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso See also, import functions for other instruments:
-#'          \code{\link[goFlux]{DX4015_import}},
-#'          \code{\link[goFlux]{EGM5_import}},
-#'          \code{\link[goFlux]{G2508_import}},
-#'          \code{\link[goFlux]{G4301_import}},
-#'          \code{\link[goFlux]{GAIA_import}},
-#'          \code{\link[goFlux]{LI6400_import}},
-#'          \code{\link[goFlux]{LI7810_import}},
-#'          \code{\link[goFlux]{LI7820_import}},
-#'          \code{\link[goFlux]{LI8100_import}},
-#'          \code{\link[goFlux]{LI8200_import}},
-#'          \code{\link[goFlux]{N2OM1_import}},
-#'          \code{\link[goFlux]{uCH4_import}},
-#'          \code{\link[goFlux]{uN2O_import}}
+#'          \code{\link[goFlux]{import.DX4015}},
+#'          \code{\link[goFlux]{import.EGM5}},
+#'          \code{\link[goFlux]{import.G2508}},
+#'          \code{\link[goFlux]{import.G4301}},
+#'          \code{\link[goFlux]{import.GAIA}},
+#'          \code{\link[goFlux]{import.LI6400}},
+#'          \code{\link[goFlux]{import.LI7810}},
+#'          \code{\link[goFlux]{import.LI7820}},
+#'          \code{\link[goFlux]{import.LI8100}},
+#'          \code{\link[goFlux]{import.LI8200}},
+#'          \code{\link[goFlux]{import.N2OM1}},
+#'          \code{\link[goFlux]{import.uCH4}},
+#'          \code{\link[goFlux]{import.uN2O}}
 #'
 #' @seealso See \code{\link[base]{timezones}} for a description of the underlying
 #'          timezone attribute.
 #'
 #' @examples
 #' # Examples on how to use:
-#' file.path <- system.file("extdata", "LGR/LGR.txt", package = "goFlux")
+#' file.path <- system.file("extdata", "UGGA/UGGA.txt", package = "goFlux")
 #'
-#' LGR_imp <- LGR_import(inputfile = file.path)
+#' imp.UGGA <- import.UGGA(inputfile = file.path)
 #'
 #' @export
 #'
@@ -196,6 +196,12 @@ LGR_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
       data.raw <- data.raw %>%
         mutate(CO2_prec = prec[1], CH4_prec = prec[2],  H2O_prec = prec[3])
 
+      # New function name
+      if (as.character(match.call()[[1]]) == "LGR_import") {
+        warning(paste("All import functions have changed names in this new version of goFlux.",
+                      "\nIn the future, use import.UGGA() instead of LGR_import()"), call. = FALSE)
+      }
+
       # Save cleaned data file
       if(save == TRUE){
         # Create RData folder in working directory
@@ -205,7 +211,7 @@ LGR_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
         # Create output file: change extension to .RData, and
         # add instrument name and "imp" for import to file name
         file.name <- gsub(".*/", "", sub("\\.txt", "", inputfile))
-        outputfile <- paste("LGR_", file.name, "_imp.RData", sep = "")
+        outputfile <- paste("UGGA_", file.name, "_imp.RData", sep = "")
 
         save(data.raw, file = paste(RData_folder, outputfile, sep = "/"))
 
@@ -219,3 +225,7 @@ LGR_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
     }
   }
 }
+
+#' @export
+#' @rdname LGR_import
+import.UGGA <- LGR_import

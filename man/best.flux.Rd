@@ -141,9 +141,9 @@ observations  is smaller than the threshold, a warning is issued in the
 column \code{quality.check}.
 }
 \examples{
-data(LGR_manID)
-LGR_flux <- goFlux(LGR_manID, "CO2dry_ppm")
-LGR_res <- best.flux(LGR_flux)
+data(manID.UGGA)
+CO2_flux <- goFlux(manID.UGGA, "CO2dry_ppm")
+CO2_best <- best.flux(CO2_flux)
 
 }
 \references{

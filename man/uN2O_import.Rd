@@ -2,12 +2,22 @@
 % Please edit documentation in R/uN2O_import.R
 \name{uN2O_import}
 \alias{uN2O_import}
+\alias{import.uN2O}
 \title{Import function for the MIRA Ultra
 \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}/
 \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} analyzer
 from Aeris Technologies}
 \usage{
 uN2O_import(
+  inputfile,
+  date.format = "mdy",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE,
+  prec = c(0.2, 0.2, 15)
+)
+
+import.uN2O(
   inputfile,
   date.format = "mdy",
   timezone = "UTC",
@@ -94,7 +104,7 @@ vapor is currently unknown, and a default of 1 ppm is used.
 # Examples on how to use:
 file.path <- system.file("extdata", "uN2O/uN2O.txt", package = "goFlux")
 
-uN2O_imp <- uN2O_import(inputfile = file.path)
+imp.uN2O <- import.uN2O(inputfile = file.path)
 
 }
 \seealso{
@@ -102,19 +112,19 @@ Use the wrapper function \code{\link[goFlux]{import2RData}}
          to import multiple files from the same folder path using any instrument.
 
 See also, import functions for other instruments:
-         \code{\link[goFlux]{DX4015_import}},
-         \code{\link[goFlux]{EGM5_import}},
-         \code{\link[goFlux]{G2508_import}},
-         \code{\link[goFlux]{G4301_import}},
-         \code{\link[goFlux]{GAIA_import}},
-         \code{\link[goFlux]{LGR_import}},
-         \code{\link[goFlux]{LI6400_import}},
-         \code{\link[goFlux]{LI7810_import}},
-         \code{\link[goFlux]{LI7820_import}},
-         \code{\link[goFlux]{LI8100_import}},
-         \code{\link[goFlux]{LI8200_import}},
-         \code{\link[goFlux]{N2OM1_import}},
-         \code{\link[goFlux]{uCH4_import}}
+         \code{\link[goFlux]{import.DX4015}},
+         \code{\link[goFlux]{import.EGM5}},
+         \code{\link[goFlux]{import.G2508}},
+         \code{\link[goFlux]{import.G4301}},
+         \code{\link[goFlux]{import.GAIA}},
+         \code{\link[goFlux]{import.LI6400}},
+         \code{\link[goFlux]{import.LI7810}},
+         \code{\link[goFlux]{import.LI7820}},
+         \code{\link[goFlux]{import.LI8100}},
+         \code{\link[goFlux]{import.LI8200}},
+         \code{\link[goFlux]{import.N2OM1}},
+         \code{\link[goFlux]{import.uCH4}},
+         \code{\link[goFlux]{import.UGGA}}
 
 See \code{\link[base]{timezones}} for a description of the underlying
          timezone attribute.

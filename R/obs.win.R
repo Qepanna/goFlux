@@ -49,21 +49,21 @@
 #' library(dplyr)
 #'
 #' ## with a LGR instrument and an auxiliary file (.txt)
-#' aux.path <- system.file("extdata", "LGR_aux/LGR_aux.txt", package = "goFlux")
+#' aux.path <- system.file("extdata", "aux_UGGA/aux_UGGA.txt", package = "goFlux")
 #' auxfile <- read.delim(aux.path) %>%
 #'   mutate(start.time = as.POSIXct(start.time, tz = "UTC"))
-#' data(LGR_imp)
-#' LGR_ow <- obs.win(inputfile = LGR_imp, auxfile = auxfile,
-#'                   obs.length = 180, shoulder = 60)
+#' data(imp.UGGA)
+#' ow.UGGA <- obs.win(inputfile = imp.UGGA, auxfile = auxfile,
+#'                    obs.length = 180, shoulder = 60)
 #'
 #' ## with a LI-COR instrument and the Smart Chamber as auxiliary file
-#' data(LI8200_imp)
-#' data(LI7820_imp)
-#' LI7820_ow <- obs.win(inputfile = LI7820_imp, auxfile = LI8200_imp, shoulder = 60)
+#' data(imp.LI8200)
+#' data(imp.LI7820)
+#' ow.LI7820 <- obs.win(inputfile = imp.LI7820, auxfile = imp.LI8200, shoulder = 60)
 #'
 #' ## with the LI-6400 and no auxiliary file
-#' data(LI6400_imp)
-#' LI6400_ow <- obs.win(inputfile = LI6400_imp, shoulder = 0)
+#' data(imp.LI6400)
+#' ow.LI6400 <- obs.win(inputfile = imp.LI6400, shoulder = 0)
 #'
 #' @export
 #'
