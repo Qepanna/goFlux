@@ -31,16 +31,7 @@
     <loc>/reference/HM.flux.html</loc>
   </url>
   <url>
-    <loc>/reference/LGR_imp.html</loc>
-  </url>
-  <url>
     <loc>/reference/LGR_import.html</loc>
-  </url>
-  <url>
-    <loc>/reference/LGR_manID.html</loc>
-  </url>
-  <url>
-    <loc>/reference/LI6400_imp.html</loc>
   </url>
   <url>
     <loc>/reference/LI6400_import.html</loc>
@@ -49,16 +40,10 @@
     <loc>/reference/LI7810_import.html</loc>
   </url>
   <url>
-    <loc>/reference/LI7820_imp.html</loc>
-  </url>
-  <url>
     <loc>/reference/LI7820_import.html</loc>
   </url>
   <url>
     <loc>/reference/LI8100_import.html</loc>
-  </url>
-  <url>
-    <loc>/reference/LI8200_imp.html</loc>
   </url>
   <url>
     <loc>/reference/LI8200_import.html</loc>
@@ -97,7 +82,22 @@
     <loc>/reference/goFlux.html</loc>
   </url>
   <url>
+    <loc>/reference/goFlux.nokmax.html</loc>
+  </url>
+  <url>
     <loc>/reference/goFlux_nokmax.html</loc>
+  </url>
+  <url>
+    <loc>/reference/imp.LI6400.html</loc>
+  </url>
+  <url>
+    <loc>/reference/imp.LI7820.html</loc>
+  </url>
+  <url>
+    <loc>/reference/imp.LI8200.html</loc>
+  </url>
+  <url>
+    <loc>/reference/imp.UGGA.html</loc>
   </url>
   <url>
     <loc>/reference/import2RData.html</loc>
@@ -107,6 +107,9 @@
   </url>
   <url>
     <loc>/reference/k.max.html</loc>
+  </url>
+  <url>
+    <loc>/reference/manID.UGGA.html</loc>
   </url>
   <url>
     <loc>/reference/obs.win.html</loc>

@@ -270,30 +270,30 @@ field measurement of nitrous oxide fluxes.
          information about these parameters.</p>
 <p>See also the import functions to find the
          default instrument precision for each instrument:
-         <code><a href="DX4015_import.html">DX4015_import</a></code>,
-         <code><a href="EGM5_import.html">EGM5_import</a></code>,
-         <code><a href="G2508_import.html">G2508_import</a></code>,
-         <code><a href="G4301_import.html">G4301_import</a></code>,
-         <code><a href="GAIA_import.html">GAIA_import</a></code>,
-         <code><a href="LGR_import.html">LGR_import</a></code>,
-         <code><a href="LI6400_import.html">LI6400_import</a></code>,
-         <code><a href="LI7810_import.html">LI7810_import</a></code>,
-         <code><a href="LI7820_import.html">LI7820_import</a></code>,
-         <code><a href="LI8100_import.html">LI8100_import</a></code>,
-         <code><a href="LI8200_import.html">LI8200_import</a></code>,
-         <code><a href="N2OM1_import.html">N2OM1_import</a></code>,
-         <code><a href="uCH4_import.html">uCH4_import</a></code>,
-         <code><a href="uN2O_import.html">uN2O_import</a></code></p></div>
+         <code><a href="DX4015_import.html">import.DX4015</a></code>,
+         <code><a href="EGM5_import.html">import.EGM5</a></code>,
+         <code><a href="G2508_import.html">import.G2508</a></code>,
+         <code><a href="G4301_import.html">import.G4301</a></code>,
+         <code><a href="GAIA_import.html">import.GAIA</a></code>,
+         <code><a href="LI6400_import.html">import.LI6400</a></code>,
+         <code><a href="LI7810_import.html">import.LI7810</a></code>,
+         <code><a href="LI7820_import.html">import.LI7820</a></code>,
+         <code><a href="LI8100_import.html">import.LI8100</a></code>,
+         <code><a href="LI8200_import.html">import.LI8200</a></code>,
+         <code><a href="N2OM1_import.html">import.N2OM1</a></code>,
+         <code><a href="uCH4_import.html">import.uCH4</a></code>,
+         <code><a href="uN2O_import.html">import.uN2O</a></code>,
+         <code><a href="LGR_import.html">import.UGGA</a></code></p></div>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">LGR_manID</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">CO2_flux</span> <span class="op">&lt;-</span> <span class="fu">goFlux</span><span class="op">(</span><span class="va">LGR_manID</span>, <span class="st">"CO2dry_ppm"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">manID.UGGA</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">CO2_flux</span> <span class="op">&lt;-</span> <span class="fu">goFlux</span><span class="op">(</span><span class="va">manID.UGGA</span>, <span class="st">"CO2dry_ppm"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
-<span class="r-in"><span><span class="va">CH4_flux</span> <span class="op">&lt;-</span> <span class="fu">goFlux</span><span class="op">(</span><span class="va">LGR_manID</span>, <span class="st">"CH4dry_ppb"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">CH4_flux</span> <span class="op">&lt;-</span> <span class="fu">goFlux</span><span class="op">(</span><span class="va">manID.UGGA</span>, <span class="st">"CH4dry_ppb"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
-<span class="r-in"><span><span class="va">H2O_flux</span> <span class="op">&lt;-</span> <span class="fu">goFlux</span><span class="op">(</span><span class="va">LGR_manID</span>, <span class="st">"H2O_ppm"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">H2O_flux</span> <span class="op">&lt;-</span> <span class="fu">goFlux</span><span class="op">(</span><span class="va">manID.UGGA</span>, <span class="st">"H2O_ppm"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

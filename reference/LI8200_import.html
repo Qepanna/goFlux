@@ -44,7 +44,9 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">LI8200_import</span><span class="op">(</span><span class="va">inputfile</span>, date.format <span class="op">=</span> <span class="st">"ymd"</span>, timezone <span class="op">=</span> <span class="st">"UTC"</span>, save <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">LI8200_import</span><span class="op">(</span><span class="va">inputfile</span>, date.format <span class="op">=</span> <span class="st">"ymd"</span>, timezone <span class="op">=</span> <span class="st">"UTC"</span>, save <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">import.LI8200</span><span class="op">(</span><span class="va">inputfile</span>, date.format <span class="op">=</span> <span class="st">"ymd"</span>, timezone <span class="op">=</span> <span class="st">"UTC"</span>, save <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -106,19 +108,19 @@ this function, please contact the maintainer of this package for support.</p>
     <div class="dont-index"><p>Use the wrapper function <code><a href="import2RData.html">import2RData</a></code>
          to import multiple files from the same folder path using any instrument.</p>
 <p>See also, import functions for other instruments:
-         <code><a href="DX4015_import.html">DX4015_import</a></code>,
-         <code><a href="EGM5_import.html">EGM5_import</a></code>,
-         <code><a href="G2508_import.html">G2508_import</a></code>,
-         <code><a href="G4301_import.html">G4301_import</a></code>,
-         <code><a href="GAIA_import.html">GAIA_import</a></code>,
-         <code><a href="LGR_import.html">LGR_import</a></code>,
-         <code><a href="LI6400_import.html">LI6400_import</a></code>,
-         <code><a href="LI7810_import.html">LI7810_import</a></code>,
-         <code><a href="LI7820_import.html">LI7820_import</a></code>,
-         <code><a href="LI8100_import.html">LI8100_import</a></code>,
-         <code><a href="N2OM1_import.html">N2OM1_import</a></code>,
-         <code><a href="uCH4_import.html">uCH4_import</a></code>,
-         <code><a href="uN2O_import.html">uN2O_import</a></code></p>
+         <code><a href="DX4015_import.html">import.DX4015</a></code>,
+         <code><a href="EGM5_import.html">import.EGM5</a></code>,
+         <code><a href="G2508_import.html">import.G2508</a></code>,
+         <code><a href="G4301_import.html">import.G4301</a></code>,
+         <code><a href="GAIA_import.html">import.GAIA</a></code>,
+         <code><a href="LI6400_import.html">import.LI6400</a></code>,
+         <code><a href="LI7810_import.html">import.LI7810</a></code>,
+         <code><a href="LI7820_import.html">import.LI7820</a></code>,
+         <code><a href="LI8100_import.html">import.LI8100</a></code>,
+         <code><a href="N2OM1_import.html">import.N2OM1</a></code>,
+         <code><a href="uCH4_import.html">import.uCH4</a></code>,
+         <code><a href="uN2O_import.html">import.uN2O</a></code>,
+         <code><a href="LGR_import.html">import.UGGA</a></code></p>
 <p>See <code><a href="https://rdrr.io/r/base/timezones.html" class="external-link">timezones</a></code> for a description of the underlying
          timezone attribute.</p></div>
     </div>
@@ -129,7 +131,7 @@ this function, please contact the maintainer of this package for support.</p>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"LI8200/LI8200.json"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run function</span></span></span>
-<span class="r-in"><span><span class="va">LI8200_imp</span> <span class="op">&lt;-</span> <span class="fu">LI8200_import</span><span class="op">(</span>inputfile <span class="op">=</span> <span class="va">file.path</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">imp.LI8200</span> <span class="op">&lt;-</span> <span class="fu">import.LI8200</span><span class="op">(</span>inputfile <span class="op">=</span> <span class="va">file.path</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

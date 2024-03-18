@@ -87,7 +87,7 @@ files to be imported.</p></dd>
 generate the files contained in the folder path. Choose one
 of the following: "DX4015", "EGM5", "G2508", "G4301" "GAIA",
 "LI-6400", "LI-7810", "LI-7820", "LI-8100", "LI-8200",
-"LGR" or "N2OM1". For more information about an instrument,
+"UGGA" or "N2OM1". For more information about an instrument,
 see the section "See Also" below.</p></dd>
 
 
@@ -141,7 +141,7 @@ one of the columns in the raw data file:</p><ul><li><p>DX4015: column Date</p></
 <li><p>G2508: column DATE</p></li>
 <li><p>G4301: column DATE</p></li>
 <li><p>GAIA: column Titles:</p></li>
-<li><p>LGR: column Time</p></li>
+<li><p>UGGA: column Time</p></li>
 <li><p>LI-6400: (see comment below)</p></li>
 <li><p>LI-7810: column DATE</p></li>
 <li><p>LI-7820: column DATE</p></li>
@@ -165,20 +165,20 @@ at page 90 for more details about the different Process Data Fields
     <div class="dont-index"><p>Use the wrapper function <code>import2RData</code>
 to import multiple files from the same folder path using any instrument.</p>
 <p>Import functions for individual instruments:
-<code><a href="DX4015_import.html">DX4015_import</a></code>,
-<code><a href="EGM5_import.html">EGM5_import</a></code>,
-<code><a href="G2508_import.html">G2508_import</a></code>,
-<code><a href="G4301_import.html">G4301_import</a></code>,
-<code><a href="GAIA_import.html">GAIA_import</a></code>,
-<code><a href="LGR_import.html">LGR_import</a></code>,
-<code><a href="LI6400_import.html">LI6400_import</a></code>,
-<code><a href="LI7810_import.html">LI7810_import</a></code>,
-<code><a href="LI7820_import.html">LI7820_import</a></code>,
-<code><a href="LI8100_import.html">LI8100_import</a></code>,
-<code><a href="LI8200_import.html">LI8200_import</a></code>,
-<code><a href="N2OM1_import.html">N2OM1_import</a></code>,
-<code><a href="uCH4_import.html">uCH4_import</a></code>,
-<code><a href="uN2O_import.html">uN2O_import</a></code></p></div>
+<code><a href="DX4015_import.html">import.DX4015</a></code>,
+<code><a href="EGM5_import.html">import.EGM5</a></code>,
+<code><a href="G2508_import.html">import.G2508</a></code>,
+<code><a href="G4301_import.html">import.G4301</a></code>,
+<code><a href="GAIA_import.html">import.GAIA</a></code>,
+<code><a href="LI6400_import.html">import.LI6400</a></code>,
+<code><a href="LI7810_import.html">import.LI7810</a></code>,
+<code><a href="LI7820_import.html">import.LI7820</a></code>,
+<code><a href="LI8100_import.html">import.LI8100</a></code>,
+<code><a href="LI8200_import.html">import.LI8200</a></code>,
+<code><a href="N2OM1_import.html">import.N2OM1</a></code>,
+<code><a href="uCH4_import.html">import.uCH4</a></code>,
+<code><a href="uN2O_import.html">import.uN2O</a></code>,
+<code><a href="LGR_import.html">import.UGGA</a></code></p></div>
     </div>
 
     <div id="ref-examples">
@@ -223,18 +223,18 @@ to import multiple files from the same folder path using any instrument.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> GAIA.csv saved as GAIA_GAIA_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with Los Gatos Research UGGA (GLA132 series)</span></span></span>
-<span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/LGR"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"LGR"</span>,</span></span>
+<span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/UGGA"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"UGGA"</span>,</span></span>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"dmy"</span>, keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>             prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">1.4</span>, <span class="fl">50</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> LGR.txt saved as LGR_LGR_imp.RData in RData folder, in working directory</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> UGGA.txt saved as UGGA_UGGA_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with Los Gatos Research m-GGA (GLA131 series)</span></span></span>
-<span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/LGR"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"LGR"</span>,</span></span>
+<span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/UGGA"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"UGGA"</span>,</span></span>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"dmy"</span>, keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>             prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.35</span>, <span class="fl">0.9</span>, <span class="fl">200</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> LGR.txt saved as LGR_LGR_imp.RData in RData folder, in working directory</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> UGGA.txt saved as UGGA_UGGA_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with Los Gatos Research N2OM1 (GLA151 series)</span></span></span>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/N2OM1"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
