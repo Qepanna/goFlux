@@ -15,7 +15,8 @@ goFlux.nokmax(
   Vcham = NULL,
   Pcham = NULL,
   Tcham = NULL,
-  warn.length = 60
+  warn.length = 60,
+  k.min = 10^-9
 )
 }
 \arguments{
@@ -73,6 +74,9 @@ not provided, 15°C is used as default.}
 
 \item{warn.length}{numerical value; limit under which a measurement is
 flagged for being too short (\code{nb.obs < warn.length}).}
+
+\item{k.min}{numerical value; a lower boundary value for kappa in the HM model.
+Default is \code{k.min = 10^-9}}
 }
 \value{
 Returns a data frame with 28 columns: a \code{UniqueID} per
@@ -132,7 +136,10 @@ from the linear flux estimate (\code{\link[goFlux]{LM.flux}}), the
 minimal detectable flux (\code{\link[goFlux]{MDF}}) and the time of
 chamber closure. This limit of kappa-max is included in the
 \code{\link[goFlux]{goFlux}} function, so that the non-linear flux
-estimate cannot exceed this maximum curvature.
+estimate cannot exceed this maximum curvature. Inversely, one can set a
+minimal threshold for kappa: to allow for a log-like curvature, set
+\code{k.min} below 0 (ex. -1), otherwise it should be just above 0
+(ex. 10^-9). \code{k.min} cannot be 0 as this would result in a singular gradient.
 
 All flux estimates, including the \code{\link[goFlux]{MDF}}, are
 obtained from the multiplication of the slope and the

@@ -17,7 +17,7 @@ goFlux(
   Tcham = NULL,
   k.mult = 1,
   warn.length = 60,
-  k.min = 10^-8
+  k.min = 10^-9
 )
 }
 \arguments{
@@ -82,7 +82,7 @@ equal to 10.}
 flagged for being too short (\code{nb.obs < warn.length}).}
 
 \item{k.min}{numerical value; a lower boundary value for kappa in the HM model.
-Default is \code{k.min = 10^-8}}
+Default is \code{k.min = 10^-9}}
 }
 \value{
 Returns a data frame with 28 columns: a \code{UniqueID} per
@@ -139,7 +139,7 @@ chamber closure. This limit of kappa-max is included in the
 estimate cannot exceed this maximum curvature. Inversely, one can set a
 minimal threshold for kappa: to allow for a log-like curvature, set
 \code{k.min} below 0 (ex. -1), otherwise it should be just above 0
-(ex. 10^-8). \code{k.min} cannot be 0 as this would result in a singular gradient.
+(ex. 10^-9). \code{k.min} cannot be 0 as this would result in a singular gradient.
 
 All flux estimates, including the \code{\link[goFlux]{MDF}}, are
 obtained from the multiplication of the slope and the

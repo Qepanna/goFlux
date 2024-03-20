@@ -54,6 +54,8 @@
 #'              not provided, 15°C is used as default.
 #' @param warn.length numerical value; limit under which a measurement is
 #'                    flagged for being too short (\code{nb.obs < warn.length}).
+#' @param k.min numerical value; a lower boundary value for kappa in the HM model.
+#'              Default is \code{k.min = 10^-9}
 #'
 #' @details
 #' This function differs from the original version
@@ -77,7 +79,10 @@
 #' minimal detectable flux (\code{\link[goFlux]{MDF}}) and the time of
 #' chamber closure. This limit of kappa-max is included in the
 #' \code{\link[goFlux]{goFlux}} function, so that the non-linear flux
-#' estimate cannot exceed this maximum curvature.
+#' estimate cannot exceed this maximum curvature. Inversely, one can set a
+#' minimal threshold for kappa: to allow for a log-like curvature, set
+#' \code{k.min} below 0 (ex. -1), otherwise it should be just above 0
+#' (ex. 10^-9). \code{k.min} cannot be 0 as this would result in a singular gradient.
 #'
 #' All flux estimates, including the \code{\link[goFlux]{MDF}}, are
 #' obtained from the multiplication of the slope and the
@@ -189,11 +194,14 @@
 #'
 goFlux.nokmax <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
                           Area = NULL, offset = NULL, Vtot = NULL, Vcham = NULL,
-                          Pcham = NULL, Tcham = NULL, warn.length = 60){
+                          Pcham = NULL, Tcham = NULL, warn.length = 60,
+                          k.min = 10^-9){
 
   # Check arguments ####
   if(!is.numeric(warn.length)){stop("'warn.length' must be of class numeric")
   } else {if(warn.length <= 0) stop("'warn.length' must be greater than 0")}
+  if(!is.numeric(k.min)){stop("'k.min' must be of class numeric")
+  } else {if(k.min == 0) stop("'k.min' must be different from 0")}
 
   ## Check dataframe ####
   if(missing(dataframe)) stop("'dataframe' is required")
@@ -481,7 +489,7 @@ goFlux.nokmax <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     # Try to catch errors and warnings from HM calculation
     HM.catch <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
                         flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-                        k.max = kappa.max*Inf)
+                        k.max = kappa.max*Inf, k.min = k.min)
 
     # If there is an error with singular gradient
     if(inherits(HM.catch[[2]], "simpleError")){
