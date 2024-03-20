@@ -1,5 +1,7 @@
 #' Looped manual identification of start and end of gas measurements
 #'
+#' DEPRECATED: This function will be removed in a future version of the package.
+#' Use the function \code{\link[goFlux]{click.peak2}} instead.
 #' Identify the start and the end of a measurement by clicking on them in a
 #' scatter plot. To use in a loop with multiple measurements, first use the
 #' function \code{\link[goFlux]{obs.win}} to identify the observation
@@ -115,6 +117,9 @@
 click.peak.loop <- function(x, flux.unique, gastype = "CO2dry_ppm", sleep = 3,
                             plot.lim = c(380,1000), warn.length = 60) {
 
+  # Deprecated function
+  .Deprecated("click.peak2")
+
   # Check arguments
   ## x
   if(missing(x)) stop("'x' is required") else {
@@ -151,9 +156,10 @@ click.peak.loop <- function(x, flux.unique, gastype = "CO2dry_ppm", sleep = 3,
   warn <- character(0)
   withCallingHandlers(
 
-    # Function to apply in the loop. Adapt parameters to your needs.
+    # Function to apply in the loop.
     flux.corr <- click.peak(flux.unique[[x]], gastype = gastype, sleep = sleep,
                             plot.lim = plot.lim, warn.length = warn.length),
+
 
     warning = function(w) {warn <<- c(warn, conditionCall(w))})
 

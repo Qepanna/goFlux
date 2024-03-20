@@ -33,6 +33,7 @@ Collate:
     'best.flux.R'
     'click.peak.R'
     'click.peak.loop.R'
+    'click.peak2.R'
     'flux.plot.R'
     'flux.term.R'
     'flux2pdf.R'
@@ -50,4 +51,4 @@ Collate:
     'manID.UGGA-data.R'
     'obs.win.R'
     'seq.rep.R'
-Imports: AICcmodavg, data.table, dplyr, ggnewscale, ggplot2, ggstar, graphics, grDevices, grid, gridExtra, lubridate, minpack.lm, msm, pbapply, plyr, purrr, rjson, rlist, SimDesign, stats, stringr, tibble, tidyr, utils
+Imports: AICcmodavg, data.table, dplyr, ggnewscale, ggplot2, ggstar, graphics, grDevices, grid, gridExtra, lubridate, minpack.lm, msm, pbapply, plyr, purrr, rjson, rlist, SimDesign, stats, stringr, tibble, tidyr, toOrdinal, utils

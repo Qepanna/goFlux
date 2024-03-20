@@ -9,7 +9,8 @@ click.peak(
   gastype = "CO2dry_ppm",
   sleep = 3,
   plot.lim = c(380, 1000),
-  warn.length = 60
+  warn.length = 60,
+  save.plots = NULL
 )
 }
 \arguments{
@@ -28,7 +29,8 @@ measurements. Must be one of the following: "CO2dry_ppm",
 used with the function \code{\link[goFlux]{click.peak.loop}},
 grants a delay between measurements to visually inspect the
 output before processing the next measurement. Sleep must be
-shorter than 10 seconds.}
+shorter than 10 seconds. If \code{sleep = NULL}, the  plots will
+not close.}
 
 \item{plot.lim}{numerical vector of length 2; sets the Y axis limits in the
 plots. Default values are set for a typical gas measurement
@@ -37,6 +39,10 @@ of "CO2dry_ppm" from soils: \code{plot.lim = c(380,1000)}.}
 \item{warn.length}{numerical value; limit under which a measurement is flagged
 for being too short (\code{nb.obs < warn.length}). Default
 value is \code{warn.length = 60}.}
+
+\item{save.plots}{character string; a file name without the extension .pdf to
+save the plots produced with click.peak. By default,
+\code{save.plot = NULL} and plots are not saved.}
 }
 \value{
 A data.frame, identical to the input \code{flux.unique}, with the
@@ -44,6 +50,8 @@ A data.frame, identical to the input \code{flux.unique}, with the
          \code{end.time_corr} and \code{obs.length_corr}.
 }
 \description{
+DEPRECATED: This function will be removed in a future version of the package.
+Use the function \code{\link[goFlux]{click.peak2}} instead.
 Identify the start and the end of a measurement by clicking on them in a
 scatter plot. To use in a loop with multiple measurements, first apply the
 function \code{\link[goFlux]{obs.win}} to identify the observation
@@ -98,7 +106,7 @@ auxfile <- read.delim(aux.path) \%>\%
 data(imp.UGGA)
 ow.UGGA <- obs.win(inputfile = imp.UGGA, auxfile = auxfile,
                    obs.length = 180, shoulder = 60)
-manID.UGGA <- click.peak(ow.UGGA[[1]])
+manID.UGGA <- click.peak(ow.UGGA[[1]], save.plots = "manID.UGGA")
 
 ## with a LI-COR instrument and the Smart Chamber as auxiliary file
 data(imp.LI8200)

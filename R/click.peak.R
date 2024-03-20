@@ -1,5 +1,7 @@
 #' Manual identification of start and end of gas measurements
 #'
+#' DEPRECATED: This function will be removed in a future version of the package.
+#' Use the function \code{\link[goFlux]{click.peak2}} instead.
 #' Identify the start and the end of a measurement by clicking on them in a
 #' scatter plot. To use in a loop with multiple measurements, first apply the
 #' function \code{\link[goFlux]{obs.win}} to identify the observation
@@ -20,13 +22,17 @@
 #'              used with the function \code{\link[goFlux]{click.peak.loop}},
 #'              grants a delay between measurements to visually inspect the
 #'              output before processing the next measurement. Sleep must be
-#'              shorter than 10 seconds.
+#'              shorter than 10 seconds. If \code{sleep = NULL}, the  plots will
+#'              not close.
 #' @param plot.lim numerical vector of length 2; sets the Y axis limits in the
 #'                 plots. Default values are set for a typical gas measurement
 #'                 of "CO2dry_ppm" from soils: \code{plot.lim = c(380,1000)}.
 #' @param warn.length numerical value; limit under which a measurement is flagged
 #'                    for being too short (\code{nb.obs < warn.length}). Default
 #'                    value is \code{warn.length = 60}.
+#' @param save.plots character string; a file name without the extension .pdf to
+#'                   save the plots produced with click.peak. By default,
+#'                   \code{save.plot = NULL} and plots are not saved.
 #'
 #' @returns A data.frame, identical to the input \code{flux.unique}, with the
 #'          additional columns \code{flag}, \code{Etime}, \code{start.time_corr},
@@ -86,7 +92,7 @@
 #' data(imp.UGGA)
 #' ow.UGGA <- obs.win(inputfile = imp.UGGA, auxfile = auxfile,
 #'                    obs.length = 180, shoulder = 60)
-#' manID.UGGA <- click.peak(ow.UGGA[[1]])
+#' manID.UGGA <- click.peak(ow.UGGA[[1]], save.plots = "manID.UGGA")
 #'
 #' ## with a LI-COR instrument and the Smart Chamber as auxiliary file
 #' data(imp.LI8200)
@@ -102,13 +108,19 @@
 #' @export
 #'
 click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
-                       plot.lim = c(380,1000), warn.length = 60){
+                       plot.lim = c(380,1000), warn.length = 60,
+                       save.plots = NULL){
+
+  # Deprecated function
+  .Deprecated("click.peak2")
 
   # Check arguments ####
   if(!is.numeric(plot.lim) | length(plot.lim) != 2){
     stop("'plot.lim' must be numeric and of length 2")}
   if(!is.numeric(warn.length)) {stop("'warn.length' must be of class numeric")
   } else {if(warn.length <= 0) stop("'warn.length' must be greater than 0")}
+  if(!is.null(save.plots)){
+    if(!is.character(save.plots)) stop("'save.plot' must be a character string")}
 
   ## Check flux.unique ####
   if(missing(flux.unique)) stop("'flux.unique' is required")
@@ -272,6 +284,74 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
               call. = FALSE)
     } else {
       message("Good window of observation for UniqueID: ", unique(flux.corr$UniqueID))
+    }
+
+    # Save plots
+    if(!is.null(save.plots)){
+
+      if(save.plots == "click.peak.loop.secret.string"){
+
+        # Save plot with flux.corr
+        dev.new(width = 11.6, height = 8.2, unit = "in")
+        par(mfrow = c(1,2))
+
+        # Plot 1
+        plot(flux.meas ~ time.meas,
+             xlab = "Time", ylab = gastype, xaxt = 'n',
+             ylim = c(ylim.min, ylim.max))
+        time.zone <- attr(time.meas, "tzone")
+        Sys.setenv(TZ = time.zone)
+        axis.POSIXct(1, at = seq(min(time.meas), max(time.meas), by = "10 secs"),
+                     format = "%H:%M:%S")
+        Sys.unsetenv("TZ")
+
+        # Title
+        mtext(paste("UniqueID :", unique(flux.unique$UniqueID)),
+              line = -3, outer = T, cex = 1.5)
+
+        # Plot 2
+        plot(flux.meas ~ flux.corr$Etime, col = flux.corr$flag+1,
+             xlab = "Etime", ylab = gastype, xaxp = c(xmin, xmax, xmult),
+             ylim = c(ylim.min2, ylim.max2))
+
+        plots <- recordPlot()
+
+        # Close plot
+        dev.off()
+
+        # Add plots to flux.corr
+        flux.corr <- list(flux.corr, plots)
+      } else {
+
+        # outfile
+        outfile <- paste(getwd(), "/", save.plots, ".pdf", sep = "")
+
+        # Print pdf
+        pdf(file = outfile, width = 11.6, height = 8.2)
+        par(mfrow = c(1,2))
+
+        # Plot 1
+        plot(flux.meas ~ time.meas,
+             xlab = "Time", ylab = gastype, xaxt = 'n',
+             ylim = c(ylim.min, ylim.max))
+        time.zone <- attr(time.meas, "tzone")
+        Sys.setenv(TZ = time.zone)
+        axis.POSIXct(1, at = seq(min(time.meas), max(time.meas), by = "10 secs"),
+                     format = "%H:%M:%S")
+        Sys.unsetenv("TZ")
+
+        # Title
+        mtext(paste("UniqueID :", unique(flux.unique$UniqueID)),
+              line = -3, outer = T, cex = 1.5)
+
+        # Plot 2
+        plot(flux.meas ~ flux.corr$Etime, col = flux.corr$flag+1,
+             xlab = "Etime", ylab = gastype, xaxp = c(xmin, xmax, xmult),
+             ylim = c(ylim.min2, ylim.max2))
+
+        # Close pdf
+        dev.off()
+      }
     }
 
     # Return results
