@@ -403,7 +403,7 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
     # Save plots as pdf
     pdf(file = outfile, width = 11.6, height = 8.2)
     for (p in 1:length(plots.ls)){
-      print(plots.ls[[p]])
+      if(!is.null(plots.ls[[p]])) print(plots.ls[[p]])
     }
     dev.off()
   }
