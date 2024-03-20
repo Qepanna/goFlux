@@ -1,7 +1,7 @@
 #' Manual identification of start and end of gas measurements
 #'
 #' DEPRECATED: This function will be removed in a future version of the package.
-#' Use the function \code{\link[goFlux]{click.peak2}} instead.
+#' Use the function \code{\link[goFlux]{click.peak2}} instead. \cr \cr
 #' Identify the start and the end of a measurement by clicking on them in a
 #' scatter plot. To use in a loop with multiple measurements, first apply the
 #' function \code{\link[goFlux]{obs.win}} to identify the observation
