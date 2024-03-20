@@ -71,7 +71,8 @@ H<sub>2</sub>O).</p>
 <span>  Vcham <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  Pcham <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  Tcham <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  warn.length <span class="op">=</span> <span class="fl">60</span></span>
+<span>  warn.length <span class="op">=</span> <span class="fl">60</span>,</span>
+<span>  k.min <span class="op">=</span> <span class="fl">10</span><span class="op">^</span><span class="op">-</span><span class="fl">9</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -153,6 +154,11 @@ not provided, 15°C is used as default.</p></dd>
 <dd><p>numerical value; limit under which a measurement is
 flagged for being too short (<code>nb.obs &lt; warn.length</code>).</p></dd>
 
+
+<dt>k.min</dt>
+<dd><p>numerical value; a lower boundary value for kappa in the HM model.
+Default is <code>k.min = 10^-9</code></p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -205,7 +211,10 @@ from the linear flux estimate (<code><a href="LM.flux.html">LM.flux</a></code>),
 minimal detectable flux (<code><a href="MDF.html">MDF</a></code>) and the time of
 chamber closure. This limit of kappa-max is included in the
 <code><a href="goFlux.html">goFlux</a></code> function, so that the non-linear flux
-estimate cannot exceed this maximum curvature.</p>
+estimate cannot exceed this maximum curvature. Inversely, one can set a
+minimal threshold for kappa: to allow for a log-like curvature, set
+<code>k.min</code> below 0 (ex. -1), otherwise it should be just above 0
+(ex. 10^-9). <code>k.min</code> cannot be 0 as this would result in a singular gradient.</p>
 <p>All flux estimates, including the <code><a href="MDF.html">MDF</a></code>, are
 obtained from the multiplication of the slope and the
 <code><a href="flux.term.html">flux.term</a></code>, which is used to correct the
@@ -278,17 +287,11 @@ field measurement of nitrous oxide fluxes.
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">manID.UGGA</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">CO2_flux</span> <span class="op">&lt;-</span> <span class="fu">goFlux.nokmax</span><span class="op">(</span><span class="va">manID.UGGA</span>, <span class="st">"CO2dry_ppm"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Error in UniqueID 733a_C_S: argument "k.min" is missing, with no default</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |======================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
 <span class="r-in"><span><span class="va">CH4_flux</span> <span class="op">&lt;-</span> <span class="fu">goFlux.nokmax</span><span class="op">(</span><span class="va">manID.UGGA</span>, <span class="st">"CH4dry_ppb"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Error in UniqueID 733a_C_S: argument "k.min" is missing, with no default</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |======================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
 <span class="r-in"><span><span class="va">H2O_flux</span> <span class="op">&lt;-</span> <span class="fu">goFlux.nokmax</span><span class="op">(</span><span class="va">manID.UGGA</span>, <span class="st">"H2O_ppm"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Error in UniqueID 733a_C_S: argument "k.min" is missing, with no default</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |======================================================================| 100%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |======================================================================| 100%</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
