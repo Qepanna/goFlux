@@ -371,7 +371,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
 
   # Calculate Vtot if absent from dataframe
   if(!any(grepl("\\<Vtot\\>", names(dataframe)))){
-    dataframe <- dataframe %>% mutate(Vtot = Vcham + (Area * offset))
+    dataframe <- dataframe %>% mutate(Vtot = Vcham + (Area * offset)/1000)
   }
 
   # Use normal atmospheric pressure and ambient temperature
