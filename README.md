@@ -3,17 +3,10 @@
 
 # goFlux: A user-friendly way to calculate GHG fluxes yourself, regardless of user experience<img src="man/figures/goFlux.png" align="right" width="200"/>
 
-#### FIRST RELEASE
-
-The package is ready to use and fully functional, but errors may still
-occur. Please report any issues to the maintainer, Karelle Rheault
-(<karh@ign.ku.dk>), including script and raw data if necessary. Thank
-you for helping me in the development of this tool! 🙏
-
 ### One Package to rule them all
 
-Non-steady state chambers are widely used for measuring soil greenhouse
-gas (GHG) fluxes, such as CO<sub>2</sub>, CH<sub>4</sub>,
+Non-steady state (static) chambers are widely used for measuring soil
+greenhouse gas (GHG) fluxes, such as CO<sub>2</sub>, CH<sub>4</sub>,
 N<sub>2</sub>O, NH<sub>3</sub>, CO, and water vapor (H<sub>2</sub>O).
 While linear regression (LM) is commonly used to estimate GHG fluxes,
 this method tends to underestimate the pre-deployment flux
@@ -21,7 +14,7 @@ this method tends to underestimate the pre-deployment flux
 concentration increases or decreases inside a closed chamber, due to
 changes in gas gradients between the soil and the air inside the
 chamber. In addition, lateral gas flow and leakage contribute to
-non-linearity. Many alternative to LM have been developed to try and
+non-linearity. Many alternative to LM have been developed to try to
 provide a more accurate estimation of *f*<sub>0</sub>, for instance the
 method of [Hutchinson and Mosier (HM)
 (1981)](https://doi.org/10.2136/sssaj1981.03615995004500020017x), which
@@ -39,9 +32,9 @@ ways to calculate these flux estimates are needed in order to process
 large amounts of data. A recent approach was developed by [Hüppi et al.,
 2018](https://doi.org/10.1371/journal.pone.0200876) to restrict the
 curvature in the HM model for a more reliable flux estimate. In the HM
-model, the curvature is controlled by the kappa parameter. Hüppi et
-al. suggest the use of the kappa.max to limit the maximal curvature
-allowed in the model (see their R package
+model, the curvature is controlled by the kappa parameter, $\kappa$.
+Hüppi et al. suggest the use of the `KAPPA.MAX` to limit the maximal
+curvature allowed in the model (see their R package
 [`gasfluxes`](https://cran.r-project.org/package=gasfluxes), available
 on the CRAN). This procedure introduces less arbitrary decisions in the
 flux estimation process.
@@ -58,15 +51,17 @@ include data pre-processing (e.g. the R packages
 [`gasfluxes`](https://cran.r-project.org/package=gasfluxes)), or if they
 do, they are compatible with only a few designated systems (e.g. [Flux
 Puppy](https://www.sciencedirect.com/science/article/pii/S0168192319301522)
-and [`FluxCalR`](https://github.com/junbinzhao/FluxCalR)), and almost
-none include an automatic selection of the best flux estimate (LM or HM)
-based on objective criteria.
+and [`FluxCalR`](https://github.com/junbinzhao/FluxCalR)), and none
+include an automatic selection of the best flux estimate (LM or HM)
+based on objective criteria, except the R packages
+[`gasfluxes`](https://cran.r-project.org/package=gasfluxes) and
+[`HMR`](https://cran.r-project.org/package=HMR).
 
-This new R package, `goFlux` is meant to be “student proof”, meaning
-that no extensive knowledge or experience is needed to import raw data
-into R, choose the best model to calculate fluxes (LM or HM), quality
-check the results objectively and obtain high quality flux estimates.
-The package contains a wide range of functions that allows the user to
+This new R package `goFlux` is meant to be “student proof”, meaning that
+no extensive knowledge or experience is needed to import raw data into
+R, choose the best model to calculate fluxes (LM or HM), quality check
+the results objectively and obtain high quality flux estimates. The
+package contains a wide range of functions that allows the user to
 import raw data from a variety of instruments (LI-COR, LGR, GAIA2TECH,
 Gasmet, Picarro, Aeris and PP-Systems); calculate fluxes from a variety
 of GHG (CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, NH<sub>3</sub>,
@@ -88,7 +83,7 @@ measurements based on objective criteria.
 
 ## About the package
 
-This package `goFlux` is meant to be “student proof”, meaning that no
+The R package `goFlux` is meant to be “student proof”, meaning that no
 extensive knowledge or experience is needed to import raw data into R
 (except for knowing how to use R, of course), choose the best model to
 calculate fluxes (LM or HM, that is the question. -Shakespeare, 1603),
@@ -577,9 +572,13 @@ credentials::set_github_pat("YourTokeninStep2")
 
 Authors: Karelle Rheault and Klaus Steenberg Larsen
 
-To report problems, seek support or contribute to the package, please
-contact the maintainer, Karelle Rheault (<karh@ign.ku.dk>). Suggestions
-for new features or improvements are always welcome.
+The package is ready to use and fully functional, but errors may still
+occur. To report any issues, suggest improvements or ask for new
+features, [open an issue on
+GitHub](https://github.com/Qepanna/goFlux/issues). Alternatively,
+contact directly the maintainer, Karelle Rheault (<karh@ign.ku.dk>),
+including script and raw data if necessary. Thank you for helping me in
+the development of this tool! 🙏
 
 ## Acknowledgements
 
