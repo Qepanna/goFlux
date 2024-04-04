@@ -93,11 +93,11 @@ in the following order: "CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb"
 "H2O_ppm_LI7810" and "H2O_ppm_LI7820". The default is
 \code{prec = c(3.5, 0.6, 0.4, 45, 45)}.}
 
-\item{Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, CH.col}{character string;
-a pattern to match all columns that fit the corresponding parameter. For
-example, all columns containing the pattern "3C07_Sunlight" will be
-renamed with the pattern "_PAR". Then, if \code{pivot = "long"}, all
-columns with the pattern "_PAR" will be merged together.}
+\item{Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, CH.col}{character
+string; a pattern to match all columns that fit the corresponding
+parameter. For example, all columns containing the pattern "3C07_Sunlight"
+will be renamed with the pattern "_PAR". Then, if \code{pivot = "long"},
+all columns with the pattern "_PAR" will be merged together.}
 
 \item{CO2.col, CH4.col, H2O1.col, N2O.col, H2O2.col}{character string; a pattern
 to match the columns containing the corresponding gas measurements.
@@ -132,6 +132,18 @@ maintainer of this package for potential adaptations.
 In \code{date.format}, the date format refers to a date found in the raw data
 file, not the date format in the file name. For the instrument GAIA the
 date is found in the column "Titles:".
+
+The arguments \code{PAR.col}, \code{Tcham.col},
+\code{Tsoil.col} and \code{SWC.col} correspond to different types of probes
+linked to the ECOFlux chamber: PAR, chamber temperature, soil
+temperature and soil water content volumetric, respectively. The argument
+\code{Op.stat.col} corresponds to the columns Operating Status of each
+chamber. The argument \code{CH.col} indicates a character string preceding
+the chamber number for each column of the raw data. For example, the column
+"COM5A011C06_OperatingStatus" in the raw data file contains the Operating
+Status for the chamber 1 if \code{CH.col = "COM5A0"} and
+\code{Op.stat.col = "1C06_OperatingStatus"}. If columns are absent from the
+raw data, the arguments are ignored.
 
 Note that this function was designed for the following units in the raw file:
 \itemize{

@@ -40,11 +40,11 @@
 #'             in the following order: "CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb"
 #'             "H2O_ppm_LI7810" and "H2O_ppm_LI7820". The default is
 #'             \code{prec = c(3.5, 0.6, 0.4, 45, 45)}.
-#' @param Op.stat.col,PAR.col,Tcham.col,Tsoil.col,SWC.col,CH.col character string;
-#'        a pattern to match all columns that fit the corresponding parameter. For
-#'        example, all columns containing the pattern "3C07_Sunlight" will be
-#'        renamed with the pattern "_PAR". Then, if \code{pivot = "long"}, all
-#'        columns with the pattern "_PAR" will be merged together.
+#' @param Op.stat.col,PAR.col,Tcham.col,Tsoil.col,SWC.col,CH.col character
+#'        string; a pattern to match all columns that fit the corresponding
+#'        parameter. For example, all columns containing the pattern "3C07_Sunlight"
+#'        will be renamed with the pattern "_PAR". Then, if \code{pivot = "long"},
+#'        all columns with the pattern "_PAR" will be merged together.
 #' @param CO2.col,CH4.col,H2O1.col,N2O.col,H2O2.col character string; a pattern
 #'        to match the columns containing the corresponding gas measurements.
 #'        \code{H2O1.col} must be the same instrument as \code{CO2.col} and
@@ -68,6 +68,18 @@
 #' In \code{date.format}, the date format refers to a date found in the raw data
 #' file, not the date format in the file name. For the instrument GAIA the
 #' date is found in the column "Titles:".
+#'
+#' The arguments \code{PAR.col}, \code{Tcham.col},
+#' \code{Tsoil.col} and \code{SWC.col} correspond to different types of probes
+#' linked to the ECOFlux chamber: PAR, chamber temperature, soil
+#' temperature and soil water content volumetric, respectively. The argument
+#' \code{Op.stat.col} corresponds to the columns Operating Status of each
+#' chamber. The argument \code{CH.col} indicates a character string preceding
+#' the chamber number for each column of the raw data. For example, the column
+#' "COM5A011C06_OperatingStatus" in the raw data file contains the Operating
+#' Status for the chamber 1 if \code{CH.col = "COM5A0"} and
+#' \code{Op.stat.col = "1C06_OperatingStatus"}. If columns are absent from the
+#' raw data, the arguments are ignored.
 #'
 #' Note that this function was designed for the following units in the raw file:
 #' \itemize{
@@ -182,7 +194,8 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   POSIX.time <- activ.cham <- DATE_TIME <- start.time <- Obs <- SEQUENCE <-
     Titles. <- cham.probe <- chamID <- obs.start <- rbind.fill <- cham.open <-
     cham.close <- H2O_ppm_LI7820 <- N2Odry_ppb <- import.error <- . <-
-    H2O_ppm_LI7810 <- CH4dry_ppb <- CO2dry_ppm <- POSIX.warning <- NULL
+    H2O_ppm_LI7810 <- CH4dry_ppb <- CO2dry_ppm <- POSIX.warning <- Op.stat <-
+    Tsoil <- Tcham <- SWC <- PAR <- NULL
 
   # Input file name
   inputfile.name <- gsub(".*/", "", inputfile)
@@ -214,7 +227,8 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
         grepl("Translucent", SEQUENCE), "Clear", NA))) %>%
       # Extract information about active chamber
       mutate(SEQUENCE = substr(SEQUENCE, 9, 9),
-             SEQUENCE = ifelse(SEQUENCE == "", "Background", SEQUENCE)) %>%
+             SEQUENCE = ifelse(SEQUENCE == "", "Background", SEQUENCE),
+             SEQUENCE = ifelse(SEQUENCE == "n", "ExecutionPlan", SEQUENCE)) %>%
       dplyr::rename(DATE_TIME = Titles., activ.cham = SEQUENCE) %>%
       # Gas measurements from GHG analyzers need to be renamed manually
       # LI-7810: CO2dry_ppm, CH4dry_ppb, H2O_ppm_LI7810
@@ -228,10 +242,11 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       arrange(DATE_TIME) %>%
       mutate(Obs = rleid(activ.cham),
              chamID = ifelse(activ.cham == "Background", paste(activ.cham, "_", Obs, sep = ""),
-                             paste("CH", activ.cham, "_", Obs, sep = ""))) %>%
+                             ifelse(activ.cham == "ExecutionPlan", paste(activ.cham, "_", Obs, sep = ""),
+                                    paste("CH", activ.cham, "_", Obs, sep = "")))) %>%
       # Select only useful columns
-      select(contains(c("DATE_TIME", "ChamID", "activ.cham", "Tsoil", "Tcham", "SWC",
-                        "cover", "PAR", "Op.stat", "ppm", "ppb"))) %>%
+      select(contains(c("DATE_TIME", "ChamID", "activ.cham", "Tsoil", "Tcham",
+                        "SWC", "cover", "PAR", "Op.stat", "ppm", "ppb"))) %>%
       # Convert column class automatically
       type.convert(as.is = TRUE) %>%
       # Make sure that all gas data are class numerical
@@ -252,42 +267,60 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
         pivot_longer(contains("Op.stat"), values_to = "Op.stat", names_to = "cham.probe") %>%
         mutate(cham.probe = substr(cham.probe, 3, 3))
 
-      ### Soil temperature from each active chamber
-      Tsoil <- data.raw %>% select(DATE_TIME, contains("Tsoil")) %>%
-        pivot_longer(contains("Tsoil"), values_to = "Tsoil", names_to = "cham.probe") %>%
-        mutate(cham.probe = substr(cham.probe, 3, 3))
-
-      ### Air temperature from each active chamber
-      Tcham <- data.raw %>% select(DATE_TIME, contains("Tcham")) %>%
-        pivot_longer(contains("Tcham"), values_to = "Tcham", names_to = "cham.probe") %>%
-        mutate(cham.probe = substr(cham.probe, 3, 3))
-
-      ### Soil water content from each active chamber
-      SWC <- data.raw %>% select(DATE_TIME, contains("SWC")) %>%
-        pivot_longer(contains("SWC"), values_to = "SWC", names_to = "cham.probe") %>%
-        mutate(cham.probe = substr(cham.probe, 3, 3))
-
-      ### PAR from each active chamber
-      PAR <- data.raw %>% select(DATE_TIME, contains("PAR")) %>%
-        pivot_longer(contains("PAR"), values_to = "PAR", names_to = "cham.probe") %>%
-        mutate(cham.probe = substr(cham.probe, 3, 3))
-
-      data.raw <- data.raw %>%
+      data.pivot <- data.raw %>%
         # Operating status
         full_join(Op.stat, by = c("DATE_TIME")) %>%
-        select(!contains("_Op.stat")) %>%
-        # Soil temperature
-        full_join(Tsoil, by = c("DATE_TIME", "cham.probe")) %>%
-        select(!contains("_Tsoil")) %>%
-        # Air temperature
-        full_join(Tcham, by = c("DATE_TIME", "cham.probe")) %>%
-        select(!contains("_Tcham")) %>%
-        # Soil water content
-        full_join(SWC, by = c("DATE_TIME", "cham.probe")) %>%
-        select(!contains("_SWC")) %>%
-        # PAR
-        full_join(PAR, by = c("DATE_TIME", "cham.probe")) %>%
-        select(!contains("_PAR"))
+        select(!contains("_Op.stat"))
+
+      ### Soil temperature from each active chamber
+      if(ncol(select(data.raw, contains("Tsoil"))) > 0){
+        Tsoil <- data.raw %>% select(DATE_TIME, contains("Tsoil")) %>%
+          pivot_longer(contains("Tsoil"), values_to = "Tsoil", names_to = "cham.probe") %>%
+          mutate(cham.probe = substr(cham.probe, 3, 3))
+
+        data.pivot <- data.pivot %>%
+          # Soil temperature
+          full_join(Tsoil, by = c("DATE_TIME", "cham.probe")) %>%
+          select(!contains("_Tsoil"))
+      }
+
+      ### Air temperature from each active chamber
+      if(ncol(select(data.raw, contains("Tcham"))) > 0){
+        Tcham <- data.raw %>% select(DATE_TIME, contains("Tcham")) %>%
+          pivot_longer(contains("Tcham"), values_to = "Tcham", names_to = "cham.probe") %>%
+          mutate(cham.probe = substr(cham.probe, 3, 3))
+
+        data.pivot <- data.pivot %>%
+          # Air temperature
+          full_join(Tcham, by = c("DATE_TIME", "cham.probe")) %>%
+          select(!contains("_Tcham"))
+      }
+
+      ### Soil water content from each active chamber
+      if(ncol(select(data.raw, contains("SWC"))) > 0){
+        SWC <- data.raw %>% select(DATE_TIME, contains("SWC")) %>%
+          pivot_longer(contains("SWC"), values_to = "SWC", names_to = "cham.probe") %>%
+          mutate(cham.probe = substr(cham.probe, 3, 3))
+
+        data.pivot <- data.pivot %>%
+          # Soil water content
+          full_join(SWC, by = c("DATE_TIME", "cham.probe")) %>%
+          select(!contains("_SWC"))
+      }
+
+      ### PAR from each active chamber
+      if(ncol(select(data.raw, contains("PAR"))) > 0){
+        PAR <- data.raw %>% select(DATE_TIME, contains("PAR")) %>%
+          pivot_longer(contains("PAR"), values_to = "PAR", names_to = "cham.probe") %>%
+          mutate(cham.probe = substr(cham.probe, 3, 3))
+
+        data.pivot <- data.pivot %>%
+          # PAR
+          full_join(PAR, by = c("DATE_TIME", "cham.probe")) %>%
+          select(!contains("_PAR"))
+      }
+
+      data.raw <- data.pivot
     }
 
     # Group together all columns containing information and merge data
@@ -394,6 +427,12 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
 
         message(inputfile.name, " saved as ", outputfile,
                 " in RData folder, in working directory\n", sep = "")
+      }
+
+      # Warning if file has no data
+      if(nrow(data.raw) == 0){
+        warning(paste(inputfile.name, "was imported succesfully, but no",
+                      "measurements were detected."), call. = F)
       }
 
       if(save == FALSE){
