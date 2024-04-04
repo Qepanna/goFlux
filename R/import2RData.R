@@ -40,6 +40,7 @@
 #'                        (4) Injection mode; or (5) Static mode. If no value
 #'                        is specified, the parameters will be named "param1",
 #'                        "param2", "param3", "param4" and "param5".
+#' @inheritParams import.GAIA
 #'
 #' @returns A data frame saved as RData in a newly created folder, RData, into
 #'          the working directory.
@@ -74,6 +75,12 @@
 #' \href{https://ppsystems.com/download/technical_manuals/80109-1-EGM-5_Operation_V103.pdf}{EGM-5 Operation Manual}
 #' at page 90 for more details about the different Process Data Fields
 #' (\code{proc.data.field}).
+#'
+#' The arguments \code{active}, \code{pivot}, \code{flag}, \code{backgroun},
+#' \code{CH.col}, \code{PAR.col}, \code{Tcham.col}, \code{Tsoil.col},
+#' \code{SWC.col}, \code{Op.stat.col}, \code{CO2.col}, \code{CH4.col},
+#' \code{H2O1.col}, \code{N2O.col}, \code{H2O2.col}, are used in the function
+#' \code{\link[goFlux]{import.GAIA}} only.
 #'
 #' @include goFlux-package.R
 #' @include DX4015_import.R
@@ -207,7 +214,20 @@
 #' @export
 #'
 import2RData <- function(path, instrument, date.format, timezone = "UTC",
-                         keep_all, prec, proc.data.field = NULL){
+                         keep_all, prec, proc.data.field = NULL,
+                         pivot = "long", active = TRUE, flag = c(7,11),
+                         background = FALSE,
+                         CH.col = "COM5A0",
+                         SWC.col = "1C08_Soil.Moisture",
+                         Tsoil.col = "1C07_Soil.Temperature",
+                         Tcham.col = "2C07_Chamber.Temperature",
+                         PAR.col = "3C07_Sunlight",
+                         Op.stat.col = "0C06_OperatingStatus",
+                         CO2.col = "XT2C05_CO2",
+                         CH4.col = "XT2C04_CH4",
+                         H2O1.col = "XT2C06_H2O",
+                         N2O.col = "XT3C04_N2O",
+                         H2O2.col = "XT3C05_H2O"){
 
   # Check arguments ####
   if(missing(path)) stop("'path' is required")

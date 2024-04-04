@@ -11,7 +11,22 @@ import2RData(
   timezone = "UTC",
   keep_all,
   prec,
-  proc.data.field = NULL
+  proc.data.field = NULL,
+  pivot = "long",
+  active = TRUE,
+  flag = c(7, 11),
+  background = FALSE,
+  CH.col = "COM5A0",
+  SWC.col = "1C08_Soil.Moisture",
+  Tsoil.col = "1C07_Soil.Temperature",
+  Tcham.col = "2C07_Chamber.Temperature",
+  PAR.col = "3C07_Sunlight",
+  Op.stat.col = "0C06_OperatingStatus",
+  CO2.col = "XT2C05_CO2",
+  CH4.col = "XT2C04_CH4",
+  H2O1.col = "XT2C06_H2O",
+  N2O.col = "XT3C04_N2O",
+  H2O2.col = "XT3C05_H2O"
 )
 }
 \arguments{
@@ -49,6 +64,36 @@ Measure mode; (2) SRC or Custom mode; (3) CPY mode;
 (4) Injection mode; or (5) Static mode. If no value
 is specified, the parameters will be named "param1",
 "param2", "param3", "param4" and "param5".}
+
+\item{pivot}{character string; either "long" or "wide". If \code{pivot = "long"},
+each column containing information about \code{Tsoil},
+\code{Tcham}, \code{SWC}, \code{PAR} and operating status
+(\code{Op.stat}) will be saved in a single column per parameter.
+If \code{pivot = "wide"}, the default display of one column per
+chamber per parameter will be used.}
+
+\item{active}{logical; if \code{active = TRUE}, preserve data for active
+chambers only.}
+
+\item{flag}{numeric vector; indicates the operating status that should be used
+for the flux calculation. Default is \code{flag = c(7,11)}, where
+7 indicates "Chamber Idle Closed Clear" and 11 indicates
+"Chamber Idle Closed Dark".}
+
+\item{background}{logical; if \code{background = FALSE}, removes all data from
+\code{activ.cham == "Background"}.}
+
+\item{Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, CH.col}{character
+string; a pattern to match all columns that fit the corresponding
+parameter. For example, all columns containing the pattern "3C07_Sunlight"
+will be renamed with the pattern "_PAR". Then, if \code{pivot = "long"},
+all columns with the pattern "_PAR" will be merged together.}
+
+\item{CO2.col, CH4.col, H2O1.col, N2O.col, H2O2.col}{character string; a pattern
+to match the columns containing the corresponding gas measurements.
+\code{H2O1.col} must be the same instrument as \code{CO2.col} and
+\code{CH4.col}, and \code{H2O2.col} must be the same instrument as
+\code{N2O.col}.}
 }
 \value{
 A data frame saved as RData in a newly created folder, RData, into
@@ -98,6 +143,12 @@ instrument only. Look up the
 \href{https://ppsystems.com/download/technical_manuals/80109-1-EGM-5_Operation_V103.pdf}{EGM-5 Operation Manual}
 at page 90 for more details about the different Process Data Fields
 (\code{proc.data.field}).
+
+The arguments \code{active}, \code{pivot}, \code{flag}, \code{backgroun},
+\code{CH.col}, \code{PAR.col}, \code{Tcham.col}, \code{Tsoil.col},
+\code{SWC.col}, \code{Op.stat.col}, \code{CO2.col}, \code{CH4.col},
+\code{H2O1.col}, \code{N2O.col}, \code{H2O2.col}, are used in the function
+\code{\link[goFlux]{import.GAIA}} only.
 }
 \examples{
 # Examples on how to use it with all instruments.
