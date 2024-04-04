@@ -140,9 +140,9 @@ temperature and soil water content volumetric, respectively. The argument
 \code{Op.stat.col} corresponds to the columns Operating Status of each
 chamber. The argument \code{CH.col} indicates a character string preceding
 the chamber number for each column of the raw data. For example, the column
-"COM5A011C06_OperatingStatus" in the raw data file contains the Operating
+"COM5A010C06_OperatingStatus" in the raw data file contains the Operating
 Status for the chamber 1 if \code{CH.col = "COM5A0"} and
-\code{Op.stat.col = "1C06_OperatingStatus"}. If columns are absent from the
+\code{Op.stat.col = "0C06_OperatingStatus"}. If columns are absent from the
 raw data, the arguments are ignored.
 
 Note that this function was designed for the following units in the raw file:

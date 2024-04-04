@@ -76,9 +76,9 @@
 #' \code{Op.stat.col} corresponds to the columns Operating Status of each
 #' chamber. The argument \code{CH.col} indicates a character string preceding
 #' the chamber number for each column of the raw data. For example, the column
-#' "COM5A011C06_OperatingStatus" in the raw data file contains the Operating
+#' "COM5A010C06_OperatingStatus" in the raw data file contains the Operating
 #' Status for the chamber 1 if \code{CH.col = "COM5A0"} and
-#' \code{Op.stat.col = "1C06_OperatingStatus"}. If columns are absent from the
+#' \code{Op.stat.col = "0C06_OperatingStatus"}. If columns are absent from the
 #' raw data, the arguments are ignored.
 #'
 #' Note that this function was designed for the following units in the raw file:
@@ -162,33 +162,35 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                         H2O2.col = "XT3C05_H2O"){
 
   # Check arguments
-  if (missing(inputfile)) stop("'inputfile' is required")
-  if (!is.character(inputfile)) stop("'inputfile' must be of class character")
-  if (length(date.format) != 1) stop("'date.format' must be of length 1")
-  if (!any(grepl(date.format, c("ymd", "dmy", "mdy")))) {
+  if(missing(inputfile)) stop("'inputfile' is required")
+  if(!is.character(inputfile)) stop("'inputfile' must be of class character")
+  if(length(date.format) != 1) stop("'date.format' must be of length 1")
+  if(!any(grepl(date.format, c("ymd", "dmy", "mdy")))) {
     stop("'date.format' must be of class character and one of the following: 'ymd', 'dmy' or 'mdy'")}
-  if (!is.character(timezone)) stop("'timezone' must be of class character")
-  if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
-  if (active != TRUE & active != FALSE) stop("'active' must be TRUE or FALSE")
-  if (background != TRUE & background != FALSE) stop("'background' must be TRUE or FALSE")
-  if (length(pivot) != 1) stop("'pivot' must be of length 1")
-  if (!any(grepl(pivot, c("long", "wide")))) {
+  if(!is.character(timezone)) stop("'timezone' must be of class character")
+  if(save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
+  if(active != TRUE & active != FALSE) stop("'active' must be TRUE or FALSE")
+  if(background != TRUE & background != FALSE) stop("'background' must be TRUE or FALSE")
+  if(length(pivot) != 1) stop("'pivot' must be of length 1")
+  if(!any(grepl(pivot, c("long", "wide")))) {
     stop("'pivot' must be of class character and one of the following: 'long' or 'wide'")}
-  if (!is.numeric(flag)) stop("'flag' must be of class numeric")
-  if (!is.character(H2O2.col)) stop("'H2O2.col' must be of class character")
-  if (!is.character(N2O.col)) stop("'N2O.col' must be of class character")
-  if (!is.character(H2O1.col)) stop("'H2O1.col' must be of class character")
-  if (!is.character(CH4.col)) stop("'CH4.col' must be of class character")
-  if (!is.character(CO2.col)) stop("'CO2.col' must be of class character")
-  if (!is.character(Op.stat.col)) stop("'Op.stat.col' must be of class character")
-  if (!is.character(PAR.col)) stop("'PAR.col' must be of class character")
-  if (!is.character(Tcham.col)) stop("'Tcham.col' must be of class character")
-  if (!is.character(Tsoil.col)) stop("'Tsoil.col' must be of class character")
-  if (!is.character(SWC.col)) stop("'SWC.col' must be of class character")
-  if (!is.character(CH.col)) stop("'CH.col' must be of class character")
   if(is.null(prec)) stop("'prec' is required") else{
     if(!is.numeric(prec)) stop("'prec' must be of class numeric") else{
       if(length(prec) != 5) stop("'prec' must be of length 5")}}
+  if(!is.numeric(flag)) stop("'flag' must be of class numeric")
+
+  # Column names
+  if(!is.character(H2O2.col)) stop("'H2O2.col' must be of class character")
+  if(!is.character(N2O.col)) stop("'N2O.col' must be of class character")
+  if(!is.character(H2O1.col)) stop("'H2O1.col' must be of class character")
+  if(!is.character(CH4.col)) stop("'CH4.col' must be of class character")
+  if(!is.character(CO2.col)) stop("'CO2.col' must be of class character")
+  if(!is.character(PAR.col)) stop("'PAR.col' must be of class character")
+  if(!is.character(Tcham.col)) stop("'Tcham.col' must be of class character")
+  if(!is.character(Tsoil.col)) stop("'Tsoil.col' must be of class character")
+  if(!is.character(SWC.col)) stop("'SWC.col' must be of class character")
+  if(!is.character(CH.col)) stop("'CH.col' must be of class character")
+  if(!is.character(Op.stat.col)) stop("'Op.stat.col' must be of class character")
 
   # Assign NULL to variables without binding
   POSIX.time <- activ.cham <- DATE_TIME <- start.time <- Obs <- SEQUENCE <-
@@ -210,6 +212,13 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
     warning("Error occurred in file ", inputfile.name, ":\n", "   ",
             import.error, call. = F)
   } else {
+
+    # Operating status missing?
+    if(!any(grepl(paste("\\<", Op.stat.col, "\\>", sep = ""), names(try.import)))){
+      warning(paste("In the file", inputfile.name, "the matching string for Operating",
+                    "status (Op.stat.col) was not found in column names. By default,",
+                    "Operating Status was set to 2 (Chamber Idle Open) for all measurements."),
+              call. = F)}
 
     # Import raw data file from GAIA (.csv)
     data.raw <- try.import %>%
@@ -260,17 +269,21 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       filter(H2O_ppm_LI7820 >= 0 | is.na(H2O_ppm_LI7820))
 
     # Group together all columns containing information and merge data
-    if (pivot == "long"){ # pivot long: only one column per parameter
+    if(pivot == "long"){ # pivot long: only one column per parameter
+
+      data.pivot <- data.raw
 
       ### Operating Status from each active chamber
-      Op.stat <- data.raw %>% select(DATE_TIME, contains("Op.stat")) %>%
-        pivot_longer(contains("Op.stat"), values_to = "Op.stat", names_to = "cham.probe") %>%
-        mutate(cham.probe = substr(cham.probe, 3, 3))
+      if(ncol(select(data.raw, contains("Op.stat"))) > 0){
+        Op.stat <- data.raw %>% select(DATE_TIME, contains("Op.stat")) %>%
+          pivot_longer(contains("Op.stat"), values_to = "Op.stat", names_to = "cham.probe") %>%
+          mutate(cham.probe = substr(cham.probe, 3, 3))
 
-      data.pivot <- data.raw %>%
-        # Operating status
-        full_join(Op.stat, by = c("DATE_TIME")) %>%
-        select(!contains("_Op.stat"))
+        data.pivot <- data.pivot %>%
+          # Operating status
+          full_join(Op.stat, by = c("DATE_TIME")) %>%
+          select(!contains("_Op.stat"))
+      }
 
       ### Soil temperature from each active chamber
       if(ncol(select(data.raw, contains("Tsoil"))) > 0){
@@ -324,21 +337,29 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
     }
 
     # Group together all columns containing information and merge data
-    if (pivot == "wide"){ # keep wide: one column per instrument per parameter
+    if(pivot == "wide"){ # keep wide: one column per instrument per parameter
 
       # Operating Status from each active chamber
-      Op.stat <- data.raw %>% select(DATE_TIME, contains("Op.stat")) %>%
-        pivot_longer(contains("Op.stat"), values_to = "Op.stat", names_to = "cham.probe") %>%
-        mutate(cham.probe = substr(cham.probe, 3, 3))
+      if(ncol(select(data.raw, contains("Op.stat"))) > 0){
+        Op.stat <- data.raw %>% select(DATE_TIME, contains("Op.stat")) %>%
+          pivot_longer(contains("Op.stat"), values_to = "Op.stat", names_to = "cham.probe") %>%
+          mutate(cham.probe = substr(cham.probe, 3, 3))
 
-      data.raw <- data.raw %>%
-        # Only operating status is pivoted long
-        left_join(Op.stat, by = c("DATE_TIME")) %>%
-        select(!contains("_Op.stat"))
+        data.raw <- data.raw %>%
+          # Only operating status is pivoted long
+          left_join(Op.stat, by = c("DATE_TIME")) %>%
+          select(!contains("_Op.stat"))
+      }
+    }
+
+    # Add Op.stat if it cannot be found
+    if(!any(grepl(paste("\\<", Op.stat.col, "\\>", sep = ""), names(try.import)))){
+      data.raw$Op.stat <- 2
+      data.raw$cham.probe <- NA
     }
 
     # Remove measurements from non-active chambers
-    if (active == TRUE){
+    if(active == TRUE){
       Background <- data.raw %>% filter(grepl("Background", chamID))
       data.raw <- data.raw %>% filter(activ.cham == cham.probe) %>%
         rbind.fill(Background)
@@ -396,7 +417,7 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       data.raw <- data.raw %>% full_join(Etime, by = c("chamID", "POSIX.time"))
 
       # Remove background
-      if (background == FALSE){
+      if(background == FALSE){
         data.raw <- data.raw %>% filter(activ.cham != "Background") %>%
           mutate_at("activ.cham", as.numeric)
       }
@@ -407,7 +428,7 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                H2O_LI7810_prec = prec[4], H2O_LI7810_prec = prec[5])
 
       # New function name
-      if (as.character(match.call()[[1]]) == "GAIA_import") {
+      if(as.character(match.call()[[1]]) == "GAIA_import") {
         warning(paste("All import functions have changed names in this new version of goFlux.",
                       "\nIn the future, use import.GAIA() instead of GAIA_import()"), call. = FALSE)
       }
