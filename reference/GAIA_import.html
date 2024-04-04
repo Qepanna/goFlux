@@ -167,11 +167,11 @@ in the following order: "CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb"
 
 
 <dt>Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, CH.col</dt>
-<dd><p>character string;
-a pattern to match all columns that fit the corresponding parameter. For
-example, all columns containing the pattern "3C07_Sunlight" will be
-renamed with the pattern "_PAR". Then, if <code>pivot = "long"</code>, all
-columns with the pattern "_PAR" will be merged together.</p></dd>
+<dd><p>character
+string; a pattern to match all columns that fit the corresponding
+parameter. For example, all columns containing the pattern "3C07_Sunlight"
+will be renamed with the pattern "_PAR". Then, if <code>pivot = "long"</code>,
+all columns with the pattern "_PAR" will be merged together.</p></dd>
 
 
 <dt>CO2.col, CH4.col, H2O1.col, N2O.col, H2O2.col</dt>
@@ -203,6 +203,17 @@ maintainer of this package for potential adaptations.</p>
 <p>In <code>date.format</code>, the date format refers to a date found in the raw data
 file, not the date format in the file name. For the instrument GAIA the
 date is found in the column "Titles:".</p>
+<p>The arguments <code>PAR.col</code>, <code>Tcham.col</code>,
+<code>Tsoil.col</code> and <code>SWC.col</code> correspond to different types of probes
+linked to the ECOFlux chamber: PAR, chamber temperature, soil
+temperature and soil water content volumetric, respectively. The argument
+<code>Op.stat.col</code> corresponds to the columns Operating Status of each
+chamber. The argument <code>CH.col</code> indicates a character string preceding
+the chamber number for each column of the raw data. For example, the column
+"COM5A011C06_OperatingStatus" in the raw data file contains the Operating
+Status for the chamber 1 if <code>CH.col = "COM5A0"</code> and
+<code>Op.stat.col = "1C06_OperatingStatus"</code>. If columns are absent from the
+raw data, the arguments are ignored.</p>
 <p>Note that this function was designed for the following units in the raw file:</p><ul><li><p>ppm for CO<sub>2</sub> and
   H<sub>2</sub>O</p></li>
 <li><p>ppb for CH<sub>4</sub> and

@@ -70,7 +70,22 @@ and N2OM1 (GLA151 series)</p></li>
 <span>  timezone <span class="op">=</span> <span class="st">"UTC"</span>,</span>
 <span>  <span class="va">keep_all</span>,</span>
 <span>  <span class="va">prec</span>,</span>
-<span>  proc.data.field <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  proc.data.field <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pivot <span class="op">=</span> <span class="st">"long"</span>,</span>
+<span>  active <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  flag <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">7</span>, <span class="fl">11</span><span class="op">)</span>,</span>
+<span>  background <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  CH.col <span class="op">=</span> <span class="st">"COM5A0"</span>,</span>
+<span>  SWC.col <span class="op">=</span> <span class="st">"1C08_Soil.Moisture"</span>,</span>
+<span>  Tsoil.col <span class="op">=</span> <span class="st">"1C07_Soil.Temperature"</span>,</span>
+<span>  Tcham.col <span class="op">=</span> <span class="st">"2C07_Chamber.Temperature"</span>,</span>
+<span>  PAR.col <span class="op">=</span> <span class="st">"3C07_Sunlight"</span>,</span>
+<span>  Op.stat.col <span class="op">=</span> <span class="st">"0C06_OperatingStatus"</span>,</span>
+<span>  CO2.col <span class="op">=</span> <span class="st">"XT2C05_CO2"</span>,</span>
+<span>  CH4.col <span class="op">=</span> <span class="st">"XT2C04_CH4"</span>,</span>
+<span>  H2O1.col <span class="op">=</span> <span class="st">"XT2C06_H2O"</span>,</span>
+<span>  N2O.col <span class="op">=</span> <span class="st">"XT3C04_N2O"</span>,</span>
+<span>  H2O2.col <span class="op">=</span> <span class="st">"XT3C05_H2O"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -124,6 +139,48 @@ Measure mode; (2) SRC or Custom mode; (3) CPY mode;
 is specified, the parameters will be named "param1",
 "param2", "param3", "param4" and "param5".</p></dd>
 
+
+<dt>pivot</dt>
+<dd><p>character string; either "long" or "wide". If <code>pivot = "long"</code>,
+each column containing information about <code>Tsoil</code>,
+<code>Tcham</code>, <code>SWC</code>, <code>PAR</code> and operating status
+(<code>Op.stat</code>) will be saved in a single column per parameter.
+If <code>pivot = "wide"</code>, the default display of one column per
+chamber per parameter will be used.</p></dd>
+
+
+<dt>active</dt>
+<dd><p>logical; if <code>active = TRUE</code>, preserve data for active
+chambers only.</p></dd>
+
+
+<dt>flag</dt>
+<dd><p>numeric vector; indicates the operating status that should be used
+for the flux calculation. Default is <code>flag = c(7,11)</code>, where
+7 indicates "Chamber Idle Closed Clear" and 11 indicates
+"Chamber Idle Closed Dark".</p></dd>
+
+
+<dt>background</dt>
+<dd><p>logical; if <code>background = FALSE</code>, removes all data from
+<code>activ.cham == "Background"</code>.</p></dd>
+
+
+<dt>Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, CH.col</dt>
+<dd><p>character
+string; a pattern to match all columns that fit the corresponding
+parameter. For example, all columns containing the pattern "3C07_Sunlight"
+will be renamed with the pattern "_PAR". Then, if <code>pivot = "long"</code>,
+all columns with the pattern "_PAR" will be merged together.</p></dd>
+
+
+<dt>CO2.col, CH4.col, H2O1.col, N2O.col, H2O2.col</dt>
+<dd><p>character string; a pattern
+to match the columns containing the corresponding gas measurements.
+<code>H2O1.col</code> must be the same instrument as <code>CO2.col</code> and
+<code>CH4.col</code>, and <code>H2O2.col</code> must be the same instrument as
+<code>N2O.col</code>.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -159,6 +216,11 @@ instrument only. Look up the
 <a href="https://ppsystems.com/download/technical_manuals/80109-1-EGM-5_Operation_V103.pdf" class="external-link">EGM-5 Operation Manual</a>
 at page 90 for more details about the different Process Data Fields
 (<code>proc.data.field</code>).</p>
+<p>The arguments <code>active</code>, <code>pivot</code>, <code>flag</code>, <code>backgroun</code>,
+<code>CH.col</code>, <code>PAR.col</code>, <code>Tcham.col</code>, <code>Tsoil.col</code>,
+<code>SWC.col</code>, <code>Op.stat.col</code>, <code>CO2.col</code>, <code>CH4.col</code>,
+<code>H2O1.col</code>, <code>N2O.col</code>, <code>H2O2.col</code>, are used in the function
+<code><a href="GAIA_import.html">import.GAIA</a></code> only.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
