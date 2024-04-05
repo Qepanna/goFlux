@@ -204,7 +204,7 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
 
   # Try to load data file
   try.import <- tryCatch(
-    {read.delim(inputfile, skip = 1, colClasses = "character")},
+    {read.delim(inputfile, skip = 1, colClasses = "character", skipNul = T)},
     error = function(e) {import.error <<- e}
   )
 
@@ -214,7 +214,7 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   } else {
 
     # Operating status missing?
-    if(!any(grepl(paste("\\<", Op.stat.col, "\\>", sep = ""), names(try.import)))){
+    if(!any(grepl(Op.stat.col, names(try.import)))){
       warning(paste("In the file", inputfile.name, "the matching string for Operating",
                     "status (Op.stat.col) was not found in column names. By default,",
                     "Operating Status was set to 2 (Chamber Idle Open) for all measurements."),
@@ -353,7 +353,7 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
     }
 
     # Add Op.stat if it cannot be found
-    if(!any(grepl(paste("\\<", Op.stat.col, "\\>", sep = ""), names(try.import)))){
+    if(!any(grepl("Op.stat", names(data.raw)))){
       data.raw$Op.stat <- 2
       data.raw$cham.probe <- NA
     }
