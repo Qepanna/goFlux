@@ -580,6 +580,14 @@ contact directly the maintainer, Karelle Rheault (<karh@ign.ku.dk>),
 including script and raw data if necessary. Thank you for helping me in
 the development of this tool! 🙏
 
+## How to cite
+
+Please cite this R package using this publication in JOSS:  
+  
+Rheault et al., (2024). goFlux: A user-friendly way to calculate GHG
+fluxes yourself, regardless of user experience. Journal of Open Source
+Software, 9(96), 6393, <https://doi.org/10.21105/joss.06393>
+
 ## Acknowledgements
 
 This software development was supported by the SilvaNova project funded
