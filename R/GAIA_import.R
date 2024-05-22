@@ -2,12 +2,13 @@
 #' multiple chambers and instruments
 #'
 #' Imports single raw gas measurement files from the automated chamber
-#' ECOFlux (GAIA2TECH) with the extension .csv
-#' (LI-7810: \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+#' ECOFlux (GAIA2TECH) linked with up to two instruments and up to five gases
+#' (by default used with LI-7810:
+#' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} / LI7820:
 #' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
-#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}).
 #'
 #' @param inputfile character string; the name of a file with the extension .csv
 #' @param date.format character string; specifies the date format found in the
@@ -101,9 +102,9 @@
 #'   \item volumetric water content (\%) for soil moisture
 #'   \item Celsius for temperature
 #'   \item \ifelse{html}{\out{µmol photons m<sup>-2</sup>s<sup>-1</sup> for PAR}}{\eqn{µmol photons m^{-2}s^{-1} for PAR}{ASCII}}}
-#' If your LI-COR instruments (LI-7810 and LI-7820) use different units, either
-#' convert the units after import, change the settings on your instrument, or
-#' contact the maintainer of this package for support.
+#' If your instruments use different units, either convert the units after
+#' import, change the settings on your instrument, or contact the maintainer of
+#' this package for support.
 #'
 #' As opposed to the other import functions, there is no option to "keep_all" with
 #' this instrument. If you would like to import additional data using this
@@ -123,7 +124,10 @@
 #' the ones found online for the latest models of the
 #' \href{https://www.licor.com/env/products/trace-gas/LI-7810}{LI-7810} and
 #' \href{https://www.licor.com/env/products/trace-gas/LI-7820}{LI-7820},
-#' available at the time of the creation of this function (11-2023).
+#' available at the time of the creation of this function (11-2023). Five values
+#' are required for this argument and their position in the vector is important.
+#' If you are using the function with less than five gases, the other values are
+#' simply ignored.
 #'
 #' @include goFlux-package.R
 #'

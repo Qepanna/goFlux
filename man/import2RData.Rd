@@ -145,10 +145,11 @@ instrument only. Look up the
 at page 90 for more details about the different Process Data Fields
 (\code{proc.data.field}).
 
-The arguments \code{active}, \code{pivot}, \code{flag}, \code{backgroun},
+The arguments \code{active}, \code{pivot}, \code{flag}, \code{background},
 \code{CH.col}, \code{PAR.col}, \code{Tcham.col}, \code{Tsoil.col},
 \code{SWC.col}, \code{Op.stat.col}, \code{CO2.col}, \code{CH4.col},
-\code{H2O1.col}, \code{N2O.col}, \code{H2O2.col}, are used in the function
+\code{H2O1.col}, \code{H2O1.name}, \code{N2O.col}, \code{H2O2.col},
+\code{H2O2.name}, \code{sep} and \code{skip} are used in the function
 \code{\link[goFlux]{import.GAIA}} only.
 }
 \examples{
