@@ -93,7 +93,8 @@ all columns with the pattern "_PAR" will be merged together.}
 to match the columns containing the corresponding gas measurements.
 \code{H2O1.col} must be the same instrument as \code{CO2.col} and
 \code{CH4.col}, and \code{H2O2.col} must be the same instrument as
-\code{N2O.col}.}
+\code{N2O.col}. If columns are absent from the raw data, the arguments
+are ignored.}
 }
 \value{
 A data frame saved as RData in a newly created folder, RData, into

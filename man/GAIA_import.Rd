@@ -25,8 +25,12 @@ GAIA_import(
   CO2.col = "XT2C05_CO2",
   CH4.col = "XT2C04_CH4",
   H2O1.col = "XT2C06_H2O",
+  H2O1.name = "H2O_LI7810",
   N2O.col = "XT3C04_N2O",
-  H2O2.col = "XT3C05_H2O"
+  H2O2.col = "XT3C05_H2O",
+  H2O2.name = "H2O_LI7820",
+  sep = "\\t",
+  skip = 1
 )
 
 import.GAIA(
@@ -48,8 +52,12 @@ import.GAIA(
   CO2.col = "XT2C05_CO2",
   CH4.col = "XT2C04_CH4",
   H2O1.col = "XT2C06_H2O",
+  H2O1.name = "H2O_LI7810",
   N2O.col = "XT3C04_N2O",
-  H2O2.col = "XT3C05_H2O"
+  H2O2.col = "XT3C05_H2O",
+  H2O2.name = "H2O_LI7820",
+  sep = "\\t",
+  skip = 1
 )
 }
 \arguments{
@@ -90,8 +98,9 @@ the Environment if assigned to an object.}
 
 \item{prec}{numerical vector; the precision of the instrument for each gas,
 in the following order: "CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb"
-"H2O_ppm_LI7810" and "H2O_ppm_LI7820". The default is
-\code{prec = c(3.5, 0.6, 0.4, 45, 45)}.}
+and "H2O_ppm" from each analyzer. The default is
+\code{prec = c(3.5, 0.6, 0.4, 45, 45)}. For each gas missing, the
+value is ignored.}
 
 \item{Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, CH.col}{character
 string; a pattern to match all columns that fit the corresponding
@@ -103,7 +112,19 @@ all columns with the pattern "_PAR" will be merged together.}
 to match the columns containing the corresponding gas measurements.
 \code{H2O1.col} must be the same instrument as \code{CO2.col} and
 \code{CH4.col}, and \code{H2O2.col} must be the same instrument as
-\code{N2O.col}.}
+\code{N2O.col}. If columns are absent from the raw data, the arguments
+are ignored.}
+
+\item{H2O1.name, H2O2.name}{character string; how to name the water vapor columns
+for each instrument. Ideally, use \code{H201.name = "H2O_instrument.name"}.
+For example, \code{H201.name = "H2O_LI7810"}.}
+
+\item{sep}{character string defining the field separator character. Values on
+each line of the file are separated by this character. By default,
+\code{sep = "\t"} for tabulation.}
+
+\item{skip}{integer; the number of lines of the data file to skip before
+beginning to read data. By default, \code{skip = 1}.}
 }
 \value{
 A data frame containing raw data from the automated chamber
