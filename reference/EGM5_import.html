@@ -137,6 +137,13 @@ is found in the column "Date".</p>
 </ul><p>If your PP-Systems EGM-5 uses different units, either convert the units after
 import, change the settings on your instrument, or contact the maintainer of
 this package for support.</p>
+<p>Note that this instrument measures the "wet" fraction of
+CO<sub>2</sub> and
+O<sub>2</sub>. If water vapor is
+measured, the dry fraction of the gases is calculated automatically. If not,
+it is important to measure the ambient water vapor concentration to convert
+gases into their dry fraction and use those in the following steps of this
+package. For example, <code>CO2dry_ppm = CO2wet_ppm/(1-H2O_ppm/1000000)</code>.</p>
 <p>The precision of the instrument is needed to restrict kappa-max
 (<code><a href="k.max.html">k.max</a></code>) in the non-linear flux calculation
 (<code><a href="HM.flux.html">HM.flux</a></code>). Kappa-max is inversely proportional to
@@ -180,9 +187,10 @@ it is also possible to use with a .csv file format.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Examples on how to use:</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load file from downloaded package</span></span></span>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"EGM5/EGM5.TXT"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Run function</span></span></span>
 <span class="r-in"><span><span class="va">imp.EGM5</span> <span class="op">&lt;-</span> <span class="fu">import.EGM5</span><span class="op">(</span>inputfile <span class="op">=</span> <span class="va">file.path</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

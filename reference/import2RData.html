@@ -84,8 +84,12 @@ and N2OM1 (GLA151 series)</p></li>
 <span>  CO2.col <span class="op">=</span> <span class="st">"XT2C05_CO2"</span>,</span>
 <span>  CH4.col <span class="op">=</span> <span class="st">"XT2C04_CH4"</span>,</span>
 <span>  H2O1.col <span class="op">=</span> <span class="st">"XT2C06_H2O"</span>,</span>
+<span>  H2O1.name <span class="op">=</span> <span class="st">"H2O_LI7810"</span>,</span>
 <span>  N2O.col <span class="op">=</span> <span class="st">"XT3C04_N2O"</span>,</span>
-<span>  H2O2.col <span class="op">=</span> <span class="st">"XT3C05_H2O"</span></span>
+<span>  H2O2.col <span class="op">=</span> <span class="st">"XT3C05_H2O"</span>,</span>
+<span>  H2O2.name <span class="op">=</span> <span class="st">"H2O_LI7820"</span>,</span>
+<span>  sep <span class="op">=</span> <span class="st">"\t"</span>,</span>
+<span>  skip <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -181,6 +185,23 @@ to match the columns containing the corresponding gas measurements.
 <code>CH4.col</code>, and <code>H2O2.col</code> must be the same instrument as
 <code>N2O.col</code>. If columns are absent from the raw data, the arguments
 are ignored.</p></dd>
+
+
+<dt>H2O1.name, H2O2.name</dt>
+<dd><p>character string; how to name the water vapor columns
+for each instrument. Ideally, use <code>H201.name = "H2O_instrument.name"</code>.
+For example, <code>H201.name = "H2O_LI7810"</code>.</p></dd>
+
+
+<dt>sep</dt>
+<dd><p>character string defining the field separator character. Values on
+each line of the file are separated by this character. By default,
+<code>sep = "\t"</code> for tabulation.</p></dd>
+
+
+<dt>skip</dt>
+<dd><p>integer; the number of lines of the data file to skip before
+beginning to read data. By default, <code>skip = 1</code>.</p></dd>
 
 </dl></div>
     <div id="value">
