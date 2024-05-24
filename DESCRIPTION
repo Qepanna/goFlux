@@ -1,12 +1,12 @@
 Package: goFlux
 Type: Package
-Title: goFlux: A user-friendly R package that helps you calculate GHG fluxes yourself, regardless of user experience
+Title: A User-Friendly R Package that Helps you Calculate GHG Fluxes Yourself, Regardless of User Experience
 Version: 0.2.0
 Authors@R: c(person("Karelle", "Rheault", email = "karh@ign.ku.dk", role = c("cre", "aut", "dtc")),
              person("Klaus", "Steenberg Larsen", email = "ksl@ign.ku.dk", role = c("aut", "ths")))
 Maintainer: Karelle Rheault <karh@ign.ku.dk>
-Description: This package is meant to be "student proof", meaning that no extensive knowledge or experience is needed to import raw data into R, choose the best model to calculate fluxes (LM or HM), quality check the results objectively and obtain high quality flux estimates.
-    The package contains a wide range of functions that lets the user import raw data from a variety of instruments; calculate fluxes from a variety of GHG with both linear (LM) and non-linear (HM) flux calculation methods; identify measurements (start and end time); plot measurements for easy visual inspection; and quality check the measurements based on non-arbitrary criteria.
+Description: Import raw data into R, quality check the results objectively and obtain high quality flux estimates
+    with an automatic selection of the best flux estimate (LM or HM) - without extensive knowledge or experience.
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
