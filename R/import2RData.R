@@ -118,6 +118,7 @@
 #'          \code{\link[goFlux]{import.UGGA}}
 #'
 #' @examples
+#' \dontrun{
 #' # Examples on how to use it with all instruments.
 #' # The default time zone "UTC" is used in all cases.
 #'
@@ -211,7 +212,7 @@
 #' import2RData(path = file.path, instrument = "uN2O",
 #'              date.format = "mdy", keep_all = FALSE,
 #'              prec = c(0.2, 0.2, 15))
-#'
+#' }
 #' @export
 #'
 import2RData <- function(path, instrument, date.format, timezone = "UTC",

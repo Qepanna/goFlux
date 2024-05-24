@@ -168,6 +168,7 @@ The arguments \code{active}, \code{pivot}, \code{flag}, \code{background},
 \code{\link[goFlux]{import.GAIA}} only.
 }
 \examples{
+\dontrun{
 # Examples on how to use it with all instruments.
 # The default time zone "UTC" is used in all cases.
 
@@ -261,7 +262,7 @@ file.path <- system.file("extdata/uN2O", package = "goFlux")
 import2RData(path = file.path, instrument = "uN2O",
              date.format = "mdy", keep_all = FALSE,
              prec = c(0.2, 0.2, 15))
-
+}
 }
 \seealso{
 Use the wrapper function \code{\link[goFlux]{import2RData}}
