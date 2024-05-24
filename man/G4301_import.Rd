@@ -96,7 +96,6 @@ file.path <- system.file("extdata", "G4301/G4301.dat", package = "goFlux")
 
 # Run function
 imp.G4301 <- import.G4301(inputfile = file.path)
-
 }
 \seealso{
 Use the wrapper function \code{\link[goFlux]{import2RData}}

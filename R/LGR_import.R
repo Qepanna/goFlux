@@ -85,13 +85,12 @@
 #'          timezone attribute.
 #'
 #' @examples
-#' # Examples on how to use:
+#' # Load file from downloaded package
 #' file.path <- system.file("extdata", "UGGA/UGGA.txt", package = "goFlux")
 #'
+#' # Run function
 #' imp.UGGA <- import.UGGA(inputfile = file.path)
-#'
-#' @export
-#'
+
 LGR_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
                        save = FALSE, keep_all = FALSE, prec = c(0.2, 1.4, 50)){
 

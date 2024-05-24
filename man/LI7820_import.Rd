@@ -91,7 +91,6 @@ file.path <- system.file("extdata", "LI7820/LI7820.data", package = "goFlux")
 
 # Run function
 imp.LI7820 <- import.LI7820(inputfile = file.path)
-
 }
 \seealso{
 Use the wrapper function \code{\link[goFlux]{import2RData}}

@@ -96,16 +96,16 @@ better to use a low value (e.g. 1 ppm for
 \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}) to allow for more
 curvature, especially for water vapor fluxes, or very long measurements, that
 are normally curved. The default values given for instrument precision are
-the ones found \href{https://aerissensors.com/mira-pico-mobile-lds/s}{online}
+the ones found \href{https://aerissensors.com/mira-pico-mobile-lds/}{online}
 for the latest model of this instrument available at the
 time of the creation of this function (01-2024).
 }
 \examples{
-# Examples on how to use:
+# Load file from downloaded package
 file.path <- system.file("extdata", "uCH4/uCH4.txt", package = "goFlux")
 
+# Run function
 imp.uCH4 <- import.uCH4(inputfile = file.path)
-
 }
 \seealso{
 Use the wrapper function \code{\link[goFlux]{import2RData}}

@@ -78,9 +78,7 @@
 #'
 #' # Run function
 #' imp.LI8100 <- import.LI8100(inputfile = file.path)
-#'
-#' @export
-#'
+
 LI8100_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                           save = FALSE, keep_all = FALSE, prec = c(1, 10)) {
 

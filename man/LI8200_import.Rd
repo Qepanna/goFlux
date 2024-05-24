@@ -64,7 +64,6 @@ file.path <- system.file("extdata", "LI8200/LI8200.json", package = "goFlux")
 
 # Run function
 imp.LI8200 <- import.LI8200(inputfile = file.path)
-
 }
 \seealso{
 Use the wrapper function \code{\link[goFlux]{import2RData}}

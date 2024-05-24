@@ -112,8 +112,7 @@
 #' manID.LI6400 <- lapply(seq(1,3), click.peak.loop, flux.unique = ow.LI6400) %>%
 #'   map_df(., ~as.data.frame(.x))
 #' }
-#' @export
-#'
+
 click.peak.loop <- function(x, flux.unique, gastype = "CO2dry_ppm", sleep = 3,
                             plot.lim = c(380,1000), warn.length = 60) {
 

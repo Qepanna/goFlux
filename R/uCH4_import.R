@@ -67,7 +67,7 @@
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}) to allow for more
 #' curvature, especially for water vapor fluxes, or very long measurements, that
 #' are normally curved. The default values given for instrument precision are
-#' the ones found \href{https://aerissensors.com/mira-pico-mobile-lds/s}{online}
+#' the ones found \href{https://aerissensors.com/mira-pico-mobile-lds/}{online}
 #' for the latest model of this instrument available at the
 #' time of the creation of this function (01-2024).
 #'
@@ -92,13 +92,12 @@
 #'          timezone attribute.
 #'
 #' @examples
-#' # Examples on how to use:
+#' # Load file from downloaded package
 #' file.path <- system.file("extdata", "uCH4/uCH4.txt", package = "goFlux")
 #'
+#' # Run function
 #' imp.uCH4 <- import.uCH4(inputfile = file.path)
-#'
-#' @export
-#'
+
 uCH4_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
                         save = FALSE, keep_all = FALSE, prec = c(1, 0.5, 15)){
 

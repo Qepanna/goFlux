@@ -152,13 +152,12 @@
 #'          timezone attribute.
 #'
 #' @examples
-#' # Examples on how to use:
+#' # Load file from downloaded package
 #' file.path <- system.file("extdata", "GAIA/GAIA.csv", package = "goFlux")
 #'
+#' # Run function
 #' imp.GAIA <- import.GAIA(inputfile = file.path)
-#'
-#' @export
-#'
+
 GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                         pivot = "long", active = TRUE, flag = c(7,11),
                         background = FALSE, save = FALSE,

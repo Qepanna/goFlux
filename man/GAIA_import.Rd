@@ -205,11 +205,11 @@ If you are using the function with less than five gases, the other values are
 simply ignored.
 }
 \examples{
-# Examples on how to use:
+# Load file from downloaded package
 file.path <- system.file("extdata", "GAIA/GAIA.csv", package = "goFlux")
 
+# Run function
 imp.GAIA <- import.GAIA(inputfile = file.path)
-
 }
 \seealso{
 Use the wrapper function \code{\link[goFlux]{import2RData}}

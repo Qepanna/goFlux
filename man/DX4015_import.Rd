@@ -97,11 +97,11 @@ the ones provided by the manufacturer upon request, for the latest model of
 this instrument available at the time of the creation of this function (11-2023).
 }
 \examples{
-# Examples on how to use:
+# Load file from downloaded package
 file.path <- system.file("extdata", "DX4015/DX4015.TXT", package = "goFlux")
 
+# Run function
 imp.DX4015 <- import.DX4015(inputfile = file.path)
-
 }
 \seealso{
 Use the wrapper function \code{\link[goFlux]{import2RData}}

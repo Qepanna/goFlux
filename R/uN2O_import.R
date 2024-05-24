@@ -92,13 +92,12 @@
 #'          timezone attribute.
 #'
 #' @examples
-#' # Examples on how to use:
+#' # Load file from downloaded package
 #' file.path <- system.file("extdata", "uN2O/uN2O.txt", package = "goFlux")
 #'
+#' # Run function
 #' imp.uN2O <- import.uN2O(inputfile = file.path)
-#'
-#' @export
-#'
+
 uN2O_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
                         save = FALSE, keep_all = FALSE, prec = c(0.2, 0.2, 15)){
 

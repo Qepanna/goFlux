@@ -88,13 +88,12 @@
 #'          timezone attribute.
 #'
 #' @examples
-#' # Examples on how to use:
+#' # Load file from downloaded package
 #' file.path <- system.file("extdata", "DX4015/DX4015.TXT", package = "goFlux")
 #'
+#' # Run function
 #' imp.DX4015 <- import.DX4015(inputfile = file.path)
-#'
-#' @export
-#'
+
 DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                           save = FALSE, keep_all = FALSE,
                           prec = c(1.6, 23, 13, 2, 23, 33)){

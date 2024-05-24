@@ -91,11 +91,11 @@ for the latest model of this instrument available at the time of the
 creation of this function (12-2023).
 }
 \examples{
-# Examples on how to use:
+# Load file from downloaded package
 file.path <- system.file("extdata", "N2OM1/N2OM1.txt", package = "goFlux")
 
+# Run function
 imp.N2OM1 <- import.N2OM1(inputfile = file.path)
-
 }
 \seealso{
 Use the wrapper function \code{\link[goFlux]{import2RData}}

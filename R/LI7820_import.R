@@ -82,9 +82,7 @@
 #'
 #' # Run function
 #' imp.LI7820 <- import.LI7820(inputfile = file.path)
-#'
-#' @export
-#'
+
 LI7820_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                           save = FALSE, keep_all = FALSE, prec = c(0.4, 45)){
 

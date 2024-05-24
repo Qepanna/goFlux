@@ -94,11 +94,11 @@ for the latest model of this instrument available at the
 time of the creation of this function (11-2023).
 }
 \examples{
-# Examples on how to use:
+# Load file from downloaded package
 file.path <- system.file("extdata", "UGGA/UGGA.txt", package = "goFlux")
 
+# Run function
 imp.UGGA <- import.UGGA(inputfile = file.path)
-
 }
 \seealso{
 Use the wrapper function \code{\link[goFlux]{import2RData}}

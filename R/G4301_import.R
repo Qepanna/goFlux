@@ -87,9 +87,7 @@
 #'
 #' # Run function
 #' imp.G4301 <- import.G4301(inputfile = file.path)
-#'
-#' @export
-#'
+
 G4301_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                          save = FALSE, keep_all = FALSE,
                          prec = c(0.025, 0.1, 10)){

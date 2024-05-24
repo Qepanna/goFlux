@@ -107,9 +107,7 @@
 #'
 #' # Run function
 #' imp.EGM5 <- import.EGM5(inputfile = file.path)
-#'
-#' @export
-#'
+
 EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
                         save = FALSE, keep_all = FALSE, prec = c(3, 1, 500),
                         proc.data.field = NULL){

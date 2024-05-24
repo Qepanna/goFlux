@@ -82,13 +82,12 @@
 #'          timezone attribute.
 #'
 #' @examples
-#' # Examples on how to use:
+#' # Load file from downloaded package
 #' file.path <- system.file("extdata", "N2OM1/N2OM1.txt", package = "goFlux")
 #'
+#' # Run function
 #' imp.N2OM1 <- import.N2OM1(inputfile = file.path)
-#'
-#' @export
-#'
+
 N2OM1_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
                          save = FALSE, keep_all = FALSE, prec = c(0.5, 2, 50)){
 

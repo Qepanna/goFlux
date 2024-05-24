@@ -91,7 +91,7 @@ better to use a low value (e.g. 1 ppm for
 \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}) to allow for more
 curvature, especially for water vapor fluxes, or very long measurements, that
 are normally curved. The default values given for instrument precision are
-the ones found \href{https://www.picarro.com/g2508_gas_concentration_analyzer}{online}
+the ones found \href{https://www.picarro.com/environmental/products/g2508_gas_concentration_analyzer}{online}
 for the latest model of this instrument, available at the time of the
 creation of this function (11-2023).
 }
@@ -101,7 +101,6 @@ file.path <- system.file("extdata", "G2508/2023/08/01/G2508.dat", package = "goF
 
 # Run function
 imp.G2508 <- import.G2508(inputfile = file.path)
-
 }
 \seealso{
 Use the wrapper function \code{\link[goFlux]{import2RData}}

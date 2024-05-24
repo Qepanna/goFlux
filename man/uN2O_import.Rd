@@ -101,11 +101,11 @@ time of the creation of this function (01-2024). The precision for water
 vapor is currently unknown, and a default of 1 ppm is used.
 }
 \examples{
-# Examples on how to use:
+# Load file from downloaded package
 file.path <- system.file("extdata", "uN2O/uN2O.txt", package = "goFlux")
 
+# Run function
 imp.uN2O <- import.uN2O(inputfile = file.path)
-
 }
 \seealso{
 Use the wrapper function \code{\link[goFlux]{import2RData}}

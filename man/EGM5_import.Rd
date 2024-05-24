@@ -119,7 +119,6 @@ file.path <- system.file("extdata", "EGM5/EGM5.TXT", package = "goFlux")
 
 # Run function
 imp.EGM5 <- import.EGM5(inputfile = file.path)
-
 }
 \seealso{
 Use the wrapper function \code{\link[goFlux]{import2RData}}

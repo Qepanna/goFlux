@@ -60,7 +60,7 @@
 #' \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}) to allow for more
 #' curvature, especially for water vapor fluxes, or very long measurements, that
 #' are normally curved. The default values given for instrument precision are
-#' the ones found \href{https://www.picarro.com/g2508_gas_concentration_analyzer}{online}
+#' the ones found \href{https://www.picarro.com/environmental/products/g2508_gas_concentration_analyzer}{online}
 #' for the latest model of this instrument, available at the time of the
 #' creation of this function (11-2023).
 #'
@@ -92,9 +92,7 @@
 #'
 #' # Run function
 #' imp.G2508 <- import.G2508(inputfile = file.path)
-#'
-#' @export
-#'
+
 G2508_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                          save = FALSE, keep_all = FALSE,
                          prec = c(0.24, 0.3, 5, 0.16, 500)){

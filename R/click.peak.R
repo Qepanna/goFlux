@@ -105,8 +105,7 @@
 #' ow.LI6400 <- obs.win(inputfile = imp.LI6400, shoulder = 0)
 #' manID.LI6400 <- click.peak(ow.LI6400[[1]])
 #' }
-#' @export
-#'
+
 click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
                        plot.lim = c(380,1000), warn.length = 60,
                        save.plots = NULL){

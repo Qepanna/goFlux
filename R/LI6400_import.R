@@ -82,9 +82,7 @@
 #'
 #' # Run function
 #' imp.LI6400 <- import.LI6400(inputfile = file.path)
-#'
-#' @export
-#'
+
 LI6400_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
                           save = FALSE, keep_all = FALSE, prec = c(0.15, 20)){
 
