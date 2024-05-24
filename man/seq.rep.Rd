@@ -7,22 +7,23 @@
 \method{seq}{rep}(from, by, n.rep, length.seq, rep.seq = F)
 }
 \arguments{
-\item{from}{numerical; inherited from seq().}
+\item{from}{numerical; inherited from \code{\link[base]{seq}}.}
 
-\item{by}{numerical; inherited from seq().}
+\item{by}{numerical; inherited from \code{\link[base]{seq}}.}
 
-\item{n.rep}{numerical; number of time the sequence should be repeated.}
+\item{n.rep}{numerical; number of time the sequence should be repeated.
+Inherited from \code{\link[base]{rep}}.}
 
-\item{length.seq}{numerical; inherited from seq(..., length.out = length.seq).}
+\item{length.seq}{numerical; inherited from \code{seq(..., length.out = length.seq)}.}
 
 \item{rep.seq}{logical; instead of repeating a sequence, (1,2,3,1,2,3),
-sequence a repetition (1,1,2,2,3,3). Default is rep.seq = F.}
+sequence a repetition (1,1,2,2,3,3). Default is \code{rep.seq = F}.}
 }
 \value{
 a numerical sequence
 }
 \description{
-A wrapper function that merges seq() and rep().
+A wrapper function that merges \code{\link[base]{seq}} and \code{\link[base]{rep}}.
 }
 \seealso{
 \code{\link[base]{seq}} \code{\link[base]{rep}}
