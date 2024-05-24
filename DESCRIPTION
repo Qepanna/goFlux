@@ -6,7 +6,7 @@ Authors@R: c(person("Karelle", "Rheault", email = "karh@ign.ku.dk", role = c("cr
              person("Klaus", "Steenberg Larsen", email = "ksl@ign.ku.dk", role = c("aut", "ths")))
 Maintainer: Karelle Rheault <karh@ign.ku.dk>
 Description: This package is meant to be "student proof", meaning that no extensive knowledge or experience is needed to import raw data into R, choose the best model to calculate fluxes (LM or HM), quality check the results objectively and obtain high quality flux estimates.
-    The package contains a wide range of functions that lets the user import raw data from a variety of instruments (LI-COR, LGR, GAIA2TECH, Gasmet, PP-Systems and Picarro); calculate fluxes from a variety of GHG (CO2, CH4, N2O, CO, NH3 and H2O) with both linear (LM) and non-linear (HM) flux calculation methods; align instruments clocks after data import; identify measurements (start and end time); plot measurements for easy visual inspection; and quality check the measurements based on objective criteria.
+    The package contains a wide range of functions that lets the user import raw data from a variety of instruments; calculate fluxes from a variety of GHG with both linear (LM) and non-linear (HM) flux calculation methods; identify measurements (start and end time); plot measurements for easy visual inspection; and quality check the measurements based on non-arbitrary criteria.
 License: GPL-2
 Encoding: UTF-8
 LazyData: true

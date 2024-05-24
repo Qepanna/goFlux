@@ -94,7 +94,7 @@ creation of this function (12-2023).
 # Examples on how to use:
 file.path <- system.file("extdata", "N2OM1/N2OM1.txt", package = "goFlux")
 
-imp.N2OM1 <- N2OM1_import(inputfile = file.path)
+imp.N2OM1 <- import.N2OM1(inputfile = file.path)
 
 }
 \seealso{

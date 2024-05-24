@@ -52,6 +52,14 @@
 #' import, change the settings on your instrument, or contact the maintainer of
 #' this package for support.
 #'
+#' Note that this instrument measures the "wet" fraction of
+#' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
+#' \ifelse{html}{\out{O<sub>2</sub>}}{\eqn{O[2]}{ASCII}}. If water vapor is
+#' measured, the dry fraction of the gases is calculated automatically. If not,
+#' it is important to measure the ambient water vapor concentration to convert
+#' gases into their dry fraction and use those in the following steps of this
+#' package. For example, \code{CO2dry_ppm = CO2wet_ppm/(1-H2O_ppm/1000000)}.
+#'
 #' The precision of the instrument is needed to restrict kappa-max
 #' (\code{\link[goFlux]{k.max}}) in the non-linear flux calculation
 #' (\code{\link[goFlux]{HM.flux}}). Kappa-max is inversely proportional to
@@ -94,9 +102,10 @@
 #'          timezone attribute.
 #'
 #' @examples
-#' # Examples on how to use:
+#' # Load file from downloaded package
 #' file.path <- system.file("extdata", "EGM5/EGM5.TXT", package = "goFlux")
 #'
+#' # Run function
 #' imp.EGM5 <- import.EGM5(inputfile = file.path)
 #'
 #' @export

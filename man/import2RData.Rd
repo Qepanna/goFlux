@@ -25,8 +25,12 @@ import2RData(
   CO2.col = "XT2C05_CO2",
   CH4.col = "XT2C04_CH4",
   H2O1.col = "XT2C06_H2O",
+  H2O1.name = "H2O_LI7810",
   N2O.col = "XT3C04_N2O",
-  H2O2.col = "XT3C05_H2O"
+  H2O2.col = "XT3C05_H2O",
+  H2O2.name = "H2O_LI7820",
+  sep = "\\t",
+  skip = 1
 )
 }
 \arguments{
@@ -95,6 +99,17 @@ to match the columns containing the corresponding gas measurements.
 \code{CH4.col}, and \code{H2O2.col} must be the same instrument as
 \code{N2O.col}. If columns are absent from the raw data, the arguments
 are ignored.}
+
+\item{H2O1.name, H2O2.name}{character string; how to name the water vapor columns
+for each instrument. Ideally, use \code{H201.name = "H2O_instrument.name"}.
+For example, \code{H201.name = "H2O_LI7810"}.}
+
+\item{sep}{character string defining the field separator character. Values on
+each line of the file are separated by this character. By default,
+\code{sep = "\t"} for tabulation.}
+
+\item{skip}{integer; the number of lines of the data file to skip before
+beginning to read data. By default, \code{skip = 1}.}
 }
 \value{
 A data frame saved as RData in a newly created folder, RData, into

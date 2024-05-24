@@ -35,7 +35,9 @@ CO2_plots <- flux.plot(
   gastype = "CO2dry_ppm", quality.check = FALSE,
   plot.legend = c("MAE", "RMSE", "k.ratio", "g.factor", "SErel"),
   plot.display = c("Ci", "C0", "MDF", "prec", "nb.obs", "flux.term"))
-flux2pdf(CO2_plots)
+
+\dontrun{
+flux2pdf(CO2_plots)}
 
 }
 \seealso{

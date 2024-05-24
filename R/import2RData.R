@@ -227,8 +227,12 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                          CO2.col = "XT2C05_CO2",
                          CH4.col = "XT2C04_CH4",
                          H2O1.col = "XT2C06_H2O",
+                         H2O1.name = "H2O_LI7810",
                          N2O.col = "XT3C04_N2O",
-                         H2O2.col = "XT3C05_H2O"){
+                         H2O2.col = "XT3C05_H2O",
+                         H2O2.name = "H2O_LI7820",
+                         sep = "\t",
+                         skip = 1){
 
   # Check arguments ####
   if(missing(path)) stop("'path' is required")

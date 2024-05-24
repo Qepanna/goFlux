@@ -88,7 +88,7 @@
 #'
 #' @examples
 #' # Load file from downloaded package
-#' file.path <- system.file("extdata", "G2508/2022/08/01/G2508.dat", package = "goFlux")
+#' file.path <- system.file("extdata", "G2508/2023/08/01/G2508.dat", package = "goFlux")
 #'
 #' # Run function
 #' imp.G2508 <- import.G2508(inputfile = file.path)
