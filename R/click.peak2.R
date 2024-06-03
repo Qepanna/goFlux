@@ -204,9 +204,6 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
   default.par <- par(no.readonly = TRUE)
   on.exit(par(default.par))
 
-  # default.device <- getOption("device")
-  # on.exit(options(device = default.device))
-
   on.exit(Sys.unsetenv("TZ"))
 
   # FUNCTION STARTS ####
@@ -239,9 +236,6 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
       {
         identify.error <- NULL
 
-        # Modify default settings for graphic device
-        # options(device = "X11")
-
         # Open a new window
         dev.new(noRStudioGD = TRUE, width = 14, height = 8)
 
@@ -256,7 +250,6 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
         Sys.setenv(TZ = time.zone)
         axis.POSIXct(1, at = seq(min(time.meas), max(time.meas), by = "10 secs"),
                      format = "%H:%M:%S")
-        # Sys.unsetenv("TZ") # change back to default
 
         # Use the identify function to select start and end points
         rownum <- identify(time.meas, flux.meas, pos = FALSE, n = 2, plot = TRUE,
@@ -271,9 +264,6 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
       # Close identify plot
       dev.flush()
       dev.off()
-
-      # Revert back to default settings for graphic device
-      # options(device = device)
 
       # Stop and return error
       warning(paste(ow.list.name, "[[", ow, "]] UniqueID ",
@@ -295,7 +285,6 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
         Sys.setenv(TZ = time.zone)
         axis.POSIXct(1, at = seq(min(time.meas), max(time.meas), by = "10 secs"),
                      format = "%H:%M:%S")
-        # Sys.unsetenv("TZ")
 
         # Title
         mtext(line = -3, outer = T, cex = 1.5,
@@ -373,9 +362,6 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
         if(sleep > 0) sleeploop(sleep)
         dev.off()}
 
-      # Revert back to default settings for graphic device
-      # options(device = device)
-
       # Print warning if nb.obs < warn.length (default 60 observations)
       if(nrow(filter(ow.corr.ls[[ow]], flag == 1)) < warn.length){
         warning(paste(ow.list.name, "[[", ow, "]] UniqueID ",
@@ -405,7 +391,6 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
         Sys.setenv(TZ = time.zone)
         axis.POSIXct(1, at = seq(min(time.meas), max(time.meas), by = "10 secs"),
                      format = "%H:%M:%S")
-        # Sys.unsetenv("TZ")
 
         # Title
         mtext(line = -3, outer = T, cex = 1.5,
@@ -427,9 +412,6 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
   }
 
   if (length(plots.ls) > 0){
-
-    # pdf outfile
-    # outfile <- paste(getwd(), "/", save.plots, ".pdf", sep = "")
 
     # Save plots as pdf
     pdf(file = save.plots, width = 11.6, height = 8.2)
