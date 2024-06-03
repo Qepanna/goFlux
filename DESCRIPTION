@@ -1,12 +1,16 @@
 Package: goFlux
 Type: Package
-Title: A User-Friendly R Package that Helps you Calculate GHG Fluxes Yourself, Regardless of User Experience
+Title: User-Friendly Chamber Data Processing, Flux Estimation, and Diagnostics
 Version: 0.2.0
 Authors@R: c(person("Karelle", "Rheault", email = "karh@ign.ku.dk", role = c("cre", "aut", "dtc")),
              person("Klaus", "Steenberg Larsen", email = "ksl@ign.ku.dk", role = c("aut", "ths")))
 Maintainer: Karelle Rheault <karh@ign.ku.dk>
-Description: Import raw data into R, quality check the results objectively and obtain high quality flux estimates
-    with an automatic selection of the best flux estimate (LM or HM) - without extensive knowledge or experience.
+Description: Import raw chamber data into R for flux calculation, quality check 
+    the results objectively and obtain trustworthy greenhouse gas (GHG) 
+    flux estimates with an automatic selection of the best flux estimate - 
+    without extensive knowledge or experience. More details are found in 
+    Rheault et al., (2024) <doi:10.21105/joss.06393>.
+URL: https://qepanna.quarto.pub/goflux/
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
@@ -50,5 +54,4 @@ Collate:
     'import2RData.R'
     'manID.UGGA-data.R'
     'obs.win.R'
-    'seq.rep.R'
 Imports: AICcmodavg, data.table, dplyr, ggnewscale, ggplot2, ggstar, graphics, grDevices, grid, gridExtra, lubridate, minpack.lm, msm, pbapply, plyr, purrr, rjson, rlist, SimDesign, stats, stringr, tibble, tidyr, toOrdinal, utils
