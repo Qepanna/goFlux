@@ -107,8 +107,8 @@ value is <code>warn.length = 60</code>.</p></dd>
 
 
 <dt>save.plots</dt>
-<dd><p>character string; a file name without the extension .pdf to
-save the plots produced with click.peak. By default,
+<dd><p>character string; a file path with the extension .pdf to
+save the plots produced with click.peak2. By default,
 <code>save.plot = NULL</code> and plots are not saved.</p></dd>
 
 </dl></div>
@@ -140,6 +140,11 @@ suggestions of plot limits for the other gases:</p><ul><li><p>"CH4dry_ppb": <cod
 <li><p>"COdry_ppb": <code>plot.lim = c(0, 200)</code></p></li>
 <li><p>"H2O_ppm": <code>plot.lim = c(10000, 20000)</code></p></li>
 </ul><p>These values will vary depending on ecosystem type and chamber application scheme.</p>
+<p>IMPORTANT! This function makes use of the function <code><a href="https://rdrr.io/r/graphics/identify.html" class="external-link">identify</a></code>
+which is only supported on screen devices such as X11, windows and quartz.
+It is therefore essential to verify that your system options are compatible
+with this function before running it, to avoid errors. Use the function
+<code>getOption("device")</code> to find which device your system uses.</p>
 <p><code>warn.length</code> is the limit below which the chamber closure time is
 flagged for being too short (<code>nb.obs &lt; warn.length</code>). Portable
 greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore,
