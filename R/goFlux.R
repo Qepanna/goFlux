@@ -434,6 +434,16 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
 
     H2O_flux.term <- ifelse(gastype == "H2O_ppm", 0, first(data_split[[f]]$H2O_mol))
 
+    # Are all Pcham or Tcham NAs?
+    if(is.na(first(na.omit(data_split[[f]]$Pcham)))) {
+      data_split[[f]]$Pcham <- 101.325
+      data_split[[f]]$warn.Pcham <- TRUE
+      } else data_split[[f]]$warn.Pcham <- FALSE
+    if(is.na(first(na.omit(data_split[[f]]$Tcham)))) {
+      data_split[[f]]$Tcham <- 15
+      data_split[[f]]$warn.Tcham <- TRUE
+    } else data_split[[f]]$warn.Tcham <- FALSE
+
     data_split[[f]] <- data_split[[f]] %>%
       mutate(flux.term = flux.term(first(na.omit(Vtot)), first(na.omit(Pcham)),
                                    first(na.omit(Area)), first(na.omit(Tcham)),
@@ -567,6 +577,18 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     if(flux_results$nb.obs[f] < warn.length){
       warning("Low number of observations: UniqueID ", flux_results$UniqueID[f],
               " has ", flux_results$nb.obs[f], " observations", call. = FALSE)}
+  }
+
+  # Warm about NAs in Pcham or Tcham
+  for (f in 1:length(data_split)){
+    if(first(data_split[[f]]$warn.Tcham) == TRUE){
+      warning("Tcham missing in UniqueID ", first(data_split[[f]]$UniqueID),
+              ". 15 degrees Celsius was used as default.", call. = FALSE)}
+  }
+  for (f in 1:length(data_split)){
+    if(first(data_split[[f]]$warn.Pcham) == TRUE){
+      warning("Pcham missing in UniqueID ", first(data_split[[f]]$UniqueID),
+              ". 101.325 kPa was used as default.", call. = FALSE)}
   }
 
   # Return results
