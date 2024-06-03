@@ -114,7 +114,7 @@ raw data from a variety of instruments:
   CH<sub>4</sub> and H<sub>2</sub>O, and GLA151-N2OM1 for
   N<sub>2</sub>O, CH<sub>4</sub> and H<sub>2</sub>O
 - [**Picarro G2508 Gas Concentration
-  Analyzer**](https://www.picarro.com/g2508_gas_concentration_analyzer):
+  Analyzer**](https://www.picarro.com/environmental/products/g2508_gas_concentration_analyzer):
   for CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, NH<sub>3</sub> and
   H<sub>2</sub>O
 - [**Picarro GasScouter<sup>TM</sup> G4301 Mobile Gas Concentration
