@@ -36,7 +36,7 @@ CO2_plots <- flux.plot(
   plot.legend = c("MAE", "RMSE", "k.ratio", "g.factor", "SErel"),
   plot.display = c("Ci", "C0", "MDF", "prec", "nb.obs", "flux.term"))
 
-\dontrun{
+\donttest{
 flux2pdf(CO2_plots)}
 
 }
