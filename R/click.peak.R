@@ -78,33 +78,6 @@
 #' In \code{gastype}, the gas species listed are the ones for which this package
 #' has been adapted. Please write to the maintainer of this package for
 #' adaptation of additional gases.
-#'
-#' @examples
-#' \dontrun{
-#' # How to use in multiple situations:
-#' # Note that gastype = "CO2dry_ppm" is the default setting
-#' library(dplyr)
-#'
-#' ## with a LGR instrument and an auxiliary file (.txt)
-#' aux.path <- system.file("extdata", "aux_UGGA/aux_UGGA.txt", package = "goFlux")
-#' auxfile <- read.delim(aux.path) %>%
-#'   mutate(start.time = as.POSIXct(start.time, tz = "UTC"))
-#' data(imp.UGGA)
-#' ow.UGGA <- obs.win(inputfile = imp.UGGA, auxfile = auxfile,
-#'                    obs.length = 180, shoulder = 60)
-#' manID.UGGA <- click.peak(ow.UGGA[[1]], save.plots = "manID.UGGA")
-#'
-#' ## with a LI-COR instrument and the Smart Chamber as auxiliary file
-#' data(imp.LI8200)
-#' data(imp.LI7820)
-#' ow.LI7820 <- obs.win(inputfile = imp.LI7820, auxfile = imp.LI8200, shoulder = 60)
-#' manID.LI7820 <- click.peak(ow.LI7820[[1]], gastype = "N2Odry_ppb", plot.lim = c(250,500))
-#'
-#' ## with the LI-6400 and no auxiliary file
-#' data(imp.LI6400)
-#' ow.LI6400 <- obs.win(inputfile = imp.LI6400, shoulder = 0)
-#' manID.LI6400 <- click.peak(ow.LI6400[[1]])
-#' }
 
 click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
                        plot.lim = c(380,1000), warn.length = 60,
@@ -163,6 +136,15 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
     proc.time() - p # The CPU usage should be negligible
   }
 
+  # Restore default options on exit
+  default.par <- par(no.readonly = TRUE)
+  on.exit(par(default.par))
+
+  default.device <- getOption("device")
+  on.exit(options(device = default.device))
+
+  on.exit(Sys.unsetenv("TZ"))
+
   # FUNCTION STARTS ####
 
   # Extract data from data.frame
@@ -182,7 +164,7 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
   tryCatch(
     {
       # Modify default settings for graphic device
-      device <- getOption("device")
+      # device <- getOption("device")
       options(device = "X11")
 
       # Open a new window
@@ -199,7 +181,7 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
       Sys.setenv(TZ = time.zone)
       axis.POSIXct(1, at = seq(min(time.meas), max(time.meas), by = "10 secs"),
                    format = "%H:%M:%S")
-      Sys.unsetenv("TZ") # change back to default
+      # Sys.unsetenv("TZ") # change back to default
 
       # Use the identify function to select start and end points
       rownum <- identify(time.meas, flux.meas, pos = FALSE, n = 2, plot = TRUE,
@@ -212,7 +194,7 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
   if(isTRUE(identify.error[[1]] == "graphics device closed during call to locator or identify")){
 
     # Revert back to default settings for graphic device
-    options(device = device)
+    # options(device = device)
 
     # Close identify plot
     dev.flush()
@@ -274,7 +256,7 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
     dev.off()
 
     # Revert back to default settings for graphic device
-    options(device = device)
+    # options(device = device)
 
     # Print warning if nb.obs < warn.length (default 60 observations)
     if(nrow(filter(flux.corr, flag == 1)) < warn.length){
@@ -302,7 +284,7 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
         Sys.setenv(TZ = time.zone)
         axis.POSIXct(1, at = seq(min(time.meas), max(time.meas), by = "10 secs"),
                      format = "%H:%M:%S")
-        Sys.unsetenv("TZ")
+        # Sys.unsetenv("TZ")
 
         # Title
         mtext(paste("UniqueID :", unique(flux.unique$UniqueID)),
@@ -323,10 +305,10 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
       } else {
 
         # outfile
-        outfile <- paste(getwd(), "/", save.plots, ".pdf", sep = "")
+        # outfile <- paste(getwd(), "/", save.plots, ".pdf", sep = "")
 
         # Print pdf
-        pdf(file = outfile, width = 11.6, height = 8.2)
+        pdf(file = save.plots, width = 11.6, height = 8.2)
         par(mfrow = c(1,2))
 
         # Plot 1
@@ -337,7 +319,7 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
         Sys.setenv(TZ = time.zone)
         axis.POSIXct(1, at = seq(min(time.meas), max(time.meas), by = "10 secs"),
                      format = "%H:%M:%S")
-        Sys.unsetenv("TZ")
+        # Sys.unsetenv("TZ")
 
         # Title
         mtext(paste("UniqueID :", unique(flux.unique$UniqueID)),

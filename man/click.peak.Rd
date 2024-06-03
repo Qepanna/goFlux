@@ -93,33 +93,6 @@ In \code{gastype}, the gas species listed are the ones for which this package
 has been adapted. Please write to the maintainer of this package for
 adaptation of additional gases.
 }
-\examples{
-\dontrun{
-# How to use in multiple situations:
-# Note that gastype = "CO2dry_ppm" is the default setting
-library(dplyr)
-
-## with a LGR instrument and an auxiliary file (.txt)
-aux.path <- system.file("extdata", "aux_UGGA/aux_UGGA.txt", package = "goFlux")
-auxfile <- read.delim(aux.path) \%>\%
-  mutate(start.time = as.POSIXct(start.time, tz = "UTC"))
-data(imp.UGGA)
-ow.UGGA <- obs.win(inputfile = imp.UGGA, auxfile = auxfile,
-                   obs.length = 180, shoulder = 60)
-manID.UGGA <- click.peak(ow.UGGA[[1]], save.plots = "manID.UGGA")
-
-## with a LI-COR instrument and the Smart Chamber as auxiliary file
-data(imp.LI8200)
-data(imp.LI7820)
-ow.LI7820 <- obs.win(inputfile = imp.LI7820, auxfile = imp.LI8200, shoulder = 60)
-manID.LI7820 <- click.peak(ow.LI7820[[1]], gastype = "N2Odry_ppb", plot.lim = c(250,500))
-
-## with the LI-6400 and no auxiliary file
-data(imp.LI6400)
-ow.LI6400 <- obs.win(inputfile = imp.LI6400, shoulder = 0)
-manID.LI6400 <- click.peak(ow.LI6400[[1]])
-}
-}
 \seealso{
 To use the function \code{\link[goFlux]{click.peak}} in a
          loop with \code{\link[base]{lapply}}, use
