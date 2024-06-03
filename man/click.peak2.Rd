@@ -42,7 +42,7 @@ in \code{ow.list}.}
 for being too short (\code{nb.obs < warn.length}). Default
 value is \code{warn.length = 60}.}
 
-\item{save.plots}{character string; a file name without the extension .pdf to
+\item{save.plots}{character string; a file path with the extension .pdf to
 save the plots produced with click.peak2. By default,
 \code{save.plot = NULL} and plots are not saved.}
 }
@@ -80,6 +80,12 @@ suggestions of plot limits for the other gases:
 }
 These values will vary depending on ecosystem type and chamber application scheme.
 
+IMPORTANT! This function makes use of the function \code{\link[graphics]{identify}}
+which is only supported on screen devices such as X11, windows and quartz.
+It is therefore essential to verify that your system options are compatible
+with this function before running it, to avoid errors. Use the function
+\code{getOption("device")} to find which device your system uses.
+
 The argument \code{seq} is used to select a subset of data frame from the list
 of data frames in \code{ow.list}. For example, to apply the function on the
 first measurement in the list, set \code{seq = 1}, or \code{seq = seq(1,10)}
@@ -98,33 +104,49 @@ has been adapted. Please write to the maintainer of this package for
 adaptation of additional gases.
 }
 \examples{
+# IMPORTANT! This function makes use of the function graphics::identify()
+# which is only supported on screen devices such as X11, windows and quartz.
+# It is therefore essential to verify that your system options are compatible
+# with this function before running it, to avoid errors. Here is an example
+# of how to modify your system options for graphics device:
 \dontrun{
-# How to use in multiple situations:
-# Note that gastype = "CO2dry_ppm" is the default setting
-library(dplyr)
+default.device <- getOption("device") # save default option
+options(device = "X11") # change system option to device = "X11"
+options(device = default.device) # revert back to default option }
 
-## with a LGR instrument and an auxiliary file (.txt), and plots saved as pdf
+# There are multiple ways to use this function. Here are some examples:
+
+library(dplyr)
+\donttest{
+## with a LGR instrument and an auxiliary file (.txt),
+## and plots saved as pdf
 aux.path <- system.file("extdata", "aux_UGGA/aux_UGGA.txt", package = "goFlux")
 auxfile <- read.delim(aux.path) \%>\%
   mutate(start.time = as.POSIXct(start.time, tz = "UTC"))
 data(imp.UGGA)
 ow.UGGA <- obs.win(inputfile = imp.UGGA, auxfile = auxfile,
                    obs.length = 180, shoulder = 60)
-manID.UGGA <- click.peak2(ow.UGGA, save.plots = "manID.UGGA")
+save.to <- paste(tempdir(), "manID.UGGA.pdf", sep = "/")
+manID.UGGA <- click.peak2(ow.UGGA, save.plots = save.to)
+# In this example, plots are saved in a temporary directory using
+# the function tempdir(). To save files in your working directory
+# instead, use the function getwd().
 
-## with a LI-COR instrument, the Smart Chamber as auxiliary file and
-## only the first data frame selected
+
+## with a LI-COR instrument, the Smart Chamber as auxiliary file
+## and only the first data frame selected
 data(imp.LI8200)
 data(imp.LI7820)
 ow.LI7820 <- obs.win(inputfile = imp.LI7820, auxfile = imp.LI8200, shoulder = 60)
 manID.LI7820 <- click.peak2(ow.LI7820, gastype = "N2Odry_ppb",
                             plot.lim = c(250,500), seq = 1)
 
-## with the LI-6400, no auxiliary file and seq through the first 3 data frames
+
+## with the LI-6400, no auxiliary file
+## and seq through the first 3 data frames
 data(imp.LI6400)
 ow.LI6400 <- obs.win(inputfile = imp.LI6400, shoulder = 0)
-manID.LI6400 <- click.peak2(ow.LI6400, seq = seq(1,3))
-}
+manID.LI6400 <- click.peak2(ow.LI6400, seq = seq(1,3)) }
 }
 \seealso{
 See also \code{\link[goFlux]{obs.win}} to prepare a list of data.frame.

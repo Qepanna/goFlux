@@ -40,8 +40,8 @@ of "CO2dry_ppm" from soils: \code{plot.lim = c(380,1000)}.}
 for being too short (\code{nb.obs < warn.length}). Default
 value is \code{warn.length = 60}.}
 
-\item{save.plots}{character string; a file name without the extension .pdf to
-save the plots produced with click.peak. By default,
+\item{save.plots}{character string; a file path with the extension .pdf to
+save the plots produced with click.peak2. By default,
 \code{save.plot = NULL} and plots are not saved.}
 }
 \value{
@@ -80,6 +80,12 @@ suggestions of plot limits for the other gases:
   \item "H2O_ppm": \code{plot.lim = c(10000, 20000)}
 }
 These values will vary depending on ecosystem type and chamber application scheme.
+
+IMPORTANT! This function makes use of the function \code{\link[graphics]{identify}}
+which is only supported on screen devices such as X11, windows and quartz.
+It is therefore essential to verify that your system options are compatible
+with this function before running it, to avoid errors. Use the function
+\code{getOption("device")} to find which device your system uses.
 
 \code{warn.length} is the limit below which the chamber closure time is
 flagged for being too short (\code{nb.obs < warn.length}). Portable

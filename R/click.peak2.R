@@ -27,7 +27,7 @@
 #' @param warn.length numerical value; limit under which a measurement is flagged
 #'                    for being too short (\code{nb.obs < warn.length}). Default
 #'                    value is \code{warn.length = 60}.
-#' @param save.plots character string; a file name without the extension .pdf to
+#' @param save.plots character string; a file path with the extension .pdf to
 #'                   save the plots produced with click.peak2. By default,
 #'                   \code{save.plot = NULL} and plots are not saved.
 #'
@@ -61,6 +61,12 @@
 #' }
 #' These values will vary depending on ecosystem type and chamber application scheme.
 #'
+#' IMPORTANT! This function makes use of the function \code{\link[graphics]{identify}}
+#' which is only supported on screen devices such as X11, windows and quartz.
+#' It is therefore essential to verify that your system options are compatible
+#' with this function before running it, to avoid errors. Use the function
+#' \code{getOption("device")} to find which device your system uses.
+#'
 #' The argument \code{seq} is used to select a subset of data frame from the list
 #' of data frames in \code{ow.list}. For example, to apply the function on the
 #' first measurement in the list, set \code{seq = 1}, or \code{seq = seq(1,10)}
@@ -79,35 +85,51 @@
 #' adaptation of additional gases.
 #'
 #' @examples
+#' # IMPORTANT! This function makes use of the function graphics::identify()
+#' # which is only supported on screen devices such as X11, windows and quartz.
+#' # It is therefore essential to verify that your system options are compatible
+#' # with this function before running it, to avoid errors. Here is an example
+#' # of how to modify your system options for graphics device:
 #' \dontrun{
-#' # How to use in multiple situations:
-#' # Note that gastype = "CO2dry_ppm" is the default setting
-#' library(dplyr)
+#' default.device <- getOption("device") # save default option
+#' options(device = "X11") # change system option to device = "X11"
+#' options(device = default.device) # revert back to default option }
 #'
-#' ## with a LGR instrument and an auxiliary file (.txt), and plots saved as pdf
+#' # There are multiple ways to use this function. Here are some examples:
+#'
+#' library(dplyr)
+#' \donttest{
+#' ## with a LGR instrument and an auxiliary file (.txt),
+#' ## and plots saved as pdf
 #' aux.path <- system.file("extdata", "aux_UGGA/aux_UGGA.txt", package = "goFlux")
 #' auxfile <- read.delim(aux.path) %>%
 #'   mutate(start.time = as.POSIXct(start.time, tz = "UTC"))
 #' data(imp.UGGA)
 #' ow.UGGA <- obs.win(inputfile = imp.UGGA, auxfile = auxfile,
 #'                    obs.length = 180, shoulder = 60)
-#' manID.UGGA <- click.peak2(ow.UGGA, save.plots = "manID.UGGA")
+#' save.to <- paste(tempdir(), "manID.UGGA.pdf", sep = "/")
+#' manID.UGGA <- click.peak2(ow.UGGA, save.plots = save.to)
+#' # In this example, plots are saved in a temporary directory using
+#' # the function tempdir(). To save files in your working directory
+#' # instead, use the function getwd().
 #'
-#' ## with a LI-COR instrument, the Smart Chamber as auxiliary file and
-#' ## only the first data frame selected
+#'
+#' ## with a LI-COR instrument, the Smart Chamber as auxiliary file
+#' ## and only the first data frame selected
 #' data(imp.LI8200)
 #' data(imp.LI7820)
 #' ow.LI7820 <- obs.win(inputfile = imp.LI7820, auxfile = imp.LI8200, shoulder = 60)
 #' manID.LI7820 <- click.peak2(ow.LI7820, gastype = "N2Odry_ppb",
 #'                             plot.lim = c(250,500), seq = 1)
 #'
-#' ## with the LI-6400, no auxiliary file and seq through the first 3 data frames
+#'
+#' ## with the LI-6400, no auxiliary file
+#' ## and seq through the first 3 data frames
 #' data(imp.LI6400)
 #' ow.LI6400 <- obs.win(inputfile = imp.LI6400, shoulder = 0)
-#' manID.LI6400 <- click.peak2(ow.LI6400, seq = seq(1,3))
-#' }
+#' manID.LI6400 <- click.peak2(ow.LI6400, seq = seq(1,3)) }
 #' @export
-#'
+
 click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
                         plot.lim = c(380,1000), seq = NULL,
                         warn.length = 60, save.plots = NULL){
@@ -178,6 +200,15 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
     proc.time() - p # The CPU usage should be negligible
   }
 
+  # Restore default options on exit
+  default.par <- par(no.readonly = TRUE)
+  on.exit(par(default.par))
+
+  # default.device <- getOption("device")
+  # on.exit(options(device = default.device))
+
+  on.exit(Sys.unsetenv("TZ"))
+
   # FUNCTION STARTS ####
 
   # Extract name of data frame ow.list
@@ -206,10 +237,10 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
     # Open plot in a new window to avoid problems with the identify function
     tryCatch(
       {
-        # Modify default settings for graphic device
         identify.error <- NULL
-        device <- getOption("device")
-        options(device = "X11")
+
+        # Modify default settings for graphic device
+        # options(device = "X11")
 
         # Open a new window
         dev.new(noRStudioGD = TRUE, width = 14, height = 8)
@@ -225,7 +256,7 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
         Sys.setenv(TZ = time.zone)
         axis.POSIXct(1, at = seq(min(time.meas), max(time.meas), by = "10 secs"),
                      format = "%H:%M:%S")
-        Sys.unsetenv("TZ") # change back to default
+        # Sys.unsetenv("TZ") # change back to default
 
         # Use the identify function to select start and end points
         rownum <- identify(time.meas, flux.meas, pos = FALSE, n = 2, plot = TRUE,
@@ -242,7 +273,7 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
       dev.off()
 
       # Revert back to default settings for graphic device
-      options(device = device)
+      # options(device = device)
 
       # Stop and return error
       warning(paste(ow.list.name, "[[", ow, "]] UniqueID ",
@@ -264,7 +295,7 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
         Sys.setenv(TZ = time.zone)
         axis.POSIXct(1, at = seq(min(time.meas), max(time.meas), by = "10 secs"),
                      format = "%H:%M:%S")
-        Sys.unsetenv("TZ")
+        # Sys.unsetenv("TZ")
 
         # Title
         mtext(line = -3, outer = T, cex = 1.5,
@@ -343,7 +374,7 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
         dev.off()}
 
       # Revert back to default settings for graphic device
-      options(device = device)
+      # options(device = device)
 
       # Print warning if nb.obs < warn.length (default 60 observations)
       if(nrow(filter(ow.corr.ls[[ow]], flag == 1)) < warn.length){
@@ -374,7 +405,7 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
         Sys.setenv(TZ = time.zone)
         axis.POSIXct(1, at = seq(min(time.meas), max(time.meas), by = "10 secs"),
                      format = "%H:%M:%S")
-        Sys.unsetenv("TZ")
+        # Sys.unsetenv("TZ")
 
         # Title
         mtext(line = -3, outer = T, cex = 1.5,
@@ -398,10 +429,10 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
   if (length(plots.ls) > 0){
 
     # pdf outfile
-    outfile <- paste(getwd(), "/", save.plots, ".pdf", sep = "")
+    # outfile <- paste(getwd(), "/", save.plots, ".pdf", sep = "")
 
     # Save plots as pdf
-    pdf(file = outfile, width = 11.6, height = 8.2)
+    pdf(file = save.plots, width = 11.6, height = 8.2)
     for (p in 1:length(plots.ls)){
       if(!is.null(plots.ls[[p]])) print(plots.ls[[p]])
     }

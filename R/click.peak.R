@@ -30,8 +30,8 @@
 #' @param warn.length numerical value; limit under which a measurement is flagged
 #'                    for being too short (\code{nb.obs < warn.length}). Default
 #'                    value is \code{warn.length = 60}.
-#' @param save.plots character string; a file name without the extension .pdf to
-#'                   save the plots produced with click.peak. By default,
+#' @param save.plots character string; a file path with the extension .pdf to
+#'                   save the plots produced with click.peak2. By default,
 #'                   \code{save.plot = NULL} and plots are not saved.
 #'
 #' @returns A data.frame, identical to the input \code{flux.unique}, with the
@@ -66,6 +66,12 @@
 #'   \item "H2O_ppm": \code{plot.lim = c(10000, 20000)}
 #' }
 #' These values will vary depending on ecosystem type and chamber application scheme.
+#'
+#' IMPORTANT! This function makes use of the function \code{\link[graphics]{identify}}
+#' which is only supported on screen devices such as X11, windows and quartz.
+#' It is therefore essential to verify that your system options are compatible
+#' with this function before running it, to avoid errors. Use the function
+#' \code{getOption("device")} to find which device your system uses.
 #'
 #' \code{warn.length} is the limit below which the chamber closure time is
 #' flagged for being too short (\code{nb.obs < warn.length}). Portable
@@ -140,8 +146,8 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
   default.par <- par(no.readonly = TRUE)
   on.exit(par(default.par))
 
-  default.device <- getOption("device")
-  on.exit(options(device = default.device))
+  # default.device <- getOption("device")
+  # on.exit(options(device = default.device))
 
   on.exit(Sys.unsetenv("TZ"))
 
@@ -165,7 +171,7 @@ click.peak <- function(flux.unique, gastype = "CO2dry_ppm", sleep = 3,
     {
       # Modify default settings for graphic device
       # device <- getOption("device")
-      options(device = "X11")
+      # options(device = "X11")
 
       # Open a new window
       dev.new(noRStudioGD = TRUE, width = 14, height = 8)
