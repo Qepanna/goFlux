@@ -523,6 +523,29 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
     x_nchr
   }
 
+  # seq.rep: A wrapper function that merges seq and rep, to repeat a sequence
+  # or sequence a repeat.
+  seq.rep <- function(from, by, n.rep, length.seq, rep.seq = F) {
+
+    if (rep.seq == F) {
+
+      sequence <- seq(from = from, by = by, length.out = length.seq)
+      out.ls <- list()
+      for (i in 1:length(sequence)) {
+        out.ls[[i]] <- rep(sequence[i], n.rep) }
+      unlist(out.ls)
+
+    } else {
+
+      repetition <- rep(from, n.rep)
+      out.ls <- list()
+      for (i in 1:length(repetition)) {
+        out.ls[[i]] <- seq(from = repetition[i], by = by, length.out = length.seq) }
+      unlist(out.ls)
+
+    }
+  }
+
   # FUNCTION STARTS ####
 
   # Define gas units
