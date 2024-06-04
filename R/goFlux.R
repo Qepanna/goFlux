@@ -466,94 +466,121 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     MDF <- unique(na.omit(data_split[[f]]$MDF))
     nb.obs <- nrow(na.omit(data_split[[f]][, gastype]))
 
-    # Extract gas measurement (by gastype)
-    gas.meas <- Reduce("c", data_split[[f]][, gastype])
+    # Skip if there is less than 3 data points
+    if(nb.obs < 3){
 
-    # Linear model
-    LM.res <- suppressWarnings(
-      LM.flux(gas.meas = gas.meas,
-              time.meas = data_split[[f]]$Etime,
-              flux.term = flux.term))
+      # LM.res and HM.res <- NA
+      LM.res <- cbind.data.frame(LM.flux = NA, LM.C0 = NA, LM.Ct = NA,
+                                 LM.slope = NA, LM.MAE = NA, LM.RMSE = NA,
+                                 LM.AICc = NA, LM.SE = NA, LM.se.rel = NA,
+                                 LM.r2 = NA, LM.p.val = NA)
 
-    # Calculate C0 and Ct and their boundaries based on LM.flux
-    C0.flux <- LM.res$LM.C0
-    Ct.flux <- LM.res$LM.Ct
-    C.diff.flux <- abs(Ct.flux-C0.flux)
-    C0.lim.flux <- c(C0.flux-C.diff.flux*0.2, C0.flux+C.diff.flux*0.2)
-    Ct.lim.flux <- c(Ct.flux-C.diff.flux*0.2, Ct.flux+C.diff.flux*0.2)
+      HM.res <- cbind.data.frame(HM.flux = NA, HM.C0 = NA, HM.Ci = NA,
+                                 HM.slope = NA, HM.MAE = NA, HM.RMSE = NA,
+                                 HM.AICc = NA, HM.SE = NA, HM.se.rel = NA,
+                                 HM.r2 = NA, HM.k = NA)
 
-    # Get C0 and Ct from raw data
-    C0 <- first(gas.meas)
-    Ct <- last(gas.meas)
+      # Extract gas measurement (by gastype)
+      gas.meas <- Reduce("c", data_split[[f]][, gastype])
 
-    # Choose the right C0 and Ct
-    Ct.best <- if_else(between(Ct, Ct.lim.flux[1], Ct.lim.flux[2]), Ct, Ct.flux)
-    C0.best <- if_else(between(C0, C0.lim.flux[1], C0.lim.flux[2]), C0, C0.flux)
+      # Get C0 and Ct from raw data
+      C0 <- first(gas.meas)
+      Ct <- last(gas.meas)
 
-    # Adjust C0 and Ct if the different between them is smaller than 1
-    if(abs(C.diff.flux) < 1){
-      Ct.best <- floor(Ct.best) - 1
-      C0.best <- ceiling(C0.best) + 1
-    }
+      # HM derived variables
+      kappa.max <- g.fact <- NA
 
-    # Calculate kappa thresholds based on MDF, LM.flux and Etime
-    kappa.max <- abs(k.max(MDF, LM.res$LM.flux, (max(data_split[[f]]$Etime)+1)))
+    } else {
 
-    # Try to catch errors and warnings from HM calculation
-    HM.catch <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
-                        flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-                        k.max = kappa.max*Inf, k.min = k.min)
+      # Extract gas measurement (by gastype)
+      gas.meas <- Reduce("c", data_split[[f]][, gastype])
 
-    # If there is an error with singular gradient
-    if(inherits(HM.catch[[2]], "simpleError")){
+      # Linear model
+      LM.res <- suppressWarnings(
+        LM.flux(gas.meas = gas.meas,
+                time.meas = data_split[[f]]$Etime,
+                flux.term = flux.term))
 
-      # Print warning
-      if(isTRUE(grepl("singular gradient", HM.catch[[2]]$message))){
-        warning("Flux estimate is too close to zero to estimate HM flux in UniqueID ",
-                UniqueID, ". goFlux returned NA for this UniqueID.")
-      } else {
-        message("Error in UniqueID ", UniqueID, ": ", HM.catch[[2]]$message)
+      # Calculate C0 and Ct and their boundaries based on LM.flux
+      C0.flux <- LM.res$LM.C0
+      Ct.flux <- LM.res$LM.Ct
+      C.diff.flux <- abs(Ct.flux-C0.flux)
+      C0.lim.flux <- c(C0.flux-C.diff.flux*0.2, C0.flux+C.diff.flux*0.2)
+      Ct.lim.flux <- c(Ct.flux-C.diff.flux*0.2, Ct.flux+C.diff.flux*0.2)
+
+      # Get C0 and Ct from raw data
+      C0 <- first(gas.meas)
+      Ct <- last(gas.meas)
+
+      # Choose the right C0 and Ct
+      Ct.best <- if_else(between(Ct, Ct.lim.flux[1], Ct.lim.flux[2]), Ct, Ct.flux)
+      C0.best <- if_else(between(C0, C0.lim.flux[1], C0.lim.flux[2]), C0, C0.flux)
+
+      # Adjust C0 and Ct if the different between them is smaller than 1
+      if(abs(C.diff.flux) < 1){
+        Ct.best <- floor(Ct.best) - 1
+        C0.best <- ceiling(C0.best) + 1
       }
 
-      # Return data frame
-      HM.res <- HM.catch[[1]]
-    }
+      # Calculate kappa thresholds based on MDF, LM.flux and Etime
+      kappa.max <- abs(k.max(MDF, LM.res$LM.flux, (max(data_split[[f]]$Etime)+1)))
 
-    # If there is no error
-    if(!inherits(HM.catch[[2]], "simpleError")){
+      # Try to catch errors and warnings from HM calculation
+      HM.catch <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
+                          flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
+                          k.max = kappa.max*Inf, k.min = k.min)
 
-      # But there is a warning with HM
-      if(inherits(HM.catch[[3]], "simpleWarning")){
-
-        # Print warning
-        message("Error in UniqueID ", UniqueID, ": ", HM.catch[[3]]$message)
-      }
-
-      # Or there is a warning with AICc
-      if(inherits(HM.catch[[4]], "simpleWarning")){
+      # If there is an error with singular gradient
+      if(inherits(HM.catch[[2]], "simpleError")){
 
         # Print warning
-        if(isTRUE(grepl("sample size", HM.catch[[4]]$message))){
-          warning("Sample size is too small for UniqueID ", UniqueID,
-                  ". Results may be meanignless or missing.")
+        if(isTRUE(grepl("singular gradient", HM.catch[[2]]$message))){
+          warning("Flux estimate is too close to zero to estimate HM flux in UniqueID ",
+                  UniqueID, ". NAs produced.", call. = F)
         } else {
-          message("Error in UniqueID ", UniqueID, ": ", HM.catch[[4]]$message)
+          message("Error in UniqueID ", UniqueID, ": ", HM.catch[[2]]$message)
         }
+
+        # Return data frame
+        HM.res <- HM.catch[[1]]
       }
 
-      # Hutchison and Mosier without kappa max
-      HM.noK <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
+      # If there is no error
+      if(!inherits(HM.catch[[2]], "simpleError")){
+
+        # But there is a warning with HM
+        if(inherits(HM.catch[[3]], "simpleWarning")){
+
+          # Print warning
+          message("Error in UniqueID ", UniqueID, ": ", HM.catch[[3]]$message)
+        }
+
+        # Or there is a warning with AICc
+        if(inherits(HM.catch[[4]], "simpleWarning")){
+
+          # Print warning
+          if(isTRUE(grepl("sample size", HM.catch[[4]]$message))){
+            warning("Sample size is too small for UniqueID ", UniqueID,
+                    ". Results may be meanignless or missing.", call. = F)
+          } else {
+            message("Error in UniqueID ", UniqueID, ": ", HM.catch[[4]]$message)
+          }
+        }
+
+        # Hutchison and Mosier without kappa max
+        HM.noK <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
+                          flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
+                          k.max = kappa.max*Inf, k.min = k.min)[[1]]
+
+        # Hutchinson and Mosier with kappa max
+        HM.K <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
                         flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-                        k.max = kappa.max*Inf, k.min = k.min)[[1]]
+                        k.max = kappa.max, k.mult = k.mult, k.min = k.min)[[1]]
 
-      # Hutchinson and Mosier with kappa max
-      HM.K <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
-                      flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-                      k.max = kappa.max, k.mult = k.mult, k.min = k.min)[[1]]
-
-      # Compare results, with and without kappa max.
-      # Select the result with the smallest curvature.
-      if(abs(HM.K$HM.k) <= abs(HM.noK$HM.k)) HM.res <- HM.K else HM.res <- HM.noK
+        # Compare results, with and without kappa max.
+        # Select the result with the smallest curvature.
+        if(abs(HM.K$HM.k) <= abs(HM.noK$HM.k)) HM.res <- HM.K else HM.res <- HM.noK
+      }
     }
 
     # Flux results
@@ -579,7 +606,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
               " has ", flux_results$nb.obs[f], " observations", call. = FALSE)}
   }
 
-  # Warm about NAs in Pcham or Tcham
+  # Warn about NAs in Pcham or Tcham
   for (f in 1:length(data_split)){
     if(first(data_split[[f]]$warn.Tcham) == TRUE){
       warning("Tcham missing in UniqueID ", first(data_split[[f]]$UniqueID),
@@ -589,6 +616,13 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     if(first(data_split[[f]]$warn.Pcham) == TRUE){
       warning("Pcham missing in UniqueID ", first(data_split[[f]]$UniqueID),
               ". 101.325 kPa was used as default.", call. = FALSE)}
+  }
+
+  # Warn about measurements with less than 3 data points
+  for (f in 1:nrow(flux_results)){
+    if(flux_results$nb.obs[f] < 3){
+      warning("Error in UniqueID ", flux_results$UniqueID[f], ": cannot calculate ",
+              "flux estimates with less than 3 data points. NAs produced.", call. = FALSE)}
   }
 
   # Return results
