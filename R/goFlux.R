@@ -59,7 +59,7 @@
 #' @param warn.length numerical value; limit under which a measurement is
 #'                    flagged for being too short (\code{nb.obs < warn.length}).
 #' @param k.min numerical value; a lower boundary value for kappa in the HM model.
-#'              Default is \code{k.min = 10^-9}
+#'              Default is \code{k.min = 0}
 #'
 #' @details
 #' Flux estimate units are
@@ -79,8 +79,7 @@
 #' \code{\link[goFlux]{goFlux}} function, so that the non-linear flux
 #' estimate cannot exceed this maximum curvature. Inversely, one can set a
 #' minimal threshold for kappa: to allow for a log-like curvature, set
-#' \code{k.min} below 0 (ex. -1), otherwise it should be just above 0
-#' (ex. 10^-9). \code{k.min} cannot be 0 as this would result in a singular gradient.
+#' \code{k.min} below 0 (ex. -1).
 #'
 #' All flux estimates, including the \code{\link[goFlux]{MDF}}, are
 #' obtained from the multiplication of the slope and the
@@ -193,7 +192,7 @@
 goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
                    Area = NULL, offset = NULL, Vtot = NULL, Vcham = NULL,
                    Pcham = NULL, Tcham = NULL, k.mult = 1,
-                   warn.length = 60, k.min = 10^-9){
+                   warn.length = 60, k.min = 0){
 
   # Check arguments ####
   if(!is.numeric(k.mult)) stop("'k.mult' must be of class numeric")
@@ -201,8 +200,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     stop("'k.mult' cannot be negative and must be smaller or equal to 10")}
   if(!is.numeric(warn.length)){stop("'warn.length' must be of class numeric")
   } else {if(warn.length <= 0) stop("'warn.length' must be greater than 0")}
-  if(!is.numeric(k.min)){stop("'k.min' must be of class numeric")
-  } else {if(k.min == 0) stop("'k.min' must be different from 0")}
+  if(!is.numeric(k.min)) stop("'k.min' must be of class numeric")
 
   ## Check dataframe ####
   if(missing(dataframe)) stop("'dataframe' is required")
