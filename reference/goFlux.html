@@ -73,7 +73,7 @@ H<sub>2</sub>O).</p>
 <span>  Tcham <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  k.mult <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  warn.length <span class="op">=</span> <span class="fl">60</span>,</span>
-<span>  k.min <span class="op">=</span> <span class="fl">10</span><span class="op">^</span><span class="op">-</span><span class="fl">9</span></span>
+<span>  k.min <span class="op">=</span> <span class="fl">0</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -165,7 +165,7 @@ flagged for being too short (<code>nb.obs &lt; warn.length</code>).</p></dd>
 
 <dt>k.min</dt>
 <dd><p>numerical value; a lower boundary value for kappa in the HM model.
-Default is <code>k.min = 10^-9</code></p></dd>
+Default is <code>k.min = 0</code></p></dd>
 
 </dl></div>
     <div id="value">
@@ -216,8 +216,7 @@ chamber closure. This limit of kappa-max is included in the
 <code>goFlux</code> function, so that the non-linear flux
 estimate cannot exceed this maximum curvature. Inversely, one can set a
 minimal threshold for kappa: to allow for a log-like curvature, set
-<code>k.min</code> below 0 (ex. -1), otherwise it should be just above 0
-(ex. 10^-9). <code>k.min</code> cannot be 0 as this would result in a singular gradient.</p>
+<code>k.min</code> below 0 (ex. -1).</p>
 <p>All flux estimates, including the <code><a href="MDF.html">MDF</a></code>, are
 obtained from the multiplication of the slope and the
 <code><a href="flux.term.html">flux.term</a></code>, which is used to correct the
