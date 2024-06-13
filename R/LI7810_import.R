@@ -129,13 +129,16 @@ LI7810_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       filter(!DATAH == 'DATAU') %>% select(!DATAH) %>%
       # Convert column class automatically
       type.convert(as.is = TRUE) %>%
-      mutate(REMARK = as.character(REMARK)) %>%
       # Standardize column names
       rename(CO2dry_ppm = CO2, CH4dry_ppb = CH4, H2O_ppm = H2O) %>%
       # Remove NAs and negative gas measurements, if any
       filter(CO2dry_ppm >= 0) %>%
       filter(CH4dry_ppb >= 0) %>%
       filter(H2O_ppm >= 0)
+
+    # Convert column class REMARK
+    if(any(grepl("REMARK", names(data.raw)))){
+      data.raw <- mutate(data.raw, REMARK = as.character(REMARK))}
 
     # Keep only useful columns for gas flux calculation
     if(keep_all == FALSE){
