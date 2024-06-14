@@ -78,10 +78,10 @@
 #'
 #' The arguments \code{active}, \code{pivot}, \code{flag}, \code{background},
 #' \code{CH.col}, \code{PAR.col}, \code{Tcham.col}, \code{Tsoil.col},
-#' \code{SWC.col}, \code{Op.stat.col}, \code{CO2.col}, \code{CH4.col},
-#' \code{H2O1.col}, \code{H2O1.name}, \code{N2O.col}, \code{H2O2.col},
-#' \code{H2O2.name}, \code{sep} and \code{skip} are used in the function
-#' \code{\link[goFlux]{import.GAIA}} only.
+#' \code{SWC.col}, \code{Op.stat.col}, \code{inst1}, \code{inst2},
+#' \code{inst3}, \code{gas1}, \code{gas2}, \code{gas3}, \code{prec1}, \code{prec2},
+#' \code{prec3}, \code{dry1}, \code{dry2}, \code{dry3}, \code{sep} and \code{skip}
+#' are used in the function \code{\link[goFlux]{import.GAIA}} only.
 #'
 #' @include goFlux-package.R
 #' @include DX4015_import.R
@@ -118,7 +118,7 @@
 #'          \code{\link[goFlux]{import.UGGA}}
 #'
 #' @examples
-#' \dontrun{
+#'
 #' # Examples on how to use it with all instruments.
 #' # The default time zone "UTC" is used in all cases.
 #'
@@ -151,7 +151,7 @@
 #' # with this instrument, "keep_all" is not a valid argument.
 #' file.path <- system.file("extdata/GAIA", package = "goFlux")
 #' import2RData(path = file.path, instrument = "GAIA",
-#'              date.format = "ymd", prec = c(3.5, 0.6, 0.4, 45, 45))
+#'              date.format = "ymd")
 #'
 #' # with Los Gatos Research UGGA (GLA132 series)
 #' file.path <- system.file("extdata/UGGA", package = "goFlux")
@@ -212,7 +212,7 @@
 #' import2RData(path = file.path, instrument = "uN2O",
 #'              date.format = "mdy", keep_all = FALSE,
 #'              prec = c(0.2, 0.2, 15))
-#' }
+#'
 #' @export
 #'
 import2RData <- function(path, instrument, date.format, timezone = "UTC",
@@ -220,18 +220,23 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                          pivot = "long", active = TRUE, flag = c(7,11),
                          background = FALSE,
                          CH.col = "COM5A0",
-                         SWC.col = "1C08_Soil.Moisture",
-                         Tsoil.col = "1C07_Soil.Temperature",
-                         Tcham.col = "2C07_Chamber.Temperature",
+                         SWC.col = "1C08_Soil Moisture",
+                         Tsoil.col = "1C07_Soil Temperature",
+                         Tcham.col = "2C07_Chamber Temperature",
                          PAR.col = "3C07_Sunlight",
                          Op.stat.col = "0C06_OperatingStatus",
-                         CO2.col = "XT2C05_CO2",
-                         CH4.col = "XT2C04_CH4",
-                         H2O1.col = "XT2C06_H2O",
-                         H2O1.name = "H2O_LI7810",
-                         N2O.col = "XT3C04_N2O",
-                         H2O2.col = "XT3C05_H2O",
-                         H2O2.name = "H2O_LI7820",
+                         inst1 = "XT2C00_Instrument",
+                         inst2 = "XT3C00_Instrument",
+                         inst3 = NULL,
+                         gas1 = c("XT2C04_CH4", "XT2C05_CO2", "XT2C06_H2O"),
+                         gas2 = c("XT3C04_N2O", "XT3C05_H2O"),
+                         gas3 = NULL,
+                         prec1 = c(0.6, 3.5, 45),
+                         prec2 = c(0.4, 45),
+                         prec3 = NULL,
+                         dry1 = T,
+                         dry2 = T,
+                         dry3 = NULL,
                          sep = "\t",
                          skip = 1){
 
@@ -412,11 +417,18 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
       withCallingHandlers(
 
-        import.GAIA(inputfile = file_list[i],
-                    date.format = date.format,
-                    timezone = timezone,
-                    save = TRUE,
-                    prec = prec),
+        import.GAIA(inputfile = file_list[i], date.format = date.format,
+                    timezone = timezone, pivot = pivot,
+                    active = active, flag = flag,
+                    background = background, save = TRUE,
+                    CH.col = CH.col, SWC.col = SWC.col,
+                    Tsoil.col = Tsoil.col, Tcham.col = Tcham.col,
+                    PAR.col = PAR.col, Op.stat.col = Op.stat.col,
+                    inst1 = inst1, inst2 = inst2, inst3 = inst3,
+                    gas1 = gas1, gas2 = gas2, gas3 = gas3,
+                    prec1 = prec1, prec2 = prec2, prec3 = prec3,
+                    dry1 = dry1, dry2 = dry2, dry3 = dry3,
+                    sep = sep, skip = skip),
 
         error = function(e){
           errs <<- c(errs, conditionMessage(e))

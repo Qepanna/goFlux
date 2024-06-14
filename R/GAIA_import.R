@@ -2,13 +2,14 @@
 #' multiple chambers and instruments
 #'
 #' Imports single raw gas measurement files from the automated chamber
-#' ECOFlux (GAIA2TECH) linked with up to two instruments and up to five gases
-#' (by default used with LI-7810:
-#' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+#' ECOFlux (GAIA2TECH) linked with up to three greenhouse gas analyzers.
+#' Default settings are set for two LI-COR instruments: LI-7810
+#' (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
-#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} / LI7820:
-#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
-#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}).
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}) and LI7820
+#' (\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}), to match the
+#' example data file provided with the package.
 #'
 #' @param inputfile character string; the name of a file with the extension .csv
 #' @param date.format character string; specifies the date format found in the
@@ -37,25 +38,31 @@
 #'             in a RData folder in the current working directory. If
 #'             \code{save = FALSE}, returns the file in the Console, or load in
 #'             the Environment if assigned to an object.
-#' @param prec numerical vector; the precision of the instrument for each gas,
-#'             in the following order: "CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb"
-#'             and "H2O_ppm" from each analyzer. The default is
-#'             \code{prec = c(3.5, 0.6, 0.4, 45, 45)}. For each gas missing, the
-#'             value is ignored.
 #' @param Op.stat.col,PAR.col,Tcham.col,Tsoil.col,SWC.col,CH.col character
 #'        string; a pattern to match all columns that fit the corresponding
 #'        parameter. For example, all columns containing the pattern "3C07_Sunlight"
 #'        will be renamed with the pattern "_PAR". Then, if \code{pivot = "long"},
 #'        all columns with the pattern "_PAR" will be merged together.
-#' @param CO2.col,CH4.col,H2O1.col,N2O.col,H2O2.col character string; a pattern
-#'        to match the columns containing the corresponding gas measurements.
-#'        \code{H2O1.col} must be the same instrument as \code{CO2.col} and
-#'        \code{CH4.col}, and \code{H2O2.col} must be the same instrument as
-#'        \code{N2O.col}. If columns are absent from the raw data, the arguments
-#'        are ignored.
-#' @param H2O1.name,H2O2.name character string; how to name the water vapor columns
-#'        for each instrument. Ideally, use \code{H201.name = "H2O_instrument.name"}.
-#'        For example, \code{H201.name = "H2O_LI7810"}.
+#' @param inst1,inst2,inst3 character strings; a pattern to match the columns
+#'        containing the name of each instrument. By default,
+#'        \code{inst1 = "XT2C00_Instrument"}, \code{inst2 = "XT3C00_Instrument"},
+#'        and \code{inst3 = NULL}, to match the example data file provided with
+#'        the package.
+#' @param gas1,gas2,gas3 character vectors; a pattern to match the columns
+#'        containing each gas measurement. By default,
+#'        \code{gas1 = c("XT2C04_CH4", "XT2C05_CO2", "XT2C06_H2O")},
+#'        \code{gas2 = c("XT3C04_N2O", "XT3C05_H2O")}, and \code{gas3 = NULL},
+#'        to match the example data file provided with the package.
+#' @param prec1,prec2,prec3 numerical vectors; the precision of the instrument
+#'        for each gas mentioned in \code{gas1}, \code{gas2} and \code{gas3}.
+#'        By default, \code{prec1 = c(0.6, 3.5, 45)}, \code{prec2 = c(0.4, 45)},
+#'        and \code{prec3 = NULL}, to match the example data file provided with
+#'        the package. Note that the order in the arguments \code{precX} must
+#'        match the order of the arguments in \code{gasX}.
+#' @param dry1,dry2,dry3 logical; are the gas measurements compensated for water
+#'        vapor (dry fraction)? If \code{dryX = TRUE} (default), the gases are
+#'        compensated for water vapor, and will be named accordingly. For example,
+#'        the column "XT2C05_CO2" will become "CO2dry_ppm".
 #' @param sep character string defining the field separator character. Values on
 #'            each line of the file are separated by this character. By default,
 #'            \code{sep = "\t"} for tabulation.
@@ -77,34 +84,34 @@
 #' maintainer of this package for potential adaptations.
 #'
 #' In \code{date.format}, the date format refers to a date found in the raw data
-#' file, not the date format in the file name. For the instrument GAIA the
-#' date is found in the column "Titles:".
+#' file, not the date format in the file name. For the automated chamber ECOFlux,
+#' the date is found in the column "Titles:".
 #'
-#' The arguments \code{PAR.col}, \code{Tcham.col},
-#' \code{Tsoil.col} and \code{SWC.col} correspond to different types of probes
-#' linked to the ECOFlux chamber: PAR, chamber temperature, soil
-#' temperature and soil water content volumetric, respectively. The argument
-#' \code{Op.stat.col} corresponds to the columns Operating Status of each
-#' chamber. The argument \code{CH.col} indicates a character string preceding
-#' the chamber number for each column of the raw data. For example, the column
-#' "COM5A010C06_OperatingStatus" in the raw data file contains the Operating
-#' Status for the chamber 1 if \code{CH.col = "COM5A0"} and
-#' \code{Op.stat.col = "0C06_OperatingStatus"}. If columns are absent from the
-#' raw data, the arguments are ignored.
+#' The arguments \code{PAR.col}, \code{Tcham.col}, \code{Tsoil.col} and
+#' \code{SWC.col} correspond to different types of probes linked to the ECOFlux
+#' chamber: PAR (sunlight), chamber temperature, soil temperature and soil water
+#' content volumetric, respectively. The argument \code{Op.stat.col} corresponds
+#' to the columns Operating Status of each chamber. The argument \code{CH.col}
+#' indicates a character string preceding the chamber number for each column of
+#' the raw data. For example, the column "COM5A010C06_OperatingStatus" in the
+#' raw data file contains the Operating Status for the chamber 1 if
+#' \code{CH.col = "COM5A0"} and \code{Op.stat.col = "0C06_OperatingStatus"}. If
+#' these columns are absent from the raw data, set arguments to NULL.
 #'
 #' Note that this function was designed for the following units in the raw file:
 #' \itemize{
-#'   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
-#'   \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
-#'   \item ppb for \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
-#'   \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}
-#'   \item kPa for pressure
+#'   \item kPa for atmospheric pressure
 #'   \item volumetric water content (\%) for soil moisture
-#'   \item Celsius for temperature
+#'   \item Celsius for air temperature
 #'   \item \ifelse{html}{\out{µmol photons m<sup>-2</sup>s<sup>-1</sup> for PAR}}{\eqn{µmol photons m^{-2}s^{-1} for PAR}{ASCII}}}
+#' For each gas, the units are taken from the second row in the raw file (Units:).
 #' If your instruments use different units, either convert the units after
-#' import, change the settings on your instrument, or contact the maintainer of
+#' import, change the settings on your instruments, or contact the maintainer of
 #' this package for support.
+#'
+#' Regarding the parameters \code{dryX}, in case of uncertainty, either contact
+#' your technical support or assume that gases are compensated for water vapor,
+#' which is normally the case.
 #'
 #' As opposed to the other import functions, there is no option to "keep_all" with
 #' this instrument. If you would like to import additional data using this
@@ -124,10 +131,7 @@
 #' the ones found online for the latest models of the
 #' \href{https://www.licor.com/env/products/trace-gas/LI-7810}{LI-7810} and
 #' \href{https://www.licor.com/env/products/trace-gas/LI-7820}{LI-7820},
-#' available at the time of the creation of this function (11-2023). Five values
-#' are required for this argument and their position in the vector is important.
-#' If you are using the function with less than five gases, the other values are
-#' simply ignored.
+#' available at the time of the creation of this function (11-2023).
 #'
 #' @include goFlux-package.R
 #'
@@ -161,24 +165,28 @@
 GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                         pivot = "long", active = TRUE, flag = c(7,11),
                         background = FALSE, save = FALSE,
-                        prec = c(3.5, 0.6, 0.4, 45, 45),
                         CH.col = "COM5A0",
-                        SWC.col = "1C08_Soil.Moisture",
-                        Tsoil.col = "1C07_Soil.Temperature",
-                        Tcham.col = "2C07_Chamber.Temperature",
+                        SWC.col = "1C08_Soil Moisture",
+                        Tsoil.col = "1C07_Soil Temperature",
+                        Tcham.col = "2C07_Chamber Temperature",
                         PAR.col = "3C07_Sunlight",
                         Op.stat.col = "0C06_OperatingStatus",
-                        CO2.col = "XT2C05_CO2",
-                        CH4.col = "XT2C04_CH4",
-                        H2O1.col = "XT2C06_H2O",
-                        H2O1.name = "H2O_LI7810",
-                        N2O.col = "XT3C04_N2O",
-                        H2O2.col = "XT3C05_H2O",
-                        H2O2.name = "H2O_LI7820",
+                        inst1 = "XT2C00_Instrument",
+                        inst2 = "XT3C00_Instrument",
+                        inst3 = NULL,
+                        gas1 = c("XT2C04_CH4", "XT2C05_CO2", "XT2C06_H2O"),
+                        gas2 = c("XT3C04_N2O", "XT3C05_H2O"),
+                        gas3 = NULL,
+                        prec1 = c(0.6, 3.5, 45),
+                        prec2 = c(0.4, 45),
+                        prec3 = NULL,
+                        dry1 = T,
+                        dry2 = T,
+                        dry3 = NULL,
                         sep = "\t",
                         skip = 1){
 
-  # Check arguments
+  # Check arguments ####
   if(missing(inputfile)) stop("'inputfile' is required")
   if(!is.character(inputfile)) stop("'inputfile' must be of class character")
   if(length(date.format) != 1) stop("'date.format' must be of length 1")
@@ -191,39 +199,81 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   if(length(pivot) != 1) stop("'pivot' must be of length 1")
   if(!any(grepl(pivot, c("long", "wide")))) {
     stop("'pivot' must be of class character and one of the following: 'long' or 'wide'")}
-  if(is.null(prec)) stop("'prec' is required") else{
-    if(!is.numeric(prec)) stop("'prec' must be of class numeric") else{
-      if(length(prec) != 5) stop("'prec' must be of length 5")}}
   if(!is.numeric(flag)) stop("'flag' must be of class numeric")
   if(!is.numeric(skip)) stop("'skip' must be of class numeric")
   if(!is.character(sep)) stop("'sep' must be of class character")
 
   # Column names
-  if(!is.character(H2O2.col)) stop("'H2O2.col' must be of class character")
-  if(!is.character(N2O.col)) stop("'N2O.col' must be of class character")
-  if(!is.character(H2O1.col)) stop("'H2O1.col' must be of class character")
-  if(!is.character(CH4.col)) stop("'CH4.col' must be of class character")
-  if(!is.character(CO2.col)) stop("'CO2.col' must be of class character")
-  if(!is.character(H2O1.name)) stop("'H2O1.name' must be of class character")
-  if(!is.character(H2O2.name)) stop("'H2O2.name' must be of class character")
-  if(!is.character(PAR.col)) stop("'PAR.col' must be of class character")
-  if(!is.character(Tcham.col)) stop("'Tcham.col' must be of class character")
-  if(!is.character(Tsoil.col)) stop("'Tsoil.col' must be of class character")
-  if(!is.character(SWC.col)) stop("'SWC.col' must be of class character")
-  if(!is.character(CH.col)) stop("'CH.col' must be of class character")
-  if(!is.character(Op.stat.col)) stop("'Op.stat.col' must be of class character")
+  if(is.null(CH.col)) stop("'CH.col' is required")
+  if(!is.null(CH.col)) if(!is.character(CH.col)) stop("'CH.col' must be of class character")
 
-  # Assign NULL to variables without binding
+  # if(is.null(Op.stat.col)) stop("'Op.stat.col' is required")
+  if(!is.null(Op.stat.col)) if(!is.character(Op.stat.col)) stop("'Op.stat.col' must be of class character")
+
+  if(!is.null(PAR.col)) if(!is.character(PAR.col)) stop("'PAR.col' must be of class character")
+  if(!is.null(Tcham.col)) if(!is.character(Tcham.col)) stop("'Tcham.col' must be of class character")
+  if(!is.null(Tsoil.col)) if(!is.character(Tsoil.col)) stop("'Tsoil.col' must be of class character")
+  if(!is.null(SWC.col)) if(!is.character(SWC.col)) stop("'SWC.col' must be of class character")
+
+  # inst
+  if(is.null(inst1) & is.null(inst2) & is.null(inst3)) {
+    stop("At least one column name must be passed to 'inst1', 'inst2' or 'inst3'")}
+
+  if(!is.null(inst1)) {
+    if(!is.character(inst1)) stop("'inst1' must be of class character")
+    if(length(inst1) != 1) stop("'inst1' must be of length 1")}
+
+  if(!is.null(inst2)) {
+    if(!is.character(inst2)) stop("'inst2' must be of class character")
+    if(length(inst2) != 1) stop("'inst2' must be of length 1")}
+
+  if(!is.null(inst3)) {
+    if(!is.character(inst3)) stop("'inst3' must be of class character")
+    if(length(inst3) != 1) stop("'inst3' must be of length 1")}
+
+  # gas
+  if(!is.null(inst1)) {
+    if(is.null(gas1)) stop("When 'inst1' is not NULL, at least one column name must be passed to 'gas1'")}
+  if(!is.null(gas1)) if(!is.character(gas1)) stop("'gas1' must be of class character")
+
+  if(!is.null(inst2)) {
+    if(is.null(gas2)) stop("When 'inst2' is not NULL, at least one column name must be passed to 'gas2'")}
+  if(!is.null(gas2)) if(!is.character(gas2)) stop("'gas2' must be of class character")
+
+  if(!is.null(inst3)) {
+    if(is.null(gas3)) stop("When 'inst3' is not NULL, at least one column name must be passed to 'gas3'")}
+  if(!is.null(gas3)) if(!is.character(gas3)) stop("'gas3' must be of class character")
+
+  # prec
+  if(!is.null(gas1)) {
+    if(is.null(prec1)) stop("When 'gas1' is not NULL, 'prec1' cannot be NULL")}
+  if(!is.null(prec1)) {
+    if(!is.numeric(prec1)) stop("'prec1' must be of class numeric")
+    if(length(gas1) != length(prec1)) stop("'prec1' must be the same length as 'gas1'")}
+
+  if(!is.null(gas2)) {
+    if(is.null(prec2)) stop("When 'gas2' is not NULL, 'prec2' cannot be NULL")}
+  if(!is.null(prec2)) {
+    if(!is.numeric(prec2)) stop("'prec2' must be of class numeric")
+    if(length(gas2) != length(prec2)) stop("'prec2' must be the same length as 'gas2'")}
+
+  if(!is.null(gas3)) {
+    if(is.null(prec3)) stop("When 'gas3' is not NULL, 'prec3' cannot be NULL")}
+  if(!is.null(prec3)) {
+    if(!is.numeric(prec3)) stop("'prec3' must be of class numeric")
+    if(length(gas3) != length(prec3)) stop("'prec3' must be the same length as 'gas3'")}
+
+  # Assign NULL to variables without binding ####
   POSIX.time <- activ.cham <- DATE_TIME <- start.time <- Obs <- SEQUENCE <-
     Titles. <- cham.probe <- chamID <- obs.start <- rbind.fill <- cham.open <-
-    cham.close <- H2O_ppm_LI7820 <- N2Odry_ppb <- import.error <- . <-
-    CH4dry_ppb <- CO2dry_ppm <- POSIX.warning <- Op.stat <-
-    Tsoil <- Tcham <- SWC <- PAR <- NULL
+    cham.close <- H2O_ppm_LI7820 <- N2Odry_ppb <- import.error <- . <- dry <-
+    CH4dry_ppb <- CO2dry_ppm <- POSIX.warning <- Op.stat <- dry.log <- gas <-
+    Tsoil <- Tcham <- SWC <- PAR <- new.name <- inst <- prec.name <- NULL
 
   # Input file name
   inputfile.name <- gsub(".*/", "", inputfile)
 
-  # Try to load data file
+  # Try to load data file ####
   try.import <- tryCatch(
     {read.delim(inputfile, skip = skip, sep = sep, colClasses = "character", skipNul = T)},
     error = function(e) {import.error <<- e}
@@ -234,30 +284,145 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
             import.error, call. = F)
   } else {
 
+    # Replace spaces in column names with a dot to match imported data frame
+    if(!is.null(SWC.col)){
+      SWC.col2 <- gsub(" ", ".", SWC.col, fixed = T)} else {SWC.col2 <- "NA"}
+    if(!is.null(Tcham.col)){
+      Tcham.col2 <- gsub(" ", ".", Tcham.col, fixed = T)} else {Tcham.col2 <- "NA"}
+    if(!is.null(Tsoil.col)){
+      Tsoil.col2 <- gsub(" ", ".", Tsoil.col, fixed = T)} else {Tsoil.col2 <- "NA"}
+    if(!is.null(PAR.col)){
+      PAR.col2 <- gsub(" ", ".", PAR.col, fixed = T)} else {PAR.col2 <- "NA"}
+
+    # Column names match CH.col?
+    CH.col2 <- gsub(" ", ".", CH.col, fixed = T)
+    if(!any(grepl(CH.col2, names(try.import)))) {
+      stop(paste("Failed to import ", inputfile.name, ". The matching string ",
+                 "for chamber ID (CH.col) was not found in column names.", sep =""))}
+
     # Operating status missing?
-    if(!any(grepl(Op.stat.col, names(try.import)))){
+    if(!is.null(Op.stat.col)) Op.stat.col2 = gsub(" ", ".", Op.stat.col, fixed = T)
+    if(!any(grepl(Op.stat.col2, names(try.import)))){
       warning(paste("In the file", inputfile.name, "the matching string for Operating",
                     "status (Op.stat.col) was not found in column names. By default,",
                     "Operating Status was set to 2 (Chamber Idle Open) for all measurements."),
               call. = F)}
 
-    # Column names H2O
-    H2O1.col.name = paste(H2O1.name, "_ppm", sep = "")
-    H2O2.col.name = paste(H2O2.name, "_ppm", sep = "")
-    H2O1.prec.name = paste(H2O1.name, "_prec", sep = "")
-    H2O2.prec.name = paste(H2O2.name, "_prec", sep = "")
+    ## Match column names with instruments and gases? ####
+
+    ## instruments
+    if(!is.null(inst1)){
+      inst12 <- gsub(" ", ".", inst1, fixed = T)
+      if(!any(grepl(inst12, names(try.import)))){
+        stop(paste("Failed to import ", inputfile.name, ". The matching string ",
+                   "for inst1 '", inst1, "' was not found in column names.", sep =""))}}
+
+    if(!is.null(inst2)){
+      inst22 <- gsub(" ", ".", inst2, fixed = T)
+      if(!any(grepl(inst22, names(try.import)))) {
+        stop(paste("Failed to import ", inputfile.name, ". The matching string ",
+                   "for inst2 '", inst2, "' was not found in column names.", sep =""))}}
+
+    if(!is.null(inst3)){
+      inst32 <- gsub(" ", ".", inst3, fixed = T)
+      if(!any(grepl(inst3, names(try.import)))) {
+        stop(paste("Failed to import ", inputfile.name, ". The matching string ",
+                   "for inst3 '", inst3, "' was not found in column names.", sep =""))}}
+
+    ## gas1
+    gas12 <- NULL; if(!is.null(gas1)){
+      for(i in 1:length(gas1)){
+        gas12[i] <- gsub(" ", ".", gas1[i], fixed = T)
+        if(!is.na(gas1[i])) if(!any(grepl(gas12[i], names(try.import)))){
+          stop(paste("Failed to import ", inputfile.name, ". The matching ",
+                     "string for gas1 '", gas1[i], "' was not found in ",
+                     "column names.", sep =""))}}}
+
+    ## gas2
+    gas22 <- NULL; if(!is.null(gas2)){
+      for(i in 1:length(gas2)){
+        gas22[i] <- gsub(" ", ".", gas2[i], fixed = T)
+        if(!is.na(gas2[i])) if(!any(grepl(gas22[i], names(try.import)))){
+          stop(paste("Failed to import ", inputfile.name, ". The matching ",
+                     "string for gas2 '", gas2[i], "' was not found in ",
+                     "column names.", sep =""))}}}
+
+    ## gas3
+    gas32 <- NULL; if(!is.null(gas3)){
+      for(i in 1:length(gas3)){
+        gas32[i] <- gsub(" ", ".", gas3[i], fixed = T)
+        if(!is.na(gas3[i])) if(!any(grepl(gas32[i], names(try.import)))){
+          stop(paste("Failed to import ", inputfile.name, ". The matching ",
+                     "string for gas3 '", gas3[i], "' was not found in ",
+                     "column names.", sep =""))}}}
+
+    # FUNCTION STARTS ####
+
+    # Rename gas columns
+    instr1 <- instr2 <- instr3 <- "NULL"
+    inst1.rep <- inst2.rep <- inst3.rep <- NULL
+    dry1.rep <- dry2.rep <- dry3.rep <- NULL
+    if(!is.null(inst1)) {
+      instr1 <- select(try.import, all_of(inst12))[[1]][1]
+      inst1.rep <- rep("inst1", length(gas1))
+      dry1.rep <- rep(dry1, length((gas1)))}
+    if(!is.null(inst2)) {
+      instr2 <- select(try.import, all_of(inst22))[[1]][1]
+      inst2.rep <- rep("inst2", length(gas2))
+      dry2.rep <- rep(dry2, length((gas2)))}
+    if(!is.null(inst3)) {
+      instr3 <- select(try.import, all_of(inst32))[[1]][1]
+      inst3.rep <- rep("inst3", length(gas3))
+      dry3.rep <- rep(dry3, length((gas3)))}
+    units.ls <- list()
+    for(i in 1:length(c(gas1, gas2, gas3))){
+      units.ls[[i]] <- select(try.import, all_of(c(gas12, gas22, gas32)[i]))[[1]][1]}
+
+    gas.col <- cbind.data.frame(gas.col = c(gas12, gas22, gas32),
+                                inst = c(inst1.rep, inst2.rep, inst3.rep),
+                                units = unlist(units.ls),
+                                prec.col = c(prec1, prec2, prec3)) %>%
+      mutate(gas = gsub(".*_", "", gas.col)) %>%
+      mutate(gas = if_else(grepl("Humidity", gas), "H2O", gas)) %>%
+      mutate(dry.log = c(dry1.rep, dry2.rep, dry3.rep),
+             dry = if_else(dry.log, "dry", "wet")) %>%
+      mutate(dry = if_else(grepl("H2O", gas), "", dry),
+             new.name = paste(gas, dry, "_", units, sep = "")) %>%
+      mutate(prec.name = paste(gas, "_prec", sep = ""))
+
+    gas.col.dup <- gas.col %>% group_by(gas) %>% summarise(n = n()) %>%
+      filter(n > 1)
+
+    if(nrow(gas.col.dup) > 0){
+      # Add inst[i] to duplicated gases
+      gas.col.dup.ls <- NULL; for(i in 1:nrow(gas.col.dup)){
+        gas.col.dup.ls[[i]] <- filter(gas.col, gas == gas.col.dup$gas[i]) %>%
+          mutate(new.name = if_else(grepl(gas.col.dup$gas[i], gas),
+                                    paste(new.name, "_", inst, sep = ""), new.name),
+                 prec.name = if_else(grepl(gas.col.dup$gas[i], gas),
+                                     paste(prec.name, "_", inst, sep = ""), prec.name))}
+      # Replace in gas.col2
+      gas.col2 <- filter(gas.col, !gas %in% gas.col.dup$gas) %>%
+        rbind(bind_rows(gas.col.dup.ls))
+    } else gas.col2 <- gas.col
+
+    # Rename gas columns
+    data.raw <- try.import
+    for(i in 1:nrow(gas.col2)){
+      data.raw <- data.raw %>%
+        setNames(gsub(gas.col2$gas.col[i], gas.col2$new.name[i], names(.)))}
 
     # Import raw data file from GAIA (.csv)
-    data.raw <- try.import %>%
+    data.raw <- data.raw %>%
       # Remove first row containing units
       filter(!Titles. == 'Units:') %>%
       # Modify useful column names
-      setNames(gsub(CH.col, "CH", names(.))) %>%
-      setNames(gsub(Tsoil.col, "_Tsoil", names(.))) %>%
-      setNames(gsub(Tcham.col, "_Tcham", names(.))) %>%
-      setNames(gsub(SWC.col, "_SWC", names(.))) %>%
-      setNames(gsub(PAR.col, "_PAR", names(.))) %>%
-      setNames(gsub(Op.stat.col, "_Op.stat", names(.))) %>%
+      setNames(gsub(CH.col2, "CH", names(.))) %>%
+      setNames(gsub(Tsoil.col2, "_Tsoil", names(.))) %>%
+      setNames(gsub(Tcham.col2, "_Tcham", names(.))) %>%
+      setNames(gsub(SWC.col2, "_SWC", names(.))) %>%
+      setNames(gsub(PAR.col2, "_PAR", names(.))) %>%
+      setNames(gsub(Op.stat.col2, "_Op.stat", names(.))) %>%
       # Extract information about light/dark measurements
       mutate(cover = if_else(grepl("Opaque", SEQUENCE), "Dark", if_else(
         grepl("Translucent", SEQUENCE), "Clear", NA))) %>%
@@ -266,14 +431,6 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
              SEQUENCE = ifelse(SEQUENCE == "", "Background", SEQUENCE),
              SEQUENCE = ifelse(SEQUENCE == "n", "ExecutionPlan", SEQUENCE)) %>%
       dplyr::rename(DATE_TIME = Titles., activ.cham = SEQUENCE) %>%
-      # Gas measurements from GHG analyzers need to be renamed manually
-      # CO2 and CH4 analyzer: CO2dry_ppm, CH4dry_ppb
-      setNames(gsub(CO2.col, "CO2dry_ppm", names(.))) %>%
-      setNames(gsub(CH4.col, "CH4dry_ppb", names(.))) %>%
-      setNames(gsub(H2O1.col, H2O1.col.name, names(.))) %>%
-      # N2O analyzer: N2Odry_ppb
-      setNames(gsub(N2O.col, "N2Odry_ppb", names(.))) %>%
-      setNames(gsub(H2O2.col, H2O2.col.name, names(.))) %>%
       # Detect new observations (Obs) and give a chamber UniqueID (chamID)
       arrange(DATE_TIME) %>%
       mutate(Obs = rleid(activ.cham),
@@ -282,46 +439,19 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                                     paste("CH", activ.cham, "_", Obs, sep = "")))) %>%
       # Select only useful columns
       select(contains(c("DATE_TIME", "ChamID", "activ.cham", "Tsoil", "Tcham",
-                        "SWC", "cover", "PAR", "Op.stat", "ppm", "ppb"))) %>%
+                        "SWC", "cover", "PAR", "Op.stat", "ppb", "ppm", "RH%"))) %>%
       # Convert column class automatically
-      type.convert(as.is = TRUE)
+      type.convert(as.is = TRUE) %>%
+      # Make sure that all gas data are class numerical
+      mutate_at(gas.col2$new.name, as.numeric)
 
-    # Clean gas measurements
-    if(any(grepl("CO2dry_ppm", names(data.raw)))){
-      data.raw <- data.raw %>%
-        # Make sure that all gas data are class numerical
-        mutate_at("CO2dry_ppm", as.numeric) %>%
-        # Remove negative gas measurements, if any
-        filter(CO2dry_ppm >= 0 | is.na(CO2dry_ppm))
-    }
-    if(any(grepl("CH4dry_ppb", names(data.raw)))){
-      data.raw <- data.raw %>%
-        # Make sure that all gas data are class numerical
-        mutate_at("CH4dry_ppb", as.numeric) %>%
-        # Remove negative gas measurements, if any
-        filter(CH4dry_ppb >= 0 | is.na(CH4dry_ppb))
-    }
-    if(any(grepl(H2O1.col.name, names(data.raw)))){
-      data.raw <- data.raw %>%
-        # Make sure that all gas data are class numerical
-        mutate_at(H2O1.col.name, as.numeric) %>%
-        # Remove negative gas measurements, if any
-        filter(H2O1.col.name >= 0 | is.na(H2O1.col.name))
-    }
-    if(any(grepl("N2Odry_ppb", names(data.raw)))){
-      data.raw <- data.raw %>%
-        # Make sure that all gas data are class numerical
-        mutate_at("N2Odry_ppb", as.numeric) %>%
-        # Remove negative gas measurements, if any
-        filter(N2Odry_ppb >= 0 | is.na(N2Odry_ppb))
-    }
-    if(any(grepl(H2O2.col.name, names(data.raw)))){
-      data.raw <- data.raw %>%
-        # Make sure that all gas data are class numerical
-        mutate_at(H2O2.col.name, as.numeric) %>%
-        # Remove negative gas measurements, if any
-        filter(H2O2.col.name >= 0 | is.na(H2O2.col.name))
-    }
+    # Convert Humidity Sensor RH% to ppm
+    if(any(grepl("Humidity", gas.col2$gas.col))){
+      humidity.cols <- select(data.raw, contains("RH%")) %>%
+        mutate_all(~.*10000) %>%
+        setNames(gsub("RH%", "ppm", names(.)))
+
+      data.raw <- cbind.data.frame(data.raw, humidity.cols)}
 
     # Group together all columns containing information and merge data
     if(pivot == "long"){ # pivot long: only one column per parameter
@@ -471,35 +601,62 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       # Merge data
       data.raw <- data.raw %>% full_join(Etime, by = c("chamID", "POSIX.time"))
 
+      # Add instrument precision for each gas
+      data.raw[gas.col2$prec.name] <- 1
+      for(i in 1:nrow(gas.col2)){
+        data.raw <- data.raw %>%
+          mutate_at(gas.col2$prec.name[i], ~gas.col2$prec.col[i])}
+
+      # Add columns for instruments
+      if(!is.null(inst1)) data.raw$inst1 <- instr1
+      if(!is.null(inst2)) data.raw$inst2 <- instr2
+      if(!is.null(inst3)) data.raw$inst3 <- instr3
+
       # Remove background
       if(background == FALSE){
         data.raw <- data.raw %>% filter(activ.cham != "Background") %>%
           mutate_at("activ.cham", as.numeric)
       }
 
-      # Add instrument precision for each gas
-      if(any(grepl("CO2dry_ppm", names(data.raw)))){
-        data.raw <- data.raw %>% mutate(CO2_prec = prec[1])
-      }
-      if(any(grepl("CH4dry_ppb", names(data.raw)))){
-        data.raw <- data.raw %>% mutate(CH4_prec = prec[2])
-      }
-      if(any(grepl("N2Odry_ppb", names(data.raw)))){
-        data.raw <- data.raw %>% mutate(N2O_prec = prec[3])
-      }
-      if(any(grepl(H2O1.col.name, names(data.raw)))){
-        data.raw <- data.raw %>% mutate(H2O.1_prec = prec[4]) %>%
-          setNames(gsub("H2O.1_prec", H2O1.prec.name, names(.)))
-      }
-      if(any(grepl(H2O2.col.name, names(data.raw)))){
-        data.raw <- data.raw %>% mutate(H2O.2_prec = prec[5]) %>%
-          setNames(gsub("H2O.2_prec", H2O2.prec.name, names(.)))
-      }
-
       # New function name
       if(as.character(match.call()[[1]]) == "GAIA_import") {
         warning(paste("All import functions have changed names in this new version of goFlux.",
                       "\nIn the future, use import.GAIA() instead of GAIA_import()"), call. = FALSE)
+      }
+
+      ## Warn if there is no match with unnecessary columns ####
+      if(!any(grepl(SWC.col2, names(try.import)))){
+        warning(paste("In the file ", inputfile.name, " the matching string for ",
+                      "SWC.col '", SWC.col, "' was not found in column names.",
+                      sep = ""), call. = F)}
+
+      if(!any(grepl(Tcham.col2, names(try.import)))){
+        warning(paste("In the file ", inputfile.name, " the matching string for ",
+                      "Tcham.col '", Tcham.col, "' was not found in column names.",
+                      sep = ""), call. = F)}
+
+      if(!any(grepl(Tsoil.col2, names(try.import)))){
+        warning(paste("In the file ", inputfile.name, " the matching string for ",
+                      "Temperature (Tsoil.col) was not found in column names.",
+                      sep = ""), call. = F)}
+
+      if(!any(grepl(PAR.col2, names(try.import)))){
+        warning(paste("In the file ", inputfile.name, " the matching string for ",
+                      "PAR.col '", PAR.col, "' was not found in column names.",
+                      sep = ""), call. = F)}
+
+      if(nrow(gas.col.dup) > 0){
+        warning(paste("The same gas was measured by two instruments. The suffix ",
+                      "'inst1', 'inst2' or 'inst3' was added to each duplicated ",
+                      "gas column to avoid confusion. 'inst1' = ", instr1, ", ",
+                      "'inst2' = ", instr2, " and 'inst3' = ", instr3,
+                      sep = ""), call. = F)
+      }
+
+      # Warning if file has no data
+      if(nrow(data.raw) == 0){
+        warning(paste(inputfile.name, "was imported succesfully, but no",
+                      "measurements were detected."), call. = F)
       }
 
       # Save cleaned data file
@@ -510,19 +667,17 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
 
         # Create output file: change extension to .RData, and
         # add instrument name and "imp" for import to file name
-        file.name <- gsub(".*/", "", sub("\\.csv", "", inputfile))
+        if(grepl("\\.csv", inputfile.name)){
+          file.name <- gsub(".*/", "", sub("\\.csv", "", inputfile))
+        } else if(grepl("\\.txt", inputfile.name)){
+          file.name <- gsub(".*/", "", sub("\\.txt", "", inputfile))
+        } else file.name <- inputfile.name
         outputfile <- paste("GAIA_", file.name, "_imp.RData", sep = "")
 
         save(data.raw, file = paste(RData_folder, outputfile, sep = "/"))
 
         message(inputfile.name, " saved as ", outputfile,
                 " in RData folder, in working directory\n", sep = "")
-      }
-
-      # Warning if file has no data
-      if(nrow(data.raw) == 0){
-        warning(paste(inputfile.name, "was imported succesfully, but no",
-                      "measurements were detected."), call. = F)
       }
 
       if(save == FALSE){

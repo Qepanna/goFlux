@@ -5,6 +5,7 @@
 #' @importFrom dplyr all_of
 #' @importFrom dplyr arrange
 #' @importFrom dplyr between
+#' @importFrom dplyr bind_rows
 #' @importFrom dplyr contains
 #' @importFrom dplyr distinct
 #' @importFrom dplyr filter

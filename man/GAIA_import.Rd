@@ -15,20 +15,24 @@ GAIA_import(
   flag = c(7, 11),
   background = FALSE,
   save = FALSE,
-  prec = c(3.5, 0.6, 0.4, 45, 45),
   CH.col = "COM5A0",
-  SWC.col = "1C08_Soil.Moisture",
-  Tsoil.col = "1C07_Soil.Temperature",
-  Tcham.col = "2C07_Chamber.Temperature",
+  SWC.col = "1C08_Soil Moisture",
+  Tsoil.col = "1C07_Soil Temperature",
+  Tcham.col = "2C07_Chamber Temperature",
   PAR.col = "3C07_Sunlight",
   Op.stat.col = "0C06_OperatingStatus",
-  CO2.col = "XT2C05_CO2",
-  CH4.col = "XT2C04_CH4",
-  H2O1.col = "XT2C06_H2O",
-  H2O1.name = "H2O_LI7810",
-  N2O.col = "XT3C04_N2O",
-  H2O2.col = "XT3C05_H2O",
-  H2O2.name = "H2O_LI7820",
+  inst1 = "XT2C00_Instrument",
+  inst2 = "XT3C00_Instrument",
+  inst3 = NULL,
+  gas1 = c("XT2C04_CH4", "XT2C05_CO2", "XT2C06_H2O"),
+  gas2 = c("XT3C04_N2O", "XT3C05_H2O"),
+  gas3 = NULL,
+  prec1 = c(0.6, 3.5, 45),
+  prec2 = c(0.4, 45),
+  prec3 = NULL,
+  dry1 = T,
+  dry2 = T,
+  dry3 = NULL,
   sep = "\\t",
   skip = 1
 )
@@ -42,20 +46,24 @@ import.GAIA(
   flag = c(7, 11),
   background = FALSE,
   save = FALSE,
-  prec = c(3.5, 0.6, 0.4, 45, 45),
   CH.col = "COM5A0",
-  SWC.col = "1C08_Soil.Moisture",
-  Tsoil.col = "1C07_Soil.Temperature",
-  Tcham.col = "2C07_Chamber.Temperature",
+  SWC.col = "1C08_Soil Moisture",
+  Tsoil.col = "1C07_Soil Temperature",
+  Tcham.col = "2C07_Chamber Temperature",
   PAR.col = "3C07_Sunlight",
   Op.stat.col = "0C06_OperatingStatus",
-  CO2.col = "XT2C05_CO2",
-  CH4.col = "XT2C04_CH4",
-  H2O1.col = "XT2C06_H2O",
-  H2O1.name = "H2O_LI7810",
-  N2O.col = "XT3C04_N2O",
-  H2O2.col = "XT3C05_H2O",
-  H2O2.name = "H2O_LI7820",
+  inst1 = "XT2C00_Instrument",
+  inst2 = "XT3C00_Instrument",
+  inst3 = NULL,
+  gas1 = c("XT2C04_CH4", "XT2C05_CO2", "XT2C06_H2O"),
+  gas2 = c("XT3C04_N2O", "XT3C05_H2O"),
+  gas3 = NULL,
+  prec1 = c(0.6, 3.5, 45),
+  prec2 = c(0.4, 45),
+  prec3 = NULL,
+  dry1 = T,
+  dry2 = T,
+  dry3 = NULL,
   sep = "\\t",
   skip = 1
 )
@@ -96,28 +104,35 @@ in a RData folder in the current working directory. If
 \code{save = FALSE}, returns the file in the Console, or load in
 the Environment if assigned to an object.}
 
-\item{prec}{numerical vector; the precision of the instrument for each gas,
-in the following order: "CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb"
-and "H2O_ppm" from each analyzer. The default is
-\code{prec = c(3.5, 0.6, 0.4, 45, 45)}. For each gas missing, the
-value is ignored.}
-
 \item{Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, CH.col}{character
 string; a pattern to match all columns that fit the corresponding
 parameter. For example, all columns containing the pattern "3C07_Sunlight"
 will be renamed with the pattern "_PAR". Then, if \code{pivot = "long"},
 all columns with the pattern "_PAR" will be merged together.}
 
-\item{CO2.col, CH4.col, H2O1.col, N2O.col, H2O2.col}{character string; a pattern
-to match the columns containing the corresponding gas measurements.
-\code{H2O1.col} must be the same instrument as \code{CO2.col} and
-\code{CH4.col}, and \code{H2O2.col} must be the same instrument as
-\code{N2O.col}. If columns are absent from the raw data, the arguments
-are ignored.}
+\item{inst1, inst2, inst3}{character strings; a pattern to match the columns
+containing the name of each instrument. By default,
+\code{inst1 = "XT2C00_Instrument"}, \code{inst2 = "XT3C00_Instrument"},
+and \code{inst3 = NULL}, to match the example data file provided with
+the package.}
 
-\item{H2O1.name, H2O2.name}{character string; how to name the water vapor columns
-for each instrument. Ideally, use \code{H201.name = "H2O_instrument.name"}.
-For example, \code{H201.name = "H2O_LI7810"}.}
+\item{gas1, gas2, gas3}{character vectors; a pattern to match the columns
+containing each gas measurement. By default,
+\code{gas1 = c("XT2C04_CH4", "XT2C05_CO2", "XT2C06_H2O")},
+\code{gas2 = c("XT3C04_N2O", "XT3C05_H2O")}, and \code{gas3 = NULL},
+to match the example data file provided with the package.}
+
+\item{prec1, prec2, prec3}{numerical vectors; the precision of the instrument
+for each gas mentioned in \code{gas1}, \code{gas2} and \code{gas3}.
+By default, \code{prec1 = c(0.6, 3.5, 45)}, \code{prec2 = c(0.4, 45)},
+and \code{prec3 = NULL}, to match the example data file provided with
+the package. Note that the order in the arguments \code{precX} must
+match the order of the arguments in \code{gasX}.}
+
+\item{dry1, dry2, dry3}{logical; are the gas measurements compensated for water
+vapor (dry fraction)? If \code{dryX = TRUE} (default), the gases are
+compensated for water vapor, and will be named accordingly. For example,
+the column "XT2C05_CO2" will become "CO2dry_ppm".}
 
 \item{sep}{character string defining the field separator character. Values on
 each line of the file are separated by this character. By default,
@@ -132,13 +147,14 @@ A data frame containing raw data from the automated chamber
 }
 \description{
 Imports single raw gas measurement files from the automated chamber
-ECOFlux (GAIA2TECH) linked with up to two instruments and up to five gases
-(by default used with LI-7810:
-\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+ECOFlux (GAIA2TECH) linked with up to three greenhouse gas analyzers.
+Default settings are set for two LI-COR instruments: LI-7810
+(\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
-\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} / LI7820:
-\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
-\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}).
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}) and LI7820
+(\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}), to match the
+example data file provided with the package.
 }
 \details{
 This function has been designed for the automated chamber ECOFlux (GAIA2TECH)
@@ -152,34 +168,34 @@ could be useful for you, but does not meet your needs, please contact the
 maintainer of this package for potential adaptations.
 
 In \code{date.format}, the date format refers to a date found in the raw data
-file, not the date format in the file name. For the instrument GAIA the
-date is found in the column "Titles:".
+file, not the date format in the file name. For the automated chamber ECOFlux,
+the date is found in the column "Titles:".
 
-The arguments \code{PAR.col}, \code{Tcham.col},
-\code{Tsoil.col} and \code{SWC.col} correspond to different types of probes
-linked to the ECOFlux chamber: PAR, chamber temperature, soil
-temperature and soil water content volumetric, respectively. The argument
-\code{Op.stat.col} corresponds to the columns Operating Status of each
-chamber. The argument \code{CH.col} indicates a character string preceding
-the chamber number for each column of the raw data. For example, the column
-"COM5A010C06_OperatingStatus" in the raw data file contains the Operating
-Status for the chamber 1 if \code{CH.col = "COM5A0"} and
-\code{Op.stat.col = "0C06_OperatingStatus"}. If columns are absent from the
-raw data, the arguments are ignored.
+The arguments \code{PAR.col}, \code{Tcham.col}, \code{Tsoil.col} and
+\code{SWC.col} correspond to different types of probes linked to the ECOFlux
+chamber: PAR (sunlight), chamber temperature, soil temperature and soil water
+content volumetric, respectively. The argument \code{Op.stat.col} corresponds
+to the columns Operating Status of each chamber. The argument \code{CH.col}
+indicates a character string preceding the chamber number for each column of
+the raw data. For example, the column "COM5A010C06_OperatingStatus" in the
+raw data file contains the Operating Status for the chamber 1 if
+\code{CH.col = "COM5A0"} and \code{Op.stat.col = "0C06_OperatingStatus"}. If
+these columns are absent from the raw data, set arguments to NULL.
 
 Note that this function was designed for the following units in the raw file:
 \itemize{
-  \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
-  \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
-  \item ppb for \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
-  \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}
-  \item kPa for pressure
+  \item kPa for atmospheric pressure
   \item volumetric water content (\%) for soil moisture
-  \item Celsius for temperature
+  \item Celsius for air temperature
   \item \ifelse{html}{\out{µmol photons m<sup>-2</sup>s<sup>-1</sup> for PAR}}{\eqn{µmol photons m^{-2}s^{-1} for PAR}{ASCII}}}
+For each gas, the units are taken from the second row in the raw file (Units:).
 If your instruments use different units, either convert the units after
-import, change the settings on your instrument, or contact the maintainer of
+import, change the settings on your instruments, or contact the maintainer of
 this package for support.
+
+Regarding the parameters \code{dryX}, in case of uncertainty, either contact
+your technical support or assume that gases are compensated for water vapor,
+which is normally the case.
 
 As opposed to the other import functions, there is no option to "keep_all" with
 this instrument. If you would like to import additional data using this
@@ -199,10 +215,7 @@ are normally curved. The default values given for instrument precision are
 the ones found online for the latest models of the
 \href{https://www.licor.com/env/products/trace-gas/LI-7810}{LI-7810} and
 \href{https://www.licor.com/env/products/trace-gas/LI-7820}{LI-7820},
-available at the time of the creation of this function (11-2023). Five values
-are required for this argument and their position in the vector is important.
-If you are using the function with less than five gases, the other values are
-simply ignored.
+available at the time of the creation of this function (11-2023).
 }
 \examples{
 # Load file from downloaded package

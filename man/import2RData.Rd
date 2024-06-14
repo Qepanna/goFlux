@@ -17,18 +17,23 @@ import2RData(
   flag = c(7, 11),
   background = FALSE,
   CH.col = "COM5A0",
-  SWC.col = "1C08_Soil.Moisture",
-  Tsoil.col = "1C07_Soil.Temperature",
-  Tcham.col = "2C07_Chamber.Temperature",
+  SWC.col = "1C08_Soil Moisture",
+  Tsoil.col = "1C07_Soil Temperature",
+  Tcham.col = "2C07_Chamber Temperature",
   PAR.col = "3C07_Sunlight",
   Op.stat.col = "0C06_OperatingStatus",
-  CO2.col = "XT2C05_CO2",
-  CH4.col = "XT2C04_CH4",
-  H2O1.col = "XT2C06_H2O",
-  H2O1.name = "H2O_LI7810",
-  N2O.col = "XT3C04_N2O",
-  H2O2.col = "XT3C05_H2O",
-  H2O2.name = "H2O_LI7820",
+  inst1 = "XT2C00_Instrument",
+  inst2 = "XT3C00_Instrument",
+  inst3 = NULL,
+  gas1 = c("XT2C04_CH4", "XT2C05_CO2", "XT2C06_H2O"),
+  gas2 = c("XT3C04_N2O", "XT3C05_H2O"),
+  gas3 = NULL,
+  prec1 = c(0.6, 3.5, 45),
+  prec2 = c(0.4, 45),
+  prec3 = NULL,
+  dry1 = T,
+  dry2 = T,
+  dry3 = NULL,
   sep = "\\t",
   skip = 1
 )
@@ -93,16 +98,29 @@ parameter. For example, all columns containing the pattern "3C07_Sunlight"
 will be renamed with the pattern "_PAR". Then, if \code{pivot = "long"},
 all columns with the pattern "_PAR" will be merged together.}
 
-\item{CO2.col, CH4.col, H2O1.col, N2O.col, H2O2.col}{character string; a pattern
-to match the columns containing the corresponding gas measurements.
-\code{H2O1.col} must be the same instrument as \code{CO2.col} and
-\code{CH4.col}, and \code{H2O2.col} must be the same instrument as
-\code{N2O.col}. If columns are absent from the raw data, the arguments
-are ignored.}
+\item{inst1, inst2, inst3}{character strings; a pattern to match the columns
+containing the name of each instrument. By default,
+\code{inst1 = "XT2C00_Instrument"}, \code{inst2 = "XT3C00_Instrument"},
+and \code{inst3 = NULL}, to match the example data file provided with
+the package.}
 
-\item{H2O1.name, H2O2.name}{character string; how to name the water vapor columns
-for each instrument. Ideally, use \code{H201.name = "H2O_instrument.name"}.
-For example, \code{H201.name = "H2O_LI7810"}.}
+\item{gas1, gas2, gas3}{character vectors; a pattern to match the columns
+containing each gas measurement. By default,
+\code{gas1 = c("XT2C04_CH4", "XT2C05_CO2", "XT2C06_H2O")},
+\code{gas2 = c("XT3C04_N2O", "XT3C05_H2O")}, and \code{gas3 = NULL},
+to match the example data file provided with the package.}
+
+\item{prec1, prec2, prec3}{numerical vectors; the precision of the instrument
+for each gas mentioned in \code{gas1}, \code{gas2} and \code{gas3}.
+By default, \code{prec1 = c(0.6, 3.5, 45)}, \code{prec2 = c(0.4, 45)},
+and \code{prec3 = NULL}, to match the example data file provided with
+the package. Note that the order in the arguments \code{precX} must
+match the order of the arguments in \code{gasX}.}
+
+\item{dry1, dry2, dry3}{logical; are the gas measurements compensated for water
+vapor (dry fraction)? If \code{dryX = TRUE} (default), the gases are
+compensated for water vapor, and will be named accordingly. For example,
+the column "XT2C05_CO2" will become "CO2dry_ppm".}
 
 \item{sep}{character string defining the field separator character. Values on
 each line of the file are separated by this character. By default,
@@ -162,13 +180,13 @@ at page 90 for more details about the different Process Data Fields
 
 The arguments \code{active}, \code{pivot}, \code{flag}, \code{background},
 \code{CH.col}, \code{PAR.col}, \code{Tcham.col}, \code{Tsoil.col},
-\code{SWC.col}, \code{Op.stat.col}, \code{CO2.col}, \code{CH4.col},
-\code{H2O1.col}, \code{H2O1.name}, \code{N2O.col}, \code{H2O2.col},
-\code{H2O2.name}, \code{sep} and \code{skip} are used in the function
-\code{\link[goFlux]{import.GAIA}} only.
+\code{SWC.col}, \code{Op.stat.col}, \code{inst1}, \code{inst2},
+\code{inst3}, \code{gas1}, \code{gas2}, \code{gas3}, \code{prec1}, \code{prec2},
+\code{prec3}, \code{dry1}, \code{dry2}, \code{dry3}, \code{sep} and \code{skip}
+are used in the function \code{\link[goFlux]{import.GAIA}} only.
 }
 \examples{
-\dontrun{
+
 # Examples on how to use it with all instruments.
 # The default time zone "UTC" is used in all cases.
 
@@ -201,7 +219,7 @@ import2RData(path = file.path, instrument = "G4301",
 # with this instrument, "keep_all" is not a valid argument.
 file.path <- system.file("extdata/GAIA", package = "goFlux")
 import2RData(path = file.path, instrument = "GAIA",
-             date.format = "ymd", prec = c(3.5, 0.6, 0.4, 45, 45))
+             date.format = "ymd")
 
 # with Los Gatos Research UGGA (GLA132 series)
 file.path <- system.file("extdata/UGGA", package = "goFlux")
@@ -262,7 +280,7 @@ file.path <- system.file("extdata/uN2O", package = "goFlux")
 import2RData(path = file.path, instrument = "uN2O",
              date.format = "mdy", keep_all = FALSE,
              prec = c(0.2, 0.2, 15))
-}
+
 }
 \seealso{
 Use the wrapper function \code{\link[goFlux]{import2RData}}
