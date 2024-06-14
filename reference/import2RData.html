@@ -76,18 +76,23 @@ and N2OM1 (GLA151 series)</p></li>
 <span>  flag <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">7</span>, <span class="fl">11</span><span class="op">)</span>,</span>
 <span>  background <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  CH.col <span class="op">=</span> <span class="st">"COM5A0"</span>,</span>
-<span>  SWC.col <span class="op">=</span> <span class="st">"1C08_Soil.Moisture"</span>,</span>
-<span>  Tsoil.col <span class="op">=</span> <span class="st">"1C07_Soil.Temperature"</span>,</span>
-<span>  Tcham.col <span class="op">=</span> <span class="st">"2C07_Chamber.Temperature"</span>,</span>
+<span>  SWC.col <span class="op">=</span> <span class="st">"1C08_Soil Moisture"</span>,</span>
+<span>  Tsoil.col <span class="op">=</span> <span class="st">"1C07_Soil Temperature"</span>,</span>
+<span>  Tcham.col <span class="op">=</span> <span class="st">"2C07_Chamber Temperature"</span>,</span>
 <span>  PAR.col <span class="op">=</span> <span class="st">"3C07_Sunlight"</span>,</span>
 <span>  Op.stat.col <span class="op">=</span> <span class="st">"0C06_OperatingStatus"</span>,</span>
-<span>  CO2.col <span class="op">=</span> <span class="st">"XT2C05_CO2"</span>,</span>
-<span>  CH4.col <span class="op">=</span> <span class="st">"XT2C04_CH4"</span>,</span>
-<span>  H2O1.col <span class="op">=</span> <span class="st">"XT2C06_H2O"</span>,</span>
-<span>  H2O1.name <span class="op">=</span> <span class="st">"H2O_LI7810"</span>,</span>
-<span>  N2O.col <span class="op">=</span> <span class="st">"XT3C04_N2O"</span>,</span>
-<span>  H2O2.col <span class="op">=</span> <span class="st">"XT3C05_H2O"</span>,</span>
-<span>  H2O2.name <span class="op">=</span> <span class="st">"H2O_LI7820"</span>,</span>
+<span>  inst1 <span class="op">=</span> <span class="st">"XT2C00_Instrument"</span>,</span>
+<span>  inst2 <span class="op">=</span> <span class="st">"XT3C00_Instrument"</span>,</span>
+<span>  inst3 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  gas1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"XT2C04_CH4"</span>, <span class="st">"XT2C05_CO2"</span>, <span class="st">"XT2C06_H2O"</span><span class="op">)</span>,</span>
+<span>  gas2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"XT3C04_N2O"</span>, <span class="st">"XT3C05_H2O"</span><span class="op">)</span>,</span>
+<span>  gas3 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  prec1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.6</span>, <span class="fl">3.5</span>, <span class="fl">45</span><span class="op">)</span>,</span>
+<span>  prec2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="fl">45</span><span class="op">)</span>,</span>
+<span>  prec3 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  dry1 <span class="op">=</span> <span class="cn">T</span>,</span>
+<span>  dry2 <span class="op">=</span> <span class="cn">T</span>,</span>
+<span>  dry3 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sep <span class="op">=</span> <span class="st">"\t"</span>,</span>
 <span>  skip <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -178,19 +183,36 @@ will be renamed with the pattern "_PAR". Then, if <code>pivot = "long"</code>,
 all columns with the pattern "_PAR" will be merged together.</p></dd>
 
 
-<dt>CO2.col, CH4.col, H2O1.col, N2O.col, H2O2.col</dt>
-<dd><p>character string; a pattern
-to match the columns containing the corresponding gas measurements.
-<code>H2O1.col</code> must be the same instrument as <code>CO2.col</code> and
-<code>CH4.col</code>, and <code>H2O2.col</code> must be the same instrument as
-<code>N2O.col</code>. If columns are absent from the raw data, the arguments
-are ignored.</p></dd>
+<dt>inst1, inst2, inst3</dt>
+<dd><p>character strings; a pattern to match the columns
+containing the name of each instrument. By default,
+<code>inst1 = "XT2C00_Instrument"</code>, <code>inst2 = "XT3C00_Instrument"</code>,
+and <code>inst3 = NULL</code>, to match the example data file provided with
+the package.</p></dd>
 
 
-<dt>H2O1.name, H2O2.name</dt>
-<dd><p>character string; how to name the water vapor columns
-for each instrument. Ideally, use <code>H201.name = "H2O_instrument.name"</code>.
-For example, <code>H201.name = "H2O_LI7810"</code>.</p></dd>
+<dt>gas1, gas2, gas3</dt>
+<dd><p>character vectors; a pattern to match the columns
+containing each gas measurement. By default,
+<code>gas1 = c("XT2C04_CH4", "XT2C05_CO2", "XT2C06_H2O")</code>,
+<code>gas2 = c("XT3C04_N2O", "XT3C05_H2O")</code>, and <code>gas3 = NULL</code>,
+to match the example data file provided with the package.</p></dd>
+
+
+<dt>prec1, prec2, prec3</dt>
+<dd><p>numerical vectors; the precision of the instrument
+for each gas mentioned in <code>gas1</code>, <code>gas2</code> and <code>gas3</code>.
+By default, <code>prec1 = c(0.6, 3.5, 45)</code>, <code>prec2 = c(0.4, 45)</code>,
+and <code>prec3 = NULL</code>, to match the example data file provided with
+the package. Note that the order in the arguments <code>precX</code> must
+match the order of the arguments in <code>gasX</code>.</p></dd>
+
+
+<dt>dry1, dry2, dry3</dt>
+<dd><p>logical; are the gas measurements compensated for water
+vapor (dry fraction)? If <code>dryX = TRUE</code> (default), the gases are
+compensated for water vapor, and will be named accordingly. For example,
+the column "XT2C05_CO2" will become "CO2dry_ppm".</p></dd>
 
 
 <dt>sep</dt>
@@ -240,10 +262,10 @@ at page 90 for more details about the different Process Data Fields
 (<code>proc.data.field</code>).</p>
 <p>The arguments <code>active</code>, <code>pivot</code>, <code>flag</code>, <code>background</code>,
 <code>CH.col</code>, <code>PAR.col</code>, <code>Tcham.col</code>, <code>Tsoil.col</code>,
-<code>SWC.col</code>, <code>Op.stat.col</code>, <code>CO2.col</code>, <code>CH4.col</code>,
-<code>H2O1.col</code>, <code>H2O1.name</code>, <code>N2O.col</code>, <code>H2O2.col</code>,
-<code>H2O2.name</code>, <code>sep</code> and <code>skip</code> are used in the function
-<code><a href="GAIA_import.html">import.GAIA</a></code> only.</p>
+<code>SWC.col</code>, <code>Op.stat.col</code>, <code>inst1</code>, <code>inst2</code>,
+<code>inst3</code>, <code>gas1</code>, <code>gas2</code>, <code>gas3</code>, <code>prec1</code>, <code>prec2</code>,
+<code>prec3</code>, <code>dry1</code>, <code>dry2</code>, <code>dry3</code>, <code>sep</code> and <code>skip</code>
+are used in the function <code><a href="GAIA_import.html">import.GAIA</a></code> only.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -268,7 +290,7 @@ to import multiple files from the same folder path using any instrument.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Examples on how to use it with all instruments.</span></span></span>
 <span class="r-in"><span><span class="co"># The default time zone "UTC" is used in all cases.</span></span></span>
 <span class="r-in"><span></span></span>
@@ -277,6 +299,7 @@ to import multiple files from the same folder path using any instrument.</p>
 <span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"DX4015"</span>,</span></span>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"ymd"</span>, keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>             prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.6</span>, <span class="fl">23</span>, <span class="fl">13</span>, <span class="fl">2</span>, <span class="fl">23</span>, <span class="fl">33</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> DX4015.TXT saved as DX4015_DX4015_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with the PP-Systems EGM-5</span></span></span>
 <span class="r-in"><span><span class="co"># The argument proc.data.field is used with the PP-System EGM-5 instrument only.</span></span></span>
@@ -284,85 +307,100 @@ to import multiple files from the same folder path using any instrument.</p>
 <span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"EGM5"</span>,</span></span>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"dmy"</span>, keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>             prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">500</span><span class="op">)</span>, proc.data.field <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> EGM5.TXT saved as EGM5_EGM5_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with the Picarro instrument G2508</span></span></span>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/G2508"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"G2508"</span>,</span></span>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"ymd"</span>, keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>             prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.24</span>, <span class="fl">0.3</span>, <span class="fl">5</span>, <span class="fl">0.16</span>, <span class="fl">500</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> G2508.dat saved as G2508_G2508_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with the Picarro instrument G4301</span></span></span>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/G4301"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"G4301"</span>,</span></span>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"ymd"</span>, keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>             prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.1</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> G4301.dat saved as G4301_G4301_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with the automated chamber ECOFlux (GAIA2TECH)</span></span></span>
 <span class="r-in"><span><span class="co"># with this instrument, "keep_all" is not a valid argument.</span></span></span>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/GAIA"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"GAIA"</span>,</span></span>
-<span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"ymd"</span>, prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3.5</span>, <span class="fl">0.6</span>, <span class="fl">0.4</span>, <span class="fl">45</span>, <span class="fl">45</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"ymd"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> GAIA.csv saved as GAIA_GAIA_imp.RData in RData folder, in working directory</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The same gas was measured by two instruments. The suffix 'inst1', 'inst2' or 'inst3' was added to each duplicated gas column to avoid confusion. 'inst1' = LICOR78XX#1, 'inst2' = LICOR78XX#2 and 'inst3' = NULL</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with Los Gatos Research UGGA (GLA132 series)</span></span></span>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/UGGA"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"UGGA"</span>,</span></span>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"dmy"</span>, keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>             prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">1.4</span>, <span class="fl">50</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> UGGA.txt saved as UGGA_UGGA_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with Los Gatos Research m-GGA (GLA131 series)</span></span></span>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/UGGA"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"UGGA"</span>,</span></span>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"dmy"</span>, keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>             prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.35</span>, <span class="fl">0.9</span>, <span class="fl">200</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> UGGA.txt saved as UGGA_UGGA_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with Los Gatos Research N2OM1 (GLA151 series)</span></span></span>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/N2OM1"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"N2OM1"</span>,</span></span>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"dmy"</span>, keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>             prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">2</span>, <span class="fl">50</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> N2OM1.txt saved as N2OM1_N2OM1_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with the LI-COR LI-6400 gas analyzer</span></span></span>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/LI6400"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"LI-6400"</span>,</span></span>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"mdy"</span>, keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>             prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.15</span>, <span class="fl">20</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> LI6400.txt saved as LI6400_LI6400_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with the LI-COR LI-7810 gas analyzer</span></span></span>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/LI7810"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"LI-7810"</span>,</span></span>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"ymd"</span>, keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>             prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3.5</span>, <span class="fl">0.6</span>, <span class="fl">45</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> LI7810.data saved as LI7810_LI7810_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with the LI-COR LI-7820 gas analyzer</span></span></span>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/LI7820"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"LI-7820"</span>,</span></span>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"ymd"</span>, keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>             prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="fl">45</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> LI7820.data saved as LI7820_LI7820_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with the LI-COR LI-8100 gas analyzer</span></span></span>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/LI8100"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"LI-8100"</span>,</span></span>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"ymd"</span>, keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>             prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> LI8100.81x saved as LI8100_LI8100_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with the LI-COR smart chamber (LI-8200)</span></span></span>
 <span class="r-in"><span><span class="co"># with this instrument, "keep_all" and "prec" are not valid arguments.</span></span></span>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/LI8200"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"LI-8200"</span>,</span></span>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"ymd"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> LI8200.json saved as LI8200_LI8200_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with the Aeris Technologies MIRA Ultra CH4/C2H6 analyzer</span></span></span>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/uCH4"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"uCH4"</span>,</span></span>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"mdy"</span>, keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>             prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0.5</span>, <span class="fl">15</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> uCH4.txt saved as uCH4_uCH4_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with the Aeris Technologies MIRA Ultra N2O/CO2 analyzer</span></span></span>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/uN2O"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"uN2O"</span>,</span></span>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"mdy"</span>, keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>             prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">0.2</span>, <span class="fl">15</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> uN2O.txt saved as uN2O_uN2O_imp.RData in RData folder, in working directory</span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
