@@ -4,7 +4,7 @@ and create a list of data frames (one data frame per UniqueID)."><!-- mathjax --
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-reference-topic">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -30,13 +30,13 @@ and create a list of data frames (one data frame per UniqueID)."><!-- mathjax --
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Define measurements' window for manual identification</h1>
-    
+
     <div class="hidden name"><code>obs.win.Rd</code></div>
     </div>
 
@@ -57,11 +57,13 @@ and create a list of data frames (one data frame per UniqueID).</p>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>inputfile</dt>
+
+
+<dl><dt id="arg-inputfile">inputfile<a class="anchor" aria-label="anchor" href="#arg-inputfile"></a></dt>
 <dd><p>data.frame; output from import or align functions.</p></dd>
 
 
-<dt>auxfile</dt>
+<dt id="arg-auxfile">auxfile<a class="anchor" aria-label="anchor" href="#arg-auxfile"></a></dt>
 <dd><p>data.frame; auxiliary data frame containing the columns
 <code>start.time</code> and <code>UniqueID</code>. <code>start.time</code> must
 contain a date and be in POSIXct format. The time zone must be
@@ -72,7 +74,7 @@ In that case, <code>chamID</code> will be used instead of <code>UniqueID</code>,
 if <code>UniqueID</code> cannot be found.</p></dd>
 
 
-<dt>gastype</dt>
+<dt id="arg-gastype">gastype<a class="anchor" aria-label="anchor" href="#arg-gastype"></a></dt>
 <dd><p>character string; specifies which gas should be displayed on the
 plot to manually select start time and end time of measurements.
 Must be one of the following: "CO2dry_ppm", "COdry_ppb",
@@ -80,7 +82,7 @@ Must be one of the following: "CO2dry_ppm", "COdry_ppb",
 Default is "CO2dry_ppm".</p></dd>
 
 
-<dt>obs.length</dt>
+<dt id="arg-obs-length">obs.length<a class="anchor" aria-label="anchor" href="#arg-obs-length"></a></dt>
 <dd><p>numerical; chamber closure time (seconds). Default is NULL.
 If <code>obs.length</code> is not provided, a column <code>obs.length</code>
 should be contained in <code>auxfile</code> or <code>inputfile</code>.
@@ -89,16 +91,14 @@ Alternatively, <code>obs.length</code> will be calculated from
 if found in <code>auxfile</code> or <code>inputfile</code>.</p></dd>
 
 
-<dt>shoulder</dt>
+<dt id="arg-shoulder">shoulder<a class="anchor" aria-label="anchor" href="#arg-shoulder"></a></dt>
 <dd><p>numerical; time before and after measurement in observation
 window (seconds). Default is 120 seconds.</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    
-
-<p>a list of data frames, split by UniqueID, merging <code>inputfile</code>,
+    <p>a list of data frames, split by UniqueID, merging <code>inputfile</code>,
          and <code>auxfile</code>. Additionally, adds some time (shoulder) before
          and after the chamber closure time to help identify the best window
          of measurement with the function <code><a href="click.peak.html">click.peak</a></code>.</p>
@@ -162,15 +162,15 @@ adaptation of additional gases.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 

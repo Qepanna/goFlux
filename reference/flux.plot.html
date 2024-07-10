@@ -5,7 +5,7 @@ The plots are customizable."><!-- mathjax --><script src="https://cdnjs.cloudfla
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-reference-topic">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -31,13 +31,13 @@ The plots are customizable."><!-- mathjax --><script src="https://cdnjs.cloudfla
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Plots for quality checking of GHG flux measurements</h1>
-    
+
     <div class="hidden name"><code>flux.plot.Rd</code></div>
     </div>
 
@@ -66,12 +66,14 @@ The plots are customizable.</p>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>flux.results</dt>
+
+
+<dl><dt id="arg-flux-results">flux.results<a class="anchor" aria-label="anchor" href="#arg-flux-results"></a></dt>
 <dd><p>a data.frame; output from the function
 <code><a href="best.flux.html">best.flux</a></code></p></dd>
 
 
-<dt>dataframe</dt>
+<dt id="arg-dataframe">dataframe<a class="anchor" aria-label="anchor" href="#arg-dataframe"></a></dt>
 <dd><p>a data.frame containing gas measurements (see <code>gastype</code>
 below) and the following columns: <code>UniqueID</code>, <code>Etime</code>
 and <code>flag</code> (same <code>dataframe</code> as used with the function
@@ -79,18 +81,18 @@ and <code>flag</code> (same <code>dataframe</code> as used with the function
 instead of <code>UniqueID</code>.</p></dd>
 
 
-<dt>gastype</dt>
+<dt id="arg-gastype">gastype<a class="anchor" aria-label="anchor" href="#arg-gastype"></a></dt>
 <dd><p>character string; specifies which column was used for the
 flux calculations. Must be one of the following: "CO2dry_ppm",
 "COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" or "H2O_ppm".</p></dd>
 
 
-<dt>shoulder</dt>
+<dt id="arg-shoulder">shoulder<a class="anchor" aria-label="anchor" href="#arg-shoulder"></a></dt>
 <dd><p>numerical value; time before and after measurement in observation
 window (seconds). Default is 30 seconds.</p></dd>
 
 
-<dt>plot.legend</dt>
+<dt id="arg-plot-legend">plot.legend<a class="anchor" aria-label="anchor" href="#arg-plot-legend"></a></dt>
 <dd><p>character vector; specifies which parameters should be
 displayed in a legend above each plot. "flux" is always
 displayed. A maximum of 6 parameters can be displayed in the
@@ -100,7 +102,7 @@ from the following: "MAE", "RMSE", "AICc", "SErel", "SE",
 Default is <code>plot.legend = c("MAE", "AICc", "k.ratio", "g.factor")</code>.</p></dd>
 
 
-<dt>plot.display</dt>
+<dt id="arg-plot-display">plot.display<a class="anchor" aria-label="anchor" href="#arg-plot-display"></a></dt>
 <dd><p>character vector; specifies which parameters should be
 displayed on the plot. Choose from the following: "C0",
 "Ci", "cham.close", "cham.open", "crop", "MDF", "nb.obs",
@@ -108,14 +110,14 @@ displayed on the plot. Choose from the following: "C0",
 <code>plot.display = c("MDF", "prec")</code>.</p></dd>
 
 
-<dt>quality.check</dt>
+<dt id="arg-quality-check">quality.check<a class="anchor" aria-label="anchor" href="#arg-quality-check"></a></dt>
 <dd><p>logical; if <code>quality.check = TRUE</code>, the column
 <code>quality.check</code> (output from the function
 <code><a href="best.flux.html">best.flux</a></code>) is displayed
 below the plot.</p></dd>
 
 
-<dt>flux.unit</dt>
+<dt id="arg-flux-unit">flux.unit<a class="anchor" aria-label="anchor" href="#arg-flux-unit"></a></dt>
 <dd><p>character string; flux units to be displayed on the plots.
 By default, the units are
 µmol m<sup>-2</sup>s<sup>-1</sup>
@@ -129,26 +131,26 @@ for incubated soil samples. In such a case, write
 <code>flux.unit = "nmol~kg^-1*h^-1"</code>.</p></dd>
 
 
-<dt>flux.term.unit</dt>
+<dt id="arg-flux-term-unit">flux.term.unit<a class="anchor" aria-label="anchor" href="#arg-flux-term-unit"></a></dt>
 <dd><p>character string; units for the flux term to be displayed
 on the plots. By default, the units are
 mol m<sup>-2</sup>:
 <code>flux.term.unit = "mol~m^-2"</code></p></dd>
 
 
-<dt>best.model</dt>
+<dt id="arg-best-model">best.model<a class="anchor" aria-label="anchor" href="#arg-best-model"></a></dt>
 <dd><p>logical; if <code>best.model = TRUE</code>, display a star sign
 next to the best model selected by the function
 <code><a href="best.flux.html">best.flux</a></code>.</p></dd>
 
 
-<dt>p.val.disp</dt>
+<dt id="arg-p-val-disp">p.val.disp<a class="anchor" aria-label="anchor" href="#arg-p-val-disp"></a></dt>
 <dd><p>character string; indicates how the <em>p-value</em> should
 be displayed in the legend above the plot. Choose one of
 the following: "star", "round", "value".</p></dd>
 
 
-<dt>side</dt>
+<dt id="arg-side">side<a class="anchor" aria-label="anchor" href="#arg-side"></a></dt>
 <dd><p>character string; choose a side to display
 C<sub>0</sub> and
 C<sub>i</sub> values.
@@ -157,9 +159,7 @@ By default, they are displayed on the left side of the plot.</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    
-
-<p>A list of plots, one per <code>UniqueID</code>, drawn from flux results (output
+    <p>A list of plots, one per <code>UniqueID</code>, drawn from flux results (output
 from the functions <code><a href="goFlux.html">goFlux</a></code> and
 <code><a href="best.flux.html">best.flux</a></code>).</p>
     </div>
@@ -263,15 +263,15 @@ adaptation of additional gases.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 

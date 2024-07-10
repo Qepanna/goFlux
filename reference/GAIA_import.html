@@ -11,7 +11,7 @@ example data file provided with the package."><!-- mathjax --><script src="https
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-reference-topic">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -37,13 +37,13 @@ example data file provided with the package."><!-- mathjax --><script src="https
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Import function for the automated chamber ECOFlux (GAIA2TECH) synced with multiple chambers and instruments</h1>
-    
+
     <div class="hidden name"><code>GAIA_import.Rd</code></div>
     </div>
 
@@ -125,25 +125,27 @@ example data file provided with the package.</p>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>inputfile</dt>
+
+
+<dl><dt id="arg-inputfile">inputfile<a class="anchor" aria-label="anchor" href="#arg-inputfile"></a></dt>
 <dd><p>character string; the name of a file with the extension .csv</p></dd>
 
 
-<dt>date.format</dt>
+<dt id="arg-date-format">date.format<a class="anchor" aria-label="anchor" href="#arg-date-format"></a></dt>
 <dd><p>character string; specifies the date format found in the
 raw data file. Choose one of the following: "dmy", "ymd",
 or "mdy". Default is "ymd", as it is the date format from
 the example data file provided.</p></dd>
 
 
-<dt>timezone</dt>
+<dt id="arg-timezone">timezone<a class="anchor" aria-label="anchor" href="#arg-timezone"></a></dt>
 <dd><p>character string; a time zone in which to import the data to
 POSIXct format. Default is "UTC". Note about time zone: it is
 recommended to use the time zone "UTC" to avoid any issue
 related to summer time and winter time changes.</p></dd>
 
 
-<dt>pivot</dt>
+<dt id="arg-pivot">pivot<a class="anchor" aria-label="anchor" href="#arg-pivot"></a></dt>
 <dd><p>character string; either "long" or "wide". If <code>pivot = "long"</code>,
 each column containing information about <code>Tsoil</code>,
 <code>Tcham</code>, <code>SWC</code>, <code>PAR</code> and operating status
@@ -152,31 +154,31 @@ If <code>pivot = "wide"</code>, the default display of one column per
 chamber per parameter will be used.</p></dd>
 
 
-<dt>active</dt>
+<dt id="arg-active">active<a class="anchor" aria-label="anchor" href="#arg-active"></a></dt>
 <dd><p>logical; if <code>active = TRUE</code>, preserve data for active
 chambers only.</p></dd>
 
 
-<dt>flag</dt>
+<dt id="arg-flag">flag<a class="anchor" aria-label="anchor" href="#arg-flag"></a></dt>
 <dd><p>numeric vector; indicates the operating status that should be used
 for the flux calculation. Default is <code>flag = c(7,11)</code>, where
 7 indicates "Chamber Idle Closed Clear" and 11 indicates
 "Chamber Idle Closed Dark".</p></dd>
 
 
-<dt>background</dt>
+<dt id="arg-background">background<a class="anchor" aria-label="anchor" href="#arg-background"></a></dt>
 <dd><p>logical; if <code>background = FALSE</code>, removes all data from
 <code>activ.cham == "Background"</code>.</p></dd>
 
 
-<dt>save</dt>
+<dt id="arg-save">save<a class="anchor" aria-label="anchor" href="#arg-save"></a></dt>
 <dd><p>logical; if <code>save = TRUE</code>, saves the file as an .RData file
 in a RData folder in the current working directory. If
 <code>save = FALSE</code>, returns the file in the Console, or load in
 the Environment if assigned to an object.</p></dd>
 
 
-<dt>Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, CH.col</dt>
+<dt id="arg-op-stat-col-par-col-tcham-col-tsoil-col-swc-col-ch-col">Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, CH.col<a class="anchor" aria-label="anchor" href="#arg-op-stat-col-par-col-tcham-col-tsoil-col-swc-col-ch-col"></a></dt>
 <dd><p>character
 string; a pattern to match all columns that fit the corresponding
 parameter. For example, all columns containing the pattern "3C07_Sunlight"
@@ -184,7 +186,7 @@ will be renamed with the pattern "_PAR". Then, if <code>pivot = "long"</code>,
 all columns with the pattern "_PAR" will be merged together.</p></dd>
 
 
-<dt>inst1, inst2, inst3</dt>
+<dt id="arg-inst-inst-inst-">inst1, inst2, inst3<a class="anchor" aria-label="anchor" href="#arg-inst-inst-inst-"></a></dt>
 <dd><p>character strings; a pattern to match the columns
 containing the name of each instrument. By default,
 <code>inst1 = "XT2C00_Instrument"</code>, <code>inst2 = "XT3C00_Instrument"</code>,
@@ -192,7 +194,7 @@ and <code>inst3 = NULL</code>, to match the example data file provided with
 the package.</p></dd>
 
 
-<dt>gas1, gas2, gas3</dt>
+<dt id="arg-gas-gas-gas-">gas1, gas2, gas3<a class="anchor" aria-label="anchor" href="#arg-gas-gas-gas-"></a></dt>
 <dd><p>character vectors; a pattern to match the columns
 containing each gas measurement. By default,
 <code>gas1 = c("XT2C04_CH4", "XT2C05_CO2", "XT2C06_H2O")</code>,
@@ -200,7 +202,7 @@ containing each gas measurement. By default,
 to match the example data file provided with the package.</p></dd>
 
 
-<dt>prec1, prec2, prec3</dt>
+<dt id="arg-prec-prec-prec-">prec1, prec2, prec3<a class="anchor" aria-label="anchor" href="#arg-prec-prec-prec-"></a></dt>
 <dd><p>numerical vectors; the precision of the instrument
 for each gas mentioned in <code>gas1</code>, <code>gas2</code> and <code>gas3</code>.
 By default, <code>prec1 = c(0.6, 3.5, 45)</code>, <code>prec2 = c(0.4, 45)</code>,
@@ -209,29 +211,27 @@ the package. Note that the order in the arguments <code>precX</code> must
 match the order of the arguments in <code>gasX</code>.</p></dd>
 
 
-<dt>dry1, dry2, dry3</dt>
+<dt id="arg-dry-dry-dry-">dry1, dry2, dry3<a class="anchor" aria-label="anchor" href="#arg-dry-dry-dry-"></a></dt>
 <dd><p>logical; are the gas measurements compensated for water
 vapor (dry fraction)? If <code>dryX = TRUE</code> (default), the gases are
 compensated for water vapor, and will be named accordingly. For example,
 the column "XT2C05_CO2" will become "CO2dry_ppm".</p></dd>
 
 
-<dt>sep</dt>
+<dt id="arg-sep">sep<a class="anchor" aria-label="anchor" href="#arg-sep"></a></dt>
 <dd><p>character string defining the field separator character. Values on
 each line of the file are separated by this character. By default,
 <code>sep = "\t"</code> for tabulation.</p></dd>
 
 
-<dt>skip</dt>
+<dt id="arg-skip">skip<a class="anchor" aria-label="anchor" href="#arg-skip"></a></dt>
 <dd><p>integer; the number of lines of the data file to skip before
 beginning to read data. By default, <code>skip = 1</code>.</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    
-
-<p>A data frame containing raw data from the automated chamber
+    <p>A data frame containing raw data from the automated chamber
          ECOFlux (GAIA2TECH)</p>
     </div>
     <div id="details">
@@ -332,15 +332,15 @@ available at the time of the creation of this function (11-2023).</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 
