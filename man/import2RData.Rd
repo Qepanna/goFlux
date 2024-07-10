@@ -46,9 +46,9 @@ files to be imported.}
 \item{instrument}{character string; specifies which instrument was used to
 generate the files contained in the folder path. Choose one
 of the following: "DX4015", "EGM5", "G2508", "G4301" "GAIA",
-"LI-6400", "LI-7810", "LI-7820", "LI-8100", "LI-8200",
-"UGGA" or "N2OM1". For more information about an instrument,
-see the section "See Also" below.}
+"GasmetPD", "LI-6400", "LI-7810", "LI-7820", "LI-8100",
+"LI-8200", "N2OM1", "uCH4", "uN2O", "UGGA". For more
+information about an instrument, see the section "See Also" below.}
 
 \item{date.format}{character string; specifies the date format found in the
 raw data file. Choose one of the following: "dmy", "ymd",
@@ -141,10 +141,17 @@ Adapted to multiple greenhouse gas analyzers and other instruments:
 \item \strong{Los Gatos Research (LGR)}: ultra-portable GGA (GLA132 series),
 micro ultra-portable GGA (GLA131 series)
 and N2OM1 (GLA151 series)
-\item \strong{GAIA2TECH (DMR)} automated chamber ECOFlux
+\item \strong{GAIA2TECH (DMR)}: automated chamber ECOFlux
 \item \strong{Picarro}: G2508 and G4301
 \item \strong{Gasmet}: DX4015
 \item \strong{PP-Systems}: EGM-5
+\item \strong{Aeris Technologies}: \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}/
+\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
+high accuracy analyzer and
+\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}/
+\ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}}
+natural gas detection system
+\item \strong{GasmetPD}: Custom multiplexer from the University of Padova, Italy
 }
 }
 \details{
@@ -157,7 +164,7 @@ one of the columns in the raw data file:
 \item G2508: column DATE
 \item G4301: column DATE
 \item GAIA: column Titles:
-\item UGGA: column Time
+\item GasmetPD: column Date
 \item LI-6400: (see comment below)
 \item LI-7810: column DATE
 \item LI-7820: column DATE
@@ -166,6 +173,7 @@ one of the columns in the raw data file:
 \item N2OM1: column Time
 \item uCH4: column Time Stamp
 \item uN2O: column Time Stamp
+\item UGGA: column Time
 }
 For the instrument LI-6400, the date is found in one of the first lines in
 a format containing abbreviations, for example "Thr Aug 6 2020", which would
@@ -220,6 +228,12 @@ import2RData(path = file.path, instrument = "G4301",
 file.path <- system.file("extdata/GAIA", package = "goFlux")
 import2RData(path = file.path, instrument = "GAIA",
              date.format = "ymd")
+
+# with the custom multiplexer from the University of Padova (GasmetPD)
+file.path <- system.file("extdata/GasmetPD", package = "goFlux")
+import2RData(path = file.path, instrument = "GasmetPD",
+             date.format = "ymd", keep_all = FALSE,
+             prec = c(1.6, 13, 2, 23, 33))
 
 # with Los Gatos Research UGGA (GLA132 series)
 file.path <- system.file("extdata/UGGA", package = "goFlux")
@@ -292,6 +306,7 @@ Import functions for individual instruments:
 \code{\link[goFlux]{import.G2508}},
 \code{\link[goFlux]{import.G4301}},
 \code{\link[goFlux]{import.GAIA}},
+\code{\link[goFlux]{import.GasmetPD}},
 \code{\link[goFlux]{import.LI6400}},
 \code{\link[goFlux]{import.LI7810}},
 \code{\link[goFlux]{import.LI7820}},

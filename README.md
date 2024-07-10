@@ -135,6 +135,9 @@ raw data from a variety of instruments:
   N<sub>2</sub>O/CO<sub>2</sub> high accuracy analyzer (+H<sub>2</sub>O)
   and CH<sub>4</sub>/C<sub>2</sub>H<sub>6</sub> Natural Gas Leak
   Detection System (+H<sub>2</sub>O)
+- **Custom made multiplexer** from the University of Padova, Italy,
+  which integrates data from multiple automatic chambers linked to a
+  Gasmet DX4015.
 
 After import, the user can choose from two methods to define the start
 and end points of each measurement and assign a UniqueID:
@@ -144,7 +147,7 @@ and end points of each measurement and assign a UniqueID:
   splits the imported data into a list of data frame (divided by
   `UniqueID`) and creates an observation window around the `start.time`
   to allow for a manual selection of the start and end points of each
-  measurements, using the function `click.peak.loop`.
+  measurements, using the function `click.peak2`.
 - **Automatic selection of measurements** - based on automatic
   recordings of chamber opening and closing from an instrument such as
   the LI-COR Smart Chamber or the GAIATECH Automated ECOFlux chamber.

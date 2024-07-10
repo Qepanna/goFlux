@@ -6,10 +6,17 @@
 #' * \strong{Los Gatos Research (LGR)}: ultra-portable GGA (GLA132 series),
 #'                                      micro ultra-portable GGA (GLA131 series)
 #'                                      and N2OM1 (GLA151 series)
-#' * \strong{GAIA2TECH (DMR)} automated chamber ECOFlux
+#' * \strong{GAIA2TECH (DMR)}: automated chamber ECOFlux
 #' * \strong{Picarro}: G2508 and G4301
 #' * \strong{Gasmet}: DX4015
 #' * \strong{PP-Systems}: EGM-5
+#' * \strong{Aeris Technologies}: \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}/
+#'                                \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
+#'                                high accuracy analyzer and
+#'                                \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}/
+#'                                \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}}
+#'                                natural gas detection system
+#' * \strong{GasmetPD}: Custom multiplexer from the University of Padova, Italy
 #' @md
 #'
 #' @param path character string; a folder path containing all files to be imported.
@@ -18,9 +25,9 @@
 #' @param instrument character string; specifies which instrument was used to
 #'                   generate the files contained in the folder path. Choose one
 #'                   of the following: "DX4015", "EGM5", "G2508", "G4301" "GAIA",
-#'                   "LI-6400", "LI-7810", "LI-7820", "LI-8100", "LI-8200",
-#'                   "UGGA" or "N2OM1". For more information about an instrument,
-#'                   see the section "See Also" below.
+#'                   "GasmetPD", "LI-6400", "LI-7810", "LI-7820", "LI-8100",
+#'                   "LI-8200", "N2OM1", "uCH4", "uN2O", "UGGA". For more
+#'                   information about an instrument, see the section "See Also" below.
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
 #'                    or "mdy".
@@ -55,7 +62,7 @@
 #' \item G2508: column DATE
 #' \item G4301: column DATE
 #' \item GAIA: column Titles:
-#' \item UGGA: column Time
+#' \item GasmetPD: column Date
 #' \item LI-6400: (see comment below)
 #' \item LI-7810: column DATE
 #' \item LI-7820: column DATE
@@ -64,6 +71,7 @@
 #' \item N2OM1: column Time
 #' \item uCH4: column Time Stamp
 #' \item uN2O: column Time Stamp
+#' \item UGGA: column Time
 #' }
 #' For the instrument LI-6400, the date is found in one of the first lines in
 #' a format containing abbreviations, for example "Thr Aug 6 2020", which would
@@ -89,6 +97,7 @@
 #' @include G2508_import.R
 #' @include G4301_import.R
 #' @include GAIA_import.R
+#' @include import.GasmetPD.R
 #' @include LGR_import.R
 #' @include LI6400_import.R
 #' @include LI7810_import.R
@@ -107,6 +116,7 @@
 #'          \code{\link[goFlux]{import.G2508}},
 #'          \code{\link[goFlux]{import.G4301}},
 #'          \code{\link[goFlux]{import.GAIA}},
+#'          \code{\link[goFlux]{import.GasmetPD}},
 #'          \code{\link[goFlux]{import.LI6400}},
 #'          \code{\link[goFlux]{import.LI7810}},
 #'          \code{\link[goFlux]{import.LI7820}},
@@ -152,6 +162,12 @@
 #' file.path <- system.file("extdata/GAIA", package = "goFlux")
 #' import2RData(path = file.path, instrument = "GAIA",
 #'              date.format = "ymd")
+#'
+#' # with the custom multiplexer from the University of Padova (GasmetPD)
+#' file.path <- system.file("extdata/GasmetPD", package = "goFlux")
+#' import2RData(path = file.path, instrument = "GasmetPD",
+#'              date.format = "ymd", keep_all = FALSE,
+#'              prec = c(1.6, 13, 2, 23, 33))
 #'
 #' # with Los Gatos Research UGGA (GLA132 series)
 #' file.path <- system.file("extdata/UGGA", package = "goFlux")
@@ -214,7 +230,7 @@
 #'              prec = c(0.2, 0.2, 15))
 #'
 #' @export
-#'
+
 import2RData <- function(path, instrument, date.format, timezone = "UTC",
                          keep_all, prec, proc.data.field = NULL,
                          pivot = "long", active = TRUE, flag = c(7,11),
@@ -248,16 +264,13 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
   if(!any(grepl(paste("\\<", instrument, "\\>", sep = ""),
                 c("DX4015", "UGGA", "G4301", "G2508", "GAIA", "LI-6400", "EGM5",
                   "LI-7810", "LI-7820", "LI-8100", "LI-8200", "N2OM1", "uCH4",
-                  "uN2O")))){
-    stop("'instrument' must be of class character and one of the following: 'DX4015', 'EGM5', 'G2508', 'G4301', 'GAIA', 'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100', 'LI-8200', 'UGGA', 'N2OM1', 'uCH4', 'uN2O'")}
+                  "uN2O", "GasmetPD")))){
+    stop("'instrument' must be of class character and one of the following: 'DX4015', 'EGM5', 'G2508', 'G4301', 'GAIA', 'GasmetPD', 'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100', 'LI-8200', 'UGGA', 'N2OM1', 'uCH4', 'uN2O'")}
   if(!missing(date.format)){
     if(length(date.format) != 1) stop("'date.format' must be of length 1")
     if(!any(grepl(paste("\\<", date.format, "\\>", sep = ""), c("ymd", "dmy", "mdy")))){
       stop("'date.format' must be of class character and one of the following: 'ymd', 'dmy' or 'mdy'")}}
   if (!is.character(timezone)) stop("'timezone' must be of class character")
-  if(!is.null(proc.data.field)){
-    if(!is.numeric(proc.data.field)) stop("'proc.data.field' must be of class numeric") else{
-      if(!between(proc.data.field, 1,5)) stop("'proc.data.field' must be a value from 1 to 5")}}
 
   # FUNCTION STARTS ####
 
@@ -445,6 +458,39 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
     })
   }
 
+  # Custom: GasmetPD ####
+  if(instrument == "GasmetPD"){
+
+    # List all the files contained in the specified path
+    file_list <- list.files(path = path, pattern = "\\.txt", full.names = TRUE)
+
+    # Loop through files in "file_list" and apply import functions
+    pblapply(seq_along(file_list), function(i) {
+
+      withCallingHandlers(
+
+        import.GasmetPD(inputfile = file_list[i],
+                        date.format = date.format,
+                        timezone = timezone,
+                        save = TRUE,
+                        keep_all = keep_all,
+                        prec = prec),
+
+        error = function(e){
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
+    })
+  }
+
   # Los Gatos Research ####
   if(instrument == "UGGA"){
 
@@ -457,11 +503,11 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
       withCallingHandlers(
 
         import.UGGA(inputfile = file_list[i],
-                   date.format = date.format,
-                   timezone = timezone,
-                   save = TRUE,
-                   keep_all = keep_all,
-                   prec = prec),
+                    date.format = date.format,
+                    timezone = timezone,
+                    save = TRUE,
+                    keep_all = keep_all,
+                    prec = prec),
 
         error = function(e){
           errs <<- c(errs, conditionMessage(e))
