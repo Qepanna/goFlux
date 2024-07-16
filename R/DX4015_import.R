@@ -214,13 +214,6 @@ DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       mutate(N2Odry_ppb = N2Odry_ppm*1000) %>%
       mutate(NH3dry_ppb = NH3dry_ppm*1000) %>%
       mutate(COdry_ppb = COdry_ppm*1000) %>%
-      # Remove NAs and negative gas measurements, if any
-      filter(CO2dry_ppm >= 0) %>%
-      filter(COdry_ppb >= 0) %>%
-      filter(CH4dry_ppb >= 0) %>%
-      filter(H2O_ppm >= 0) %>%
-      filter(N2Odry_ppb >= 0) %>%
-      filter(NH3dry_ppb >= 0) %>%
       # Order columns alphabetically
       select(order(colnames(.))) %>% relocate(DATE, TIME)
 

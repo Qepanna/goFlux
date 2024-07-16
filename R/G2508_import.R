@@ -144,12 +144,7 @@ G2508_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
              CH4dry_ppb = CH4dry_ppm*1000) %>%
       # Water compensation in NH3
       mutate(NH3wet_ppm = NH3/1000) %>%
-      mutate(NH3dry_ppb = (NH3wet_ppm/(1-H2O_ppm/1000000))*1000) %>%
-      # Remove NAs and negative gas measurements, if any
-      filter(N2Odry_ppb >= 0) %>%
-      filter(NH3dry_ppb >= 0) %>%
-      filter(CH4dry_ppb >= 0) %>%
-      filter(H2O_ppm >= 0)
+      mutate(NH3dry_ppb = (NH3wet_ppm/(1-H2O_ppm/1000000))*1000)
 
     # Keep only useful columns for gas flux calculation
     if(keep_all == FALSE){

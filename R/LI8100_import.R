@@ -126,9 +126,6 @@ LI8100_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       rename(DATE_TIME = Date, Pcham = Pressure, H2O_mmol = H2O, CO2dry_ppm = Cdry) %>%
       # Convert column class automatically
       type.convert(as.is = TRUE) %>%
-      # Remove NAs and negative gas measurements, if any
-      filter(CO2dry_ppm >= 0) %>%
-      filter(H2O_mmol >= 0) %>%
       # Convert mmol into ppm for H2O
       mutate(H2O_ppm = H2O_mmol*1000) %>%
       # Detect new observations

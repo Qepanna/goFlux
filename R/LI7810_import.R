@@ -130,11 +130,7 @@ LI7810_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       # Convert column class automatically
       type.convert(as.is = TRUE) %>%
       # Standardize column names
-      rename(CO2dry_ppm = CO2, CH4dry_ppb = CH4, H2O_ppm = H2O) %>%
-      # Remove NAs and negative gas measurements, if any
-      filter(CO2dry_ppm >= 0) %>%
-      filter(CH4dry_ppb >= 0) %>%
-      filter(H2O_ppm >= 0)
+      rename(CO2dry_ppm = CO2, CH4dry_ppb = CH4, H2O_ppm = H2O)
 
     # Convert column class REMARK
     if(any(grepl("REMARK", names(data.raw)))){

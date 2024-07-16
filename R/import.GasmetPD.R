@@ -146,12 +146,6 @@ import.GasmetPD <- function(inputfile, date.format = "ymd", timezone = "UTC",
              NH3dry_ppb = NH3dry_ppm*1000) %>%
       # Convert H2O_pct to H2O_ppm
       mutate(H2O_ppm = H2O_pct*10000) %>%
-      # Remove NAs and negative gas measurements, if any
-      filter(CO2dry_ppm >= 0) %>%
-      filter(CH4dry_ppb >= 0) %>%
-      filter(N2Odry_ppb >= 0) %>%
-      filter(NH3dry_ppb >= 0) %>%
-      filter(H2O_ppm >= 0) %>%
       # Rename DATE and TIME
       rename(DATE = Date, TIME = Time) %>%
       # Create chamID

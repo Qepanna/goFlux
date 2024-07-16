@@ -145,10 +145,6 @@ uCH4_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
       drop_na(C2H6dry_ppb) %>%
       # Convert ppm into ppb for CH4dry
       mutate(CH4dry_ppb = CH4dry_ppm*1000) %>%
-      # Remove NAs and negative gas measurements, if any
-      filter(C2H6dry_ppb >= 0) %>%
-      filter(CH4dry_ppb >= 0) %>%
-      filter(H2O_ppm >= 0) %>%
       # Replace characters in Time ("/" -> "-") and remove first space
       mutate(DATE_TIME = gsub("/", "-", Time))
 
