@@ -395,7 +395,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
       # Use mutate() to convert H2O_ppm into H2O_mol
       mutate(H2O_mol = H2O_ppm / (1000*1000)) %>%
       select(UniqueID, H2O_mol, Etime, Vtot, Pcham, Area, Tcham,
-             flag, matches(gastype)) %>%
+             flag, matches(gastype), contains("_prec")) %>%
       # Filter flag == 1
       filter(flag == 1) %>%
       # Use drop_na() to remove NAs in gastype
@@ -405,7 +405,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
   } else if(gastype == "H2O_ppm"){
     data_split <- dataframe %>%
       select(UniqueID, Etime, Vtot, Pcham, Area, Tcham,
-             flag, all_of(H2O_col)) %>%
+             flag, all_of(H2O_col), contains("_prec")) %>%
       # Rename H2O_col
       rename(H2O_ppm = all_of(H2O_col)) %>%
       # Filter flag == 1
@@ -416,19 +416,19 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
       group_by(UniqueID) %>% group_split() %>% as.list()
   }
 
-  # Instrument precision (by gastype)
-  # If prec = NULL, the instrument precision must be provided in 'dataframe'
-  if(is.null(prec)){
-    if(gastype == "CO2dry_ppm") prec <- unique(na.omit(dataframe$CO2_prec))
-    if(gastype == "CH4dry_ppb") prec <- unique(na.omit(dataframe$CH4_prec))
-    if(gastype == "COdry_ppb") prec <- unique(na.omit(dataframe$CO_prec))
-    if(gastype == "N2Odry_ppb") prec <- unique(na.omit(dataframe$N2O_prec))
-    if(gastype == "NH3dry_ppb") prec <- unique(na.omit(dataframe$NH3_prec))
-    if(gastype == "H2O_ppm") prec <- unique(na.omit(dataframe$H2O_prec))
-  }
-
   # Calculate auxiliary variables: flux term and minimal detectable flux
   for (f in 1:length(data_split)){
+
+    # Instrument precision (by gastype)
+    # If prec = NULL, the instrument precision must be provided in 'dataframe'
+    if(is.null(prec)){
+      if(gastype == "CO2dry_ppm") prec <- unique(na.omit(data_split[[f]]$CO2_prec))
+      if(gastype == "CH4dry_ppb") prec <- unique(na.omit(data_split[[f]]$CH4_prec))
+      if(gastype == "COdry_ppb") prec <- unique(na.omit(data_split[[f]]$CO_prec))
+      if(gastype == "N2Odry_ppb") prec <- unique(na.omit(data_split[[f]]$N2O_prec))
+      if(gastype == "NH3dry_ppb") prec <- unique(na.omit(data_split[[f]]$NH3_prec))
+      if(gastype == "H2O_ppm") prec <- unique(na.omit(data_split[[f]]$H2O_prec))
+    }
 
     H2O_flux.term <- ifelse(gastype == "H2O_ppm", 0, first(data_split[[f]]$H2O_mol))
 
