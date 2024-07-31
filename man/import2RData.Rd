@@ -46,9 +46,10 @@ files to be imported.}
 \item{instrument}{character string; specifies which instrument was used to
 generate the files contained in the folder path. Choose one
 of the following: "DX4015", "EGM5", "G2508", "G4301" "GAIA",
-"GasmetPD", "LI-6400", "LI-7810", "LI-7820", "LI-8100",
-"LI-8200", "N2OM1", "uCH4", "uN2O", "UGGA". For more
-information about an instrument, see the section "See Also" below.}
+"GasmetPD", "GT5000", "LI-6400", "LI-7810", "LI-7820",
+"LI-8100", "LI-8200", "N2OM1", "uCH4", "uN2O", "UGGA". For
+more information about an instrument, see the section "See
+Also" below.}
 
 \item{date.format}{character string; specifies the date format found in the
 raw data file. Choose one of the following: "dmy", "ymd",
@@ -143,7 +144,7 @@ micro ultra-portable GGA (GLA131 series)
 and N2OM1 (GLA151 series)
 \item \strong{GAIA2TECH (DMR)}: automated chamber ECOFlux
 \item \strong{Picarro}: G2508 and G4301
-\item \strong{Gasmet}: DX4015
+\item \strong{Gasmet}: DX4015 and GT5000
 \item \strong{PP-Systems}: EGM-5
 \item \strong{Aeris Technologies}: \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}/
 \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
@@ -165,6 +166,7 @@ one of the columns in the raw data file:
 \item G4301: column DATE
 \item GAIA: column Titles:
 \item GasmetPD: column Date
+\item GT5000: column Date
 \item LI-6400: (see comment below)
 \item LI-7810: column DATE
 \item LI-7820: column DATE
@@ -201,6 +203,12 @@ are used in the function \code{\link[goFlux]{import.GAIA}} only.
 # with the Gasmet instrument DX4015
 file.path <- system.file("extdata/DX4015", package = "goFlux")
 import2RData(path = file.path, instrument = "DX4015",
+             date.format = "ymd", keep_all = FALSE,
+             prec = c(1.6, 23, 13, 2, 23, 33))
+
+# with the Gasmet instrument GT5000
+file.path <- system.file("extdata/GT5000", package = "goFlux")
+import2RData(path = file.path, instrument = "GT5000",
              date.format = "ymd", keep_all = FALSE,
              prec = c(1.6, 23, 13, 2, 23, 33))
 
@@ -307,6 +315,7 @@ Import functions for individual instruments:
 \code{\link[goFlux]{import.G4301}},
 \code{\link[goFlux]{import.GAIA}},
 \code{\link[goFlux]{import.GasmetPD}},
+\code{\link[goFlux]{import.GT5000}},
 \code{\link[goFlux]{import.LI6400}},
 \code{\link[goFlux]{import.LI7810}},
 \code{\link[goFlux]{import.LI7820}},

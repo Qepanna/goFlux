@@ -78,6 +78,7 @@
 #'          \code{\link[goFlux]{import.G2508}},
 #'          \code{\link[goFlux]{import.G4301}},
 #'          \code{\link[goFlux]{import.GAIA}},
+#'          \code{\link[goFlux]{import.GT5000}},
 #'          \code{\link[goFlux]{import.LI6400}},
 #'          \code{\link[goFlux]{import.LI7810}},
 #'          \code{\link[goFlux]{import.LI7820}},

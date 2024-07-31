@@ -8,7 +8,7 @@
 #'                                      and N2OM1 (GLA151 series)
 #' * \strong{GAIA2TECH (DMR)}: automated chamber ECOFlux
 #' * \strong{Picarro}: G2508 and G4301
-#' * \strong{Gasmet}: DX4015
+#' * \strong{Gasmet}: DX4015 and GT5000
 #' * \strong{PP-Systems}: EGM-5
 #' * \strong{Aeris Technologies}: \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}/
 #'                                \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
@@ -25,9 +25,10 @@
 #' @param instrument character string; specifies which instrument was used to
 #'                   generate the files contained in the folder path. Choose one
 #'                   of the following: "DX4015", "EGM5", "G2508", "G4301" "GAIA",
-#'                   "GasmetPD", "LI-6400", "LI-7810", "LI-7820", "LI-8100",
-#'                   "LI-8200", "N2OM1", "uCH4", "uN2O", "UGGA". For more
-#'                   information about an instrument, see the section "See Also" below.
+#'                   "GasmetPD", "GT5000", "LI-6400", "LI-7810", "LI-7820",
+#'                   "LI-8100", "LI-8200", "N2OM1", "uCH4", "uN2O", "UGGA". For
+#'                   more information about an instrument, see the section "See
+#'                   Also" below.
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
 #'                    or "mdy".
@@ -63,6 +64,7 @@
 #' \item G4301: column DATE
 #' \item GAIA: column Titles:
 #' \item GasmetPD: column Date
+#' \item GT5000: column Date
 #' \item LI-6400: (see comment below)
 #' \item LI-7810: column DATE
 #' \item LI-7820: column DATE
@@ -98,6 +100,7 @@
 #' @include G4301_import.R
 #' @include GAIA_import.R
 #' @include import.GasmetPD.R
+#' @include import.GT5000.R
 #' @include LGR_import.R
 #' @include LI6400_import.R
 #' @include LI7810_import.R
@@ -117,6 +120,7 @@
 #'          \code{\link[goFlux]{import.G4301}},
 #'          \code{\link[goFlux]{import.GAIA}},
 #'          \code{\link[goFlux]{import.GasmetPD}},
+#'          \code{\link[goFlux]{import.GT5000}},
 #'          \code{\link[goFlux]{import.LI6400}},
 #'          \code{\link[goFlux]{import.LI7810}},
 #'          \code{\link[goFlux]{import.LI7820}},
@@ -135,6 +139,12 @@
 #' # with the Gasmet instrument DX4015
 #' file.path <- system.file("extdata/DX4015", package = "goFlux")
 #' import2RData(path = file.path, instrument = "DX4015",
+#'              date.format = "ymd", keep_all = FALSE,
+#'              prec = c(1.6, 23, 13, 2, 23, 33))
+#'
+#' # with the Gasmet instrument GT5000
+#' file.path <- system.file("extdata/GT5000", package = "goFlux")
+#' import2RData(path = file.path, instrument = "GT5000",
 #'              date.format = "ymd", keep_all = FALSE,
 #'              prec = c(1.6, 23, 13, 2, 23, 33))
 #'
@@ -264,8 +274,8 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
   if(!any(grepl(paste("\\<", instrument, "\\>", sep = ""),
                 c("DX4015", "UGGA", "G4301", "G2508", "GAIA", "LI-6400", "EGM5",
                   "LI-7810", "LI-7820", "LI-8100", "LI-8200", "N2OM1", "uCH4",
-                  "uN2O", "GasmetPD")))){
-    stop("'instrument' must be of class character and one of the following: 'DX4015', 'EGM5', 'G2508', 'G4301', 'GAIA', 'GasmetPD', 'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100', 'LI-8200', 'UGGA', 'N2OM1', 'uCH4', 'uN2O'")}
+                  "uN2O", "GasmetPD", "GT5000")))){
+    stop("'instrument' must be of class character and one of the following: 'DX4015', 'EGM5', 'G2508', 'G4301', 'GAIA', 'GasmetPD', 'GT5000', 'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100', 'LI-8200', 'UGGA', 'N2OM1', 'uCH4', 'uN2O'")}
   if(!missing(date.format)){
     if(length(date.format) != 1) stop("'date.format' must be of length 1")
     if(!any(grepl(paste("\\<", date.format, "\\>", sep = ""), c("ymd", "dmy", "mdy")))){
@@ -475,6 +485,40 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                         save = TRUE,
                         keep_all = keep_all,
                         prec = prec),
+
+        error = function(e){
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
+    })
+  }
+
+  # GT5000 ####
+  if(instrument == "GT5000"){
+
+    # List all the files contained in the specified path
+    file_list <- list.files(path = path, pattern = "\\.TXT", recursive = T,
+                            full.names = TRUE)
+
+    # Loop through files in "file_list" and apply import functions
+    pblapply(seq_along(file_list), function(i) {
+
+      withCallingHandlers(
+
+        import.GT5000(inputfile = file_list[i],
+                      date.format = date.format,
+                      timezone = timezone,
+                      save = TRUE,
+                      keep_all = keep_all,
+                      prec = prec),
 
         error = function(e){
           errs <<- c(errs, conditionMessage(e))

@@ -1,7 +1,7 @@
-#' Import function for the Gasmet DX4015 portable FTIR gas analyzer for humid
-#' conditions
+#' Import function for the Gasmet GT5000 Terra - Splashproof multigas FTIR
+#' analyzer
 #'
-#' Imports single raw gas measurement files from the Gasmet DX4015 gas analyzer
+#' Imports single raw gas measurement files from the Gasmet GT5000 gas analyzer
 #' (CO, \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
 #' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
@@ -30,14 +30,14 @@
 #'             "N2Odry_ppb", "NH3dry_ppb" and "H2O_ppm". The default is
 #'             \code{prec = c(1.6, 23, 13, 2, 23, 33)}.
 #'
-#' @returns A data frame containing raw data from the Gasmet DX4015 gas analyzer.
+#' @returns A data frame containing raw data from the Gasmet GT5000 gas analyzer.
 #'
 #' @include goFlux-package.R
 #'
 #' @details
 #' In \code{date.format}, the date format refers to a date found in the raw data
-#' file, not the date format in the file name. For the instrument DX4015, the date
-#' is found in the column "Date".
+#' file, not the date format in the file name. For the instrument GT5000, the
+#' date is found in the column "Date".
 #'
 #' Note that this function was designed for the following units in the raw file:
 #' \itemize{
@@ -48,7 +48,7 @@
 #'   \item vol-\% for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
 #'   \item mbar for pressure
 #'   \item Celsius for temperature}
-#' If your Gasmet DX4015 uses different units, either convert the units after
+#' If your Gasmet GT5000 uses different units, either convert the units after
 #' import, change the settings on your instrument, or contact the maintainer of
 #' this package for support.
 #'
@@ -65,17 +65,17 @@
 #' curvature, especially for water vapor fluxes, or very long measurements, that
 #' are normally curved. The default values given for instrument precision are
 #' the ones provided by the manufacturer upon request, for the latest model of
-#' this instrument available at the time of the creation of this function (11-2023).
+#' this instrument available at the time of the creation of this function (08-2024).
 #'
 #' @seealso Use the wrapper function \code{\link[goFlux]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso See also, import functions for other instruments:
+#'          \code{\link[goFlux]{import.DX4015}},
 #'          \code{\link[goFlux]{import.EGM5}},
 #'          \code{\link[goFlux]{import.G2508}},
 #'          \code{\link[goFlux]{import.G4301}},
 #'          \code{\link[goFlux]{import.GAIA}},
 #'          \code{\link[goFlux]{import.GasmetPD}},
-#'          \code{\link[goFlux]{import.GT5000}},
 #'          \code{\link[goFlux]{import.LI6400}},
 #'          \code{\link[goFlux]{import.LI7810}},
 #'          \code{\link[goFlux]{import.LI7820}},
@@ -91,12 +91,13 @@
 #'
 #' @examples
 #' # Load file from downloaded package
-#' file.path <- system.file("extdata", "DX4015/DX4015.TXT", package = "goFlux")
+#' file.path <- system.file("extdata", "GT5000/GT5000.TXT", package = "goFlux")
 #'
 #' # Run function
-#' imp.DX4015 <- import.DX4015(inputfile = file.path)
+#' imp.GT5000 <- import.GT5000(inputfile = file.path)
+#' @export
 
-DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
+import.GT5000 <- function(inputfile, date.format = "ymd", timezone = "UTC",
                           save = FALSE, keep_all = FALSE,
                           prec = c(1.6, 23, 13, 2, 23, 33)){
 
@@ -115,7 +116,7 @@ DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
 
   # Assign NULL to variables without binding
   POSIX.warning <- Line <- SpectrumFile <- H2O_frac <- Time <- Date <-
-    Ambient.pressure <- Status <- LibraryFile <- NH3dry_ppb <- N2Odry_ppb <-
+    Pressure <- Status <- LibraryFile <- NH3dry_ppb <- N2Odry_ppb <-
     H2O_ppm <- CH4dry_ppb <- COdry_ppb <- CO2dry_ppm <- `H2O_vol-%` <-
     COdry_ppm <- NH3dry_ppm <- N2Odry_ppm <- CH4dry_ppm <- P_unit <- . <-
     H2O_unit <- CO2_unit <- CH4_unit <- N2O_unit <- CO_unit <- NH3_unit <-
@@ -147,12 +148,9 @@ DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       rename(N2O_unit = which(names(.) == "Nitrous.oxide.N2O") +1) %>%
       rename(CO_unit = which(names(.) == "Carbon.monoxide.CO") +1) %>%
       rename(NH3_unit = which(names(.) == "Ammonia.NH3") +1) %>%
-      rename(P_unit = which(names(.) == "Ambient.pressure") +1) %>%
-      rename(Int_temp_unit = which(names(.) == "Interferometer.temperature") +1) %>%
-      rename(Detect_temp_unit = which(names(.) == "Detector.temperature") +1) %>%
-      rename(IFG_peak_unit = which(names(.) == "IFG.peak.height") +1) %>%
-      # In Int_temp_unit and IFG_peak_unit, replace non ACSII characters
-      mutate_all(str_replace_all, "\uFFFDC", "Celsius") %>%
+      rename(P_unit = which(names(.) == "Pressure") +1) %>%
+      rename(Cell_temp_unit = which(names(.) == "Cell.temperature") +1) %>%
+      rename(Eclect_temp_unit = which(names(.) == "Electronics.temperature") +1) %>%
       # Modify column names for gas compensation (wet or dry fraction)
       rename(H2O_frac = which(names(.) == "Water.vapor.H2O") +2) %>%
       rename(CO2_frac = which(names(.) == "Carbon.dioxide.CO2") +2) %>%
@@ -168,13 +166,13 @@ DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       rename(CO_resid = which(names(.) == "Carbon.monoxide.CO") +3) %>%
       rename(NH3_resid = which(names(.) == "Ammonia.NH3") +3) %>%
       # Remove irrelevant columns
-      select(!contains(c("Compensation", "Residual", "Unit.")))
+      select(!contains(c("Compensation", "Residual")))
 
     # Remove columns that are not used for gas flux calculations
     if(keep_all == FALSE){
       data.raw <- data.raw %>%
-        select(!c(Line, SpectrumFile, LibraryFile, Status, Ambient.pressure, P_unit,
-                  contains(c("temperature", "_temp_", "IFG")))) %>%
+        select(!c(Line, SpectrumFile, LibraryFile, Status, Pressure, P_unit,
+                  contains(c("temperature", "_temp_")))) %>%
         select(!H2O_frac)}
 
     # Column names for gases
@@ -200,8 +198,8 @@ DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       setNames(gsub("Ammonia.NH3", NH3_col_name, names(.))) %>%
       # Convert column class automatically
       type.convert(as.is = TRUE) %>%
-      # In "Compensation", wet means that the gases are NOT compensated for water
-      # vapor, meaning that "wet" stands for the wet fraction.
+      # In "Compensation", wet means that the gases are NOT compensated for
+      # water vapor, meaning that "wet" stands for the wet fraction.
       mutate(H2O_ppm = `H2O_vol-%`*10000) %>%
       mutate(CO2dry_ppm = CO2wet_ppm/(1-H2O_ppm/1000000)) %>%
       mutate(CH4dry_ppm = CH4wet_ppm/(1-H2O_ppm/1000000)) %>%
@@ -261,12 +259,6 @@ DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
         mutate(CO2_prec = prec[1], CO_prec = prec[2], CH4_prec = prec[3],
                N2O_prec = prec[4], NH3_prec = prec[5], H2O_prec = prec[6])
 
-      # New function name
-      if (as.character(match.call()[[1]]) == "DX4015_import") {
-        warning(paste("All import functions have changed names in this new version of goFlux.",
-                      "\nIn the future, use import.DX4015() instead of DX4015_import()"), call. = FALSE)
-      }
-
       # Save cleaned data file
       if(save == TRUE){
         # Create RData folder in working directory
@@ -276,7 +268,7 @@ DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
         # Create output file: change extension to .RData, and
         # add instrument name and "imp" for import to file name
         file.name <- gsub(".*/", "", sub("\\.TXT", "", inputfile))
-        outputfile <- paste("DX4015_", file.name, "_imp.RData", sep = "")
+        outputfile <- paste("GT5000_", file.name, "_imp.RData", sep = "")
 
         save(data.raw, file = paste(RData_folder, outputfile, sep = "/"))
 
@@ -290,7 +282,3 @@ DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
     }
   }
 }
-
-#' @export
-#' @rdname DX4015_import
-import.DX4015 <- DX4015_import
