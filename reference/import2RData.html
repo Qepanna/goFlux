@@ -7,7 +7,7 @@ micro ultra-portable GGA (GLA131 series)
 and N2OM1 (GLA151 series)
 GAIA2TECH (DMR): automated chamber ECOFlux
 Picarro: G2508 and G4301
-Gasmet: DX4015
+Gasmet: DX4015 and GT5000
 PP-Systems: EGM-5
 Aeris Technologies: N2O/
 CO2
@@ -65,7 +65,7 @@ micro ultra-portable GGA (GLA131 series)
 and N2OM1 (GLA151 series)</p></li>
 <li><p><strong>GAIA2TECH (DMR)</strong>: automated chamber ECOFlux</p></li>
 <li><p><strong>Picarro</strong>: G2508 and G4301</p></li>
-<li><p><strong>Gasmet</strong>: DX4015</p></li>
+<li><p><strong>Gasmet</strong>: DX4015 and GT5000</p></li>
 <li><p><strong>PP-Systems</strong>: EGM-5</p></li>
 <li><p><strong>Aeris Technologies</strong>: N<sub>2</sub>O/
 CO<sub>2</sub>
@@ -126,9 +126,10 @@ files to be imported.</p></dd>
 <dd><p>character string; specifies which instrument was used to
 generate the files contained in the folder path. Choose one
 of the following: "DX4015", "EGM5", "G2508", "G4301" "GAIA",
-"GasmetPD", "LI-6400", "LI-7810", "LI-7820", "LI-8100",
-"LI-8200", "N2OM1", "uCH4", "uN2O", "UGGA". For more
-information about an instrument, see the section "See Also" below.</p></dd>
+"GasmetPD", "GT5000", "LI-6400", "LI-7810", "LI-7820",
+"LI-8100", "LI-8200", "N2OM1", "uCH4", "uN2O", "UGGA". For
+more information about an instrument, see the section "See
+Also" below.</p></dd>
 
 
 <dt id="arg-date-format">date.format<a class="anchor" aria-label="anchor" href="#arg-date-format"></a></dt>
@@ -257,6 +258,7 @@ one of the columns in the raw data file:</p><ul><li><p>DX4015: column Date</p></
 <li><p>G4301: column DATE</p></li>
 <li><p>GAIA: column Titles:</p></li>
 <li><p>GasmetPD: column Date</p></li>
+<li><p>GT5000: column Date</p></li>
 <li><p>LI-6400: (see comment below)</p></li>
 <li><p>LI-7810: column DATE</p></li>
 <li><p>LI-7820: column DATE</p></li>
@@ -293,6 +295,7 @@ to import multiple files from the same folder path using any instrument.</p>
 <code><a href="G4301_import.html">import.G4301</a></code>,
 <code><a href="GAIA_import.html">import.GAIA</a></code>,
 <code><a href="import.GasmetPD.html">import.GasmetPD</a></code>,
+<code><a href="import.GT5000.html">import.GT5000</a></code>,
 <code><a href="LI6400_import.html">import.LI6400</a></code>,
 <code><a href="LI7810_import.html">import.LI7810</a></code>,
 <code><a href="LI7820_import.html">import.LI7820</a></code>,
@@ -316,6 +319,13 @@ to import multiple files from the same folder path using any instrument.</p>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"ymd"</span>, keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>             prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.6</span>, <span class="fl">23</span>, <span class="fl">13</span>, <span class="fl">2</span>, <span class="fl">23</span>, <span class="fl">33</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> DX4015.TXT saved as DX4015_DX4015_imp.RData in RData folder, in working directory</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># with the Gasmet instrument GT5000</span></span></span>
+<span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/GT5000"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"GT5000"</span>,</span></span>
+<span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"ymd"</span>, keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>             prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.6</span>, <span class="fl">23</span>, <span class="fl">13</span>, <span class="fl">2</span>, <span class="fl">23</span>, <span class="fl">33</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> GT5000.TXT saved as GT5000_GT5000_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with the PP-Systems EGM-5</span></span></span>
 <span class="r-in"><span><span class="co"># The argument proc.data.field is used with the PP-System EGM-5 instrument only.</span></span></span>
