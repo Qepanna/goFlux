@@ -5,7 +5,8 @@
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} GHG analyzer)
 #'
-#' @param inputfile character string; the name of a file with the extension .data
+#' @param inputfile character string; the name of a file with the extension
+#'                  .data or .txt
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
 #'                    or "mdy". Default is "ymd", as it is the date format from
@@ -125,7 +126,7 @@ LI7810_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
     # Find how many rows need to be skipped
     skip.rows <- as.numeric(which(try.import == "DATAH", arr.ind = TRUE)[1])
 
-    # Import raw data file from LI7810 (.data)
+    # Import raw data file from LI7810 (.data or .txt)
     data.raw <- read.delim(inputfile, skip = skip.rows) %>%
       # Remove the row "DATAU"
       filter(!DATAH == 'DATAU') %>% select(!DATAH) %>%
@@ -183,7 +184,7 @@ LI7810_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
 
         # Create output file: change extension to .RData, and
         # add instrument name and "imp" for import to file name
-        file.name <- gsub(".*/", "", sub("\\.data", "", inputfile))
+        file.name <- gsub(".*/", "", sub("\\.data|\\.txt", "", inputfile))
         outputfile <- paste("LI7810_", file.name, "_imp.RData", sep = "")
 
         save(data.raw, file = paste(RData_folder, outputfile, sep = "/"))

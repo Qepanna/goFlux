@@ -299,6 +299,10 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
     file_list <- list.files(path = path, pattern = "\\.TXT", recursive = T,
                             full.names = TRUE)
 
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .TXT was",
+                                       "found in the folder path", path))
+
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
 
@@ -332,6 +336,10 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
     # List all the files contained in the specified path
     file_list <- list.files(path = path, pattern = "\\.TXT|\\.csv",
                             recursive = T, full.names = TRUE)
+
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .TXT or .csv",
+                                       "was found in the folder path", path))
 
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
@@ -368,6 +376,10 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
     file_list <- list.files(path = path, pattern = "\\.dat", recursive = T,
                             full.names = TRUE)
 
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .dat",
+                                       "was found in the folder path", path))
+
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
 
@@ -402,6 +414,10 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
     file_list <- list.files(path = path, pattern = "\\.dat", recursive = T,
                             full.names = TRUE)
 
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .dat",
+                                       "was found in the folder path", path))
+
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
 
@@ -434,6 +450,10 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
     # List all the files contained in the specified path
     file_list <- list.files(path = path, pattern = "\\.csv", full.names = TRUE)
+
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .csv",
+                                       "was found in the folder path", path))
 
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
@@ -474,6 +494,10 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
     # List all the files contained in the specified path
     file_list <- list.files(path = path, pattern = "\\.txt", full.names = TRUE)
 
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .txt",
+                                       "was found in the folder path", path))
+
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
 
@@ -508,6 +532,10 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
     file_list <- list.files(path = path, pattern = "\\.TXT", recursive = T,
                             full.names = TRUE)
 
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .TXT",
+                                       "was found in the folder path", path))
+
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
 
@@ -540,6 +568,10 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
     # List all the files contained in the specified path
     file_list <- list.files(path = path, pattern = "\\.txt", full.names = TRUE)
+
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .txt or .csv",
+                                       "was found in the folder path", path))
 
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
@@ -574,6 +606,10 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
     # List all the files contained in the specified path
     file_list <- list.files(path = path, pattern = "\\.txt", full.names = TRUE)
 
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .txt",
+                                       "was found in the folder path", path))
+
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
 
@@ -605,7 +641,11 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
   if(instrument == "LI-7810"){
 
     # List all the files contained in the specified path
-    file_list <- list.files(path = path, pattern = "\\.data", full.names = TRUE)
+    file_list <- list.files(path = path, pattern = "\\.data|\\.txt", full.names = TRUE)
+
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .data or .txt",
+                                       "was found in the folder path", path))
 
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
@@ -638,7 +678,11 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
   if(instrument == "LI-7820"){
 
     # List all the files contained in the specified path
-    file_list <- list.files(path = path, pattern = "\\.data", full.names = TRUE)
+    file_list <- list.files(path = path, pattern = "\\.data|\\.txt", full.names = TRUE)
+
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .data or .txt",
+                                       "was found in the folder path", path))
 
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
@@ -673,6 +717,10 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
     # List all the files contained in the specified path
     file_list <- list.files(path = path, pattern = "\\.81x", full.names = TRUE)
 
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .81x",
+                                       "was found in the folder path", path))
+
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
 
@@ -706,6 +754,10 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
     # List all the files contained in the specified path
     file_list <- list.files(path = path, pattern = "\\.json", full.names = TRUE)
 
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .json",
+                                       "was found in the folder path", path))
+
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
 
@@ -736,6 +788,10 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
     # List all the files contained in the specified path
     file_list <- list.files(path = path, pattern = "\\.txt", full.names = TRUE)
+
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .txt",
+                                       "was found in the folder path", path))
 
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
@@ -770,6 +826,10 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
     # List all the files contained in the specified path
     file_list <- list.files(path = path, pattern = "\\.txt", full.names = TRUE)
 
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .txt",
+                                       "was found in the folder path", path))
+
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {
 
@@ -802,6 +862,10 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
 
     # List all the files contained in the specified path
     file_list <- list.files(path = path, pattern = "\\.txt", full.names = TRUE)
+
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .txt",
+                                       "was found in the folder path", path))
 
     # Loop through files in "file_list" and apply import functions
     pblapply(seq_along(file_list), function(i) {

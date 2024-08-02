@@ -79,6 +79,7 @@
 #' @importFrom plyr tryapply
 #' @importFrom purrr map_df
 #' @importFrom rjson fromJSON
+#' @importFrom rlang is_empty
 #' @importFrom rlist list.group
 #' @importFrom SimDesign quiet
 #' @importFrom stats as.formula

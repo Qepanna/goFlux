@@ -24,7 +24,8 @@ import.LI7820(
 )
 }
 \arguments{
-\item{inputfile}{character string; the name of a file with the extension .data}
+\item{inputfile}{character string; the name of a file with the extension
+.data or .txt}
 
 \item{date.format}{character string; specifies the date format found in the
 raw data file. Choose one of the following: "dmy", "ymd",
