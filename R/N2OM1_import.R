@@ -76,6 +76,7 @@
 #'          \code{\link[goFlux]{import.LI7820}},
 #'          \code{\link[goFlux]{import.LI8100}},
 #'          \code{\link[goFlux]{import.LI8200}},
+#'          \code{\link[goFlux]{import.LI8250}},
 #'          \code{\link[goFlux]{import.uCH4}},
 #'          \code{\link[goFlux]{import.uN2O}},
 #'          \code{\link[goFlux]{import.UGGA}}

@@ -95,6 +95,7 @@
 #'          \code{\link[goFlux]{import.LI7820}},
 #'          \code{\link[goFlux]{import.LI8100}},
 #'          \code{\link[goFlux]{import.LI8200}},
+#'          \code{\link[goFlux]{import.LI8250}},
 #'          \code{\link[goFlux]{import.N2OM1}},
 #'          \code{\link[goFlux]{import.uCH4}},
 #'          \code{\link[goFlux]{import.uN2O}},
@@ -258,7 +259,7 @@ EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
               "   An error occured while converting DATE and TIME into POSIX.time.\n",
               "   Verify that the 'date.format' you specified (", date.format,
               ") corresponds to the\n",
-              "   column 'DATE' in the raw data file. Here is a sample: ",
+              "   column 'Date' in the raw data file. Here is a sample: ",
               data.raw$DATE[1], "\n", call. = F)
     } else {
 

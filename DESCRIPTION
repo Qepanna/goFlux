@@ -51,9 +51,10 @@ Collate:
     'imp.UGGA-data.R'
     'import.GT5000.R'
     'import.GasmetPD.R'
+    'import.LI8250.R'
     'uN2O_import.R'
     'uCH4_import.R'
     'import2RData.R'
     'manID.UGGA-data.R'
     'obs.win.R'
-Imports: AICcmodavg, data.table, dplyr, ggnewscale, ggplot2, ggstar, graphics, grDevices, grid, gridExtra, lubridate, minpack.lm, msm, pbapply, plyr, purrr, rjson, rlang, rlist, SimDesign, stats, stringr, tibble, tidyr, toOrdinal, utils
+Imports: AICcmodavg, data.table, dplyr, ggnewscale, ggplot2, ggstar, graphics, grDevices, grid, gridExtra, jsonlite, lubridate, minpack.lm, msm, pbapply, plyr, purrr, rjson, rlang, rlist, SimDesign, stats, stringr, tibble, tidyr, toOrdinal, utils
