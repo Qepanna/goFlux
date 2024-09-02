@@ -44,7 +44,7 @@ window (seconds). Default is 120 seconds.}
 a list of data frames, split by UniqueID, merging \code{inputfile},
          and \code{auxfile}. Additionally, adds some time (shoulder) before
          and after the chamber closure time to help identify the best window
-         of measurement with the function \code{\link[goFlux]{click.peak}}.
+         of measurement with the function \code{\link[goFlux]{click.peak2}}.
 }
 \description{
 Split gas data into one observation window per gas measurement
@@ -80,7 +80,5 @@ ow.LI6400 <- obs.win(inputfile = imp.LI6400, shoulder = 0)
 }
 \seealso{
 After defining the observation window with the function \code{obs.win()},
-         Use the function \code{\link[goFlux]{click.peak.loop}} in a
-         loop with \code{\link[base]{lapply}}, or use the function
-         \code{\link[goFlux]{click.peak}} for a single measurement.
+         Use the function \code{\link[goFlux]{click.peak2}}.
 }

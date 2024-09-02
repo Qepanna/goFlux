@@ -29,7 +29,7 @@
 #' @returns a list of data frames, split by UniqueID, merging \code{inputfile},
 #'          and \code{auxfile}. Additionally, adds some time (shoulder) before
 #'          and after the chamber closure time to help identify the best window
-#'          of measurement with the function \code{\link[goFlux]{click.peak}}.
+#'          of measurement with the function \code{\link[goFlux]{click.peak2}}.
 #'
 #' @details
 #' In \code{gastype}, the gas species listed are the ones for which this package
@@ -39,9 +39,7 @@
 #' @include goFlux-package.R
 #'
 #' @seealso After defining the observation window with the function \code{obs.win()},
-#'          Use the function \code{\link[goFlux]{click.peak.loop}} in a
-#'          loop with \code{\link[base]{lapply}}, or use the function
-#'          \code{\link[goFlux]{click.peak}} for a single measurement.
+#'          Use the function \code{\link[goFlux]{click.peak2}}.
 #'
 #' @examples
 #' # How to use in multiple situations:
@@ -80,16 +78,31 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
     if(!is.numeric(shoulder)) stop("'shoulder' must be of class numeric") else{
       if(shoulder < 0) stop("'shoulder' cannot be a negative value")}}
 
-  ## UniqueID ####
+  ## UniqueID and chamID ####
   if (is.null(auxfile)) {
     if (!any(grepl("\\<UniqueID\\>", names(inputfile))) &
         !any(grepl("\\<chamID\\>", names(inputfile)))) {
-      stop("'UniqueID' is required and was not found in 'inputfile'")
+      stop("'UniqueID' is required and was not found in 'inputfile'. Alternatively, provide chamID in 'inputfile'.")
     }
   } else {
     if (!any(grepl("\\<UniqueID\\>", names(auxfile))) &
         !any(grepl("\\<chamID\\>", names(auxfile)))) {
-      stop("'UniqueID' is required and was not found in 'auxfile'")
+      stop("'UniqueID' is required and was not found in 'auxfile'. Alternatively, provide chamID in 'auxfile'.")
+    }
+  }
+
+  ## DATE ####
+  if (is.null(auxfile)) {
+    if (!any(grepl("\\<UniqueID\\>", names(inputfile))) &
+        any(grepl("\\<chamID\\>", names(inputfile)))) {
+      if(!any(grepl("\\<DATE\\>", names(inputfile)))){
+        stop("The column DATE in required in 'inputfile' to create a UniqueID from chamID.")}
+    }
+  } else {
+    if (!any(grepl("\\<UniqueID\\>", names(auxfile))) &
+        any(grepl("\\<chamID\\>", names(auxfile)))) {
+      if(!any(grepl("\\<DATE\\>", names(inputfile)))){
+        stop("The column DATE in required in 'inputfile' to create a UniqueID from chamID.")}
     }
   }
 
@@ -327,7 +340,7 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
   }
 
   # Split data.filter into a list of data frames unique per measurement
-  flux.unique <- data.filter %>% group_split(start.time) %>% as.list()
+  flux.unique <- data.filter %>% group_split(UniqueID) %>% as.list()
 
   if (length(flux.unique) > 20){
   message("WARNING! Do not loop through more than 20 measurements at a time to avoid mistakes.",
