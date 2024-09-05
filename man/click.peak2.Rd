@@ -11,7 +11,9 @@ click.peak2(
   plot.lim = c(380, 1000),
   seq = NULL,
   warn.length = 60,
-  save.plots = NULL
+  save.plots = NULL,
+  width = 14,
+  height = 8
 )
 }
 \arguments{
@@ -45,6 +47,10 @@ value is \code{warn.length = 60}.}
 \item{save.plots}{character string; a file path with the extension .pdf to
 save the plots produced with click.peak2. By default,
 \code{save.plot = NULL} and plots are not saved.}
+
+\item{width}{numerical value; width of the pop-up window.}
+
+\item{height}{numerical value; height of the pop-up window.}
 }
 \value{
 A list of data.frame, identical to an unlisted version of the input
@@ -102,6 +108,10 @@ observations for UniqueID: 'UniqueID' is X observations".
 In \code{gastype}, the gas species listed are the ones for which this package
 has been adapted. Please write to the maintainer of this package for
 adaptation of additional gases.
+
+The arguments \code{width} and \code{heigth} are used with the function
+\code{\link[grDevices]{dev.new}} to define the dimentions of the pop-up
+window.
 }
 \examples{
 # IMPORTANT! This function makes use of the function graphics::identify()

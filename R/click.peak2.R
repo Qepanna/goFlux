@@ -30,6 +30,8 @@
 #' @param save.plots character string; a file path with the extension .pdf to
 #'                   save the plots produced with click.peak2. By default,
 #'                   \code{save.plot = NULL} and plots are not saved.
+#' @param width numerical value; width of the pop-up window.
+#' @param height numerical value; height of the pop-up window.
 #'
 #' @returns A list of data.frame, identical to an unlisted version of the input
 #'          \code{ow.list}, with the additional columns \code{flag}, \code{Etime},
@@ -84,6 +86,10 @@
 #' has been adapted. Please write to the maintainer of this package for
 #' adaptation of additional gases.
 #'
+#' The arguments \code{width} and \code{heigth} are used with the function
+#' \code{\link[grDevices]{dev.new}} to define the dimentions of the pop-up
+#' window.
+#'
 #' @examples
 #' # IMPORTANT! This function makes use of the function graphics::identify()
 #' # which is only supported on screen devices such as X11, windows and quartz.
@@ -132,7 +138,8 @@
 
 click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
                         plot.lim = c(380,1000), seq = NULL,
-                        warn.length = 60, save.plots = NULL){
+                        warn.length = 60, save.plots = NULL,
+                        width = 14, height = 8){
 
   # Check arguments ####
   if(!is.numeric(plot.lim) | length(plot.lim) != 2){
@@ -141,6 +148,10 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
   } else {if(warn.length <= 0) stop("'warn.length' must be greater than 0")}
   if(!is.null(save.plots)){
     if(!is.character(save.plots)) stop("'save.plot' must be a character string")}
+  if(!is.numeric(width)) {stop("'width' must be of class numeric")
+  } else {if(width <= 0) stop("'width' must be greater than 0")}
+  if(!is.numeric(height)) {stop("'height' must be of class numeric")
+  } else {if(height <= 0) stop("'height' must be greater than 0")}
 
   ## seq ####
   if(!is.null(seq)) if(!is.numeric(seq)) stop("'seq' must be of class numeric")
@@ -237,7 +248,7 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
         identify.error <- NULL
 
         # Open a new window
-        dev.new(noRStudioGD = TRUE, width = 14, height = 8)
+        dev.new(noRStudioGD = TRUE, width = width, height = height)
 
         # Plot individual measurements
         plot(flux.meas ~ time.meas,
@@ -351,7 +362,7 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
       ylim.max2 <- ifelse(ylim2[2] > ylim.max, ylim.max, ylim2[2])
 
       # Inspect the full data set to see if it looks OK
-      dev.new(noRStudioGD = TRUE, width = 14, height = 8)
+      dev.new(noRStudioGD = TRUE, width = width, height = height)
       plot(flux.meas ~ ow.corr.ls[[ow]]$Etime, col = ow.corr.ls[[ow]]$flag+1,
            main = paste(unique(ow.corr.ls[[ow]]$UniqueID)),
            xlab = "Etime", ylab = gastype, xaxp = c(xmin, xmax, xmult),
