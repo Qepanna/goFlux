@@ -61,7 +61,9 @@ window of each measurement and then use the function
 <span>  warn.length <span class="op">=</span> <span class="fl">60</span>,</span>
 <span>  save.plots <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  width <span class="op">=</span> <span class="fl">14</span>,</span>
-<span>  height <span class="op">=</span> <span class="fl">8</span></span>
+<span>  height <span class="op">=</span> <span class="fl">8</span>,</span>
+<span>  abline <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  abline_corr <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -121,6 +123,16 @@ save the plots produced with click.peak2. By default,
 <dt id="arg-height">height<a class="anchor" aria-label="anchor" href="#arg-height"></a></dt>
 <dd><p>numerical value; height of the pop-up window.</p></dd>
 
+
+<dt id="arg-abline">abline<a class="anchor" aria-label="anchor" href="#arg-abline"></a></dt>
+<dd><p>logical; if TRUE (default), blue vertical lines indicate
+<code>start.time</code> and <code>end.time</code> on both plots.</p></dd>
+
+
+<dt id="arg-abline-corr">abline_corr<a class="anchor" aria-label="anchor" href="#arg-abline-corr"></a></dt>
+<dd><p>logical; if TRUE (default), red vertical lines indicate
+<code>start.time_corr</code> and <code>end.time_corr</code> on validation plot.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -167,7 +179,7 @@ observations for UniqueID: 'UniqueID' is X observations".</p>
 has been adapted. Please write to the maintainer of this package for
 adaptation of additional gases.</p>
 <p>The arguments <code>width</code> and <code>heigth</code> are used with the function
-<code><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.new</a></code> to define the dimentions of the pop-up
+<code><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.new</a></code> to define the dimensions of the pop-up
 window.</p>
     </div>
     <div id="see-also">
@@ -191,7 +203,7 @@ window.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
       </footer></div>
