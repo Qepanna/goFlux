@@ -13,7 +13,9 @@ click.peak2(
   warn.length = 60,
   save.plots = NULL,
   width = 14,
-  height = 8
+  height = 8,
+  abline = TRUE,
+  abline_corr = TRUE
 )
 }
 \arguments{
@@ -51,6 +53,12 @@ save the plots produced with click.peak2. By default,
 \item{width}{numerical value; width of the pop-up window.}
 
 \item{height}{numerical value; height of the pop-up window.}
+
+\item{abline}{logical; if TRUE (default), blue vertical lines indicate
+\code{start.time} and \code{end.time} on both plots.}
+
+\item{abline_corr}{logical; if TRUE (default), red vertical lines indicate
+\code{start.time_corr} and \code{end.time_corr} on validation plot.}
 }
 \value{
 A list of data.frame, identical to an unlisted version of the input
@@ -110,7 +118,7 @@ has been adapted. Please write to the maintainer of this package for
 adaptation of additional gases.
 
 The arguments \code{width} and \code{heigth} are used with the function
-\code{\link[grDevices]{dev.new}} to define the dimentions of the pop-up
+\code{\link[grDevices]{dev.new}} to define the dimensions of the pop-up
 window.
 }
 \examples{

@@ -32,6 +32,10 @@
 #'                   \code{save.plot = NULL} and plots are not saved.
 #' @param width numerical value; width of the pop-up window.
 #' @param height numerical value; height of the pop-up window.
+#' @param abline logical; if TRUE (default), blue vertical lines indicate
+#'               \code{start.time} and \code{end.time} on both plots.
+#' @param abline_corr logical; if TRUE (default), red vertical lines indicate
+#'               \code{start.time_corr} and \code{end.time_corr} on validation plot.
 #'
 #' @returns A list of data.frame, identical to an unlisted version of the input
 #'          \code{ow.list}, with the additional columns \code{flag}, \code{Etime},
@@ -87,7 +91,7 @@
 #' adaptation of additional gases.
 #'
 #' The arguments \code{width} and \code{heigth} are used with the function
-#' \code{\link[grDevices]{dev.new}} to define the dimentions of the pop-up
+#' \code{\link[grDevices]{dev.new}} to define the dimensions of the pop-up
 #' window.
 #'
 #' @examples
@@ -137,9 +141,9 @@
 #' @export
 
 click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
-                        plot.lim = c(380,1000), seq = NULL,
-                        warn.length = 60, save.plots = NULL,
-                        width = 14, height = 8){
+                        plot.lim = c(380,1000), seq = NULL, warn.length = 60,
+                        save.plots = NULL, width = 14, height = 8,
+                        abline = TRUE, abline_corr = TRUE){
 
   # Check arguments ####
   if(!is.numeric(plot.lim) | length(plot.lim) != 2){
@@ -152,6 +156,8 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
   } else {if(width <= 0) stop("'width' must be greater than 0")}
   if(!is.numeric(height)) {stop("'height' must be of class numeric")
   } else {if(height <= 0) stop("'height' must be greater than 0")}
+  if(!is.logical(abline)) stop("'abline' must be TRUE or FALSE")
+  if(!is.logical(abline_corr)) stop("'abline' must be TRUE or FALSE")
 
   ## seq ####
   if(!is.null(seq)) if(!is.numeric(seq)) stop("'seq' must be of class numeric")
@@ -202,7 +208,7 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
     if(sleep < 0) stop("'sleep' cannot be negative")}
 
   # Assign NULL to variables without binding ####
-  flag <- . <- POSIX.time <- identify.error <- rownum <- NULL
+  flag <- . <- POSIX.time <- identify.error <- rownum <- Etime <- NULL
 
   # Function that takes a break for a few seconds between each loop
   sleeploop <- function(x) {
@@ -242,6 +248,11 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
     ylim.min <- ifelse(ylim[1] < plot.lim[1], plot.lim[1], ylim[1])
     ylim.max <- ifelse(ylim[2] > plot.lim[2], plot.lim[2], ylim[2])
 
+    # Abline
+    start.time <- Reduce("c", unique(ow.list[[ow]][, "start.time"]))
+    obs.length <- Reduce("c", unique(ow.list[[ow]][, "obs.length"]))
+    end.time <- start.time + obs.length
+
     # Open plot in a new window to avoid problems with the identify function
     tryCatch(
       {
@@ -255,6 +266,7 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
              main = paste(unique(ow.list[[ow]]$UniqueID)),
              xlab = "Time", ylab = gastype, xaxt = 'n',
              ylim = c(ylim.min, ylim.max))
+        if(abline == TRUE) abline(v=c(start.time, end.time), col = "blue")
 
         # Force axis.POSIXct to use the right time zone
         time.zone <- attr(time.meas, "tzone")
@@ -292,6 +304,7 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
         plot(flux.meas ~ time.meas,
              xlab = "Time", ylab = gastype, xaxt = 'n',
              ylim = c(ylim.min, ylim.max))
+        if(abline == TRUE) abline(v=c(start.time, end.time), col = "blue")
         time.zone <- attr(time.meas, "tzone")
         Sys.setenv(TZ = time.zone)
         axis.POSIXct(1, at = seq(min(time.meas), max(time.meas), by = "10 secs"),
@@ -361,12 +374,22 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
       ylim.min2 <- ifelse(ylim2[1] < ylim.min, ylim.min, ylim2[1])
       ylim.max2 <- ifelse(ylim2[2] > ylim.max, ylim.max, ylim2[2])
 
+      # Abline
+      ab_st <- filter(ow.corr.ls[[ow]], POSIX.time == start.time) %>%
+        select(Etime) %>% Reduce("c",.)
+      ab_end <- filter(ow.corr.ls[[ow]], POSIX.time == end.time) %>%
+        select(Etime) %>% Reduce("c",.)
+      ab_end_corr <- filter(ow.corr.ls[[ow]], POSIX.time == end.time_corr) %>%
+        select(Etime) %>% Reduce("c",.)
+
       # Inspect the full data set to see if it looks OK
       dev.new(noRStudioGD = TRUE, width = width, height = height)
       plot(flux.meas ~ ow.corr.ls[[ow]]$Etime, col = ow.corr.ls[[ow]]$flag+1,
            main = paste(unique(ow.corr.ls[[ow]]$UniqueID)),
            xlab = "Etime", ylab = gastype, xaxp = c(xmin, xmax, xmult),
            ylim = c(ylim.min2, ylim.max2))
+      if(abline == TRUE) abline(v=c(ab_st, ab_end), col = "blue")
+      if(abline_corr == TRUE) abline(v=c(0, ab_end_corr), col = "red")
 
       # Wait a few seconds before closing the window to inspect the plot
       if(!is.null(sleep)){
@@ -398,6 +421,7 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
         plot(flux.meas ~ time.meas,
              xlab = "Time", ylab = gastype, xaxt = 'n',
              ylim = c(ylim.min, ylim.max))
+        if(abline == TRUE) abline(v=c(start.time, end.time), col = "blue")
         time.zone <- attr(time.meas, "tzone")
         Sys.setenv(TZ = time.zone)
         axis.POSIXct(1, at = seq(min(time.meas), max(time.meas), by = "10 secs"),
@@ -412,6 +436,8 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
         plot(flux.meas ~ ow.corr.ls[[ow]]$Etime, col = ow.corr.ls[[ow]]$flag+1,
              xlab = "Etime", ylab = gastype, xaxp = c(xmin, xmax, xmult),
              ylim = c(ylim.min2, ylim.max2))
+        if(abline == TRUE) abline(v=c(ab_st, ab_end), col = "blue")
+        if(abline_corr == TRUE) abline(v=c(0, ab_end_corr), col = "red")
 
         # Save plots
         plots.ls[[ow]] <- recordPlot()
