@@ -35,7 +35,11 @@ import2RData(
   dry2 = T,
   dry3 = NULL,
   sep = "\\t",
-  skip = 1
+  skip = 1,
+  CH4 = "HP_12CH4_dry",
+  CO2 = "12CO2_dry",
+  sum = TRUE,
+  range = 10
 )
 }
 \arguments{
@@ -45,8 +49,8 @@ files to be imported.}
 
 \item{instrument}{character string; specifies which instrument was used to
 generate the files contained in the folder path. Choose one
-of the following: "DX4015", "EGM5", "G2508", "G4301" "GAIA",
-"GasmetPD", "GT5000", "LI-6400", "LI-7810", "LI-7820",
+of the following: "DX4015", "EGM5", "G2201i", "G2508", "G4301",
+"GAIA", "GasmetPD", "GT5000", "LI-6400", "LI-7810", "LI-7820",
 "LI-8100", "LI-8200", "LI-8250", "N2OM1", "uCH4", "uN2O",
 "UGGA". For more information about an instrument, see the
 section "See Also" below.}
@@ -123,6 +127,29 @@ each line of the file are separated by this character. By default,
 
 \item{skip}{integer; the number of lines of the data file to skip before
 beginning to read data. By default, \code{skip = 1}.}
+
+\item{CH4}{character string; which column should be used for
+\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} concentration.
+By default, \code{CH4 = "HP_12CH4_dry"}.}
+
+\item{CO2}{character string; which column should be used for
+\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} concentration.
+By default, \code{CO2 = "12CO2_dry"}.}
+
+\item{sum}{logical; if \code{sum = TRUE} (default), the arguments \code{CH4} and
+\code{CO2} are ignored and, instead, both fractions (carbon isotope
+12 and 13) of each gas, are summed after correction for water vapor,
+to obtain the total gas concentration. See the argument \code{range}
+for the selection between the HP or the HR measurement of
+\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} concentration.}
+
+\item{range}{numerical value; at which threshold should the function select
+between high precision (HP) and high resolution (HR) of
+\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}
+concentration? The default is \code{range = 10}. If the methane
+concentration recorded in the column \code{HP_12CH4_dry} is above
+10 ppm, the concentration from the columns \code{HR_12CH4_dry}
+and \code{HR_13CH4} are used for the sum instead of HP.}
 }
 \value{
 A data frame saved as RData in a newly created folder, RData, into
@@ -138,7 +165,7 @@ LI-8250 (Multiplexer)
 micro ultra-portable GGA (GLA131 series)
 and N2OM1 (GLA151 series)
 \item \strong{GAIA2TECH (DMR)}: automated chamber ECOFlux
-\item \strong{Picarro}: G2508 and G4301
+\item \strong{Picarro}: G2201-i, G2508 and G4301
 \item \strong{Gasmet}: DX4015 and GT5000
 \item \strong{PP-Systems}: EGM-5
 \item \strong{Aeris Technologies}: \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}/
@@ -157,6 +184,7 @@ one of the columns in the raw data file:
 \itemize{
 \item DX4015: column Date
 \item EGM5: column Date
+\item G2201i: column DATE
 \item G2508: column DATE
 \item G4301: column DATE
 \item GAIA: column Titles:
@@ -192,6 +220,9 @@ are used with the function \code{\link[goFlux]{import.GAIA}} only. The arguments
 \code{gas2}, \code{prec1}, \code{prec2}, \code{dry1}, \code{dry2}, are used
 with both the function \code{\link[goFlux]{import.GAIA}} and the function
 \code{\link[goFlux]{import.LI8250}}.
+
+The arguments \code{CH4}, \code{CO2}, \code{sum} and \code{range} are used
+with the function \code{\link[goFlux]{import.G2201i}} only.
 }
 \examples{
 
@@ -213,6 +244,11 @@ import2RData(path = file.path, instrument = "GT5000",
 file.path <- system.file("extdata/EGM5", package = "goFlux")
 import2RData(path = file.path, instrument = "EGM5",
              date.format = "dmy", prec = c(3, 1, 500), proc.data.field = 2)
+
+# with the Picarro instrument G2201i
+file.path <- system.file("extdata/G2201i", package = "goFlux")
+import2RData(path = file.path, instrument = "G2201i",
+             date.format = "ymd", prec = c(0.2, 50, 100))
 
 # with the Picarro instrument G2508
 file.path <- system.file("extdata/G2508", package = "goFlux")
@@ -312,6 +348,7 @@ to import multiple files from the same folder path using any instrument.
 Import functions for individual instruments:
 \code{\link[goFlux]{import.DX4015}},
 \code{\link[goFlux]{import.EGM5}},
+\code{\link[goFlux]{import.G2201i}},
 \code{\link[goFlux]{import.G2508}},
 \code{\link[goFlux]{import.G4301}},
 \code{\link[goFlux]{import.GAIA}},

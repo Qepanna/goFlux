@@ -8,7 +8,7 @@
 #'                                      micro ultra-portable GGA (GLA131 series)
 #'                                      and N2OM1 (GLA151 series)
 #' * \strong{GAIA2TECH (DMR)}: automated chamber ECOFlux
-#' * \strong{Picarro}: G2508 and G4301
+#' * \strong{Picarro}: G2201-i, G2508 and G4301
 #' * \strong{Gasmet}: DX4015 and GT5000
 #' * \strong{PP-Systems}: EGM-5
 #' * \strong{Aeris Technologies}: \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}/
@@ -25,8 +25,8 @@
 #'             files to be imported.
 #' @param instrument character string; specifies which instrument was used to
 #'                   generate the files contained in the folder path. Choose one
-#'                   of the following: "DX4015", "EGM5", "G2508", "G4301" "GAIA",
-#'                   "GasmetPD", "GT5000", "LI-6400", "LI-7810", "LI-7820",
+#'                   of the following: "DX4015", "EGM5", "G2201i", "G2508", "G4301",
+#'                   "GAIA", "GasmetPD", "GT5000", "LI-6400", "LI-7810", "LI-7820",
 #'                   "LI-8100", "LI-8200", "LI-8250", "N2OM1", "uCH4", "uN2O",
 #'                   "UGGA". For more information about an instrument, see the
 #'                   section "See Also" below.
@@ -69,6 +69,7 @@
 #'        \code{\link[goFlux]{import.GAIA}} or \code{\link[goFlux]{import.LI8250}}
 #'        for more details.
 #' @inheritParams import.GAIA
+#' @inheritParams import.G2201i
 #'
 #' @returns A data frame saved as RData in a newly created folder, RData, into
 #'          the working directory.
@@ -80,6 +81,7 @@
 #' \itemize{
 #' \item DX4015: column Date
 #' \item EGM5: column Date
+#' \item G2201i: column DATE
 #' \item G2508: column DATE
 #' \item G4301: column DATE
 #' \item GAIA: column Titles:
@@ -116,9 +118,13 @@
 #' with both the function \code{\link[goFlux]{import.GAIA}} and the function
 #' \code{\link[goFlux]{import.LI8250}}.
 #'
+#' The arguments \code{CH4}, \code{CO2}, \code{sum} and \code{range} are used
+#' with the function \code{\link[goFlux]{import.G2201i}} only.
+#'
 #' @include goFlux-package.R
 #' @include DX4015_import.R
 #' @include EGM5_import.R
+#' @include import.G2201i.R
 #' @include G2508_import.R
 #' @include G4301_import.R
 #' @include GAIA_import.R
@@ -140,6 +146,7 @@
 #' @seealso Import functions for individual instruments:
 #'          \code{\link[goFlux]{import.DX4015}},
 #'          \code{\link[goFlux]{import.EGM5}},
+#'          \code{\link[goFlux]{import.G2201i}},
 #'          \code{\link[goFlux]{import.G2508}},
 #'          \code{\link[goFlux]{import.G4301}},
 #'          \code{\link[goFlux]{import.GAIA}},
@@ -176,6 +183,11 @@
 #' file.path <- system.file("extdata/EGM5", package = "goFlux")
 #' import2RData(path = file.path, instrument = "EGM5",
 #'              date.format = "dmy", prec = c(3, 1, 500), proc.data.field = 2)
+#'
+#' # with the Picarro instrument G2201i
+#' file.path <- system.file("extdata/G2201i", package = "goFlux")
+#' import2RData(path = file.path, instrument = "G2201i",
+#'              date.format = "ymd", prec = c(0.2, 50, 100))
 #'
 #' # with the Picarro instrument G2508
 #' file.path <- system.file("extdata/G2508", package = "goFlux")
@@ -278,7 +290,9 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                          gas1, gas2 = NULL, gas3 = NULL,
                          prec1, prec2 = NULL, prec3 = NULL,
                          dry1 = T, dry2 = T, dry3 = NULL,
-                         sep = "\t", skip = 1){
+                         sep = "\t", skip = 1,
+                         CH4 = "HP_12CH4_dry", CO2 = "12CO2_dry",
+                         sum = TRUE, range = 10){
 
   # Check arguments ####
   if(missing(path)) stop("'path' is required")
@@ -286,14 +300,18 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
   if(missing(instrument)) stop("'instrument' is required")
   if(length(instrument) != 1) stop("'instrument' must be of length 1")
   if(!any(grepl(paste("\\<", instrument, "\\>", sep = ""),
-                c("DX4015", "UGGA", "G4301", "G2508", "GAIA", "LI-6400", "EGM5",
-                  "LI-7810", "LI-7820", "LI-8100", "LI-8200", "N2OM1", "uCH4",
-                  "uN2O", "GasmetPD", "GT5000", "LI-8250")))){
-    stop("'instrument' must be of class character and one of the following: 'DX4015', 'EGM5', 'G2508', 'G4301', 'GAIA', 'GasmetPD', 'GT5000', 'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100', 'LI-8200', 'LI-8250', 'UGGA', 'N2OM1', 'uCH4', 'uN2O'")}
+                c("DX4015", "UGGA", "G2201i", "G2508", "G4301", "GAIA", "LI-6400",
+                  "EGM5", "LI-7810", "LI-7820", "LI-8100", "LI-8200", "N2OM1",
+                  "uCH4", "uN2O", "GasmetPD", "GT5000", "LI-8250")))){
+    stop(paste("'instrument' must be of class character and one of the following:",
+               "'DX4015', 'EGM5', 'G2508', 'G4301', 'GAIA', 'GasmetPD', 'GT5000',",
+               "'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100', 'LI-8200', 'LI-8250',",
+               "'UGGA', 'N2OM1', 'uCH4', 'uN2O'"))}
   if(!missing(date.format)){
     if(length(date.format) != 1) stop("'date.format' must be of length 1")
-    if(!any(grepl(paste("\\<", date.format, "\\>", sep = ""), c("ymd", "dmy", "mdy")))){
-      stop("'date.format' must be of class character and one of the following: 'ymd', 'dmy' or 'mdy'")}}
+    if (!is.character(date.format)) stop("'date.format' must be of class character")
+    if (!any(grepl(date.format, c("ymd", "dmy", "mdy")))) {
+      stop("'date.format' must be one of the following: 'ymd', 'dmy' or 'mdy'")}}
   if (!is.character(timezone)) stop("'timezone' must be of class character")
 
   # FUNCTION STARTS ####
@@ -367,6 +385,48 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                     keep_all = keep_all,
                     prec = prec,
                     proc.data.field = proc.data.field),
+
+        error = function(e){
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
+    })
+  }
+
+  # G2201i ####
+  if(instrument == "G2201i"){
+
+    # List all the files contained in the specified path
+    file_list <- list.files(path = path, pattern = "\\.dat", recursive = T,
+                            full.names = TRUE)
+
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .dat",
+                                       "was found in the folder path", path))
+
+    # Loop through files in "file_list" and apply import functions
+    pblapply(seq_along(file_list), function(i) {
+
+      withCallingHandlers(
+
+        import.G2201i(inputfile = file_list[i],
+                      date.format = date.format,
+                      timezone = timezone,
+                      save = TRUE,
+                      keep_all = keep_all,
+                      prec = prec,
+                      CH4 = CH4,
+                      CO2 = CO2,
+                      sum = sum,
+                      range = range),
 
         error = function(e){
           errs <<- c(errs, conditionMessage(e))

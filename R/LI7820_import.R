@@ -62,6 +62,7 @@
 #' @seealso See also, import functions for other instruments:
 #'          \code{\link[goFlux]{import.DX4015}},
 #'          \code{\link[goFlux]{import.EGM5}},
+#'          \code{\link[goFlux]{import.G2201i}},
 #'          \code{\link[goFlux]{import.G2508}},
 #'          \code{\link[goFlux]{import.G4301}},
 #'          \code{\link[goFlux]{import.GAIA}},
@@ -94,8 +95,9 @@ LI7820_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   if (missing(inputfile)) stop("'inputfile' is required")
   if (!is.character(inputfile)) stop("'inputfile' must be of class character")
   if (length(date.format) != 1) stop("'date.format' must be of length 1")
+  if (!is.character(date.format)) stop("'date.format' must be of class character")
   if (!any(grepl(date.format, c("ymd", "dmy", "mdy")))) {
-    stop("'date.format' must be of class character and one of the following: 'ymd', 'dmy' or 'mdy'")}
+    stop("'date.format' must be one of the following: 'ymd', 'dmy' or 'mdy'")}
   if (!is.character(timezone)) stop("'timezone' must be of class character")
   if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
   if (keep_all != TRUE & keep_all != FALSE) stop("'keep_all' must be TRUE or FALSE")

@@ -50,6 +50,7 @@
 #' @seealso See also, import functions for other instruments:
 #'          \code{\link[goFlux]{import.DX4015}},
 #'          \code{\link[goFlux]{import.EGM5}},
+#'          \code{\link[goFlux]{import.G2201i}},
 #'          \code{\link[goFlux]{import.G2508}},
 #'          \code{\link[goFlux]{import.G4301}},
 #'          \code{\link[goFlux]{import.GAIA}},
@@ -84,8 +85,9 @@ LI8200_import <- function(inputfile, date.format = "ymd",
   if (!is.character(timezone)) stop("'timezone' must be of class character")
   if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
   if (length(date.format) != 1) stop("'date.format' must be of length 1")
+  if (!is.character(date.format)) stop("'date.format' must be of class character")
   if (!any(grepl(date.format, c("ymd", "dmy", "mdy")))) {
-    stop("'date.format' must be of class character and one of the following: 'ymd', 'dmy' or 'mdy'")}
+    stop("'date.format' must be one of the following: 'ymd', 'dmy' or 'mdy'")}
 
   # Assign NULL to variables without binding
   h2o <- cham.close <- deadband <- POSIX.time <- plotID <- n2o <- Etime <-

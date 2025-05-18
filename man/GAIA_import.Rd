@@ -231,6 +231,7 @@ Use the wrapper function \code{\link[goFlux]{import2RData}}
 See also, import functions for other instruments:
          \code{\link[goFlux]{import.DX4015}},
          \code{\link[goFlux]{import.EGM5}},
+         \code{\link[goFlux]{import.G2201i}},
          \code{\link[goFlux]{import.G2508}},
          \code{\link[goFlux]{import.G4301}},
          \code{\link[goFlux]{import.GasmetPD}},

@@ -49,6 +49,7 @@ Collate:
     'imp.LI7820-data.R'
     'imp.LI8200-data.R'
     'imp.UGGA-data.R'
+    'import.G2201i.R'
     'import.GT5000.R'
     'import.GasmetPD.R'
     'import.LI8250.R'
