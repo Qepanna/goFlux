@@ -7,7 +7,7 @@ Los Gatos Research (LGR): ultra-portable GGA (GLA132 series),
 micro ultra-portable GGA (GLA131 series)
 and N2OM1 (GLA151 series)
 GAIA2TECH (DMR): automated chamber ECOFlux
-Picarro: G2508 and G4301
+Picarro: G2201-i, G2508 and G4301
 Gasmet: DX4015 and GT5000
 PP-Systems: EGM-5
 Aeris Technologies: N2O/
@@ -66,7 +66,7 @@ LI-8250 (Multiplexer)</p></li>
 micro ultra-portable GGA (GLA131 series)
 and N2OM1 (GLA151 series)</p></li>
 <li><p><strong>GAIA2TECH (DMR)</strong>: automated chamber ECOFlux</p></li>
-<li><p><strong>Picarro</strong>: G2508 and G4301</p></li>
+<li><p><strong>Picarro</strong>: G2201-i, G2508 and G4301</p></li>
 <li><p><strong>Gasmet</strong>: DX4015 and GT5000</p></li>
 <li><p><strong>PP-Systems</strong>: EGM-5</p></li>
 <li><p><strong>Aeris Technologies</strong>: N<sub>2</sub>O/
@@ -110,7 +110,11 @@ natural gas detection system</p></li>
 <span>  dry2 <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>  dry3 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sep <span class="op">=</span> <span class="st">"\t"</span>,</span>
-<span>  skip <span class="op">=</span> <span class="fl">1</span></span>
+<span>  skip <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  CH4 <span class="op">=</span> <span class="st">"HP_12CH4_dry"</span>,</span>
+<span>  CO2 <span class="op">=</span> <span class="st">"12CO2_dry"</span>,</span>
+<span>  sum <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  range <span class="op">=</span> <span class="fl">10</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -127,8 +131,8 @@ files to be imported.</p></dd>
 <dt id="arg-instrument">instrument<a class="anchor" aria-label="anchor" href="#arg-instrument"></a></dt>
 <dd><p>character string; specifies which instrument was used to
 generate the files contained in the folder path. Choose one
-of the following: "DX4015", "EGM5", "G2508", "G4301" "GAIA",
-"GasmetPD", "GT5000", "LI-6400", "LI-7810", "LI-7820",
+of the following: "DX4015", "EGM5", "G2201i", "G2508", "G4301",
+"GAIA", "GasmetPD", "GT5000", "LI-6400", "LI-7810", "LI-7820",
 "LI-8100", "LI-8200", "LI-8250", "N2OM1", "uCH4", "uN2O",
 "UGGA". For more information about an instrument, see the
 section "See Also" below.</p></dd>
@@ -238,6 +242,37 @@ each line of the file are separated by this character. By default,
 <dd><p>integer; the number of lines of the data file to skip before
 beginning to read data. By default, <code>skip = 1</code>.</p></dd>
 
+
+<dt id="arg-ch-">CH4<a class="anchor" aria-label="anchor" href="#arg-ch-"></a></dt>
+<dd><p>character string; which column should be used for
+CH<sub>4</sub> concentration.
+By default, <code>CH4 = "HP_12CH4_dry"</code>.</p></dd>
+
+
+<dt id="arg-co-">CO2<a class="anchor" aria-label="anchor" href="#arg-co-"></a></dt>
+<dd><p>character string; which column should be used for
+CO<sub>2</sub> concentration.
+By default, <code>CO2 = "12CO2_dry"</code>.</p></dd>
+
+
+<dt id="arg-sum">sum<a class="anchor" aria-label="anchor" href="#arg-sum"></a></dt>
+<dd><p>logical; if <code>sum = TRUE</code> (default), the arguments <code>CH4</code> and
+<code>CO2</code> are ignored and, instead, both fractions (carbon isotope
+12 and 13) of each gas, are summed after correction for water vapor,
+to obtain the total gas concentration. See the argument <code>range</code>
+for the selection between the HP or the HR measurement of
+CH<sub>4</sub> concentration.</p></dd>
+
+
+<dt id="arg-range">range<a class="anchor" aria-label="anchor" href="#arg-range"></a></dt>
+<dd><p>numerical value; at which threshold should the function select
+between high precision (HP) and high resolution (HR) of
+CH<sub>4</sub>
+concentration? The default is <code>range = 10</code>. If the methane
+concentration recorded in the column <code>HP_12CH4_dry</code> is above
+10 ppm, the concentration from the columns <code>HR_12CH4_dry</code>
+and <code>HR_13CH4</code> are used for the sum instead of HP.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -250,6 +285,7 @@ the working directory.</p>
 file, not the date format in the file name. For most instruments, the date is
 one of the columns in the raw data file:</p><ul><li><p>DX4015: column Date</p></li>
 <li><p>EGM5: column Date</p></li>
+<li><p>G2201i: column DATE</p></li>
 <li><p>G2508: column DATE</p></li>
 <li><p>G4301: column DATE</p></li>
 <li><p>GAIA: column Titles:</p></li>
@@ -282,6 +318,8 @@ are used with the function <code><a href="GAIA_import.html">import.GAIA</a></cod
 <code>gas2</code>, <code>prec1</code>, <code>prec2</code>, <code>dry1</code>, <code>dry2</code>, are used
 with both the function <code><a href="GAIA_import.html">import.GAIA</a></code> and the function
 <code><a href="import.LI8250.html">import.LI8250</a></code>.</p>
+<p>The arguments <code>CH4</code>, <code>CO2</code>, <code>sum</code> and <code>range</code> are used
+with the function <code><a href="import.G2201i.html">import.G2201i</a></code> only.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -290,6 +328,7 @@ to import multiple files from the same folder path using any instrument.</p>
 <p>Import functions for individual instruments:
 <code><a href="DX4015_import.html">import.DX4015</a></code>,
 <code><a href="EGM5_import.html">import.EGM5</a></code>,
+<code><a href="import.G2201i.html">import.G2201i</a></code>,
 <code><a href="G2508_import.html">import.G2508</a></code>,
 <code><a href="G4301_import.html">import.G4301</a></code>,
 <code><a href="GAIA_import.html">import.GAIA</a></code>,
@@ -331,6 +370,12 @@ to import multiple files from the same folder path using any instrument.</p>
 <span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"EGM5"</span>,</span></span>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"dmy"</span>, prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">1</span>, <span class="fl">500</span><span class="op">)</span>, proc.data.field <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> EGM5.TXT saved as EGM5_EGM5_imp.RData in RData folder, in working directory</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># with the Picarro instrument G2201i</span></span></span>
+<span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/G2201i"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"G2201i"</span>,</span></span>
+<span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"ymd"</span>, prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">50</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> G2201i.dat saved as G2201i_G2201i_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with the Picarro instrument G2508</span></span></span>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/G2508"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
