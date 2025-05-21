@@ -61,15 +61,14 @@ save the plots produced with click.peak2. By default,
 \code{start.time_corr} and \code{end.time_corr} on validation plot.}
 }
 \value{
-A list of data.frame, identical to an unlisted version of the input
+A data.frame, identical to an unlisted version of the input
          \code{ow.list}, with the additional columns \code{flag}, \code{Etime},
          \code{start.time_corr}, \code{end.time_corr} and \code{obs.length_corr}.
 }
 \description{
 Identify the start and the end of a measurement by clicking on them in a
-scatter plot. To use in a loop with multiple measurements, first apply the
-function \code{\link[goFlux]{obs.win}} to identify the observation
-window of each measurement and then use the function
+scatter plot. First apply the function \code{\link[goFlux]{obs.win}} to
+identify the observation window of each measurement and then use the function
 \code{\link[goFlux]{click.peak2}} (see examples below).
 }
 \details{
@@ -168,4 +167,7 @@ manID.LI6400 <- click.peak2(ow.LI6400, seq = seq(1,3)) }
 }
 \seealso{
 See also \code{\link[goFlux]{obs.win}} to prepare a list of data.frame.
+
+For an automatic identification of gas measurements, see the function
+\code{\link[goFlux]{autoID}}.
 }
