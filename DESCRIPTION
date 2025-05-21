@@ -34,6 +34,7 @@ Collate:
     'LM.flux.R'
     'MDF.R'
     'N2OM1_import.R'
+    'autoID.R'
     'best.flux.R'
     'click.peak.R'
     'click.peak.loop.R'
@@ -58,4 +59,4 @@ Collate:
     'import2RData.R'
     'manID.UGGA-data.R'
     'obs.win.R'
-Imports: AICcmodavg, data.table, dplyr, ggnewscale, ggplot2, ggstar, graphics, grDevices, grid, gridExtra, jsonlite, lubridate, minpack.lm, msm, pbapply, plyr, purrr, rjson, rlang, rlist, SimDesign, stats, stringr, tibble, tidyr, toOrdinal, utils
+Imports: AICcmodavg, data.table, dplyr, ggnewscale, ggplot2, ggstar, graphics, grDevices, grid, gridExtra, jsonlite, lifecycle, lubridate, minpack.lm, msm, pbapply, plyr, purrr, rjson, rlang, rlist, SimDesign, stats, stringr, tibble, tidyr, toOrdinal, utils
