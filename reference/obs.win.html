@@ -49,7 +49,7 @@ and create a list of data frames (one data frame per UniqueID).</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">obs.win</span><span class="op">(</span></span>
 <span>  <span class="va">inputfile</span>,</span>
 <span>  auxfile <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  gastype <span class="op">=</span> <span class="st">"CO2dry_ppm"</span>,</span>
+<span>  gastype <span class="op">=</span> <span class="fu">deprecated</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  obs.length <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  shoulder <span class="op">=</span> <span class="fl">120</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -75,11 +75,7 @@ if <code>UniqueID</code> cannot be found.</p></dd>
 
 
 <dt id="arg-gastype">gastype<a class="anchor" aria-label="anchor" href="#arg-gastype"></a></dt>
-<dd><p>character string; specifies which gas should be displayed on the
-plot to manually select start time and end time of measurements.
-Must be one of the following: "CO2dry_ppm", "COdry_ppb",
-"CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" or "H2O_ppm".
-Default is "CO2dry_ppm".</p></dd>
+<dd><p>deprecated</p></dd>
 
 
 <dt id="arg-obs-length">obs.length<a class="anchor" aria-label="anchor" href="#arg-obs-length"></a></dt>
@@ -103,31 +99,18 @@ window (seconds). Default is 120 seconds.</p></dd>
          and after the chamber closure time to help identify the best window
          of measurement with the function <code><a href="click.peak2.html">click.peak2</a></code>.</p>
     </div>
-    <div id="details">
-    <h2>Details</h2>
-    <p>In <code>gastype</code>, the gas species listed are the ones for which this package
-has been adapted. Please write to the maintainer of this package for
-adaptation of additional gases.</p>
-    </div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p>After defining the observation window with the function <code>obs.win()</code>,
-         Use the function <code><a href="click.peak2.html">click.peak2</a></code>.</p></div>
+    <div class="dont-index"><p>After defining the observation window with the function <code>obs.win</code>,
+         Use the function <code><a href="click.peak2.html">click.peak2</a></code>.</p>
+<p>For an automatic identification of gas measurements, see the function
+<code><a href="autoID.html">autoID</a></code>.</p></div>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># How to use in multiple situations:</span></span></span>
-<span class="r-in"><span><span class="co"># Note that gastype = "CO2dry_ppm" is the default setting</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Attaching package: ‘dplyr’</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:stats’:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     filter, lag</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:base’:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     intersect, setdiff, setequal, union</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## with a LGR instrument and an auxiliary file (.txt)</span></span></span>
 <span class="r-in"><span><span class="va">aux.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"aux_UGGA/aux_UGGA.txt"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
