@@ -4,11 +4,6 @@
 #' and create a list of data frames (one data frame per UniqueID).
 #'
 #' @param inputfile data.frame; output from import or align functions.
-#' @param gastype character string; specifies which gas should be displayed on the
-#'                plot to manually select start time and end time of measurements.
-#'                Must be one of the following: "CO2dry_ppm", "COdry_ppb",
-#'                "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" or "H2O_ppm".
-#'                Default is "CO2dry_ppm".
 #' @param auxfile data.frame; auxiliary data frame containing the columns
 #'                \code{start.time} and \code{UniqueID}. \code{start.time} must
 #'                contain a date and be in POSIXct format. The time zone must be
@@ -25,25 +20,23 @@
 #'                   if found in \code{auxfile} or \code{inputfile}.
 #' @param shoulder numerical; time before and after measurement in observation
 #'                 window (seconds). Default is 120 seconds.
+#' @param gastype deprecated
 #'
 #' @returns a list of data frames, split by UniqueID, merging \code{inputfile},
 #'          and \code{auxfile}. Additionally, adds some time (shoulder) before
 #'          and after the chamber closure time to help identify the best window
 #'          of measurement with the function \code{\link[goFlux]{click.peak2}}.
 #'
-#' @details
-#' In \code{gastype}, the gas species listed are the ones for which this package
-#' has been adapted. Please write to the maintainer of this package for
-#' adaptation of additional gases.
-#'
 #' @include goFlux-package.R
 #'
-#' @seealso After defining the observation window with the function \code{obs.win()},
+#' @seealso After defining the observation window with the function \code{obs.win},
 #'          Use the function \code{\link[goFlux]{click.peak2}}.
+#'
+#' @seealso For an automatic identification of gas measurements, see the function
+#' \code{\link[goFlux]{autoID}}.
 #'
 #' @examples
 #' # How to use in multiple situations:
-#' # Note that gastype = "CO2dry_ppm" is the default setting
 #' library(dplyr)
 #'
 #' ## with a LGR instrument and an auxiliary file (.txt)
@@ -65,18 +58,22 @@
 #'
 #' @export
 #'
-obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
+obs.win <- function(inputfile, auxfile = NULL, gastype = deprecated(),
                     obs.length = NULL, shoulder = 120){
 
   # Check arguments ####
   if(missing(inputfile)) stop("'inputfile' is required")
   if(!is.null(inputfile) & !is.data.frame(inputfile)) stop("'inputfile' must be of class data.frame")
-  if(!any(grepl(gastype, c("CO2dry_ppm", "COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb", "H2O_ppm")))) {
-    stop("'gastype' must be of class character and one of the following: 'CO2dry_ppm', 'COdry_ppm', 'CH4dry_ppb', 'N2Odry_ppb', 'NH3dry_ppb' or 'H2O_ppm'")}
   if(!is.null(auxfile) & !is.data.frame(auxfile)) stop("'auxfile' must be of class data.frame")
   if(is.null(shoulder)) stop("'shoulder' is required") else{
     if(!is.numeric(shoulder)) stop("'shoulder' must be of class numeric") else{
       if(shoulder < 0) stop("'shoulder' cannot be a negative value")}}
+
+  ## Check if user used the argument gastype
+  if (lifecycle::is_present(gastype)) {
+    # Signal the deprecation to the user
+    deprecate_warn("0.2.0", "goFlux::obs.win(gastype = )")
+  }
 
   ## UniqueID and chamID ####
   if (is.null(auxfile)) {
@@ -191,7 +188,7 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
   # Assign NULL to variables without binding ####
   POSIX.time <- chamID <- start.time <- UniqueID <- Etime <- flag <- DATE <-
     CO2dry_ppm <- COdry_ppb <- CH4dry_ppb <- N2Odry_ppb <- NH3dry_ppb <-
-    H2O_ppm <- cham.open <- end.time <- Tcham <- Pcham <- NULL
+    H2O_ppm <- cham.open <- end.time <- Tcham <- Pcham <- . <- NULL
 
   # FUNCTION STARTS ####
 
@@ -272,64 +269,37 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
   }
   time_filter <- map_df(time_filter.ls, ~as.data.frame(.x)) %>% distinct()
 
-  # Remove UniqueID, start.time and obs.length from inputfile if present
-  if (any(grepl("\\<UniqueID\\>", names(inputfile)))){
-    inputfile <- inputfile %>% select(-UniqueID)
-  }
-  if (any(grepl("\\<start.time\\>", names(inputfile)))){
-    inputfile <- inputfile %>% select(-start.time)
-  }
-  if (any(grepl("\\<obs.length\\>", names(inputfile)))){
-    inputfile <- inputfile %>% select(-obs.length)
-  }
+  # Remove from inputfile columns that are also present in time_filter,
+  # except POSIX.time, before combining them
+  names.i_f <- intersect(names(inputfile), names(time_filter)) %>% .[!. == "POSIX.time"]
+  if (length(names.i_f) > 0){
+    for (i in 1:length(names.i_f)){
+      if (any(grepl(paste("\\<", names.i_f[[i]], "\\>", sep = ""), names(inputfile)))){
+        inputfile <- inputfile %>% select(-names.i_f[[i]])}}}
 
   # Add time_filter to inputfile and filter POSIXct
   data.filter <- inputfile %>%
     right_join(time_filter, relationship = "many-to-many", by = "POSIX.time") %>%
-    drop_na(matches(gastype))
+    drop_na(DATE)
 
   # Add the rest of the auxiliary data from the auxfile to the output file
   if (!is.null(auxfile)){
-    # Remove obs.length, if present
-    if (any(grepl("\\<obs.length\\>", names(auxfile)))){
-      auxfile <- auxfile %>% select(-obs.length)
+    # 1. Remove from auxfile columns that are also present in data.filter,
+    #    except POSIX.time and UniqueID, before combining them
+    names.a_d <- intersect(names(auxfile), names(data.filter)) %>%
+      .[!. == "POSIX.time" & !. == "UniqueID"]
+    if (length(names.a_d) > 0){
+      for (i in 1:length(names.a_d)){
+        if (any(grepl(paste("\\<", names.a_d[[i]], "\\>", sep = ""), names(auxfile)))){
+          auxfile <- auxfile %>% select(-names.a_d[[i]])}}
     }
-    # Remove start.time, if present
-    if (any(grepl("\\<start.time\\>", names(auxfile)))){
-      auxfile <- auxfile %>% select(-start.time)
-    }
-    # If the auxfile contains aux data each second...
-    # 1. Remove the following columns:
+    # 2. Remove Etime and flag, if present
     if (any(grepl("\\<Etime\\>", names(auxfile)))){
-      auxfile <- auxfile %>% select(!c(Etime)) }
+      auxfile <- auxfile %>% select(-Etime)}
     if (any(grepl("\\<flag\\>", names(auxfile)))){
-      auxfile <- auxfile %>% select(!c(flag)) }
-    if (any(grepl("\\<DATE\\>", names(auxfile)))){
-      auxfile <- auxfile %>% select(!c(DATE)) }
-    if (any(grepl("\\<CO2dry_ppm\\>", names(auxfile)))){
-      auxfile <- auxfile %>% select(!c(CO2dry_ppm)) }
-    if (any(grepl("\\<COdry_ppb\\>", names(auxfile)))){
-      auxfile <- auxfile %>% select(!c(CO2dry_ppm)) }
-    if (any(grepl("\\<CH4dry_ppb\\>", names(auxfile)))){
-      auxfile <- auxfile %>% select(!c(CH4dry_ppb)) }
-    if (any(grepl("\\<N2Odry_ppb\\>", names(auxfile)))){
-      auxfile <- auxfile %>% select(!c(N2Odry_ppb)) }
-    if (any(grepl("\\<NH3dry_ppb\\>", names(auxfile)))){
-      auxfile <- auxfile %>% select(!c(N2Odry_ppb)) }
-    if (any(grepl("\\<H2O_ppm\\>", names(auxfile)))){
-      auxfile <- auxfile %>% select(!c(H2O_ppm)) }
-    # 2. Extract the first element of these columns:
-    if (any(grepl("\\<Tcham\\>", names(auxfile)))){
-      Tcham <- first(na.omit(auxfile$Tcham))
-      auxfile <- auxfile %>% select(!c(Tcham))
-      data.filter$Tcham <- Tcham}
-    if (any(grepl("\\<Pcham\\>", names(auxfile)))){
-      Pcham <- first(na.omit(auxfile$Pcham))
-      auxfile <- auxfile %>% select(!c(Pcham))
-      data.filter$Pcham <- Pcham}
-    # 3. Simplify auxfile
-    auxfile <- auxfile %>% distinct()
-    # 4. Merge by UniqueID and POSIX.time:
+      auxfile <- auxfile %>% select(-flag)}
+
+    # 3. Merge by UniqueID and POSIX.time:
     if (any(grepl("\\<POSIX.time\\>", names(auxfile)))){
       data.filter <- data.filter %>%
         left_join(auxfile, by = c("UniqueID", "POSIX.time"))
@@ -337,15 +307,22 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = "CO2dry_ppm",
       data.filter <- data.filter %>%
         full_join(auxfile, by = "UniqueID")
     }
+    # 4. Replace NAs
+    replace <- setdiff(names(data.filter),
+                       c("POSIX.time", "TIME", "Etime", "UniqueID",
+                         names(data.filter)[grepl("ppm|ppb", names(data.filter))]))
+    data.filter <- data.filter %>% group_by(UniqueID) %>%
+      mutate_at(vars(replace), ~ if_else(is.na(.x), first(na.omit(.x)), .x))
   }
 
   # Split data.filter into a list of data frames unique per measurement
-  flux.unique <- data.filter %>% group_split(UniqueID) %>% as.list()
+  flux.unique <- data.filter %>% group_by(UniqueID, .add = TRUE) %>%
+    group_split() %>% as.list()
 
   if (length(flux.unique) > 20){
-  message("WARNING! Do not loop through more than 20 measurements at a time to avoid mistakes.",
-          "\nYou have ", length(flux.unique), " measurements in your dataset.",
-          "\nYou should split the next step into at least ", round(length(flux.unique)/20), " loops.")
+    message("WARNING! Do not loop through more than 20 measurements at a time to avoid mistakes.",
+            "\nYou have ", length(flux.unique), " measurements in your dataset.",
+            "\nYou should split the next step into at least ", round(length(flux.unique)/20), " loops.")
   }
 
   return(flux.unique)

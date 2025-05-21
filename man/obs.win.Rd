@@ -7,7 +7,7 @@
 obs.win(
   inputfile,
   auxfile = NULL,
-  gastype = "CO2dry_ppm",
+  gastype = deprecated(),
   obs.length = NULL,
   shoulder = 120
 )
@@ -24,11 +24,7 @@ the Smart Chamber (LI-8200) can be used as an auxiliary file.
 In that case, \code{chamID} will be used instead of \code{UniqueID},
 if \code{UniqueID} cannot be found.}
 
-\item{gastype}{character string; specifies which gas should be displayed on the
-plot to manually select start time and end time of measurements.
-Must be one of the following: "CO2dry_ppm", "COdry_ppb",
-"CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" or "H2O_ppm".
-Default is "CO2dry_ppm".}
+\item{gastype}{deprecated}
 
 \item{obs.length}{numerical; chamber closure time (seconds). Default is NULL.
 If \code{obs.length} is not provided, a column \code{obs.length}
@@ -50,14 +46,8 @@ a list of data frames, split by UniqueID, merging \code{inputfile},
 Split gas data into one observation window per gas measurement
 and create a list of data frames (one data frame per UniqueID).
 }
-\details{
-In \code{gastype}, the gas species listed are the ones for which this package
-has been adapted. Please write to the maintainer of this package for
-adaptation of additional gases.
-}
 \examples{
 # How to use in multiple situations:
-# Note that gastype = "CO2dry_ppm" is the default setting
 library(dplyr)
 
 ## with a LGR instrument and an auxiliary file (.txt)
@@ -79,6 +69,9 @@ ow.LI6400 <- obs.win(inputfile = imp.LI6400, shoulder = 0)
 
 }
 \seealso{
-After defining the observation window with the function \code{obs.win()},
+After defining the observation window with the function \code{obs.win},
          Use the function \code{\link[goFlux]{click.peak2}}.
+
+For an automatic identification of gas measurements, see the function
+\code{\link[goFlux]{autoID}}.
 }
