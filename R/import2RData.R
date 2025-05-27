@@ -111,12 +111,12 @@
 #'
 #' The arguments \code{active}, \code{pivot}, \code{flag}, \code{background},
 #' \code{CH.col}, \code{PAR.col}, \code{Tcham.col}, \code{Op.stat.col},
-#' \code{inst3}, \code{gas3}, \code{prec3}, \code{dry3}, \code{sep} and \code{skip}
-#' are used with the function \code{\link[goFlux]{import.GAIA}} only. The arguments
-#' \code{Tsoil.col}, \code{SWC.col}, \code{inst1}, \code{inst2}, \code{gas1},
-#' \code{gas2}, \code{prec1}, \code{prec2}, \code{dry1}, \code{dry2}, are used
-#' with both the function \code{\link[goFlux]{import.GAIA}} and the function
-#' \code{\link[goFlux]{import.LI8250}}.
+#' \code{inst3}, \code{gas3}, \code{prec3}, \code{dry3}, \code{sep}, \code{manual}
+#' and \code{skip} are used with the function \code{\link[goFlux]{import.GAIA}}
+#' only. The arguments \code{Tsoil.col}, \code{SWC.col}, \code{inst1}, \code{inst2},
+#' \code{gas1}, \code{gas2}, \code{prec1}, \code{prec2}, \code{dry1}, \code{dry2},
+#' are used with both the function \code{\link[goFlux]{import.GAIA}} and the
+#' function \code{\link[goFlux]{import.LI8250}}.
 #'
 #' The arguments \code{CH4}, \code{CO2}, \code{sum} and \code{range} are used
 #' with the function \code{\link[goFlux]{import.G2201i}} only.
@@ -290,7 +290,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                          gas1, gas2 = NULL, gas3 = NULL,
                          prec1, prec2 = NULL, prec3 = NULL,
                          dry1 = T, dry2 = T, dry3 = NULL,
-                         sep = "\t", skip = 1,
+                         manual = F, sep = "\t", skip = 1,
                          CH4 = "HP_12CH4_dry", CO2 = "12CO2_dry",
                          sum = TRUE, range = 10){
 
@@ -545,7 +545,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                     gas1 = gas1, gas2 = gas2, gas3 = gas3,
                     prec1 = prec1, prec2 = prec2, prec3 = prec3,
                     dry1 = dry1, dry2 = dry2, dry3 = dry3,
-                    sep = sep, skip = skip),
+                    manual = manual, sep = sep, skip = skip),
 
         error = function(e){
           errs <<- c(errs, conditionMessage(e))

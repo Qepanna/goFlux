@@ -33,6 +33,7 @@ GAIA_import(
   dry1 = T,
   dry2 = T,
   dry3 = NULL,
+  manual = FALSE,
   sep = "\\t",
   skip = 1
 )
@@ -64,6 +65,7 @@ import.GAIA(
   dry1 = T,
   dry2 = T,
   dry3 = NULL,
+  manual = FALSE,
   sep = "\\t",
   skip = 1
 )
@@ -133,6 +135,12 @@ match the order of the arguments in \code{gasX}.}
 vapor (dry fraction)? If \code{dryX = TRUE} (default), the gases are
 compensated for water vapor, and will be named accordingly. For example,
 the column "XT2C05_CO2" will become "CO2dry_ppm".}
+
+\item{manual}{logical; indicates if measurements were made manually and there
+are no records of chamber identification, sequence, etc. If
+\code{TRUE}, the arguments \code{Op.stat.col}, \code{CH.col},
+\code{active}, \code{background}, \code{flag}, and \code{pivot}
+are ignored.}
 
 \item{sep}{character string defining the field separator character. Values on
 each line of the file are separated by this character. By default,

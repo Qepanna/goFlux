@@ -34,6 +34,7 @@ import2RData(
   dry1 = T,
   dry2 = T,
   dry3 = NULL,
+  manual = F,
   sep = "\\t",
   skip = 1,
   CH4 = "HP_12CH4_dry",
@@ -120,6 +121,12 @@ vapor (dry fraction)? If \code{dryX = TRUE} (default), the gases are
 compensated for water vapor, and will be named accordingly. See
 \code{\link[goFlux]{import.GAIA}} or \code{\link[goFlux]{import.LI8250}}
 for more details.}
+
+\item{manual}{logical; indicates if measurements were made manually and there
+are no records of chamber identification, sequence, etc. If
+\code{TRUE}, the arguments \code{Op.stat.col}, \code{CH.col},
+\code{active}, \code{background}, \code{flag}, and \code{pivot}
+are ignored.}
 
 \item{sep}{character string defining the field separator character. Values on
 each line of the file are separated by this character. By default,
@@ -214,12 +221,12 @@ at page 90 for more details about the different Process Data Fields
 
 The arguments \code{active}, \code{pivot}, \code{flag}, \code{background},
 \code{CH.col}, \code{PAR.col}, \code{Tcham.col}, \code{Op.stat.col},
-\code{inst3}, \code{gas3}, \code{prec3}, \code{dry3}, \code{sep} and \code{skip}
-are used with the function \code{\link[goFlux]{import.GAIA}} only. The arguments
-\code{Tsoil.col}, \code{SWC.col}, \code{inst1}, \code{inst2}, \code{gas1},
-\code{gas2}, \code{prec1}, \code{prec2}, \code{dry1}, \code{dry2}, are used
-with both the function \code{\link[goFlux]{import.GAIA}} and the function
-\code{\link[goFlux]{import.LI8250}}.
+\code{inst3}, \code{gas3}, \code{prec3}, \code{dry3}, \code{sep}, \code{manual}
+and \code{skip} are used with the function \code{\link[goFlux]{import.GAIA}}
+only. The arguments \code{Tsoil.col}, \code{SWC.col}, \code{inst1}, \code{inst2},
+\code{gas1}, \code{gas2}, \code{prec1}, \code{prec2}, \code{dry1}, \code{dry2},
+are used with both the function \code{\link[goFlux]{import.GAIA}} and the
+function \code{\link[goFlux]{import.LI8250}}.
 
 The arguments \code{CH4}, \code{CO2}, \code{sum} and \code{range} are used
 with the function \code{\link[goFlux]{import.G2201i}} only.
