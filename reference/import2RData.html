@@ -109,6 +109,7 @@ natural gas detection system</p></li>
 <span>  dry1 <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>  dry2 <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>  dry3 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  manual <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>  sep <span class="op">=</span> <span class="st">"\t"</span>,</span>
 <span>  skip <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  CH4 <span class="op">=</span> <span class="st">"HP_12CH4_dry"</span>,</span>
@@ -232,6 +233,14 @@ compensated for water vapor, and will be named accordingly. See
 for more details.</p></dd>
 
 
+<dt id="arg-manual">manual<a class="anchor" aria-label="anchor" href="#arg-manual"></a></dt>
+<dd><p>logical; indicates if measurements were made manually and there
+are no records of chamber identification, sequence, etc. If
+<code>TRUE</code>, the arguments <code>Op.stat.col</code>, <code>CH.col</code>,
+<code>active</code>, <code>background</code>, <code>flag</code>, and <code>pivot</code>
+are ignored.</p></dd>
+
+
 <dt id="arg-sep">sep<a class="anchor" aria-label="anchor" href="#arg-sep"></a></dt>
 <dd><p>character string defining the field separator character. Values on
 each line of the file are separated by this character. By default,
@@ -312,12 +321,12 @@ at page 90 for more details about the different Process Data Fields
 (<code>proc.data.field</code>).</p>
 <p>The arguments <code>active</code>, <code>pivot</code>, <code>flag</code>, <code>background</code>,
 <code>CH.col</code>, <code>PAR.col</code>, <code>Tcham.col</code>, <code>Op.stat.col</code>,
-<code>inst3</code>, <code>gas3</code>, <code>prec3</code>, <code>dry3</code>, <code>sep</code> and <code>skip</code>
-are used with the function <code><a href="GAIA_import.html">import.GAIA</a></code> only. The arguments
-<code>Tsoil.col</code>, <code>SWC.col</code>, <code>inst1</code>, <code>inst2</code>, <code>gas1</code>,
-<code>gas2</code>, <code>prec1</code>, <code>prec2</code>, <code>dry1</code>, <code>dry2</code>, are used
-with both the function <code><a href="GAIA_import.html">import.GAIA</a></code> and the function
-<code><a href="import.LI8250.html">import.LI8250</a></code>.</p>
+<code>inst3</code>, <code>gas3</code>, <code>prec3</code>, <code>dry3</code>, <code>sep</code>, <code>manual</code>
+and <code>skip</code> are used with the function <code><a href="GAIA_import.html">import.GAIA</a></code>
+only. The arguments <code>Tsoil.col</code>, <code>SWC.col</code>, <code>inst1</code>, <code>inst2</code>,
+<code>gas1</code>, <code>gas2</code>, <code>prec1</code>, <code>prec2</code>, <code>dry1</code>, <code>dry2</code>,
+are used with both the function <code><a href="GAIA_import.html">import.GAIA</a></code> and the
+function <code><a href="import.LI8250.html">import.LI8250</a></code>.</p>
 <p>The arguments <code>CH4</code>, <code>CO2</code>, <code>sum</code> and <code>range</code> are used
 with the function <code><a href="import.G2201i.html">import.G2201i</a></code> only.</p>
     </div>
