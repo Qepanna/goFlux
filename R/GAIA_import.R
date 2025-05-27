@@ -63,6 +63,11 @@
 #'        vapor (dry fraction)? If \code{dryX = TRUE} (default), the gases are
 #'        compensated for water vapor, and will be named accordingly. For example,
 #'        the column "XT2C05_CO2" will become "CO2dry_ppm".
+#' @param manual logical; indicates if measurements were made manually and there
+#'               are no records of chamber identification, sequence, etc. If
+#'               \code{TRUE}, the arguments \code{Op.stat.col}, \code{CH.col},
+#'               \code{active}, \code{background}, \code{flag}, and \code{pivot}
+#'               are ignored.
 #' @param sep character string defining the field separator character. Values on
 #'            each line of the file are separated by this character. By default,
 #'            \code{sep = "\t"} for tabulation.
@@ -187,6 +192,7 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                         dry1 = T,
                         dry2 = T,
                         dry3 = NULL,
+                        manual = FALSE,
                         sep = "\t",
                         skip = 1){
 
@@ -200,20 +206,21 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   if(!is.character(timezone)) stop("'timezone' must be of class character")
   if(save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
   if(active != TRUE & active != FALSE) stop("'active' must be TRUE or FALSE")
+  if(manual != TRUE & manual != FALSE) stop("'manual' must be TRUE or FALSE")
   if(background != TRUE & background != FALSE) stop("'background' must be TRUE or FALSE")
   if(length(pivot) != 1) stop("'pivot' must be of length 1")
   if(!any(grepl(pivot, c("long", "wide")))) {
     stop("'pivot' must be of class character and one of the following: 'long' or 'wide'")}
-  if(!is.numeric(flag)) stop("'flag' must be of class numeric")
+  if(!is.null(flag)) if(!is.numeric(flag)) stop("'flag' must be of class numeric")
   if(!is.numeric(skip)) stop("'skip' must be of class numeric")
   if(!is.character(sep)) stop("'sep' must be of class character")
 
   # Column names
-  if(is.null(CH.col)) stop("'CH.col' is required")
-  if(!is.null(CH.col)) if(!is.character(CH.col)) stop("'CH.col' must be of class character")
-
-  # if(is.null(Op.stat.col)) stop("'Op.stat.col' is required")
-  if(!is.null(Op.stat.col)) if(!is.character(Op.stat.col)) stop("'Op.stat.col' must be of class character")
+  if(manual == F) {
+    if(is.null(CH.col)) stop("'CH.col' is required")
+    if(!is.null(CH.col)) if(!is.character(CH.col)) stop("'CH.col' must be of class character")
+    if(!is.null(Op.stat.col)) if(!is.character(Op.stat.col)) stop("'Op.stat.col' must be of class character")
+  }
 
   if(!is.null(PAR.col)) if(!is.character(PAR.col)) stop("'PAR.col' must be of class character")
   if(!is.null(Tcham.col)) if(!is.character(Tcham.col)) stop("'Tcham.col' must be of class character")
@@ -300,18 +307,21 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       PAR.col2 <- gsub(" ", ".", PAR.col, fixed = T)} else {PAR.col2 <- "NA"}
 
     # Column names match CH.col?
-    CH.col2 <- gsub(" ", ".", CH.col, fixed = T)
-    if(!any(grepl(CH.col2, names(try.import)))) {
-      stop(paste("Failed to import ", inputfile.name, ". The matching string ",
-                 "for chamber ID (CH.col) was not found in column names.", sep =""))}
+    if(manual == F){
+      CH.col2 <- gsub(" ", ".", CH.col, fixed = T)
+      if(!any(grepl(CH.col2, names(try.import)))) {
+        stop(paste("Failed to import ", inputfile.name, ". The matching string ",
+                   "for chamber ID (CH.col) was not found in column names.", sep =""))}
+      } else CH.col2 <- "NA"
 
     # Operating status missing?
-    if(!is.null(Op.stat.col)) Op.stat.col2 = gsub(" ", ".", Op.stat.col, fixed = T)
-    if(!any(grepl(Op.stat.col2, names(try.import)))){
-      warning(paste("In the file", inputfile.name, "the matching string for Operating",
-                    "status (Op.stat.col) was not found in column names. By default,",
-                    "Operating Status was set to 2 (Chamber Idle Open) for all measurements."),
-              call. = F)}
+    if(manual == F){
+      if(!is.null(Op.stat.col)) Op.stat.col2 = gsub(" ", ".", Op.stat.col, fixed = T)
+      if(!any(grepl(Op.stat.col2, names(try.import)))){
+        warning(paste("In the file", inputfile.name, "the matching string for Operating",
+                      "status (Op.stat.col) was not found in column names. By default,",
+                      "Operating Status was set to 2 (Chamber Idle Open) for all measurements."),
+                call. = F)}} else Op.stat.col2 <- "NA"
 
     ## Match column names with instruments and gases? ####
 
@@ -450,6 +460,11 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       # Make sure that all gas data are class numerical
       mutate_at(gas.col2$new.name, as.numeric)
 
+    # Remove useless columns when manual == TRUE
+    if(manual == T){data.raw <- data.raw %>%
+      select(contains(c("DATE_TIME", "Tsoil", "Tcham",
+                        "SWC", "PAR", "ppb", "ppm", "RH%")))}
+
     # Convert Humidity Sensor RH% to ppm
     if(any(grepl("Humidity", gas.col2$gas.col))){
       humidity.cols <- select(data.raw, contains("RH%")) %>%
@@ -459,7 +474,7 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       data.raw <- cbind.data.frame(data.raw, humidity.cols)}
 
     # Group together all columns containing information and merge data
-    if(pivot == "long"){ # pivot long: only one column per parameter
+    if(manual == F) if(pivot == "long"){ # pivot long: only one column per parameter
 
       data.pivot <- data.raw
 
@@ -527,7 +542,7 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
     }
 
     # Group together all columns containing information and merge data
-    if(pivot == "wide"){ # keep wide: one column per instrument per parameter
+    if(manual == F) if(pivot == "wide"){ # keep wide: one column per instrument per parameter
 
       # Operating Status from each active chamber
       if(ncol(select(data.raw, contains("Op.stat"))) > 0){
@@ -542,14 +557,23 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       }
     }
 
+    # No pivot if manual = T, but adjust column names
+    if(manual == T){
+     data.raw <- data.raw %>%
+       setNames(gsub(".*Tsoil", "Tsoil", names(.))) %>%
+       setNames(gsub(".*Tcham", "Tcham", names(.))) %>%
+       setNames(gsub(".*SWC", "SWC", names(.))) %>%
+       setNames(gsub(".*PAR", "PAR", names(.)))
+    }
+
     # Add Op.stat if it cannot be found
-    if(!any(grepl("Op.stat", names(data.raw)))){
+    if(manual == F) if(!any(grepl("Op.stat", names(data.raw)))){
       data.raw$Op.stat <- 2
       data.raw$cham.probe <- NA
     }
 
     # Remove measurements from non-active chambers
-    if(active == TRUE){
+    if(manual == F) if(active == TRUE){
       Background <- data.raw %>% filter(grepl("Background", chamID))
       data.raw <- data.raw %>% filter(activ.cham == cham.probe) %>%
         rbind.fill(Background)
@@ -581,30 +605,34 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
     } else {
 
       data.raw$POSIX.time <- try.POSIX
+      data.raw <- data.raw %>% mutate(DATE = substr(POSIX.time, 0, 10))
 
-      # Add other useful variables (DATE, flag)
-      data.raw <- data.raw %>%
-        mutate(DATE = substr(POSIX.time, 0, 10),
-               flag = ifelse(grepl(paste(flag, collapse = "|"), Op.stat), 1, 0)) %>%
-        # Remove flag from Background
-        mutate(flag = if_else(grepl("Background", chamID), 0, flag))
+      if(manual == F){
 
-      # Calculate chamber closure and chamber opening
-      data.time <- data.raw %>% select(chamID, flag, POSIX.time) %>%
-        filter(flag == 1) %>% group_by(chamID) %>%
-        summarise(cham.close = first(POSIX.time),
-                  cham.open = last(POSIX.time)) %>% ungroup()
+        # Add other useful variables (DATE, flag)
+        data.raw <- data.raw %>%
+          mutate(flag = ifelse(grepl(paste(flag, collapse = "|"), Op.stat), 1, 0)) %>%
+          # Remove flag from Background
+          mutate(flag = if_else(grepl("Background", chamID), 0, flag))
 
-      # Calculate Etime
-      Etime <- data.raw %>% full_join(data.time, by = "chamID") %>%
-        select(POSIX.time, chamID, cham.close, cham.open) %>%
-        mutate(start.time = cham.close) %>%
-        filter(!grepl("Background", chamID)) %>% group_by(chamID) %>%
-        mutate(Etime = as.numeric(POSIX.time - start.time, units = "secs")) %>%
-        ungroup()
+        # Calculate chamber closure and chamber opening
+        data.time <- data.raw %>% select(chamID, flag, POSIX.time) %>%
+          filter(flag == 1) %>% group_by(chamID) %>%
+          summarise(cham.close = first(POSIX.time),
+                    cham.open = last(POSIX.time)) %>% ungroup()
 
-      # Merge data
-      data.raw <- data.raw %>% full_join(Etime, by = c("chamID", "POSIX.time"))
+        # Calculate Etime
+        Etime <- data.raw %>% full_join(data.time, by = "chamID") %>%
+          select(POSIX.time, chamID, cham.close, cham.open) %>%
+          mutate(start.time = cham.close) %>%
+          filter(!grepl("Background", chamID)) %>% group_by(chamID) %>%
+          mutate(Etime = as.numeric(POSIX.time - start.time, units = "secs")) %>%
+          ungroup()
+
+        # Merge data
+        data.raw <- data.raw %>% full_join(Etime, by = c("chamID", "POSIX.time"))
+
+      }
 
       # Add instrument precision for each gas
       data.raw[gas.col2$prec.name] <- 1
@@ -618,7 +646,7 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       if(!is.null(inst3)) data.raw$inst3 <- instr3
 
       # Remove background
-      if(background == FALSE){
+      if(manual == F) if(background == FALSE){
         data.raw <- data.raw %>% filter(activ.cham != "Background") %>%
           mutate_at("activ.cham", as.numeric)
       }
