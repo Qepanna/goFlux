@@ -92,7 +92,8 @@ And among the following for \code{CO2}:
 \itemize{
   \item 12CO2
   \item 12CO2_dry
-  \item 13CO2}
+  \item 13CO2
+  \item 13CO2_dry}
 Note that, HP stands for \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}
 concentration measured with strong line for high precision but limited range
 and HR stands for \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}
@@ -100,9 +101,7 @@ concentration measured with high range (between 10 and 1000 ppm). In addition,
 _dry stands for dry mole fraction of gases, corrected for water vapor. Finally,
 12 and 13 indicate each carbon isotope contained in each gas. If one selects
 one of the non-dry mole fraction, it will be corrected for water vapor during
-the import process. Note however that, even though there is no indication of
-_dry with the 13CX fractions, they are, in fact, corrected for water vapor,
-according to the manufacturer.
+the import process.
 
 Note that this function was designed for the following units in the raw file:
 \itemize{

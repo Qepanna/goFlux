@@ -63,7 +63,8 @@
 #' \itemize{
 #'   \item 12CO2
 #'   \item 12CO2_dry
-#'   \item 13CO2}
+#'   \item 13CO2
+#'   \item 13CO2_dry}
 #' Note that, HP stands for \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}
 #' concentration measured with strong line for high precision but limited range
 #' and HR stands for \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}
@@ -71,9 +72,7 @@
 #' _dry stands for dry mole fraction of gases, corrected for water vapor. Finally,
 #' 12 and 13 indicate each carbon isotope contained in each gas. If one selects
 #' one of the non-dry mole fraction, it will be corrected for water vapor during
-#' the import process. Note however that, even though there is no indication of
-#' _dry with the 13CX fractions, they are, in fact, corrected for water vapor,
-#' according to the manufacturer.
+#' the import process.
 #'
 #' Note that this function was designed for the following units in the raw file:
 #' \itemize{
@@ -156,22 +155,18 @@ import.G2201i <- function(inputfile, date.format = "ymd", timezone = "UTC",
     # CH4
     if (length(CH4) != 1) stop("'CH4' must be of length 1")
     if (!is.character(CH4)) stop("'CH4' must be of class character")
-    if (!any(grepl(CH4, c("HP_12CH4", "HP_12CH4_dry", "HP_13CH4",
-                          "HR_12CH4", "HR_12CH4_dry", "HR_13CH4")))) {
-      stop(paste("'CH4' must be one of the following:",
-                 "'HP_12CH4', 'HP_12CH4_dry', 'HP_13CH4', 'HR_12CH4', 'HR_12CH4_dry', 'HR_13CH4'"))}
+
     # CO2
     if (length(CO2) != 1) stop("'CO2' must be of length 1")
     if (!is.character(CO2)) stop("'CO2' must be of class character")
-    if (!any(grepl(CO2, c("12CO2", "12CO2_dry", "13CO2")))) {
-      stop("'CO2' must be one of the following: '12CO2', '12CO2_dry', '13CO2'")}
   }
 
   # Assign NULL to variables without binding
-  POSIX.warning <- import.error <- CH4dry_12C <- CH4dry_13C <- CH4dry_ppb <-
-    CH4dry_ppm <- CO2dry_12C <- CO2dry_13C <- CO2dry_ppm <- DATE <- H2O <-
-    H2O_pct <- H2O_ppm <- HP_12CH4_dry <- HP_13CH4 <- HR_12CH4_dry <-
-    HR_13CH4 <- TIME <- X12CO2 <- X12CO2_dry <- X13CO2 <- . <- NULL
+  POSIX.warning <- import.error <- CH4_12_dry <- CH4_13_dry <- CH4dry_ppb <-
+    CH4dry_ppm <- CO2_12_dry <- CO2_13_dry <- CO2dry_ppm <- DATE <- H2O <-
+    H2O_pct <- H2O_ppm <- HP_12CH4_dry <- HP_13CH4 <- HR_12CH4_dry <- res <-
+    HR_13CH4 <- HP_13CH4_dry <- HR_13CH4_dry <- TIME <- CO2_origin <-
+    CH4_origin <- CO2_12 <- CO2_13 <- HP_12CH4 <- HR_12CH4 <- . <- NULL
 
   # Input file name
   inputfile.name <- gsub(".*/", "", inputfile)
@@ -186,6 +181,24 @@ import.G2201i <- function(inputfile, date.format = "ymd", timezone = "UTC",
     warning("Error occurred in file ", inputfile.name, ":\n", "   ",
             import.error, call. = F)
   } else {
+
+    # check gas arguments
+
+    # CH4
+    for(i in 1:length(CH4)){
+      if(!any(grepl(CH4[i], names(try.import)))){
+        stop(paste("Failed to import ", inputfile.name, ". The matching ",
+                   "string for gas1 '", CH4[i], "' was not found in ",
+                   "column names.", sep =""))}}
+
+    # CO2
+    for(i in 1:length(CO2)){
+      if(!any(grepl(CO2[i], names(try.import)))){
+        stop(paste("Failed to import ", inputfile.name, ". The matching ",
+                   "string for gas1 '", CO2[i], "' was not found in ",
+                   "column names.", sep =""))}}
+
+    ## FUNCTION STARTS ####
 
     if(sum == FALSE){
       # Import raw data file from G2201i (.dat)
@@ -203,41 +216,61 @@ import.G2201i <- function(inputfile, date.format = "ymd", timezone = "UTC",
         mutate(CO2_origin = CO2, CH4_origin = CH4)
 
       # Correct for water vapor
-      if(grepl("12CO2", CO2)) {data.raw <- data.raw %>%
+      if(!grepl("dry", CO2)) {data.raw <- data.raw %>%
         mutate(CO2dry_ppm = (CO2dry_ppm/(1-H2O_ppm/1000000)))}
-      if(any(grepl(CH4, c("HP_12CH4", "HR_12CH4")))) {data.raw <- data.raw %>%
+      if(!grepl("dry", CH4)) {data.raw <- data.raw %>%
         mutate(CH4dry_ppm = (CH4dry_ppm/(1-H2O_ppm/1000000)))}
 
       # Keep only useful columns for gas flux calculation
       if(keep_all == FALSE){
         data.raw <- data.raw %>%
-          select(DATE, TIME, CO2dry_ppm, CH4dry_ppb, H2O_ppm)}
+          select(DATE, TIME, CO2dry_ppm, CH4dry_ppb, H2O_ppm, CO2_origin, CH4_origin)}
     }
 
     if(sum == TRUE){
       # Import raw data file from G2201i (.dat)
       data.raw <- try.import %>%
         # Standardize column names
-        rename(H2O_pct = H2O, CO2_12C = X12CO2,
-               CO2dry_12C = X12CO2_dry, CO2dry_13C = X13CO2) %>%
+        setNames(gsub("X12CO2", "CO2_12", names(.))) %>%
+        setNames(gsub("X13CO2", "CO2_13", names(.))) %>%
+        rename(H2O_pct = H2O) %>%
         # Convert column class automatically
         type.convert(as.is = TRUE) %>%
-        # Selection between HP_CH4 and HR_CH4
-        mutate(res = if_else(HP_12CH4_dry > 10, "HR", "HP"),
-               CH4dry_12C = if_else(HP_12CH4_dry > 10, HP_12CH4_dry, HR_12CH4_dry),
-               CH4dry_13C = if_else(HP_12CH4_dry > 10, HP_13CH4, HR_13CH4)) %>%
-        # Sum 13CO2 and 12CO2
-        mutate(CO2dry_ppm = CO2dry_12C + CO2dry_13C) %>%
-        # Sum 13CH4 and 12CH4
-        mutate(CH4dry_ppm = CH4dry_12C + CH4dry_13C) %>%
         # Convert percent into ppm for H2O and ppm into ppb for CH4
-        mutate(H2O_ppm = H2O_pct*10000,
-               CH4dry_ppb = CH4dry_ppm*1000)
+        mutate(H2O_ppm = H2O_pct*10000)
+
+      # Correct for water vapor if missing columns
+      if(!any(grepl("CO2_12_dry", names(data.raw)))) {data.raw <- data.raw %>%
+        mutate(CO2_12_dry = (CO2_12/(1-H2O_ppm/1000000)))}
+      if(!any(grepl("CO2_13_dry", names(data.raw)))) {data.raw <- data.raw %>%
+        mutate(CO2_13_dry = (CO2_13/(1-H2O_ppm/1000000)))}
+
+      if(!any(grepl("HP_12CH4_dry", names(data.raw)))) {data.raw <- data.raw %>%
+        mutate(HP_12CH4_dry = (HP_12CH4/(1-H2O_ppm/1000000)))}
+      if(!any(grepl("HR_12CH4_dry", names(data.raw)))) {data.raw <- data.raw %>%
+        mutate(HR_12CH4_dry = (HR_12CH4/(1-H2O_ppm/1000000)))}
+
+      if(!any(grepl("HP_13CH4_dry", names(data.raw)))) {data.raw <- data.raw %>%
+        mutate(HP_13CH4_dry = (HP_13CH4/(1-H2O_ppm/1000000)))}
+      if(!any(grepl("HR_13CH4_dry", names(data.raw)))) {data.raw <- data.raw %>%
+        mutate(HR_13CH4_dry = (HR_13CH4/(1-H2O_ppm/1000000)))}
+
+      data.raw <- data.raw %>%
+        # Selection between HP_CH4 and HR_CH4
+        mutate(res = if_else(HP_12CH4_dry > range, "HR", "HP"),
+               CH4_12_dry = if_else(HP_12CH4_dry > range, HR_12CH4_dry, HP_12CH4_dry),
+               CH4_13_dry = if_else(HP_12CH4_dry > range, HR_13CH4_dry, HP_13CH4_dry)) %>%
+        # Sum 13CO2 and 12CO2
+        mutate(CO2dry_ppm = CO2_12_dry + CO2_13_dry) %>%
+        # Sum 13CH4 and 12CH4
+        mutate(CH4dry_ppm = CH4_12_dry + CH4_13_dry) %>%
+        # Convert ppm into ppb for CH4
+        mutate(CH4dry_ppb = CH4dry_ppm*1000)
 
       # Keep only useful columns for gas flux calculation
       if(keep_all == FALSE){
         data.raw <- data.raw %>%
-          select(DATE, TIME, CO2dry_ppm, CH4dry_ppb, H2O_ppm)}
+          select(DATE, TIME, CO2dry_ppm, CH4dry_ppb, H2O_ppm, res)}
     }
 
     # Create a new column containing date and time (POSIX format)
