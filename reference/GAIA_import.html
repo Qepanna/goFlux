@@ -87,6 +87,7 @@ example data file provided with the package.</p>
 <span>  dry1 <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>  dry2 <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>  dry3 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  manual <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  sep <span class="op">=</span> <span class="st">"\t"</span>,</span>
 <span>  skip <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span>
@@ -118,6 +119,7 @@ example data file provided with the package.</p>
 <span>  dry1 <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>  dry2 <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>  dry3 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  manual <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  sep <span class="op">=</span> <span class="st">"\t"</span>,</span>
 <span>  skip <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -216,6 +218,14 @@ match the order of the arguments in <code>gasX</code>.</p></dd>
 vapor (dry fraction)? If <code>dryX = TRUE</code> (default), the gases are
 compensated for water vapor, and will be named accordingly. For example,
 the column "XT2C05_CO2" will become "CO2dry_ppm".</p></dd>
+
+
+<dt id="arg-manual">manual<a class="anchor" aria-label="anchor" href="#arg-manual"></a></dt>
+<dd><p>logical; indicates if measurements were made manually and there
+are no records of chamber identification, sequence, etc. If
+<code>TRUE</code>, the arguments <code>Op.stat.col</code>, <code>CH.col</code>,
+<code>active</code>, <code>background</code>, <code>flag</code>, and <code>pivot</code>
+are ignored.</p></dd>
 
 
 <dt id="arg-sep">sep<a class="anchor" aria-label="anchor" href="#arg-sep"></a></dt>
