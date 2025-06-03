@@ -20,6 +20,7 @@ GAIA_import(
   Tsoil.col = "1C07_Soil Temperature",
   Tcham.col = "2C07_Chamber Temperature",
   PAR.col = "3C07_Sunlight",
+  WTD.col = NULL,
   Op.stat.col = "0C06_OperatingStatus",
   inst1 = "XT2C00_Instrument",
   inst2 = "XT3C00_Instrument",
@@ -52,6 +53,7 @@ import.GAIA(
   Tsoil.col = "1C07_Soil Temperature",
   Tcham.col = "2C07_Chamber Temperature",
   PAR.col = "3C07_Sunlight",
+  WTD.col = NULL,
   Op.stat.col = "0C06_OperatingStatus",
   inst1 = "XT2C00_Instrument",
   inst2 = "XT3C00_Instrument",
@@ -106,11 +108,12 @@ in a RData folder in the current working directory. If
 \code{save = FALSE}, returns the file in the Console, or load in
 the Environment if assigned to an object.}
 
-\item{Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, CH.col}{character
-string; a pattern to match all columns that fit the corresponding
-parameter. For example, all columns containing the pattern "3C07_Sunlight"
-will be renamed with the pattern "_PAR". Then, if \code{pivot = "long"},
-all columns with the pattern "_PAR" will be merged together.}
+\item{PAR.col, Tcham.col, Tsoil.col, SWC.col, WTD.col}{character vector; a vector
+of patterns to match all columns that fit the corresponding parameters.
+See details below for more information.}
+
+\item{Op.stat.col, CH.col}{character string; a pattern to match columns that
+fit the corresponding parameters: see details below.}
 
 \item{inst1, inst2, inst3}{character strings; a pattern to match the columns
 containing the name of each instrument. By default,
@@ -179,14 +182,22 @@ In \code{date.format}, the date format refers to a date found in the raw data
 file, not the date format in the file name. For the automated chamber ECOFlux,
 the date is found in the column "Titles:".
 
-The arguments \code{PAR.col}, \code{Tcham.col}, \code{Tsoil.col} and
-\code{SWC.col} correspond to different types of probes linked to the ECOFlux
-chamber: PAR (sunlight), chamber temperature, soil temperature and soil water
-content volumetric, respectively. The argument \code{Op.stat.col} corresponds
-to the columns Operating Status of each chamber. The argument \code{CH.col}
-indicates a character string preceding the chamber number for each column of
-the raw data. For example, the column "COM5A010C06_OperatingStatus" in the
-raw data file contains the Operating Status for the chamber 1 if
+The arguments \code{PAR.col}, \code{Tcham.col}, \code{Tsoil.col}, \code{SWC.col},
+and \code{WTD.col} correspond to different types of probes linked to the ECOFlux
+chamber: PAR (sunlight), chamber temperature, soil temperature, soil water
+content and water table depth, respectively. All columns containing the
+patterns specified in these arguments will be selected and renamed with the
+corresponding argument. For example, if \code{PAR = "3C07_Sunlight"}, all
+columns containing the pattern "3C07_Sunlight" will be renamed with the pattern
+"_PAR". Then, if \code{pivot = "long"}, all columns with the pattern "_PAR"
+will be merged together. If \code{PAR = c("3C07_Sunlight1", "3C07_Sunlight2")},
+these patterns will be renamed to PAR1 and PAR2.
+
+The argument \code{Op.stat.col}
+corresponds to the columns Operating Status of each chamber. The argument
+\code{CH.col} indicates a character string preceding the chamber number for
+each column of the raw data. For example, the column "COM5A010C06_OperatingStatus"
+in the raw data file contains the Operating Status for the chamber 1 if
 \code{CH.col = "COM5A0"} and \code{Op.stat.col = "0C06_OperatingStatus"}. If
 these columns are absent from the raw data, set arguments to NULL.
 

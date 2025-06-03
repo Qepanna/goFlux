@@ -38,11 +38,11 @@
 #'             in a RData folder in the current working directory. If
 #'             \code{save = FALSE}, returns the file in the Console, or load in
 #'             the Environment if assigned to an object.
-#' @param Op.stat.col,PAR.col,Tcham.col,Tsoil.col,SWC.col,CH.col character
-#'        string; a pattern to match all columns that fit the corresponding
-#'        parameter. For example, all columns containing the pattern "3C07_Sunlight"
-#'        will be renamed with the pattern "_PAR". Then, if \code{pivot = "long"},
-#'        all columns with the pattern "_PAR" will be merged together.
+#' @param Op.stat.col,CH.col character string; a pattern to match columns that
+#'        fit the corresponding parameters: see details below.
+#' @param PAR.col,Tcham.col,Tsoil.col,SWC.col,WTD.col character vector; a vector
+#'        of patterns to match all columns that fit the corresponding parameters.
+#'        See details below for more information.
 #' @param inst1,inst2,inst3 character strings; a pattern to match the columns
 #'        containing the name of each instrument. By default,
 #'        \code{inst1 = "XT2C00_Instrument"}, \code{inst2 = "XT3C00_Instrument"},
@@ -92,14 +92,22 @@
 #' file, not the date format in the file name. For the automated chamber ECOFlux,
 #' the date is found in the column "Titles:".
 #'
-#' The arguments \code{PAR.col}, \code{Tcham.col}, \code{Tsoil.col} and
-#' \code{SWC.col} correspond to different types of probes linked to the ECOFlux
-#' chamber: PAR (sunlight), chamber temperature, soil temperature and soil water
-#' content volumetric, respectively. The argument \code{Op.stat.col} corresponds
-#' to the columns Operating Status of each chamber. The argument \code{CH.col}
-#' indicates a character string preceding the chamber number for each column of
-#' the raw data. For example, the column "COM5A010C06_OperatingStatus" in the
-#' raw data file contains the Operating Status for the chamber 1 if
+#' The arguments \code{PAR.col}, \code{Tcham.col}, \code{Tsoil.col}, \code{SWC.col},
+#' and \code{WTD.col} correspond to different types of probes linked to the ECOFlux
+#' chamber: PAR (sunlight), chamber temperature, soil temperature, soil water
+#' content and water table depth, respectively. All columns containing the
+#' patterns specified in these arguments will be selected and renamed with the
+#' corresponding argument. For example, if \code{PAR = "3C07_Sunlight"}, all
+#' columns containing the pattern "3C07_Sunlight" will be renamed with the pattern
+#' "_PAR". Then, if \code{pivot = "long"}, all columns with the pattern "_PAR"
+#' will be merged together. If \code{PAR = c("3C07_Sunlight1", "3C07_Sunlight2")},
+#' these patterns will be renamed to PAR1 and PAR2.
+#'
+#' The argument \code{Op.stat.col}
+#' corresponds to the columns Operating Status of each chamber. The argument
+#' \code{CH.col} indicates a character string preceding the chamber number for
+#' each column of the raw data. For example, the column "COM5A010C06_OperatingStatus"
+#' in the raw data file contains the Operating Status for the chamber 1 if
 #' \code{CH.col = "COM5A0"} and \code{Op.stat.col = "0C06_OperatingStatus"}. If
 #' these columns are absent from the raw data, set arguments to NULL.
 #'
@@ -179,6 +187,7 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                         Tsoil.col = "1C07_Soil Temperature",
                         Tcham.col = "2C07_Chamber Temperature",
                         PAR.col = "3C07_Sunlight",
+                        WTD.col = NULL,
                         Op.stat.col = "0C06_OperatingStatus",
                         inst1 = "XT2C00_Instrument",
                         inst2 = "XT3C00_Instrument",
@@ -226,6 +235,7 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   if(!is.null(Tcham.col)) if(!is.character(Tcham.col)) stop("'Tcham.col' must be of class character")
   if(!is.null(Tsoil.col)) if(!is.character(Tsoil.col)) stop("'Tsoil.col' must be of class character")
   if(!is.null(SWC.col)) if(!is.character(SWC.col)) stop("'SWC.col' must be of class character")
+  if(!is.null(WTD.col)) if(!is.character(WTD.col)) stop("'WTD.col' must be of class character")
 
   # inst
   if(is.null(inst1) & is.null(inst2) & is.null(inst3)) {
@@ -305,6 +315,8 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       Tsoil.col2 <- gsub(" ", ".", Tsoil.col, fixed = T)} else {Tsoil.col2 <- "NA"}
     if(!is.null(PAR.col)){
       PAR.col2 <- gsub(" ", ".", PAR.col, fixed = T)} else {PAR.col2 <- "NA"}
+    if(!is.null(WTD.col)){
+      WTD.col2 <- gsub(" ", ".", WTD.col, fixed = T)} else {WTD.col2 <- "NA"}
 
     # Column names match CH.col?
     if(manual == F){
@@ -427,16 +439,73 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       data.raw <- data.raw %>%
         setNames(gsub(gas.col2$gas.col[i], gas.col2$new.name[i], names(.)))}
 
+    # Are there multiple columns for Tsoil, Tcham, SWC, PAR and WTD?
+    Tsoil.col3 <- Tsoil.col2; Tsoil.col3.1 <- Tsoil.col3.2 <- "NULL"
+    if(length(Tsoil.col2) > 1){
+      if(length(Tsoil.col2) > 2) stop(paste(
+        "The function is not adapted for more than two Tsoil columns. Contact the",
+        "maintainer of the package for help."))
+      Tsoil.col3.1 <- Tsoil.col2[1]
+      Tsoil.col3.2 <- Tsoil.col2[2]
+      Tsoil.col3 <- "NULL"}
+
+    Tcham.col3 <- Tcham.col2; Tcham.col3.1 <- Tcham.col3.2 <- "NULL"
+    if(length(Tcham.col2) > 1){
+      if(length(Tcham.col2) > 2) stop(paste(
+        "The function is not adapted for more than two Tcham columns. Contact the",
+        "maintainer of the package for help."))
+      Tcham.col3.1 <- Tcham.col2[1]
+      Tcham.col3.2 <- Tcham.col2[2]
+      Tcham.col3 <- "NULL"}
+
+    SWC.col3 <- SWC.col2; SWC.col3.1 <- SWC.col3.2 <- "NULL"
+    if(length(SWC.col2) > 1){
+      if(length(SWC.col2) > 2) stop(paste(
+        "The function is not adapted for more than two SWC columns. Contact the",
+        "maintainer of the package for help."))
+      SWC.col3.1 <- SWC.col2[1]
+      SWC.col3.2 <- SWC.col2[2]
+      SWC.col3 <- "NULL"}
+
+    PAR.col3 <- PAR.col2; PAR.col3.1 <- PAR.col3.2 <- "NULL"
+    if(length(PAR.col2) > 1){
+      if(length(PAR.col2) > 2) stop(paste(
+        "The function is not adapted for more than two PAR columns. Contact the",
+        "maintainer of the package for help."))
+      PAR.col3.1 <- PAR.col2[1]
+      PAR.col3.2 <- PAR.col2[2]
+      PAR.col3 <- "NULL"}
+
+    WTD.col3 <- WTD.col2; WTD.col3.1 <- WTD.col3.2 <- "NULL"
+    if(length(WTD.col2) > 1){
+      if(length(WTD.col2) > 2) stop(paste(
+        "The function is not adapted for more than two WTD columns. Contact the",
+        "maintainer of the package for help."))
+      WTD.col3.1 <- WTD.col2[1]
+      WTD.col3.2 <- WTD.col2[2]
+      WTD.col3 <- "NULL"}
+
     # Import raw data file from GAIA (.csv)
     data.raw <- data.raw %>%
       # Remove first row containing units
       filter(!Titles. == 'Units:') %>%
       # Modify useful column names
       setNames(gsub(CH.col2, "CH", names(.))) %>%
-      setNames(gsub(Tsoil.col2, "_Tsoil", names(.))) %>%
-      setNames(gsub(Tcham.col2, "_Tcham", names(.))) %>%
-      setNames(gsub(SWC.col2, "_SWC", names(.))) %>%
-      setNames(gsub(PAR.col2, "_PAR", names(.))) %>%
+      setNames(gsub(Tsoil.col3, "_Tsoil", names(.))) %>%
+      setNames(gsub(Tsoil.col3.1, "_Tsoil1", names(.))) %>%
+      setNames(gsub(Tsoil.col3.2, "_Tsoil2", names(.))) %>%
+      setNames(gsub(Tcham.col3, "_Tcham", names(.))) %>%
+      setNames(gsub(Tcham.col3.1, "_Tcham1", names(.))) %>%
+      setNames(gsub(Tcham.col3.2, "_Tcham2", names(.))) %>%
+      setNames(gsub(SWC.col3, "_SWC", names(.))) %>%
+      setNames(gsub(SWC.col3.1, "_SWC1", names(.))) %>%
+      setNames(gsub(SWC.col3.2, "_SWC2", names(.))) %>%
+      setNames(gsub(PAR.col3, "_PAR", names(.))) %>%
+      setNames(gsub(PAR.col3.1, "_PAR1", names(.))) %>%
+      setNames(gsub(PAR.col3.2, "_PAR2", names(.))) %>%
+      setNames(gsub(WTD.col3, "_WTD", names(.))) %>%
+      setNames(gsub(WTD.col3.1, "_WTD1", names(.))) %>%
+      setNames(gsub(WTD.col3.2, "_WTD2", names(.))) %>%
       setNames(gsub(Op.stat.col2, "_Op.stat", names(.))) %>%
       # Extract information about light/dark measurements
       mutate(cover = if_else(grepl("Opaque", SEQUENCE), "Dark", if_else(
@@ -453,8 +522,8 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                              ifelse(activ.cham == "ExecutionPlan", paste(activ.cham, "_", Obs, sep = ""),
                                     paste("CH", activ.cham, "_", Obs, sep = "")))) %>%
       # Select only useful columns
-      select(contains(c("DATE_TIME", "ChamID", "activ.cham", "Tsoil", "Tcham",
-                        "SWC", "cover", "PAR", "Op.stat", "ppb", "ppm", "RH%"))) %>%
+      select(contains(c("DATE_TIME", "ChamID", "activ.cham", "cover", "Tsoil", "Tcham",
+                        "SWC", "PAR", "WTD", "Op.stat", "ppb", "ppm", "RH%"))) %>%
       # Convert column class automatically
       type.convert(as.is = TRUE) %>%
       # Make sure that all gas data are class numerical
@@ -462,7 +531,7 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
 
     # Remove useless columns when manual == TRUE
     if(manual == T){data.raw <- data.raw %>%
-      select(contains(c("DATE_TIME", "Tsoil", "Tcham",
+      select(contains(c("DATE_TIME", "Tsoil", "Tcham", "WTD",
                         "SWC", "PAR", "ppb", "ppm", "RH%")))}
 
     # Convert Humidity Sensor RH% to ppm
@@ -492,50 +561,128 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
 
       ### Soil temperature from each active chamber
       if(ncol(select(data.raw, contains("Tsoil"))) > 0){
-        Tsoil <- data.raw %>% select(DATE_TIME, contains("Tsoil")) %>%
-          pivot_longer(contains("Tsoil"), values_to = "Tsoil", names_to = "cham.probe") %>%
-          mutate(cham.probe = substr(cham.probe, 3, 3))
+        if(length(Tsoil.col) > 1){
+          Tsoil1 <- data.raw %>% select(DATE_TIME, contains("Tsoil1")) %>%
+            pivot_longer(contains("Tsoil1"), values_to = "Tsoil1", names_to = "cham.probe") %>%
+            mutate(cham.probe = substr(cham.probe, 3, 3))
 
-        data.pivot <- data.pivot %>%
-          # Soil temperature
-          full_join(Tsoil, by = c("DATE_TIME", "cham.probe")) %>%
-          select(!contains("_Tsoil"))
+          Tsoil2 <- data.raw %>% select(DATE_TIME, contains("Tsoil2")) %>%
+            pivot_longer(contains("Tsoil2"), values_to = "Tsoil2", names_to = "cham.probe") %>%
+            mutate(cham.probe = substr(cham.probe, 3, 3))
+
+          data.pivot <- data.pivot %>%
+            full_join(Tsoil1, by = c("DATE_TIME", "cham.probe")) %>%
+            full_join(Tsoil2, by = c("DATE_TIME", "cham.probe")) %>%
+            select(!contains("_Tsoil"))
+        } else {
+          Tsoil <- data.raw %>% select(DATE_TIME, contains("Tsoil")) %>%
+            pivot_longer(contains("Tsoil"), values_to = "Tsoil", names_to = "cham.probe") %>%
+            mutate(cham.probe = substr(cham.probe, 3, 3))
+
+          data.pivot <- data.pivot %>%
+            full_join(Tsoil, by = c("DATE_TIME", "cham.probe")) %>%
+            select(!contains("_Tsoil"))
+        }
       }
-
       ### Air temperature from each active chamber
       if(ncol(select(data.raw, contains("Tcham"))) > 0){
-        Tcham <- data.raw %>% select(DATE_TIME, contains("Tcham")) %>%
-          pivot_longer(contains("Tcham"), values_to = "Tcham", names_to = "cham.probe") %>%
-          mutate(cham.probe = substr(cham.probe, 3, 3))
+        if(length(Tcham.col) > 1){
+          Tcham1 <- data.raw %>% select(DATE_TIME, contains("Tcham1")) %>%
+            pivot_longer(contains("Tcham1"), values_to = "Tcham1", names_to = "cham.probe") %>%
+            mutate(cham.probe = substr(cham.probe, 3, 3))
 
-        data.pivot <- data.pivot %>%
-          # Air temperature
-          full_join(Tcham, by = c("DATE_TIME", "cham.probe")) %>%
-          select(!contains("_Tcham"))
+          Tcham2 <- data.raw %>% select(DATE_TIME, contains("Tcham2")) %>%
+            pivot_longer(contains("Tcham2"), values_to = "Tcham2", names_to = "cham.probe") %>%
+            mutate(cham.probe = substr(cham.probe, 3, 3))
+
+          data.pivot <- data.pivot %>%
+            full_join(Tcham1, by = c("DATE_TIME", "cham.probe")) %>%
+            full_join(Tcham2, by = c("DATE_TIME", "cham.probe")) %>%
+            select(!contains("_Tcham"))
+        } else {
+          Tcham <- data.raw %>% select(DATE_TIME, contains("Tcham")) %>%
+            pivot_longer(contains("Tcham"), values_to = "Tcham", names_to = "cham.probe") %>%
+            mutate(cham.probe = substr(cham.probe, 3, 3))
+
+          data.pivot <- data.pivot %>%
+            full_join(Tcham, by = c("DATE_TIME", "cham.probe")) %>%
+            select(!contains("_Tcham"))
+        }
       }
-
       ### Soil water content from each active chamber
       if(ncol(select(data.raw, contains("SWC"))) > 0){
-        SWC <- data.raw %>% select(DATE_TIME, contains("SWC")) %>%
-          pivot_longer(contains("SWC"), values_to = "SWC", names_to = "cham.probe") %>%
-          mutate(cham.probe = substr(cham.probe, 3, 3))
+        if(length(SWC.col) > 1){
+          SWC1 <- data.raw %>% select(DATE_TIME, contains("SWC1")) %>%
+            pivot_longer(contains("SWC1"), values_to = "SWC1", names_to = "cham.probe") %>%
+            mutate(cham.probe = substr(cham.probe, 3, 3))
 
-        data.pivot <- data.pivot %>%
-          # Soil water content
-          full_join(SWC, by = c("DATE_TIME", "cham.probe")) %>%
-          select(!contains("_SWC"))
+          SWC2 <- data.raw %>% select(DATE_TIME, contains("SWC2")) %>%
+            pivot_longer(contains("SWC2"), values_to = "SWC2", names_to = "cham.probe") %>%
+            mutate(cham.probe = substr(cham.probe, 3, 3))
+
+          data.pivot <- data.pivot %>%
+            full_join(SWC1, by = c("DATE_TIME", "cham.probe")) %>%
+            full_join(SWC2, by = c("DATE_TIME", "cham.probe")) %>%
+            select(!contains("_SWC"))
+        } else {
+          SWC <- data.raw %>% select(DATE_TIME, contains("SWC")) %>%
+            pivot_longer(contains("SWC"), values_to = "SWC", names_to = "cham.probe") %>%
+            mutate(cham.probe = substr(cham.probe, 3, 3))
+
+          data.pivot <- data.pivot %>%
+            full_join(SWC, by = c("DATE_TIME", "cham.probe")) %>%
+            select(!contains("_SWC"))
+        }
       }
-
       ### PAR from each active chamber
       if(ncol(select(data.raw, contains("PAR"))) > 0){
-        PAR <- data.raw %>% select(DATE_TIME, contains("PAR")) %>%
-          pivot_longer(contains("PAR"), values_to = "PAR", names_to = "cham.probe") %>%
-          mutate(cham.probe = substr(cham.probe, 3, 3))
+        if(length(PAR.col) > 1){
+          PAR1 <- data.raw %>% select(DATE_TIME, contains("PAR1")) %>%
+            pivot_longer(contains("PAR1"), values_to = "PAR1", names_to = "cham.probe") %>%
+            mutate(cham.probe = substr(cham.probe, 3, 3))
 
-        data.pivot <- data.pivot %>%
-          # PAR
-          full_join(PAR, by = c("DATE_TIME", "cham.probe")) %>%
-          select(!contains("_PAR"))
+          PAR2 <- data.raw %>% select(DATE_TIME, contains("PAR2")) %>%
+            pivot_longer(contains("PAR2"), values_to = "PAR2", names_to = "cham.probe") %>%
+            mutate(cham.probe = substr(cham.probe, 3, 3))
+
+          data.pivot <- data.pivot %>%
+            full_join(PAR1, by = c("DATE_TIME", "cham.probe")) %>%
+            full_join(PAR2, by = c("DATE_TIME", "cham.probe")) %>%
+            select(!contains("_PAR"))
+        } else {
+          PAR <- data.raw %>% select(DATE_TIME, contains("PAR")) %>%
+            pivot_longer(contains("PAR"), values_to = "PAR", names_to = "cham.probe") %>%
+            mutate(cham.probe = substr(cham.probe, 3, 3))
+
+          data.pivot <- data.pivot %>%
+            full_join(PAR, by = c("DATE_TIME", "cham.probe")) %>%
+            select(!contains("_PAR"))
+        }
+      }
+      ### Water table depth from each active chamber
+      if(ncol(select(data.raw, contains("WTD"))) > 0){
+        if(length(WTD.col) > 1){
+          WTD1 <- data.raw %>% select(DATE_TIME, contains("WTD1")) %>%
+            pivot_longer(contains("WTD1"), values_to = "WTD1", names_to = "cham.probe") %>%
+            mutate(cham.probe = substr(cham.probe, 3, 3))
+
+          WTD2 <- data.raw %>% select(DATE_TIME, contains("WTD2")) %>%
+            pivot_longer(contains("WTD2"), values_to = "WTD2", names_to = "cham.probe") %>%
+            mutate(cham.probe = substr(cham.probe, 3, 3))
+
+          data.pivot <- data.pivot %>%
+            full_join(WTD1, by = c("DATE_TIME", "cham.probe")) %>%
+            full_join(WTD2, by = c("DATE_TIME", "cham.probe")) %>%
+            select(!contains("_WTD"))
+        } else {
+          WTD <- data.raw %>% select(DATE_TIME, contains("WTD")) %>%
+            pivot_longer(contains("WTD"), values_to = "WTD", names_to = "cham.probe") %>%
+            mutate(cham.probe = substr(cham.probe, 3, 3))
+
+          data.pivot <- data.pivot %>%
+            full_join(WTD, by = c("DATE_TIME", "cham.probe")) %>%
+            select(!contains("_WTD"))
+        }
       }
 
       data.raw <- data.pivot
@@ -563,7 +710,8 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
        setNames(gsub(".*Tsoil", "Tsoil", names(.))) %>%
        setNames(gsub(".*Tcham", "Tcham", names(.))) %>%
        setNames(gsub(".*SWC", "SWC", names(.))) %>%
-       setNames(gsub(".*PAR", "PAR", names(.)))
+       setNames(gsub(".*PAR", "PAR", names(.))) %>%
+       setNames(gsub(".*WTD", "WTD", names(.)))
     }
 
     # Add Op.stat if it cannot be found
@@ -609,7 +757,7 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
 
       if(manual == F){
 
-        # Add other useful variables (DATE, flag)
+        # Add flag
         data.raw <- data.raw %>%
           mutate(flag = ifelse(grepl(paste(flag, collapse = "|"), Op.stat), 1, 0)) %>%
           # Remove flag from Background
@@ -658,26 +806,62 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       }
 
       ## Warn if there is no match with unnecessary columns ####
-      if(!any(grepl(SWC.col2, names(try.import)))){
+      # SWC
+      if(!any(grepl(SWC.col2[1], names(try.import)))){
         warning(paste("In the file ", inputfile.name, " the matching string for ",
-                      "SWC.col '", SWC.col, "' was not found in column names.",
+                      "SWC.col '", SWC.col[1], "' was not found in column names.",
                       sep = ""), call. = F)}
 
-      if(!any(grepl(Tcham.col2, names(try.import)))){
+      if(length(SWC.col2) > 1) if(!any(grepl(SWC.col2[2], names(try.import)))){
         warning(paste("In the file ", inputfile.name, " the matching string for ",
-                      "Tcham.col '", Tcham.col, "' was not found in column names.",
+                      "SWC.col '", SWC.col[2], "' was not found in column names.",
                       sep = ""), call. = F)}
 
-      if(!any(grepl(Tsoil.col2, names(try.import)))){
+      # Tcham
+      if(!any(grepl(Tcham.col2[1], names(try.import)))){
         warning(paste("In the file ", inputfile.name, " the matching string for ",
-                      "Temperature (Tsoil.col) was not found in column names.",
+                      "Tcham.col '", Tcham.col[1], "' was not found in column names.",
                       sep = ""), call. = F)}
 
-      if(!any(grepl(PAR.col2, names(try.import)))){
+      if(length(Tcham.col2) > 1) if(!any(grepl(Tcham.col2[2], names(try.import)))){
         warning(paste("In the file ", inputfile.name, " the matching string for ",
-                      "PAR.col '", PAR.col, "' was not found in column names.",
+                      "Tcham.col '", Tcham.col[2], "' was not found in column names.",
                       sep = ""), call. = F)}
 
+      # Tsoil
+      if(!any(grepl(Tsoil.col2[1], names(try.import)))){
+        warning(paste("In the file ", inputfile.name, " the matching string for ",
+                      "Tsoil.col '", Tsoil.col2[1], "' was not found in column names.",
+                      sep = ""), call. = F)}
+
+      if(length(Tsoil.col2) > 1) if(!any(grepl(Tsoil.col2[2], names(try.import)))){
+        warning(paste("In the file ", inputfile.name, " the matching string for ",
+                      "Tsoil.col '", Tsoil.col2[2], "' was not found in column names.",
+                      sep = ""), call. = F)}
+
+      # PAR
+      if(!any(grepl(PAR.col2[1], names(try.import)))){
+        warning(paste("In the file ", inputfile.name, " the matching string for ",
+                      "PAR.col '", PAR.col[1], "' was not found in column names.",
+                      sep = ""), call. = F)}
+
+      if(length(PAR.col2) > 1) if(!any(grepl(PAR.col2[2], names(try.import)))){
+        warning(paste("In the file ", inputfile.name, " the matching string for ",
+                      "PAR.col '", PAR.col[2], "' was not found in column names.",
+                      sep = ""), call. = F)}
+
+      # WTD
+      if(!any(grepl(WTD.col2[1], names(try.import)))){
+        warning(paste("In the file ", inputfile.name, " the matching string for ",
+                      "WTD.col '", WTD.col[1], "' was not found in column names.",
+                      sep = ""), call. = F)}
+
+      if(length(WTD.col2) > 1) if(!any(grepl(WTD.col2[2], names(try.import)))){
+        warning(paste("In the file ", inputfile.name, " the matching string for ",
+                      "WTD.col '", WTD.col[2], "' was not found in column names.",
+                      sep = ""), call. = F)}
+
+      # Duplicated gas columns
       if(nrow(gas.col.dup) > 0){
         warning(paste("The same gas was measured by two instruments. The suffix ",
                       "'inst1', 'inst2' or 'inst3' was added to each duplicated ",

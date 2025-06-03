@@ -21,6 +21,7 @@ import2RData(
   Tsoil.col,
   Tcham.col,
   PAR.col,
+  WTD.col,
   Op.stat.col,
   inst1,
   inst2 = NULL,
@@ -95,9 +96,9 @@ for the flux calculation. Default is \code{flag = c(7,11)}, where
 \item{background}{logical; if \code{background = FALSE}, removes all data from
 \code{activ.cham == "Background"}.}
 
-\item{Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, CH.col}{character string;
-a pattern to match the columns that fit the corresponding parameter. See
-\code{\link[goFlux]{import.GAIA}} or \code{\link[goFlux]{import.LI8250}}
+\item{Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, WTD.col, CH.col}{character
+vector; a pattern to match the columns that fit the corresponding parameter.
+See \code{\link[goFlux]{import.GAIA}} or \code{\link[goFlux]{import.LI8250}}
 for more details.}
 
 \item{inst1, inst2, inst3}{character strings; a pattern to match the columns
@@ -220,7 +221,7 @@ at page 90 for more details about the different Process Data Fields
 (\code{proc.data.field}).
 
 The arguments \code{active}, \code{pivot}, \code{flag}, \code{background},
-\code{CH.col}, \code{PAR.col}, \code{Tcham.col}, \code{Op.stat.col},
+\code{CH.col}, \code{PAR.col}, \code{Tcham.col}, \code{WTD.col}, \code{Op.stat.col},
 \code{inst3}, \code{gas3}, \code{prec3}, \code{dry3}, \code{sep}, \code{manual}
 and \code{skip} are used with the function \code{\link[goFlux]{import.GAIA}}
 only. The arguments \code{Tsoil.col}, \code{SWC.col}, \code{inst1}, \code{inst2},
@@ -278,6 +279,7 @@ import2RData(path = file.path, instrument = "GAIA", date.format = "ymd",
              Tsoil.col = "1C07_Soil Temperature",
              Tcham.col = "2C07_Chamber Temperature",
              PAR.col = "3C07_Sunlight",
+             WTD.col = NULL,
              Op.stat.col = "0C06_OperatingStatus",
              inst1 = "XT2C00_Instrument",
              inst2 = "XT3C00_Instrument",
