@@ -86,17 +86,18 @@ natural gas detection system</p></li>
 <span>  timezone <span class="op">=</span> <span class="st">"UTC"</span>,</span>
 <span>  keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">prec</span>,</span>
+<span>  merge <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  proc.data.field <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pivot <span class="op">=</span> <span class="st">"long"</span>,</span>
 <span>  active <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  flag <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">7</span>, <span class="fl">11</span><span class="op">)</span>,</span>
 <span>  background <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  <span class="va">CH.col</span>,</span>
 <span>  <span class="va">SWC.col</span>,</span>
 <span>  <span class="va">Tsoil.col</span>,</span>
 <span>  <span class="va">Tcham.col</span>,</span>
 <span>  <span class="va">PAR.col</span>,</span>
 <span>  <span class="va">WTD.col</span>,</span>
+<span>  <span class="va">CH.col</span>,</span>
 <span>  <span class="va">Op.stat.col</span>,</span>
 <span>  <span class="va">inst1</span>,</span>
 <span>  inst2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -163,6 +164,12 @@ are not necessary for gas flux calculation are removed.</p></dd>
 <dd><p>numerical vector; the precision of the instrument for each gas.
 Look at the examples below, or the help for each import function
 of each instrument, to know what values to use.</p></dd>
+
+
+<dt id="arg-merge">merge<a class="anchor" aria-label="anchor" href="#arg-merge"></a></dt>
+<dd><p>logical; if TRUE, merge all files as one data frame and return
+it in the Console, or load it in the Environment if assigned to
+an object.</p></dd>
 
 
 <dt id="arg-proc-data-field">proc.data.field<a class="anchor" aria-label="anchor" href="#arg-proc-data-field"></a></dt>
@@ -286,7 +293,7 @@ and <code>HR_13CH4</code> are used for the sum instead of HP.</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A data frame saved as RData in a newly created folder, RData, into
+    <p>Raw files saved as RData in a newly created folder, RData, into
 the working directory.</p>
     </div>
     <div id="details">
