@@ -74,6 +74,7 @@ example data file provided with the package.</p>
 <span>  Tsoil.col <span class="op">=</span> <span class="st">"1C07_Soil Temperature"</span>,</span>
 <span>  Tcham.col <span class="op">=</span> <span class="st">"2C07_Chamber Temperature"</span>,</span>
 <span>  PAR.col <span class="op">=</span> <span class="st">"3C07_Sunlight"</span>,</span>
+<span>  WTD.col <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  Op.stat.col <span class="op">=</span> <span class="st">"0C06_OperatingStatus"</span>,</span>
 <span>  inst1 <span class="op">=</span> <span class="st">"XT2C00_Instrument"</span>,</span>
 <span>  inst2 <span class="op">=</span> <span class="st">"XT3C00_Instrument"</span>,</span>
@@ -106,6 +107,7 @@ example data file provided with the package.</p>
 <span>  Tsoil.col <span class="op">=</span> <span class="st">"1C07_Soil Temperature"</span>,</span>
 <span>  Tcham.col <span class="op">=</span> <span class="st">"2C07_Chamber Temperature"</span>,</span>
 <span>  PAR.col <span class="op">=</span> <span class="st">"3C07_Sunlight"</span>,</span>
+<span>  WTD.col <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  Op.stat.col <span class="op">=</span> <span class="st">"0C06_OperatingStatus"</span>,</span>
 <span>  inst1 <span class="op">=</span> <span class="st">"XT2C00_Instrument"</span>,</span>
 <span>  inst2 <span class="op">=</span> <span class="st">"XT3C00_Instrument"</span>,</span>
@@ -180,12 +182,15 @@ in a RData folder in the current working directory. If
 the Environment if assigned to an object.</p></dd>
 
 
-<dt id="arg-op-stat-col-par-col-tcham-col-tsoil-col-swc-col-ch-col">Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, CH.col<a class="anchor" aria-label="anchor" href="#arg-op-stat-col-par-col-tcham-col-tsoil-col-swc-col-ch-col"></a></dt>
-<dd><p>character
-string; a pattern to match all columns that fit the corresponding
-parameter. For example, all columns containing the pattern "3C07_Sunlight"
-will be renamed with the pattern "_PAR". Then, if <code>pivot = "long"</code>,
-all columns with the pattern "_PAR" will be merged together.</p></dd>
+<dt id="arg-par-col-tcham-col-tsoil-col-swc-col-wtd-col">PAR.col, Tcham.col, Tsoil.col, SWC.col, WTD.col<a class="anchor" aria-label="anchor" href="#arg-par-col-tcham-col-tsoil-col-swc-col-wtd-col"></a></dt>
+<dd><p>character vector; a vector
+of patterns to match all columns that fit the corresponding parameters.
+See details below for more information.</p></dd>
+
+
+<dt id="arg-op-stat-col-ch-col">Op.stat.col, CH.col<a class="anchor" aria-label="anchor" href="#arg-op-stat-col-ch-col"></a></dt>
+<dd><p>character string; a pattern to match columns that
+fit the corresponding parameters: see details below.</p></dd>
 
 
 <dt id="arg-inst-inst-inst-">inst1, inst2, inst3<a class="anchor" aria-label="anchor" href="#arg-inst-inst-inst-"></a></dt>
@@ -258,14 +263,21 @@ maintainer of this package for potential adaptations.</p>
 <p>In <code>date.format</code>, the date format refers to a date found in the raw data
 file, not the date format in the file name. For the automated chamber ECOFlux,
 the date is found in the column "Titles:".</p>
-<p>The arguments <code>PAR.col</code>, <code>Tcham.col</code>, <code>Tsoil.col</code> and
-<code>SWC.col</code> correspond to different types of probes linked to the ECOFlux
-chamber: PAR (sunlight), chamber temperature, soil temperature and soil water
-content volumetric, respectively. The argument <code>Op.stat.col</code> corresponds
-to the columns Operating Status of each chamber. The argument <code>CH.col</code>
-indicates a character string preceding the chamber number for each column of
-the raw data. For example, the column "COM5A010C06_OperatingStatus" in the
-raw data file contains the Operating Status for the chamber 1 if
+<p>The arguments <code>PAR.col</code>, <code>Tcham.col</code>, <code>Tsoil.col</code>, <code>SWC.col</code>,
+and <code>WTD.col</code> correspond to different types of probes linked to the ECOFlux
+chamber: PAR (sunlight), chamber temperature, soil temperature, soil water
+content and water table depth, respectively. All columns containing the
+patterns specified in these arguments will be selected and renamed with the
+corresponding argument. For example, if <code>PAR = "3C07_Sunlight"</code>, all
+columns containing the pattern "3C07_Sunlight" will be renamed with the pattern
+"_PAR". Then, if <code>pivot = "long"</code>, all columns with the pattern "_PAR"
+will be merged together. If <code>PAR = c("3C07_Sunlight1", "3C07_Sunlight2")</code>,
+these patterns will be renamed to PAR1 and PAR2.</p>
+<p>The argument <code>Op.stat.col</code>
+corresponds to the columns Operating Status of each chamber. The argument
+<code>CH.col</code> indicates a character string preceding the chamber number for
+each column of the raw data. For example, the column "COM5A010C06_OperatingStatus"
+in the raw data file contains the Operating Status for the chamber 1 if
 <code>CH.col = "COM5A0"</code> and <code>Op.stat.col = "0C06_OperatingStatus"</code>. If
 these columns are absent from the raw data, set arguments to NULL.</p>
 <p>Note that this function was designed for the following units in the raw file:</p><ul><li><p>kPa for atmospheric pressure</p></li>

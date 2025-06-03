@@ -96,6 +96,7 @@ natural gas detection system</p></li>
 <span>  <span class="va">Tsoil.col</span>,</span>
 <span>  <span class="va">Tcham.col</span>,</span>
 <span>  <span class="va">PAR.col</span>,</span>
+<span>  <span class="va">WTD.col</span>,</span>
 <span>  <span class="va">Op.stat.col</span>,</span>
 <span>  <span class="va">inst1</span>,</span>
 <span>  inst2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -196,10 +197,10 @@ for the flux calculation. Default is <code>flag = c(7,11)</code>, where
 <code>activ.cham == "Background"</code>.</p></dd>
 
 
-<dt id="arg-op-stat-col-par-col-tcham-col-tsoil-col-swc-col-ch-col">Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, CH.col<a class="anchor" aria-label="anchor" href="#arg-op-stat-col-par-col-tcham-col-tsoil-col-swc-col-ch-col"></a></dt>
-<dd><p>character string;
-a pattern to match the columns that fit the corresponding parameter. See
-<code><a href="GAIA_import.html">import.GAIA</a></code> or <code><a href="import.LI8250.html">import.LI8250</a></code>
+<dt id="arg-op-stat-col-par-col-tcham-col-tsoil-col-swc-col-wtd-col-ch-col">Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, WTD.col, CH.col<a class="anchor" aria-label="anchor" href="#arg-op-stat-col-par-col-tcham-col-tsoil-col-swc-col-wtd-col-ch-col"></a></dt>
+<dd><p>character
+vector; a pattern to match the columns that fit the corresponding parameter.
+See <code><a href="GAIA_import.html">import.GAIA</a></code> or <code><a href="import.LI8250.html">import.LI8250</a></code>
 for more details.</p></dd>
 
 
@@ -320,7 +321,7 @@ instrument only. Look up the
 at page 90 for more details about the different Process Data Fields
 (<code>proc.data.field</code>).</p>
 <p>The arguments <code>active</code>, <code>pivot</code>, <code>flag</code>, <code>background</code>,
-<code>CH.col</code>, <code>PAR.col</code>, <code>Tcham.col</code>, <code>Op.stat.col</code>,
+<code>CH.col</code>, <code>PAR.col</code>, <code>Tcham.col</code>, <code>WTD.col</code>, <code>Op.stat.col</code>,
 <code>inst3</code>, <code>gas3</code>, <code>prec3</code>, <code>dry3</code>, <code>sep</code>, <code>manual</code>
 and <code>skip</code> are used with the function <code><a href="GAIA_import.html">import.GAIA</a></code>
 only. The arguments <code>Tsoil.col</code>, <code>SWC.col</code>, <code>inst1</code>, <code>inst2</code>,
@@ -409,6 +410,7 @@ to import multiple files from the same folder path using any instrument.</p>
 <span class="r-in"><span>             Tsoil.col <span class="op">=</span> <span class="st">"1C07_Soil Temperature"</span>,</span></span>
 <span class="r-in"><span>             Tcham.col <span class="op">=</span> <span class="st">"2C07_Chamber Temperature"</span>,</span></span>
 <span class="r-in"><span>             PAR.col <span class="op">=</span> <span class="st">"3C07_Sunlight"</span>,</span></span>
+<span class="r-in"><span>             WTD.col <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
 <span class="r-in"><span>             Op.stat.col <span class="op">=</span> <span class="st">"0C06_OperatingStatus"</span>,</span></span>
 <span class="r-in"><span>             inst1 <span class="op">=</span> <span class="st">"XT2C00_Instrument"</span>,</span></span>
 <span class="r-in"><span>             inst2 <span class="op">=</span> <span class="st">"XT3C00_Instrument"</span>,</span></span>
