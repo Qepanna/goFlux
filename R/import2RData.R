@@ -43,6 +43,9 @@
 #' @param prec numerical vector; the precision of the instrument for each gas.
 #'             Look at the examples below, or the help for each import function
 #'             of each instrument, to know what values to use.
+#' @param merge logical; if TRUE, merge all files as one data frame and return
+#'              it in the Console, or load it in the Environment if assigned to
+#'              an object.
 #' @param proc.data.field numeric value; select the process data field used with
 #'                        the EGM-5. See \code{\link[goFlux]{import.EGM5}} for
 #'                        more details.
@@ -71,7 +74,7 @@
 #' @inheritParams import.GAIA
 #' @inheritParams import.G2201i
 #'
-#' @returns A data frame saved as RData in a newly created folder, RData, into
+#' @returns Raw files saved as RData in a newly created folder, RData, into
 #'          the working directory.
 #'
 #' @details
@@ -283,10 +286,11 @@
 #' @export
 
 import2RData <- function(path, instrument, date.format, timezone = "UTC",
-                         keep_all = FALSE, prec, proc.data.field = NULL,
-                         pivot = "long", active = TRUE, flag = c(7,11),
-                         background = FALSE, CH.col, SWC.col, Tsoil.col,
-                         Tcham.col, PAR.col, WTD.col, Op.stat.col,
+                         keep_all = FALSE, prec, merge = FALSE,
+                         proc.data.field = NULL, pivot = "long",
+                         active = TRUE, flag = c(7,11), background = FALSE,
+                         SWC.col, Tsoil.col, Tcham.col, PAR.col, WTD.col,
+                         CH.col, Op.stat.col,
                          inst1, inst2 = NULL, inst3 = NULL,
                          gas1, gas2 = NULL, gas3 = NULL,
                          prec1, prec2 = NULL, prec3 = NULL,
@@ -313,7 +317,8 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
     if (!is.character(date.format)) stop("'date.format' must be of class character")
     if (!any(grepl(date.format, c("ymd", "dmy", "mdy")))) {
       stop("'date.format' must be one of the following: 'ymd', 'dmy' or 'mdy'")}}
-  if (!is.character(timezone)) stop("'timezone' must be of class character")
+  if(!is.character(timezone)) stop("'timezone' must be of class character")
+  if(merge != TRUE & merge != FALSE) stop("'merge' must be TRUE or FALSE")
 
   # FUNCTION STARTS ####
 
@@ -1003,6 +1008,14 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
           invokeRestart("muffleMessage")
         })
     })
+  }
+
+  # Merge and load
+  if(merge == TRUE){
+    all.imp <- list.files(path = "RData", pattern = "imp.RData", full.names = TRUE) %>%
+      map_df(~ get(load(.x)))
+
+    return(all.imp)
   }
 
   # Print errors and messages after progress bar

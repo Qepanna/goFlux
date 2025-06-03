@@ -11,17 +11,18 @@ import2RData(
   timezone = "UTC",
   keep_all = FALSE,
   prec,
+  merge = FALSE,
   proc.data.field = NULL,
   pivot = "long",
   active = TRUE,
   flag = c(7, 11),
   background = FALSE,
-  CH.col,
   SWC.col,
   Tsoil.col,
   Tcham.col,
   PAR.col,
   WTD.col,
+  CH.col,
   Op.stat.col,
   inst1,
   inst2 = NULL,
@@ -73,6 +74,10 @@ are not necessary for gas flux calculation are removed.}
 \item{prec}{numerical vector; the precision of the instrument for each gas.
 Look at the examples below, or the help for each import function
 of each instrument, to know what values to use.}
+
+\item{merge}{logical; if TRUE, merge all files as one data frame and return
+it in the Console, or load it in the Environment if assigned to
+an object.}
 
 \item{proc.data.field}{numeric value; select the process data field used with
 the EGM-5. See \code{\link[goFlux]{import.EGM5}} for
@@ -160,7 +165,7 @@ concentration recorded in the column \code{HP_12CH4_dry} is above
 and \code{HR_13CH4} are used for the sum instead of HP.}
 }
 \value{
-A data frame saved as RData in a newly created folder, RData, into
+Raw files saved as RData in a newly created folder, RData, into
 the working directory.
 }
 \description{
