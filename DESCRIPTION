@@ -57,6 +57,8 @@ Collate:
     'uN2O_import.R'
     'uCH4_import.R'
     'import2RData.R'
+    'iso.comp.R'
+    'manID.G2201i-data.R'
     'manID.UGGA-data.R'
     'obs.win.R'
 Imports: AICcmodavg, data.table, dplyr, ggnewscale, ggplot2, ggstar, graphics, grDevices, grid, gridExtra, jsonlite, lifecycle, lubridate, minpack.lm, msm, pbapply, plyr, purrr, rjson, rlang, rlist, SimDesign, stats, stringr, tibble, tidyr, toOrdinal, utils

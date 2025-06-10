@@ -3,7 +3,7 @@
 #' Processed data from the micro-GGA Los Gatos Research greenhouse gas
 #' analyzer after manual identification of measurements with the functions
 #' \code{\link[goFlux]{obs.win}} and
-#' \code{\link[goFlux]{click.peak.loop}} of this package.
+#' \code{\link[goFlux]{click.peak2}} of this package.
 #'
 #' @docType data
 #'

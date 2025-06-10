@@ -171,6 +171,8 @@ import.G2201i <- function(inputfile, date.format = "ymd", timezone = "UTC",
   # Input file name
   inputfile.name <- gsub(".*/", "", inputfile)
 
+  ## FUNCTION STARTS ####
+
   # Try to load data file
   try.import <- tryCatch(
     {read.delim(inputfile, sep = "")},
@@ -198,8 +200,6 @@ import.G2201i <- function(inputfile, date.format = "ymd", timezone = "UTC",
                    "string for gas1 '", CO2[i], "' was not found in ",
                    "column names.", sep =""))}}
 
-    ## FUNCTION STARTS ####
-
     if(sum == FALSE){
       # Import raw data file from G2201i (.dat)
       data.raw <- try.import %>%
@@ -224,7 +224,9 @@ import.G2201i <- function(inputfile, date.format = "ymd", timezone = "UTC",
       # Keep only useful columns for gas flux calculation
       if(keep_all == FALSE){
         data.raw <- data.raw %>%
-          select(DATE, TIME, CO2dry_ppm, CH4dry_ppb, H2O_ppm, CO2_origin, CH4_origin)}
+          select(DATE, TIME, CO2dry_ppm, CH4dry_ppb, H2O_ppm,
+                 CO2_origin, CH4_origin, contains("iCO2"))
+      }
     }
 
     if(sum == TRUE){
@@ -270,7 +272,9 @@ import.G2201i <- function(inputfile, date.format = "ymd", timezone = "UTC",
       # Keep only useful columns for gas flux calculation
       if(keep_all == FALSE){
         data.raw <- data.raw %>%
-          select(DATE, TIME, CO2dry_ppm, CH4dry_ppb, H2O_ppm, res)}
+          select(DATE, TIME, CO2dry_ppm, CH4dry_ppb, H2O_ppm, res,
+                 contains("iCO2"))
+      }
     }
 
     # Create a new column containing date and time (POSIX format)
