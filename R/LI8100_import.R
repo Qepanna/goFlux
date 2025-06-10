@@ -104,7 +104,7 @@ LI8100_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   Type <- Etime <- Tcham <- Pressure <- H2O <- . <- Cdry <- V1 <- V2 <- V3 <-
     V4 <- H2O_mmol <- DATE_TIME <- Obs <- cham.close <- cham.open <- plotID <-
     deadband <- start.time <- obs.start <- POSIX.time <- import.error <-
-    Date <- CO2dry_ppm <- POSIX.warning <- H2O_ppm <- Pcham <- NULL
+    Date <- CO2dry_ppm <- POSIX.warning <- H2O_ppm <- Pcham <- Obs2 <- NULL
 
   # Input file name
   inputfile.name <- gsub(".*/", "", inputfile)
@@ -135,13 +135,13 @@ LI8100_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
       mutate(H2O_ppm = H2O_mmol*1000) %>%
       # Detect new observations
       arrange(DATE_TIME) %>%
-      mutate(Obs = ifelse(is.na(Etime - lag(Etime)), 0, Etime - lag(Etime))) %>%
-      mutate(Obs = rleid(cumsum(Obs < 0)))
+      mutate(Obs2 = ifelse(is.na(Etime - lag(Etime)), 0, Etime - lag(Etime))) %>%
+      mutate(Obs2 = rleid(cumsum(Obs2 < 0)))
 
     # Keep only useful columns for gas flux calculation
     if(keep_all == FALSE){
       data.raw <- data.raw %>%
-        select(Obs, DATE_TIME, Etime, H2O_ppm, CO2dry_ppm,
+        select(Obs2, DATE_TIME, Etime, H2O_ppm, CO2dry_ppm,
                Tcham, Pcham, V1, V2, V3, V4)}
 
     # Create a new column containing date and time (POSIX format)
@@ -190,9 +190,12 @@ LI8100_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
                        last(as.numeric(ms(meta[which(meta[,1] == "Dead Band:"),2]), units = "secs"))))
       }
 
+      # Modify Obs in metadata, if duplicated Obs# (but different Label)
+      metadata <- mutate(metadata, Obs2 = row_number())
+
       # Add metadata to data.raw
       data.raw <- data.raw %>%
-        left_join(metadata, by = "Obs") %>% group_by(Obs) %>%
+        left_join(metadata, by = "Obs2") %>% group_by(Obs2) %>%
         # Calculate cham.close, cham.open, flag and correct negative values of Etime
         mutate(cham.close = POSIX.time[which(Etime == 0)],
                cham.open = max(na.omit(POSIX.time)),
