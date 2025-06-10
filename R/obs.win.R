@@ -192,7 +192,7 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = deprecated(),
 
   # FUNCTION STARTS ####
 
-  # Convert milliseconds to seconds, for compatibility with auxfile
+  # Convert milliseconds to seconds, for compatibility between auxfile and flux data
   inputfile <- inputfile %>%
     mutate(POSIX.time = as.POSIXct(round(POSIX.time, "secs")))
 
@@ -267,7 +267,10 @@ obs.win <- function(inputfile, auxfile = NULL, gastype = deprecated(),
                        to = time_range$time_max[i],
                        by = 'sec'))
   }
-  time_filter <- map_df(time_filter.ls, ~as.data.frame(.x)) %>% distinct()
+  time_filter <- map_df(time_filter.ls, ~as.data.frame(.x)) %>% distinct() %>%
+    # Convert milliseconds to seconds, for compatibility between auxfile and flux data
+    mutate(start.time = as.POSIXct(round(start.time, "secs")),
+           POSIX.time = as.POSIXct(round(POSIX.time, "secs")))
 
   # Remove from inputfile columns that are also present in time_filter,
   # except POSIX.time, before combining them
