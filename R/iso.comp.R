@@ -8,9 +8,9 @@
 #' @param dataframe a data.frame containing measurements of isotopic fractions of
 #'                  \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
 #'                  and a \code{UniqueID} (or \code{chamID}) per measurements.
-#' @param CO2_12,delta_13C character string; specifies which columns should be
-#'                         used for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
-#'                         measurements, and the delta 13C, respectively.
+#' @param CO2dry_ppm,delta_13C character string; specifies which columns should be
+#'                  used for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
+#'                  measurements, and the delta 13C, respectively.
 #'
 #' @returns A data frame of the isotopic composition per measurement (UniqueID)
 #'
@@ -23,17 +23,17 @@
 #' my.iso.comp <- iso.comp(manID.G2201i)
 #' @export
 
-iso.comp <- function(dataframe, CO2_12 = "CO2dry_ppm", delta_13C = "Delta_Raw_iCO2"){
+iso.comp <- function(dataframe, CO2dry_ppm = "CO2dry_ppm", delta_13C = "Delta_Raw_iCO2"){
 
   # Check arguments
   if(missing(dataframe)) stop("'dataframe' is required")
   if(!is.null(dataframe) & !is.data.frame(dataframe)) stop("'dataframe' must be of class data.frame")
 
-  if(is.null(CO2_12)) stop("'CO2_12' is required") else {
-    if(!is.character(CO2_12)) stop("'CO2_12' must be of class character")}
+  if(is.null(CO2dry_ppm)) stop("'CO2dry_ppm' is required") else {
+    if(!is.character(CO2dry_ppm)) stop("'CO2dry_ppm' must be of class character")}
 
-  if(!any(grepl(CO2_12, names(dataframe)))){
-    stop(paste("The matching string for CO2_12 '", CO2_12,
+  if(!any(grepl(CO2dry_ppm, names(dataframe)))){
+    stop(paste("The matching string for CO2dry_ppm '", CO2dry_ppm,
                "' was not found in dataframe.", sep = ""))}
 
   if(is.null(delta_13C)) stop("'delta_13C' is required") else {
@@ -54,12 +54,12 @@ iso.comp <- function(dataframe, CO2_12 = "CO2dry_ppm", delta_13C = "Delta_Raw_iC
   for(i in 1:length(data_split)){
 
     # Extract data
-    CO2_12_meas <- Reduce("c", data_split[[i]][, CO2_12])
+    CO2_meas <- Reduce("c", data_split[[i]][, CO2dry_ppm])
     delta_13C_meas <- Reduce("c", data_split[[i]][, delta_13C])
     UniqueID <- unique(na.omit(data_split[[i]]$UniqueID))
 
     # Inverse of CO2 concentration
-    inv.CO2 <- 1/CO2_12_meas
+    inv.CO2 <- 1/CO2_meas
 
     # Linear regression
     LM <- lm(delta_13C_meas ~ inv.CO2)
