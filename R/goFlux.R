@@ -221,7 +221,9 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     stop("The column that matches 'gastype' in 'dataframe' must be of class numeric")}
 
   ### prec and match in dataframe ####
-  if(!is.null(prec) & !is.numeric(prec)) stop("'prec' must be of class numeric")
+  if(!is.null(prec)) {
+    if(length(prec) != 1)  stop("'prec' must be of length = 1")
+    if(!is.numeric(prec)) stop("'prec' must be of class numeric")}
   if(is.null(prec)){
     if(gastype == "CO2dry_ppm" &
        !any(grepl(paste("\\<CO2_prec\\>", sep = ""), names(dataframe)))){
