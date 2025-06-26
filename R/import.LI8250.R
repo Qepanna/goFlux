@@ -277,8 +277,8 @@ import.LI8250 <- function(inputfile, date.format = "ymd", timezone = "UTC",
         mutate(gas.unit = if_else(units == "nmol+1mol-1", "ppb", gas.unit)) %>%
         mutate(gas.unit = if_else(units == "mmol+1mol-1", "per.mille", gas.unit)) %>%
         # Rename probes
-        mutate(colnames = if_else(grepl(SWC.col, name), "SWC", colnames)) %>%
-        mutate(colnames = if_else(grepl(Tsoil.col, name), "Tsoil", colnames))
+        mutate(colnames = if_else(grepl(SWC.col2, name), "SWC", colnames)) %>%
+        mutate(colnames = if_else(grepl(Tsoil.col2, name), "Tsoil", colnames))
 
       # Prepare new names for gas columns
       inst1.rep <- dry1.rep <- NULL; if(!is.null(inst1)) {
@@ -355,7 +355,7 @@ import.LI8250 <- function(inputfile, date.format = "ymd", timezone = "UTC",
       if(keep_all == FALSE){
         data.raw <- data.raw %>%
           select(DATE, TIME, chamID, contains(c("ppm", "ppb")), -contains("wet"),
-                 Pcham, Tcham, SWC, Tsoil, STATE)
+                 Pcham, Tcham, contains(c("SWC", "Tsoil")), STATE)
       }
 
       # Create a new column containing date and time (POSIX format)
