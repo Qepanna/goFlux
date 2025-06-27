@@ -42,6 +42,7 @@
 #' @importFrom ggplot2 geom_point
 #' @importFrom ggplot2 geom_text
 #' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 labs
 #' @importFrom ggplot2 scale_color_manual
 #' @importFrom ggplot2 scale_x_continuous
 #' @importFrom ggplot2 theme

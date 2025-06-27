@@ -557,7 +557,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
   if(gastype == "H2O_ppm") gas.unit <- "ppm"
 
   # Define y axis legend on plots
-  if(gastype == "CO2dry_ppm") ylab <- ylab(expression(bold(CO["2"]*" dry (ppm)")))
+  if(gastype == "CO2dry_ppm") ylab <- ylab(expression(CO["2"]*" dry (ppm)"))
   if(gastype == "CH4dry_ppb") ylab <- ylab(expression(CH["4"]*" dry (ppb)"))
   if(gastype == "N2Odry_ppb") ylab <- ylab(expression(N["2"]*"O dry (ppb)"))
   if(gastype == "COdry_ppb") ylab <- ylab(expression(CO*" dry (ppb)"))

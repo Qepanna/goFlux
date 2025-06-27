@@ -5,7 +5,12 @@
 \title{Determine the isotopic composition of
 \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} measurements}
 \usage{
-iso.comp(dataframe, CO2dry_ppm = "CO2dry_ppm", delta_13C = "Delta_Raw_iCO2")
+iso.comp(
+  dataframe,
+  CO2dry_ppm = "CO2dry_ppm",
+  delta_13C = "Delta_Raw_iCO2",
+  save.plots
+)
 }
 \arguments{
 \item{dataframe}{a data.frame containing measurements of isotopic fractions of
@@ -15,6 +20,9 @@ and a \code{UniqueID} (or \code{chamID}) per measurements.}
 \item{CO2dry_ppm, delta_13C}{character string; specifies which columns should be
 used for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
 measurements, and the delta 13C, respectively.}
+
+\item{save.plots}{character string; a file path with the extension .pdf to
+save Keeling plots. By default plots are not saved.}
 }
 \value{
 A data frame of the isotopic composition per measurement (UniqueID)
