@@ -1,0 +1,223 @@
+#' Import function for the Los Gatos Research GLA451-N2Oi2
+#'
+#' Imports single raw gas measurement files from the Isotopic
+#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} analyzer
+#' (GLA451 series) from Los Gatos Research
+#' (\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and site-specific
+#' isotopic ratios of N and O) with the extension .txt
+#'
+#' @param inputfile character string; the name of a file with the extension .txt
+#' @param date.format character string; specifies the date format found in the
+#'                    raw data file. Choose one of the following: "dmy", "ymd",
+#'                    or "mdy". Default is "dmy", as it is the date format from
+#'                    the example data file provided.
+#' @param timezone character string; a time zone in which to import the data to
+#'                 POSIXct format. Default is "UTC". Note about time zone: it is
+#'                 recommended to use the time zone "UTC" to avoid any issue
+#'                 related to summer time and winter time changes.
+#' @param save logical; if \code{save = TRUE}, saves the file as an .RData file
+#'             in a RData folder in the current working directory. If
+#'             \code{save = FALSE}, returns the file in the Console, or load in
+#'             the Environment if assigned to an object.
+#' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from the raw
+#'                 file. The default is \code{keep_all = FALSE}, and columns that
+#'                 are not necessary for gas flux calculation are removed.
+#' @param prec numerical vector; the precision of the instrument for each gas,
+#'             in the following order: "N2Odry_ppb" and "H2O_ppm".
+#'             The default is \code{prec = c(0.05, 50)}.
+#'
+#' @returns A data frame containing raw data from the LGR GHG analyzer
+#'          N2Oi2 (GLA451 series).
+#'
+#' @include goFlux-package.R
+#'
+#' @details
+#' In \code{date.format}, the date format refers to a date found in the raw data
+#' file, not the date format in the file name. For the instrument N2Oi2, the date
+#' is found in the column "Time".
+#'
+#' Note that this function was designed for the following units in the raw file:
+#' \itemize{
+#'   \item ppm for \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
+#'   \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
+#'   \item Torr for pressure
+#'   \item Celsius for temperature}
+#' If your LGR N2Oi2 instrument uses different units, either convert
+#' the units after import, change the settings on your instrument, or contact
+#' the maintainer of this package for support.
+#'
+#' The precision of the instrument is needed to restrict kappa-max
+#' (\code{\link[goFlux]{k.max}}) in the non-linear flux calculation
+#' (\code{\link[goFlux]{HM.flux}}). Kappa-max is inversely proportional to
+#' instrument precision. If the precision of your instrument is unknown, it is
+#' better to use a low value (e.g. 1 ppm for
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} or 1 ppb for
+#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}) to allow for more
+#' curvature, especially for water vapor fluxes, or very long measurements, that
+#' are normally curved. The default values given for instrument precision are
+#' the ones found \href{https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/oa-icos-enhanced-performance-benchtop-analyzers/lgr-icos-ultrahigh-performance-qc-benchtop-analyzers-gla451-series}{online}
+#' for the latest model of this instrument available at the time of the
+#' creation of this function (06-2025).
+#'
+#' @seealso Use the wrapper function \code{\link[goFlux]{import2RData}}
+#'          to import multiple files from the same folder path using any instrument.
+#' @seealso See also, import functions for other instruments:
+#'          \code{\link[goFlux]{import.DX4015}},
+#'          \code{\link[goFlux]{import.EGM5}},
+#'          \code{\link[goFlux]{import.G2201i}},
+#'          \code{\link[goFlux]{import.G2508}},
+#'          \code{\link[goFlux]{import.G4301}},
+#'          \code{\link[goFlux]{import.GAIA}},
+#'          \code{\link[goFlux]{import.GasmetPD}},
+#'          \code{\link[goFlux]{import.GT5000}},
+#'          \code{\link[goFlux]{import.LI6400}},
+#'          \code{\link[goFlux]{import.LI7810}},
+#'          \code{\link[goFlux]{import.LI7820}},
+#'          \code{\link[goFlux]{import.LI8100}},
+#'          \code{\link[goFlux]{import.LI8200}},
+#'          \code{\link[goFlux]{import.LI8250}},
+#'          \code{\link[goFlux]{import.N2OM1}},
+#'          \code{\link[goFlux]{import.uCH4}},
+#'          \code{\link[goFlux]{import.uN2O}},
+#'          \code{\link[goFlux]{import.UGGA}}
+#'
+#' @seealso See \code{\link[base]{timezones}} for a description of the underlying
+#'          timezone attribute.
+#'
+#' @examples
+#' # Load file from downloaded package
+#' file.path <- system.file("extdata", "N2Oi2/N2Oi2.txt", package = "goFlux")
+#'
+#' # Run function
+#' #imp.N2Oi2 <- import.N2Oi2(inputfile = file.path)
+#' @export
+
+import.N2Oi2 <- function(inputfile, date.format = "dmy", timezone = "UTC",
+                         save = FALSE, keep_all = FALSE, prec = c(0.2, 50)){
+
+  # Check arguments
+  if (missing(inputfile)) stop("'inputfile' is required")
+  if (!is.character(inputfile)) stop("'inputfile' must be of class character")
+  if (length(date.format) != 1) stop("'date.format' must be of length 1")
+  if (!is.character(date.format)) stop("'date.format' must be of class character")
+  if (!any(grepl(date.format, c("ymd", "dmy", "mdy")))) {
+    stop("'date.format' must be one of the following: 'ymd', 'dmy' or 'mdy'")}
+  if (!is.character(timezone)) stop("'timezone' must be of class character")
+  if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
+  if (keep_all != TRUE & keep_all != FALSE) stop("'keep_all' must be TRUE or FALSE")
+  if(is.null(prec)) stop("'prec' is required") else{
+    if(!is.numeric(prec)) stop("'prec' must be of class numeric") else{
+      if(length(prec) != 2) stop("'prec' must be of length 2")}}
+
+  # Assign NULL to variables without binding
+  POSIX.time <- DATE_TIME <- H2O_ppm <- Time <- . <- d15N <- d18O <-
+    N2Odry_ppb <- N2Odry_ppm <- POSIX.warning <- N2O_ppm <-
+    N2Owet_ppm <- import.error <- NULL
+
+  # Input file name
+  inputfile.name <- gsub(".*/", "", inputfile)
+
+  # Try to load data file
+  try.import <- tryCatch(
+    {read.delim(inputfile, skip = 1, sep = ",")},
+    error = function(e) {import.error <<- e}
+  )
+
+  if(inherits(try.import, "simpleError")){
+    warning("Error occurred in file ", inputfile.name, ":\n", "   ",
+            import.error, call. = F)
+  } else {
+
+    # Load data file
+    data.raw <- try.import %>%
+      # Clean column names
+      `colnames<-`(gsub("\\.", "",
+                        gsub("X.", "",
+                                  gsub("__", "_", names(.)))))
+
+    # Compensate for water vapor
+    if(!any(grepl("N2Odry_ppm", names(data.raw)))){
+      data.raw <- data.raw %>%
+        rename(N2Owet_ppm = N2O_ppm) %>%
+        # rename(NNOwet_ppm = NNO_ppm) %>%
+        # rename(NN15Owet_ppm = NN15O_ppm) %>%
+        # rename(NNO18wet_ppm = NNO18_ppm) %>%
+        mutate(N2Odry_ppm = N2Owet_ppm/(1-H2O_ppm/1000000)) #%>%
+        # mutate(NNOdry_ppm = NNOwet_ppm/(1-H2O_ppm/1000000)) %>%
+        # mutate(NN15Odry_ppm = NN15Owet_ppm/(1-H2O_ppm/1000000)) %>%
+        # mutate(NNO18dry_ppm = NNO18wet_ppm/(1-H2O_ppm/1000000))
+      }
+
+    data.raw <- data.raw %>%
+      # Remove rows at the end of the file
+      drop_na(N2Odry_ppm) %>%
+      # Convert ppm into ppb
+      mutate(N2Odry_ppb = N2Odry_ppm*1000) %>%
+      # mutate(NNOdry_ppb = NNOdry_ppm*1000) %>%
+      # mutate(NN15Odry_ppb = NN15Odry_ppm*1000) %>%
+      # mutate(NNO18dry_ppb = NNO18dry_ppm*1000) %>%
+      # Replace characters in Time ("/" -> "-") and remove first space
+      mutate(DATE_TIME = gsub("/", "-", sub("  ", "" , Time)))
+
+    # Keep only useful columns for gas flux calculation
+    if(keep_all == FALSE){
+      data.raw <- data.raw %>%
+        select(DATE_TIME, contains("ppb"), H2O_ppm, d15N, d18O)}
+
+    # Create a new column containing date and time (POSIX format)
+    tryCatch(
+      {op <- options()
+      options(digits.secs=6)
+      if(date.format == "dmy"){
+        try.POSIX <- as.POSIXct(dmy_hms(data.raw$DATE_TIME, tz = timezone),
+                                format = "%Y-%m-%d %H:%M:%OS")
+      } else if(date.format == "mdy"){
+        try.POSIX <- as.POSIXct(mdy_hms(data.raw$DATE_TIME, tz = timezone),
+                                format = "%Y-%m-%d %H:%M:%OS")
+      } else if(date.format == "ymd"){
+        try.POSIX <- as.POSIXct(ymd_hms(data.raw$DATE_TIME, tz = timezone),
+                                format = "%Y-%m-%d %H:%M:%OS")}
+      options(op)}, warning = function(w) {POSIX.warning <<- "date.format.error"}
+    )
+
+    if(isTRUE(POSIX.warning == "date.format.error")){
+      warning("Error occurred in file ", inputfile.name, ":\n",
+              "   An error occured while converting DATE and TIME into POSIX.time.\n",
+              "   Verify that the 'date.format' you specified (", date.format,
+              ") corresponds to the\n",
+              "   column 'Time' in the raw data file. Here is a sample: ",
+              data.raw$DATE_TIME[1], "\n", call. = F)
+    } else {
+
+      data.raw$POSIX.time <- try.POSIX
+
+      # Add a column for DATE alone
+      data.raw <- data.raw %>% mutate(DATE = substr(POSIX.time, 0, 10))
+
+      # Add instrument precision for each gas
+      data.raw <- data.raw %>%
+        mutate(N2O_prec = prec[1], H2O_prec = prec[2])
+
+      # Save cleaned data file
+      if(save == TRUE){
+        # Create RData folder in working directory
+        RData_folder <- paste(getwd(), "RData", sep = "/")
+        if(dir.exists(RData_folder) == FALSE){dir.create(RData_folder)}
+
+        # Create output file: change extension to .RData, and
+        # add instrument name and "imp" for import to file name
+        file.name <- gsub(".*/", "", sub("\\.txt", "", inputfile))
+        outputfile <- paste("N2Oi2_", file.name, "_imp.RData", sep = "")
+
+        save(data.raw, file = paste(RData_folder, outputfile, sep = "/"))
+
+        message(inputfile.name, " saved as ", outputfile,
+                " in RData folder, in working directory\n", sep = "")
+      }
+
+      if(save == FALSE){
+        return(data.raw)
+      }
+    }
+  }
+}
