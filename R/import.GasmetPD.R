@@ -1,10 +1,11 @@
 #' Import function for the GasmetPD multiplexer from the University of Padova
 #'
 #' Imports single raw gas measurement files from the GasmetPD, a custom made
-#' multiplexer linked with the Gasmet DX4015
+#' multiplexer
 #' (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
 #' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
+#' \ifelse{html}{\out{NO<sub>2</sub>}}{\eqn{NO[2]}{ASCII}}, NO,
 #' \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}} and
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 #'
@@ -24,10 +25,12 @@
 #' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from the raw
 #'                 file. The default is \code{keep_all = FALSE}, and columns that
 #'                 are not necessary for gas flux calculation are removed.
-#' @param prec numerical vector; the precision of the instrument for each gas,
-#'             in the following order: "CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb",
-#'             "NH3dry_ppb" and "H2O_ppm". The default is
-#'             \code{prec = c(1.6, 13, 2, 23, 33)}.
+#' @param gas character vector; a pattern to match the columns containing each
+#'            gas measurement. Choose from: "CO2dry_ppm", "CH4dry_ppb",
+#'            "N2Odry_ppb", "NH3dry_ppb", "NO2_ppm", "NO_ppm" and "H2O_ppm".
+#' @param prec numerical vector; the precision of the instrument for each gas.
+#'             Note that the order in the arguments \code{precX} must match the
+#'             order of the arguments in \code{gas}.
 #'
 #' @returns A data frame containing raw data from the custom made multiplexer
 #'          GasmetPD, from the University of Padova, Italy.
@@ -43,13 +46,15 @@
 #' \itemize{
 #'   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 #'   \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
-#'   \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+#'   \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
+#'   \ifelse{html}{\out{NO<sub>2</sub>}}{\eqn{NO[2]}{ASCII}}, NO and
 #'   \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}
 #'   \item percent (\%) for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
 #'   \item mbar for pressure}
 #' The function converts ambient pressure to kPa (Pcham), water vapor to ppm,
 #' and \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
-#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
+#' \ifelse{html}{\out{NO<sub>2</sub>}}{\eqn{NO[2]}{ASCII}}, NO and
 #' \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}} to ppb. If your
 #' instrument uses different units, either convert the units after import,
 #' change the settings on your instrument, or contact the maintainer
@@ -63,7 +68,8 @@
 #' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}, or 1 ppb for
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
-#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
+#' \ifelse{html}{\out{NO<sub>2</sub>}}{\eqn{NO[2]}{ASCII}}, NO and
 #' \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}) to allow for more
 #' curvature, especially for water vapor fluxes, or very long measurements, that
 #' are normally curved. The default values given for instrument precision are
@@ -104,6 +110,7 @@
 
 import.GasmetPD <- function(inputfile, date.format = "ymd", timezone = "UTC",
                             save = FALSE, keep_all = FALSE,
+                            gas = c("CO2_ppm", "CH4_ppm", "N2O_ppm", "NH3_ppm", "H2O_pct"),
                             prec = c(1.6, 13, 2, 23, 33)){
 
   # Check arguments
@@ -116,15 +123,18 @@ import.GasmetPD <- function(inputfile, date.format = "ymd", timezone = "UTC",
   if (!is.character(timezone)) stop("'timezone' must be of class character")
   if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
   if(keep_all != TRUE & keep_all != FALSE) stop("'keep_all' must be TRUE or FALSE")
+  if(is.null(gas)) stop("'gas' is required") else{
+    if(!is.character(gas)) stop("'gas' must be of class character")}
   if(is.null(prec)) stop("'prec' is required") else{
     if(!is.numeric(prec)) stop("'prec' must be of class numeric") else{
-      if(length(prec) != 5) stop("'prec' must be of length 5")}}
+      if(length(prec) != length(gas)) stop("'prec' must be the same length as 'gas'")}}
 
   # Assign NULL to variables without binding
   POSIX.warning <- import.error <- . <- CH4dry_ppm <- N2Odry_ppm <- flag <-
     NH3dry_ppm <- H2O_pct <- CO2dry_ppm <- CH4dry_ppb <- N2Odry_ppb <-
-    NH3dry_ppb <- H2O_ppm <- Date <- Time <- ID <- amb.press_mbar <-
-    meas_time <- starting_time <- chamID <- POSIX.time <- cham.close <- NULL
+    NH3dry_ppb <- H2O_ppm <- Date <- Time <- ID <- amb.press_mbar <- DATE <-
+    meas_time <- starting_time <- chamID <- POSIX.time <- cham.close <-
+    NO2dry_ppm <- NOdry_ppm <- NULL
 
   # Input file name
   inputfile.name <- gsub(".*/", "", inputfile)
@@ -140,30 +150,51 @@ import.GasmetPD <- function(inputfile, date.format = "ymd", timezone = "UTC",
             import.error, call. = F)
   } else {
 
+    # Match column names from gas
+    for(i in 1:length(gas)){
+      if(!any(grepl(gas[i], names(try.import)))){
+        stop(paste("Failed to import ", inputfile.name, ". The matching ",
+                   "string for gas '", gas[i], "' was not found in ",
+                   "column names.", sep =""))}}
+
     # Load data file
     data.raw <- try.import %>%
       # Add "dry" to gas column names
       setNames(gsub("_ppm", "dry_ppm", names(.))) %>%
-      # Convert ppm into ppb for CH4, N2O and NH3
-      mutate(CH4dry_ppb = CH4dry_ppm*1000,
-             N2Odry_ppb = N2Odry_ppm*1000,
-             NH3dry_ppb = NH3dry_ppm*1000) %>%
       # Convert H2O_pct to H2O_ppm
       mutate(H2O_ppm = H2O_pct*10000) %>%
       # Rename DATE and TIME
       rename(DATE = Date, TIME = Time) %>%
+      mutate(DATE = gsub("/", "-", sub(" ", "" , DATE))) %>%
       # Create chamID
       rename(chamID = ID) %>%
       # Convert ambient pressure to kPa
       mutate(Pcham = amb.press_mbar*0.1)
 
+    # Convert ppm to ppb for CH4, N2O, NO2, NO and NH3
+    if(any(grepl("CH4_ppm", gas))){
+      data.raw <- mutate(data.raw, CH4dry_ppb = CH4dry_ppm*1000)}
+    if(any(grepl("N2O_ppm", gas))){
+      data.raw <- mutate(data.raw, N2Odry_ppb = N2Odry_ppm*1000)}
+    if(any(grepl("NH3_ppm", gas))){
+      data.raw <- mutate(data.raw, NH3dry_ppb = NH3dry_ppm*1000)}
+    if(any(grepl("NO2_ppm", gas))){
+      data.raw <- mutate(data.raw, NO2dry_ppb = NO2dry_ppm*1000)}
+    if(any(grepl("NO_ppm", gas))){
+      data.raw <- mutate(data.raw, NOdry_ppb = NOdry_ppm*1000)}
+
     # Remove columns that are not used for gas flux calculations
     if(keep_all == FALSE){
       data.raw <- data.raw %>%
-        # Remove columns with original units
-        select(!c(CH4dry_ppm, N2Odry_ppm, NH3dry_ppm, H2O_pct, amb.press_mbar)) %>%
-        # Remove meas_time and starting_time
-        select(!c(meas_time, starting_time))}
+        # Remove meas_time, starting_time and amb.press_mbar
+        select(!c(meas_time, starting_time, amb.press_mbar))
+      if(any(grepl("CH4_ppm", gas))) data.raw <- select(data.raw, !CH4dry_ppm)
+      if(any(grepl("N2O_ppm", gas))) data.raw <- select(data.raw, !N2Odry_ppm)
+      if(any(grepl("NH3_ppm", gas))) data.raw <- select(data.raw, !NH3dry_ppm)
+      if(any(grepl("NO2_ppm", gas))) data.raw <- select(data.raw, !NO2dry_ppm)
+      if(any(grepl("NO_ppm", gas))) data.raw <- select(data.raw, !NOdry_ppm)
+      if(any(grepl("H2O_pct", gas))) data.raw <- select(data.raw, !H2O_pct)
+    }
 
     # Create a new column containing date and time (POSIX format)
     tryCatch(
@@ -211,9 +242,11 @@ import.GasmetPD <- function(inputfile, date.format = "ymd", timezone = "UTC",
                Etime = as.numeric(POSIX.time - start.time, units = "secs"))
 
       # Add instrument precision for each gas
-      data.raw <- data.raw %>%
-        mutate(CO2_prec = prec[1], CH4_prec = prec[2],  N2O_prec = prec[3],
-               NH3_prec = prec[4], H2O_prec = prec[5])
+      match_prec <- cbind.data.frame(gas, prec) %>%
+        mutate(gas = gsub("_...", "_prec", gas))
+      data.raw[match_prec$gas] <- 1
+      for(i in 1:nrow(match_prec)){
+        data.raw <- mutate_at(data.raw, match_prec$gas[i], ~match_prec$prec[i])}
 
       # Save cleaned data file
       if(save == TRUE){

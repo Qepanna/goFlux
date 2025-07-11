@@ -11,8 +11,8 @@
 #' @param gastype character string; specifies which gas should be displayed on
 #'                the plot to manually select start time and end time of
 #'                measurements. Must be one of the following: "CO2dry_ppm",
-#'                "COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" or
-#'                "H2O_ppm". Default is "CO2dry_ppm".
+#'                "COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NO2dry_ppb", "NOdry_ppb",
+#'                "NH3dry_ppb" or "H2O_ppm". Default is "CO2dry_ppm".
 #' @param sleep numerical value; delay before closing the resulting plot. Grants
 #'              a delay between measurements to visually inspect the output
 #'              before processing the next measurement. Sleep must be shorter
@@ -193,9 +193,9 @@ click.peak2 <- function(ow.list, gastype = "CO2dry_ppm", sleep = 3,
   if(is.null(gastype)) stop("'gastype' is required") else {
     if(!is.character(gastype)) stop("'gastype' must be a character string")}
   if(!any(grepl(paste("\\<", gastype, "\\>", sep = ""),
-                c("CO2dry_ppm", "COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb", "H2O_ppm")))){
+                c("CO2dry_ppm", "COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NO2dry_ppb", "NOdry_ppb", "NH3dry_ppb", "H2O_ppm")))){
     stop(paste("'gastype' must be of class character and one of the following:",
-               "'CO2dry_ppm', 'COdry_ppm', 'CH4dry_ppb', 'N2Odry_ppb', 'NH3dry_ppb' or 'H2O_ppm'"))}
+               "'CO2dry_ppm', 'COdry_ppm', 'CH4dry_ppb', 'N2Odry_ppb', 'NO2dry_ppb', 'NOdry_ppb', 'NH3dry_ppb' or 'H2O_ppm'"))}
   for (ow in seq){
     if(!any(grepl(paste("\\<", gastype, "\\>", sep = ""), names(ow.list[[ow]])))){
       stop("data frames in 'ow.list' must contain a column that matches 'gastype'")

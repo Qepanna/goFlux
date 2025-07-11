@@ -26,8 +26,8 @@ click.peak2(
 \item{gastype}{character string; specifies which gas should be displayed on
 the plot to manually select start time and end time of
 measurements. Must be one of the following: "CO2dry_ppm",
-"COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" or
-"H2O_ppm". Default is "CO2dry_ppm".}
+"COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NO2dry_ppb", "NOdry_ppb",
+"NH3dry_ppb" or "H2O_ppm". Default is "CO2dry_ppm".}
 
 \item{sleep}{numerical value; delay before closing the resulting plot. Grants
 a delay between measurements to visually inspect the output

@@ -10,6 +10,7 @@ import.GasmetPD(
   timezone = "UTC",
   save = FALSE,
   keep_all = FALSE,
+  gas = c("CO2_ppm", "CH4_ppm", "N2O_ppm", "NH3_ppm", "H2O_pct"),
   prec = c(1.6, 13, 2, 23, 33)
 )
 }
@@ -35,10 +36,13 @@ the Environment if assigned to an object.}
 file. The default is \code{keep_all = FALSE}, and columns that
 are not necessary for gas flux calculation are removed.}
 
-\item{prec}{numerical vector; the precision of the instrument for each gas,
-in the following order: "CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb",
-"NH3dry_ppb" and "H2O_ppm". The default is
-\code{prec = c(1.6, 13, 2, 23, 33)}.}
+\item{gas}{character vector; a pattern to match the columns containing each
+gas measurement. Choose from: "CO2dry_ppm", "CH4dry_ppb",
+"N2Odry_ppb", "NH3dry_ppb", "NO2_ppm", "NO_ppm" and "H2O_ppm".}
+
+\item{prec}{numerical vector; the precision of the instrument for each gas.
+Note that the order in the arguments \code{precX} must match the
+order of the arguments in \code{gas}.}
 }
 \value{
 A data frame containing raw data from the custom made multiplexer
@@ -46,10 +50,11 @@ A data frame containing raw data from the custom made multiplexer
 }
 \description{
 Imports single raw gas measurement files from the GasmetPD, a custom made
-multiplexer linked with the Gasmet DX4015
+multiplexer
 (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
 \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
+\ifelse{html}{\out{NO<sub>2</sub>}}{\eqn{NO[2]}{ASCII}}, NO,
 \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}} and
 \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 }
@@ -62,13 +67,15 @@ Note that this function was designed for the following units in the raw file:
 \itemize{
   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
   \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
-  \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+  \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
+  \ifelse{html}{\out{NO<sub>2</sub>}}{\eqn{NO[2]}{ASCII}}, NO and
   \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}
   \item percent (\%) for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
   \item mbar for pressure}
 The function converts ambient pressure to kPa (Pcham), water vapor to ppm,
 and \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
-\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
+\ifelse{html}{\out{NO<sub>2</sub>}}{\eqn{NO[2]}{ASCII}}, NO and
 \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}} to ppb. If your
 instrument uses different units, either convert the units after import,
 change the settings on your instrument, or contact the maintainer
@@ -82,7 +89,8 @@ better to use a low value (e.g. 1 ppm for
 \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
 \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}, or 1 ppb for
 \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
-\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
+\ifelse{html}{\out{NO<sub>2</sub>}}{\eqn{NO[2]}{ASCII}}, NO and
 \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}) to allow for more
 curvature, especially for water vapor fluxes, or very long measurements, that
 are normally curved. The default values given for instrument precision are

@@ -31,7 +31,8 @@ instead of \code{UniqueID}.}
 
 \item{gastype}{character string; specifies which column was used for the
 flux calculations. Must be one of the following: "CO2dry_ppm",
-"COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" or "H2O_ppm".}
+"COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NO2dry_ppb", "NOdry_ppb",
+"NH3dry_ppb" or "H2O_ppm".}
 
 \item{shoulder}{numerical value; time before and after measurement in observation
 window (seconds). Default is 30 seconds.}

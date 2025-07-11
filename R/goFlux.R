@@ -19,7 +19,8 @@
 #'                  \code{chamID} may be used instead of \code{UniqueID}.
 #' @param gastype character string; specifies which column should be used for the
 #'                flux calculations. Must be one of the following: "CO2dry_ppm",
-#'                "CH4dry_ppb", "COdry_ppb", "N2Odry_ppb", "NH3dry_ppb" or "H2O_ppm".
+#'                "CH4dry_ppb", "COdry_ppb", "N2Odry_ppb", "NH3dry_ppb", "NO_ppb",
+#'                "NO2_ppb" or "H2O_ppm".
 #' @param H2O_col character string; specifies which column should be used to
 #'                subtract the effect of water vapor in the chamber space.
 #'                Default is \code{H2O_col = "H2O_ppm"}.
@@ -209,11 +210,11 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
 
   ### gastype and match in dataframe ####
   if(missing(gastype)){
-    stop("'gastype' must be one of the following: 'CO2dry_ppm', 'CH4dry_ppb', 'COdry_ppb', 'N2Odry_ppb', 'NH3dry_ppb' or 'H2O_ppm'")}
+    stop("'gastype' must be one of the following: 'CO2dry_ppm', 'CH4dry_ppb', 'COdry_ppb', 'N2Odry_ppb', 'NH3dry_ppb', 'NO2dry_ppb', 'NOdry_ppb' or 'H2O_ppm'")}
   if(!is.null(gastype) & !is.character(gastype)) stop("'gastype' must be a character string")
   if(!any(grepl(paste("\\<", gastype, "\\>", sep = ""),
-                c("CO2dry_ppm", "CH4dry_ppb", "COdry_ppb", "N2Odry_ppb", "NH3dry_ppb", "H2O_ppm")))){
-    stop("'gastype' must be one of the following: 'CO2dry_ppm', 'CH4dry_ppb', 'COdry_ppb', 'N2Odry_ppb', 'NH3dry_ppb' or 'H2O_ppm'")}
+                c("CO2dry_ppm", "CH4dry_ppb", "COdry_ppb", "N2Odry_ppb", "NH3dry_ppb", "NO2dry_ppb", "NOdry_ppb", "H2O_ppm")))){
+    stop("'gastype' must be one of the following: 'CO2dry_ppm', 'CH4dry_ppb', 'COdry_ppb', 'N2Odry_ppb', 'NH3dry_ppb', 'NO2dry_ppb', 'NOdry_ppb' or 'H2O_ppm'")}
   if(!any(grepl(paste("\\<", gastype, "\\>", sep = ""), names(dataframe)))){
     stop("'dataframe' must contain a column that matches 'gastype'")}
   if(any(grepl(paste("\\<", gastype, "\\>", sep = ""), names(dataframe))) &
@@ -243,6 +244,12 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     if(gastype == "N2Odry_ppb" &
        !any(grepl(paste("\\<N2O_prec\\>", sep = ""), names(dataframe)))){
       stop("'dataframe' must contain the column 'N2O_prec' if prec = NULL")}
+    if(gastype == "NO2dry_ppb" &
+       !any(grepl(paste("\\<NO2_prec\\>", sep = ""), names(dataframe)))){
+      stop("'dataframe' must contain the column 'NO2_prec' if prec = NULL")}
+    if(gastype == "NOdry_ppb" &
+       !any(grepl(paste("\\<NO_prec\\>", sep = ""), names(dataframe)))){
+      stop("'dataframe' must contain the column 'NO_prec' if prec = NULL")}
   }
 
   ### H2O_col and match in dataframe ####
@@ -428,6 +435,8 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
       if(gastype == "CH4dry_ppb") prec <- unique(na.omit(data_split[[f]]$CH4_prec))
       if(gastype == "COdry_ppb") prec <- unique(na.omit(data_split[[f]]$CO_prec))
       if(gastype == "N2Odry_ppb") prec <- unique(na.omit(data_split[[f]]$N2O_prec))
+      if(gastype == "NO2dry_ppb") prec <- unique(na.omit(data_split[[f]]$NO2_prec))
+      if(gastype == "NOdry_ppb") prec <- unique(na.omit(data_split[[f]]$NO_prec))
       if(gastype == "NH3dry_ppb") prec <- unique(na.omit(data_split[[f]]$NH3_prec))
       if(gastype == "H2O_ppm") prec <- unique(na.omit(data_split[[f]]$H2O_prec))
     }

@@ -31,7 +31,8 @@ and the following columns: \code{UniqueID}, \code{Etime},
 
 \item{gastype}{character string; specifies which column should be used for the
 flux calculations. Must be one of the following: "CO2dry_ppm",
-"CH4dry_ppb", "COdry_ppb", "N2Odry_ppb", "NH3dry_ppb" or "H2O_ppm".}
+"CH4dry_ppb", "COdry_ppb", "N2Odry_ppb", "NH3dry_ppb", "NO_ppb",
+"NO2_ppb" or "H2O_ppm".}
 
 \item{H2O_col}{character string; specifies which column should be used to
 subtract the effect of water vapor in the chamber space.
