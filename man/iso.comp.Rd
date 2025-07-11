@@ -3,23 +3,32 @@
 \name{iso.comp}
 \alias{iso.comp}
 \title{Determine the isotopic composition of
-\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} measurements}
+\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
+\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} measurements}
 \usage{
 iso.comp(
   dataframe,
   CO2dry_ppm = "CO2dry_ppm",
   delta_13C = "Delta_Raw_iCO2",
+  N2Odry_ppb = "N2Odry_ppb",
+  delta_15N = "d15N",
+  delta_18O = "d18O",
   save.plots
 )
 }
 \arguments{
 \item{dataframe}{a data.frame containing measurements of isotopic fractions of
-\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
+\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} or
+\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}
 and a \code{UniqueID} (or \code{chamID}) per measurements.}
 
 \item{CO2dry_ppm, delta_13C}{character string; specifies which columns should be
 used for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
 measurements, and the delta 13C, respectively.}
+
+\item{N2Odry_ppb, delta_15N, delta_18O}{character string; specifies which columns
+should be used for \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}
+measurements, the delta 15N and the delta 18O, respectively.}
 
 \item{save.plots}{character string; a file path with the extension .pdf to
 save Keeling plots. By default plots are not saved.}
@@ -29,8 +38,9 @@ A data frame of the isotopic composition per measurement (UniqueID)
 }
 \description{
 Extracts the y-intercept of the regression between the isotope ratios plotted
-againts the inverse of the \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
-concentration
+against the inverse of the gas concentration
+(\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} or
+\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}})
 }
 \examples{
 data(manID.G2201i)

@@ -63,6 +63,7 @@
 #' @importFrom grid gpar
 #' @importFrom grid textGrob
 #' @importFrom gridExtra marrangeGrob
+#' @importFrom gridExtra grid.arrange
 #' @importFrom jsonlite parse_json
 #' @importFrom lifecycle deprecated
 #' @importFrom lifecycle deprecate_warn
