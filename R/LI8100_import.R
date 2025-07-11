@@ -115,13 +115,24 @@ LI8100_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
     error = function(e) {import.error <<- e}
   )
 
+  # Skip first line in problematic files
+  skip.extra <- 0
+  if(inherits(try.import, "simpleError")){
+    if(try.import$message == "more columns than column names"){
+      try.import <- tryCatch(
+        {read.delim(inputfile, skip = 1)},
+        error = function(e) {import.error <<- e}
+      )
+      skip.extra <- 1
+    }}
+
   if(inherits(try.import, "simpleError")){
     warning("Error occurred in file ", inputfile.name, ":\n", "   ",
             import.error, call. = F)
   } else {
 
     # Find how many rows need to be skipped
-    skip.rows <- as.numeric(which(try.import == "Type"))[1]
+    skip.rows <- as.numeric(which(try.import == "Type"))[1] + skip.extra
 
     # Import raw data file from LI8100 (.81x)
     data.raw <- read.delim(inputfile, skip = skip.rows) %>%
@@ -244,3 +255,4 @@ LI8100_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
 #' @export
 #' @rdname LI8100_import
 import.LI8100 <- LI8100_import
+
