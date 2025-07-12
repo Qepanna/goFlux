@@ -26,10 +26,10 @@
 #'                 file. The default is \code{keep_all = FALSE}, and columns that
 #'                 are not necessary for gas flux calculation are removed.
 #' @param gas character vector; a pattern to match the columns containing each
-#'            gas measurement. Choose from: "CO2dry_ppm", "CH4dry_ppb",
-#'            "N2Odry_ppb", "NH3dry_ppb", "NO2_ppm", "NO_ppm" and "H2O_ppm".
+#'            gas measurement. Choose from: "CO2_ppm", "CH4_ppm", "N2O_ppm",
+#'            "NH3_ppm", "NO2_ppm", "NO_ppm" and "H2O_ppm".
 #' @param prec numerical vector; the precision of the instrument for each gas.
-#'             Note that the order in the arguments \code{precX} must match the
+#'             Note that the order in the arguments \code{prec} must match the
 #'             order of the arguments in \code{gas}.
 #'
 #' @returns A data frame containing raw data from the custom made multiplexer
@@ -93,6 +93,7 @@
 #'          \code{\link[goFlux]{import.LI8200}},
 #'          \code{\link[goFlux]{import.LI8250}},
 #'          \code{\link[goFlux]{import.N2OM1}},
+#'          \code{\link[goFlux]{import.N2Oi2}},
 #'          \code{\link[goFlux]{import.uCH4}},
 #'          \code{\link[goFlux]{import.uN2O}},
 #'          \code{\link[goFlux]{import.UGGA}}
@@ -112,6 +113,7 @@ import.GasmetPD <- function(inputfile, date.format = "ymd", timezone = "UTC",
                             save = FALSE, keep_all = FALSE,
                             gas = c("CO2_ppm", "CH4_ppm", "N2O_ppm", "NH3_ppm", "H2O_pct"),
                             prec = c(1.6, 13, 2, 23, 33)){
+
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")

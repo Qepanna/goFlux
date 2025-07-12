@@ -5,8 +5,10 @@
 #' * \strong{LI-COR}: LI-6400, LI-7810, LI-7820, LI-8100, LI-8200 (smart chamber),
 #'                    LI-8250 (Multiplexer)
 #' * \strong{Los Gatos Research (LGR)}: ultra-portable GGA (GLA132 series),
-#'                                      micro ultra-portable GGA (GLA131 series)
-#'                                      and N2OM1 (GLA151 series)
+#'                                      micro ultra-portable GGA (GLA131 series),
+#'                                      N2OM1 (GLA151 series), and the
+#'                                      \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}
+#'                                      isotopic analyzer N2Oi2 (GLA451 series)
 #' * \strong{GAIA2TECH (DMR)}: automated chamber ECOFlux
 #' * \strong{Picarro}: G2201-i, G2508 and G4301
 #' * \strong{Gasmet}: DX4015 and GT5000
@@ -27,9 +29,9 @@
 #'                   generate the files contained in the folder path. Choose one
 #'                   of the following: "DX4015", "EGM5", "G2201i", "G2508", "G4301",
 #'                   "GAIA", "GasmetPD", "GT5000", "LI-6400", "LI-7810", "LI-7820",
-#'                   "LI-8100", "LI-8200", "LI-8250", "N2OM1", "uCH4", "uN2O",
-#'                   "UGGA". For more information about an instrument, see the
-#'                   section "See Also" below.
+#'                   "LI-8100", "LI-8200", "LI-8250", "N2OM1", "N2Oi2", "uCH4",
+#'                   "uN2O", "UGGA". For more information about an instrument,
+#'                   see the section "See Also" below.
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
 #'                    or "mdy".
@@ -73,6 +75,7 @@
 #'        for more details.
 #' @inheritParams import.GAIA
 #' @inheritParams import.G2201i
+#' @inheritParams import.GasmetPD
 #'
 #' @returns Raw files saved as RData in a newly created folder, RData, into
 #'          the working directory.
@@ -96,6 +99,7 @@
 #' \item LI-8100: column Date
 #' \item LI-8200: (see comment below)
 #' \item N2OM1: column Time
+#' \item N2Oi2: column Time
 #' \item uCH4: column Time Stamp
 #' \item uN2O: column Time Stamp
 #' \item UGGA: column Time
@@ -124,6 +128,8 @@
 #' The arguments \code{CH4}, \code{CO2}, \code{sum} and \code{range} are used
 #' with the function \code{\link[goFlux]{import.G2201i}} only.
 #'
+#' The argument \code{gas} is used with the function \code{\link[goFlux]{import.GasmetPD}} only.
+#'
 #' @include goFlux-package.R
 #' @include DX4015_import.R
 #' @include EGM5_import.R
@@ -141,6 +147,7 @@
 #' @include LI8200_import.R
 #' @include import.LI8250.R
 #' @include N2OM1_import.R
+#' @include import.N2Oi2.R
 #' @include uCH4_import.R
 #' @include uN2O_import.R
 #'
@@ -162,6 +169,7 @@
 #'          \code{\link[goFlux]{import.LI8200}},
 #'          \code{\link[goFlux]{import.LI8250}},
 #'          \code{\link[goFlux]{import.N2OM1}},
+#'          \code{\link[goFlux]{import.N2Oi2}},
 #'          \code{\link[goFlux]{import.uCH4}},
 #'          \code{\link[goFlux]{import.uN2O}},
 #'          \code{\link[goFlux]{import.UGGA}}
@@ -225,6 +233,7 @@
 #' # with the custom multiplexer from the University of Padova (GasmetPD)
 #' file.path <- system.file("extdata/GasmetPD", package = "goFlux")
 #' import2RData(path = file.path, instrument = "GasmetPD",
+#'              gas = c("CO2_ppm", "CH4_ppm", "N2O_ppm", "NH3_ppm", "H2O_pct"),
 #'              date.format = "ymd", prec = c(1.6, 13, 2, 23, 33))
 #'
 #' # with Los Gatos Research UGGA (GLA132 series)
@@ -241,6 +250,11 @@
 #' file.path <- system.file("extdata/N2OM1", package = "goFlux")
 #' import2RData(path = file.path, instrument = "N2OM1",
 #'              date.format = "dmy", prec = c(0.5, 2, 50))
+#'
+#' # with Los Gatos Research N2Oi2 (GLA451 series)
+#' file.path <- system.file("extdata/N2Oi2", package = "goFlux")
+#' import2RData(path = file.path, instrument = "N2Oi2",
+#'              date.format = "dmy", prec = c(0.05, 50))
 #'
 #' # with the LI-COR LI-6400 gas analyzer
 #' file.path <- system.file("extdata/LI6400", package = "goFlux")
@@ -292,7 +306,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                          SWC.col, Tsoil.col, Tcham.col, PAR.col, WTD.col,
                          CH.col, Op.stat.col,
                          inst1, inst2 = NULL, inst3 = NULL,
-                         gas1, gas2 = NULL, gas3 = NULL,
+                         gas1, gas2 = NULL, gas3 = NULL, gas,
                          prec1, prec2 = NULL, prec3 = NULL,
                          dry1 = T, dry2 = T, dry3 = NULL,
                          manual = F, sep = "\t", skip = 1,
@@ -307,11 +321,11 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
   if(!any(grepl(paste("\\<", instrument, "\\>", sep = ""),
                 c("DX4015", "UGGA", "G2201i", "G2508", "G4301", "GAIA", "LI-6400",
                   "EGM5", "LI-7810", "LI-7820", "LI-8100", "LI-8200", "N2OM1",
-                  "uCH4", "uN2O", "GasmetPD", "GT5000", "LI-8250")))){
+                  "N2Oi2", "uCH4", "uN2O", "GasmetPD", "GT5000", "LI-8250")))){
     stop(paste("'instrument' must be of class character and one of the following:",
                "'DX4015', 'EGM5', 'G2508', 'G4301', 'GAIA', 'GasmetPD', 'GT5000',",
                "'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100', 'LI-8200', 'LI-8250',",
-               "'UGGA', 'N2OM1', 'uCH4', 'uN2O'"))}
+               "'UGGA', 'N2OM1', 'N2Oi2', 'uCH4', 'uN2O'"))}
   if(!missing(date.format)){
     if(length(date.format) != 1) stop("'date.format' must be of length 1")
     if (!is.character(date.format)) stop("'date.format' must be of class character")
@@ -588,6 +602,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                         timezone = timezone,
                         save = TRUE,
                         keep_all = keep_all,
+                        gas = gas,
                         prec = prec),
 
         error = function(e){
@@ -915,6 +930,43 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
       withCallingHandlers(
 
         import.N2OM1(inputfile = file_list[i],
+                     date.format = date.format,
+                     timezone = timezone,
+                     save = TRUE,
+                     keep_all = keep_all,
+                     prec = prec),
+
+        error = function(e){
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
+    })
+  }
+
+  # N2Oi2 ####
+  if(instrument == "N2Oi2"){
+
+    # List all the files contained in the specified path
+    file_list <- list.files(path = path, pattern = "\\.txt", full.names = TRUE)
+
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .txt",
+                                       "was found in the folder path", path))
+
+    # Loop through files in "file_list" and apply import functions
+    pblapply(seq_along(file_list), function(i) {
+
+      withCallingHandlers(
+
+        import.N2Oi2(inputfile = file_list[i],
                      date.format = date.format,
                      timezone = timezone,
                      save = TRUE,

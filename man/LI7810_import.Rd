@@ -115,6 +115,7 @@ See also, import functions for other instruments:
          \code{\link[goFlux]{import.LI8200}},
          \code{\link[goFlux]{import.LI8250}},
          \code{\link[goFlux]{import.N2OM1}},
+         \code{\link[goFlux]{import.N2Oi2}},
          \code{\link[goFlux]{import.uCH4}},
          \code{\link[goFlux]{import.uN2O}},
          \code{\link[goFlux]{import.UGGA}}

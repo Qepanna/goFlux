@@ -93,7 +93,7 @@
 #' @export
 
 import.N2Oi2 <- function(inputfile, date.format = "dmy", timezone = "UTC",
-                         save = FALSE, keep_all = FALSE, prec = c(0.2, 50)){
+                         save = FALSE, keep_all = FALSE, prec = c(0.05, 50)){
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")

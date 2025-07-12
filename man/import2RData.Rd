@@ -30,6 +30,7 @@ import2RData(
   gas1,
   gas2 = NULL,
   gas3 = NULL,
+  gas,
   prec1,
   prec2 = NULL,
   prec3 = NULL,
@@ -54,9 +55,9 @@ files to be imported.}
 generate the files contained in the folder path. Choose one
 of the following: "DX4015", "EGM5", "G2201i", "G2508", "G4301",
 "GAIA", "GasmetPD", "GT5000", "LI-6400", "LI-7810", "LI-7820",
-"LI-8100", "LI-8200", "LI-8250", "N2OM1", "uCH4", "uN2O",
-"UGGA". For more information about an instrument, see the
-section "See Also" below.}
+"LI-8100", "LI-8200", "LI-8250", "N2OM1", "N2Oi2", "uCH4",
+"uN2O", "UGGA". For more information about an instrument,
+see the section "See Also" below.}
 
 \item{date.format}{character string; specifies the date format found in the
 raw data file. Choose one of the following: "dmy", "ymd",
@@ -115,6 +116,10 @@ for more details.}
 containing each gas measurement. See
 \code{\link[goFlux]{import.GAIA}} or \code{\link[goFlux]{import.LI8250}}
 for more details.}
+
+\item{gas}{character vector; a pattern to match the columns containing each
+gas measurement. Choose from: "CO2_ppm", "CH4_ppm", "N2O_ppm",
+"NH3_ppm", "NO2_ppm", "NO_ppm" and "H2O_ppm".}
 
 \item{prec1, prec2, prec3}{numerical vectors; the precision of the instrument
 for each gas mentioned in \code{gas1} and \code{gas2}. See
@@ -175,8 +180,10 @@ Adapted to multiple greenhouse gas analyzers and other instruments:
 \item \strong{LI-COR}: LI-6400, LI-7810, LI-7820, LI-8100, LI-8200 (smart chamber),
 LI-8250 (Multiplexer)
 \item \strong{Los Gatos Research (LGR)}: ultra-portable GGA (GLA132 series),
-micro ultra-portable GGA (GLA131 series)
-and N2OM1 (GLA151 series)
+micro ultra-portable GGA (GLA131 series),
+N2OM1 (GLA151 series), and the
+\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}
+isotopic analyzer N2Oi2 (GLA451 series)
 \item \strong{GAIA2TECH (DMR)}: automated chamber ECOFlux
 \item \strong{Picarro}: G2201-i, G2508 and G4301
 \item \strong{Gasmet}: DX4015 and GT5000
@@ -209,6 +216,7 @@ one of the columns in the raw data file:
 \item LI-8100: column Date
 \item LI-8200: (see comment below)
 \item N2OM1: column Time
+\item N2Oi2: column Time
 \item uCH4: column Time Stamp
 \item uN2O: column Time Stamp
 \item UGGA: column Time
@@ -236,6 +244,8 @@ function \code{\link[goFlux]{import.LI8250}}.
 
 The arguments \code{CH4}, \code{CO2}, \code{sum} and \code{range} are used
 with the function \code{\link[goFlux]{import.G2201i}} only.
+
+The argument \code{gas} is used with the function \code{\link[goFlux]{import.GasmetPD}} only.
 }
 \examples{
 
@@ -296,6 +306,7 @@ import2RData(path = file.path, instrument = "GAIA", date.format = "ymd",
 # with the custom multiplexer from the University of Padova (GasmetPD)
 file.path <- system.file("extdata/GasmetPD", package = "goFlux")
 import2RData(path = file.path, instrument = "GasmetPD",
+             gas = c("CO2_ppm", "CH4_ppm", "N2O_ppm", "NH3_ppm", "H2O_pct"),
              date.format = "ymd", prec = c(1.6, 13, 2, 23, 33))
 
 # with Los Gatos Research UGGA (GLA132 series)
@@ -312,6 +323,11 @@ import2RData(path = file.path, instrument = "UGGA",
 file.path <- system.file("extdata/N2OM1", package = "goFlux")
 import2RData(path = file.path, instrument = "N2OM1",
              date.format = "dmy", prec = c(0.5, 2, 50))
+
+# with Los Gatos Research N2Oi2 (GLA451 series)
+file.path <- system.file("extdata/N2Oi2", package = "goFlux")
+import2RData(path = file.path, instrument = "N2Oi2",
+             date.format = "dmy", prec = c(0.05, 50))
 
 # with the LI-COR LI-6400 gas analyzer
 file.path <- system.file("extdata/LI6400", package = "goFlux")
@@ -375,6 +391,7 @@ Import functions for individual instruments:
 \code{\link[goFlux]{import.LI8200}},
 \code{\link[goFlux]{import.LI8250}},
 \code{\link[goFlux]{import.N2OM1}},
+\code{\link[goFlux]{import.N2Oi2}},
 \code{\link[goFlux]{import.uCH4}},
 \code{\link[goFlux]{import.uN2O}},
 \code{\link[goFlux]{import.UGGA}}

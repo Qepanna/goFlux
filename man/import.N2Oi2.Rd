@@ -10,7 +10,7 @@ import.N2Oi2(
   timezone = "UTC",
   save = FALSE,
   keep_all = FALSE,
-  prec = c(0.2, 50)
+  prec = c(0.05, 50)
 )
 }
 \arguments{
@@ -37,7 +37,7 @@ are not necessary for gas flux calculation are removed.}
 
 \item{prec}{numerical vector; the precision of the instrument for each gas,
 in the following order: "N2Odry_ppb" and "H2O_ppm".
-The default is \code{prec = c(0.2, 50)}.}
+The default is \code{prec = c(0.05, 50)}.}
 }
 \value{
 A data frame containing raw data from the LGR GHG analyzer
