@@ -4,8 +4,10 @@ Adapted to multiple greenhouse gas analyzers and other instruments:
 LI-COR: LI-6400, LI-7810, LI-7820, LI-8100, LI-8200 (smart chamber),
 LI-8250 (Multiplexer)
 Los Gatos Research (LGR): ultra-portable GGA (GLA132 series),
-micro ultra-portable GGA (GLA131 series)
-and N2OM1 (GLA151 series)
+micro ultra-portable GGA (GLA131 series),
+N2OM1 (GLA151 series), and the
+N2O
+isotopic analyzer N2Oi2 (GLA451 series)
 GAIA2TECH (DMR): automated chamber ECOFlux
 Picarro: G2201-i, G2508 and G4301
 Gasmet: DX4015 and GT5000
@@ -63,8 +65,10 @@ GasmetPD: Custom multiplexer from the University of Padova, Italy
 Adapted to multiple greenhouse gas analyzers and other instruments:</p><ul><li><p><strong>LI-COR</strong>: LI-6400, LI-7810, LI-7820, LI-8100, LI-8200 (smart chamber),
 LI-8250 (Multiplexer)</p></li>
 <li><p><strong>Los Gatos Research (LGR)</strong>: ultra-portable GGA (GLA132 series),
-micro ultra-portable GGA (GLA131 series)
-and N2OM1 (GLA151 series)</p></li>
+micro ultra-portable GGA (GLA131 series),
+N2OM1 (GLA151 series), and the
+N<sub>2</sub>O
+isotopic analyzer N2Oi2 (GLA451 series)</p></li>
 <li><p><strong>GAIA2TECH (DMR)</strong>: automated chamber ECOFlux</p></li>
 <li><p><strong>Picarro</strong>: G2201-i, G2508 and G4301</p></li>
 <li><p><strong>Gasmet</strong>: DX4015 and GT5000</p></li>
@@ -105,6 +109,7 @@ natural gas detection system</p></li>
 <span>  <span class="va">gas1</span>,</span>
 <span>  gas2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  gas3 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">gas</span>,</span>
 <span>  <span class="va">prec1</span>,</span>
 <span>  prec2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  prec3 <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -136,9 +141,9 @@ files to be imported.</p></dd>
 generate the files contained in the folder path. Choose one
 of the following: "DX4015", "EGM5", "G2201i", "G2508", "G4301",
 "GAIA", "GasmetPD", "GT5000", "LI-6400", "LI-7810", "LI-7820",
-"LI-8100", "LI-8200", "LI-8250", "N2OM1", "uCH4", "uN2O",
-"UGGA". For more information about an instrument, see the
-section "See Also" below.</p></dd>
+"LI-8100", "LI-8200", "LI-8250", "N2OM1", "N2Oi2", "uCH4",
+"uN2O", "UGGA". For more information about an instrument,
+see the section "See Also" below.</p></dd>
 
 
 <dt id="arg-date-format">date.format<a class="anchor" aria-label="anchor" href="#arg-date-format"></a></dt>
@@ -223,6 +228,12 @@ for more details.</p></dd>
 containing each gas measurement. See
 <code><a href="GAIA_import.html">import.GAIA</a></code> or <code><a href="import.LI8250.html">import.LI8250</a></code>
 for more details.</p></dd>
+
+
+<dt id="arg-gas">gas<a class="anchor" aria-label="anchor" href="#arg-gas"></a></dt>
+<dd><p>character vector; a pattern to match the columns containing each
+gas measurement. Choose from: "CO2_ppm", "CH4_ppm", "N2O_ppm",
+"NH3_ppm", "NO2_ppm", "NO_ppm" and "H2O_ppm".</p></dd>
 
 
 <dt id="arg-prec-prec-prec-">prec1, prec2, prec3<a class="anchor" aria-label="anchor" href="#arg-prec-prec-prec-"></a></dt>
@@ -314,6 +325,7 @@ one of the columns in the raw data file:</p><ul><li><p>DX4015: column Date</p></
 <li><p>LI-8100: column Date</p></li>
 <li><p>LI-8200: (see comment below)</p></li>
 <li><p>N2OM1: column Time</p></li>
+<li><p>N2Oi2: column Time</p></li>
 <li><p>uCH4: column Time Stamp</p></li>
 <li><p>uN2O: column Time Stamp</p></li>
 <li><p>UGGA: column Time</p></li>
@@ -337,6 +349,7 @@ are used with both the function <code><a href="GAIA_import.html">import.GAIA</a>
 function <code><a href="import.LI8250.html">import.LI8250</a></code>.</p>
 <p>The arguments <code>CH4</code>, <code>CO2</code>, <code>sum</code> and <code>range</code> are used
 with the function <code><a href="import.G2201i.html">import.G2201i</a></code> only.</p>
+<p>The argument <code>gas</code> is used with the function <code><a href="import.GasmetPD.html">import.GasmetPD</a></code> only.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -358,6 +371,7 @@ to import multiple files from the same folder path using any instrument.</p>
 <code><a href="LI8200_import.html">import.LI8200</a></code>,
 <code><a href="import.LI8250.html">import.LI8250</a></code>,
 <code><a href="N2OM1_import.html">import.N2OM1</a></code>,
+<code><a href="import.N2Oi2.html">import.N2Oi2</a></code>,
 <code><a href="uCH4_import.html">import.uCH4</a></code>,
 <code><a href="uN2O_import.html">import.uN2O</a></code>,
 <code><a href="LGR_import.html">import.UGGA</a></code></p></div>
@@ -431,6 +445,7 @@ to import multiple files from the same folder path using any instrument.</p>
 <span class="r-in"><span><span class="co"># with the custom multiplexer from the University of Padova (GasmetPD)</span></span></span>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/GasmetPD"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"GasmetPD"</span>,</span></span>
+<span class="r-in"><span>             gas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CO2_ppm"</span>, <span class="st">"CH4_ppm"</span>, <span class="st">"N2O_ppm"</span>, <span class="st">"NH3_ppm"</span>, <span class="st">"H2O_pct"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"ymd"</span>, prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.6</span>, <span class="fl">13</span>, <span class="fl">2</span>, <span class="fl">23</span>, <span class="fl">33</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> GasmetPD.txt saved as GasmetPD_GasmetPD_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
@@ -451,6 +466,12 @@ to import multiple files from the same folder path using any instrument.</p>
 <span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"N2OM1"</span>,</span></span>
 <span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"dmy"</span>, prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">2</span>, <span class="fl">50</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> N2OM1.txt saved as N2OM1_N2OM1_imp.RData in RData folder, in working directory</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># with Los Gatos Research N2Oi2 (GLA451 series)</span></span></span>
+<span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/N2Oi2"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"N2Oi2"</span>,</span></span>
+<span class="r-in"><span>             date.format <span class="op">=</span> <span class="st">"dmy"</span>, prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">50</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> N2Oi2.txt saved as N2Oi2_N2Oi2_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with the LI-COR LI-6400 gas analyzer</span></span></span>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/LI6400"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
