@@ -115,65 +115,67 @@ LI8200_import <- function(inputfile, date.format = "ymd",
 
     # Create empty lists to extract objects from lists of data.raw.ls
     df.ls <- list()
-    plotID.ls <- list()
-    cham.close.ls <- list()
-    deadband.ls <- list()
-    Vcham.ls <- list()
-    offset.ls <- list()
-    Area.ls <- list()
 
     # Loop through data.raw.ls
     for (i in 1:length(data.raw.ls$datasets)) {
+
       # loop through all measurements reps
       all.reps <- data.raw.ls$datasets[[i]][[1]]$reps
-      # Extract plotID from list "datasets"
-      plotID.ls[[i]] <- names(data.raw.ls$datasets[[i]])
+
       if(length(all.reps) > 0) {
+        # Create empty lists to store results
         rep.ls <- list()
+        cham.close.ls <- list()
+        deadband.ls <- list()
+        Vcham.ls <- list()
+        offset.ls <- list()
+        Area.ls <- list()
+
         for (j in 1:length(all.reps)) {
           # Extract gas measurements from "data"
           rep.ls[[j]] <- all.reps[[j]]$data
           # Extract chamber closure time from "Date"
-          cham.close.ls[[i]] <- all.reps[[j]]$header$Date
+          cham.close.ls[[j]] <- all.reps[[j]]$header$Date
           # Extract deadband before measurement start from "DeadBand"
-          deadband.ls[[i]] <- all.reps[[j]]$header$DeadBand
+          deadband.ls[[j]] <- all.reps[[j]]$header$DeadBand
           # Extract chamber volume from "Vcham"
-          Vcham.ls[[i]] <- all.reps[[j]]$header$TotalVolume
+          Vcham.ls[[j]] <- all.reps[[j]]$header$TotalVolume
           # Extract chamber offset (collar height) from "Offset"
-          offset.ls[[i]] <- all.reps[[j]]$header$Offset
+          offset.ls[[j]] <- all.reps[[j]]$header$Offset
           # Extract chamber Area (collar inner Area) from "Area"
-          Area.ls[[i]] <- all.reps[[j]]$header$Area
+          Area.ls[[j]] <- all.reps[[j]]$header$Area
         }
         # Convert list of data into a dataframe
-        df.ls[[i]] <- map_df(rep.ls, ~as.data.frame(.x), .id="rep")
+        rep.res <- map_df(rep.ls, ~as.data.frame(.x), .id="rep")
+
+        # Convert lists of metadata into matrix
+        metadata <- cbind.data.frame(
+          rep = as.character(c(1:length(all.reps))),
+          cham.close = unlist(cham.close.ls),
+          deadband = unlist(deadband.ls),
+          Vcham = unlist(Vcham.ls),
+          offset = unlist(offset.ls),
+          Area = unlist(Area.ls)) %>%
+          mutate(Vcham = Vcham/100)
+
+        # Merge data with metadata
+        rep.res <- rep.res %>%
+          left_join(as.data.frame(metadata), by = "rep") %>%
+          mutate(plotID = names(data.raw.ls$datasets[[i]]))
 
       } else {
-        cham.close.ls[[i]] <- NA
-        deadband.ls[[i]] <- NA
-        Vcham.ls[[i]] <- NA
-        offset.ls[[i]] <- NA
-        Area.ls[[i]] <- NA
+        rep.res <- cbind.data.frame(plotID = names(data.raw.ls$datasets[[i]]))
       }
-    }
 
-    # Convert lists of metadata into matrix
-    metadata <- cbind.data.frame(
-      Obs = as.character(c(1:length(data.raw.ls$datasets))),
-      plotID = unlist(plotID.ls),
-      cham.close = unlist(cham.close.ls),
-      deadband = unlist(deadband.ls),
-      Vcham = unlist(Vcham.ls),
-      offset = unlist(offset.ls),
-      Area = unlist(Area.ls)) %>%
-      mutate(Vcham = Vcham/100)
+      df.ls[[i]] <- rep.res
+    }
 
     # Create extra columns for CO2, CH4 or N2O, if missing
     cols <- c(co2 = NA_real_, ch4 = NA_real_, n2o = NA_real_)
 
     # Convert list of dataframe into a dataframe
     data.raw <- map_df(df.ls, ~as.data.frame(.x), .id="Obs") %>%
-      # Add metadata and extra columns for additional gases
-      left_join(as.data.frame(metadata), by = "Obs")%>%
+      # Add extra columns for additional gases
       add_column(!!!cols[!names(cols) %in% names(.)]) %>%
       # Convert H2O_mmol/mol into H2O_ppm
       mutate(H2O_ppm = h2o*1000)
@@ -252,3 +254,4 @@ LI8200_import <- function(inputfile, date.format = "ymd",
 #' @export
 #' @rdname LI8200_import
 import.LI8200 <- LI8200_import
+
