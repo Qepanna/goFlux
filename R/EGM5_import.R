@@ -160,13 +160,26 @@ EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
     # Column names
     col.names <- try.import %>% names(.)
 
-    # Load data file
-    data.raw <- read.delim(inputfile, sep = ",", header = F) %>%
-      # Rename headers
-      rename_all(~c(col.names[1:17], paste("param", seq(1,5), sep = ""))) %>%
-      # Detect start.time
-      mutate(start_flag = if_else(
-        row_number() %in% (which(.$Tag.M3. == "Start")+1), 1, 0))
+    # Load data file and rename headers
+    if(length(col.names)==22){
+      data.raw <- read.delim(inputfile, sep = ",", header = F) %>%
+        rename_all(~c(col.names[1:17], paste("param", seq(1,5), sep = "")))
+    }
+
+    if(length(col.names)==17) data.raw <- try.import
+
+    # Detect start.time
+    if(any(grepl("Start", data.raw$Tag.M3.))){
+      data.raw <- data.raw %>%
+        mutate(start_flag = if_else(
+          row_number() %in% (which(.$Tag.M3. == "Start")+1), 1, 0))
+    }
+
+    if(any(grepl("Zero", data.raw$Tag.M3.))){
+      data.raw <- data.raw %>%
+        mutate(start_flag = if_else(
+          row_number() %in% (which(.$Tag.M3. == "Zero")+1), 1, 0))
+    }
 
     # Convert column classes
     suppressWarnings(
@@ -215,11 +228,11 @@ EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
       if(sum(data.raw$H2O_ppm) > 0){
         data.raw <- data.raw %>%
           select(DATE, TIME, Plot_No, Obs, CO2dry_ppm, O2dry_pct, H2O_ppm, PAR,
-                 Tsoil, Tcham, SWC, param1, param2, param3, param4, param5)
+                 Tsoil, Tcham, SWC, all_of(c(param1, param2, param3, param4, param5)))
       } else {
         data.raw <- data.raw %>%
           select(DATE, TIME, Plot_No, Obs, CO2wet_ppm, O2wet_pct, PAR, Tsoil,
-                 Tcham, SWC, param1, param2, param3, param4, param5)
+                 Tcham, SWC, all_of(c(param1, param2, param3, param4, param5)))
       }
     }
 
