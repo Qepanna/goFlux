@@ -43,7 +43,7 @@ flux2pdf <- function(plot.list, outfile = NULL,
   ## plot.list
   if(missing(plot.list)) stop("'plot.list' is required") else {
     if(!is.list(plot.list)) stop("'plot.list' must be of class list") else {
-      if(length(grep("ggplot", sapply(plot.list, class))) != length(plot.list)){
+      if(length(grep("ggplot", sapply(plot.list, class)[1,])) != length(plot.list)){
         stop("all elements of 'plot.list' must be of class 'gg, ggplot'")
       }
     }
