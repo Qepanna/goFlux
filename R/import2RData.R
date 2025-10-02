@@ -19,6 +19,7 @@
 #'                                \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}/
 #'                                \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}}
 #'                                natural gas detection system
+#' * \strong{Earth Bound Scientific}: SkyLine2D system
 #' * \strong{GasmetPD}: Custom multiplexer from the University of Padova, Italy
 #' @md
 #'
@@ -29,9 +30,9 @@
 #'                   generate the files contained in the folder path. Choose one
 #'                   of the following: "DX4015", "EGM5", "G2201i", "G2508", "G4301",
 #'                   "GAIA", "GasmetPD", "GT5000", "LI-6400", "LI-7810", "LI-7820",
-#'                   "LI-8100", "LI-8200", "LI-8250", "N2OM1", "N2Oi2", "uCH4",
-#'                   "uN2O", "UGGA". For more information about an instrument,
-#'                   see the section "See Also" below.
+#'                   "LI-8100", "LI-8200", "LI-8250", "N2OM1", "N2Oi2", "skyline",
+#'                   "uCH4", "uN2O", "UGGA". For more information about an
+#'                   instrument, see the section "See Also" below.
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
 #'                    or "mdy".
@@ -69,13 +70,14 @@
 #'        compensated for water vapor, and will be named accordingly. See
 #'        \code{\link[goFlux]{import.GAIA}} or \code{\link[goFlux]{import.LI8250}}
 #'        for more details.
-#' @param Op.stat.col,PAR.col,Tcham.col,Tsoil.col,SWC.col,WTD.col,CH.col character
-#'        vector; a pattern to match the columns that fit the corresponding parameter.
-#'        See \code{\link[goFlux]{import.GAIA}} or \code{\link[goFlux]{import.LI8250}}
-#'        for more details.
+#' @param CH.clo.col,Op.stat.col,PAR.col,Tcham.col,Tsoil.col,SWC.col,WTD.col,CH.col
+#'        character vector; a pattern to match the columns that fit the corresponding
+#'        parameter. See \code{\link[goFlux]{import.GAIA}}, \code{\link[goFlux]{import.LI8250}},
+#'        or \code{\link[goFlux]{import.skyline}} for more details.
 #' @inheritParams import.GAIA
 #' @inheritParams import.G2201i
 #' @inheritParams import.GasmetPD
+#' @inheritParams import.skyline
 #'
 #' @returns Raw files saved as RData in a newly created folder, RData, into
 #'          the working directory.
@@ -100,6 +102,7 @@
 #' \item LI-8200: (see comment below)
 #' \item N2OM1: column Time
 #' \item N2Oi2: column Time
+#' \item SkyLine: column Titles:
 #' \item uCH4: column Time Stamp
 #' \item uN2O: column Time Stamp
 #' \item UGGA: column Time
@@ -116,19 +119,25 @@
 #' at page 90 for more details about the different Process Data Fields
 #' (\code{proc.data.field}).
 #'
-#' The arguments \code{active}, \code{pivot}, \code{flag}, \code{background},
-#' \code{CH.col}, \code{PAR.col}, \code{Tcham.col}, \code{WTD.col}, \code{Op.stat.col},
-#' \code{inst3}, \code{gas3}, \code{prec3}, \code{dry3}, \code{sep}, \code{manual}
-#' and \code{skip} are used with the function \code{\link[goFlux]{import.GAIA}}
-#' only. The arguments \code{Tsoil.col}, \code{SWC.col}, \code{inst1}, \code{inst2},
+#' The arguments \code{active}, \code{pivot}, \code{flag}, \code{PAR.col},
+#' \code{Tcham.col}, \code{WTD.col}, \code{Op.stat.col}, \code{inst3},
+#' \code{gas3}, \code{prec3}, \code{dry3}, \code{sep}, \code{manual} and
+#' \code{skip} are used with the function \code{\link[goFlux]{import.GAIA}} only.
+#' The arguments \code{Tsoil.col}, \code{SWC.col}, \code{inst1}, \code{inst2},
 #' \code{gas1}, \code{gas2}, \code{prec1}, \code{prec2}, \code{dry1}, \code{dry2},
 #' are used with both the function \code{\link[goFlux]{import.GAIA}} and the
-#' function \code{\link[goFlux]{import.LI8250}}.
+#' function \code{\link[goFlux]{import.LI8250}}. The arguments \code{CH.col} and
+#' \code{background} are used with the functions \code{\link[goFlux]{import.GAIA}}
+#' and \code{\link[goFlux]{import.skyline}}.
 #'
 #' The arguments \code{CH4}, \code{CO2}, \code{sum} and \code{range} are used
 #' with the function \code{\link[goFlux]{import.G2201i}} only.
 #'
-#' The argument \code{gas} is used with the function \code{\link[goFlux]{import.GasmetPD}} only.
+#' The arguments \code{CH.clo.col}, \code{sensor1}, \code{sensor2}, \code{inst}
+#' and \code{dry} are used with the function \code{\link[goFlux]{import.skyline}} only.
+#'
+#' The argument \code{gas} is used with the functions
+#' \code{\link[goFlux]{import.GasmetPD}} and \code{\link[goFlux]{import.skyline}}.
 #'
 #' @include goFlux-package.R
 #' @include DX4015_import.R
@@ -148,6 +157,7 @@
 #' @include import.LI8250.R
 #' @include N2OM1_import.R
 #' @include import.N2Oi2.R
+#' @include import.skyline.R
 #' @include uCH4_import.R
 #' @include uN2O_import.R
 #'
@@ -170,6 +180,7 @@
 #'          \code{\link[goFlux]{import.LI8250}},
 #'          \code{\link[goFlux]{import.N2OM1}},
 #'          \code{\link[goFlux]{import.N2Oi2}},
+#'          \code{\link[goFlux]{import.skyline}},
 #'          \code{\link[goFlux]{import.uCH4}},
 #'          \code{\link[goFlux]{import.uN2O}},
 #'          \code{\link[goFlux]{import.UGGA}}
@@ -287,6 +298,19 @@
 #'              inst1 = "LI-7810", gas1 = c("CO2_DRY", "CH4_DRY", "H2O"),
 #'              prec1 = c(3.5, 0.6, 45), SWC.col = "SWC_1", Tsoil.col = "TS_1")
 #'
+#' # with the SkyLine2D system (Earth Bound Scientific)
+#' # with this instrument, "keep_all" is not a valid argument.
+#' file.path <- system.file("extdata/skyline", package = "goFlux")
+#' import2RData(path = file.path, instrument = "skyline", date.format = "ymd",
+#'              background = FALSE,
+#'              CH.col = "CH ID",
+#'              CH.clo.col = "Chamber closed",
+#'              sensor1 = "Analog Sensor1",
+#'              sensor2 = "Analog Sensor2",
+#'              inst = "Instrument",
+#'              gas = c("CO2", "CH4 Dry", "N2O Dry", "H2O"),
+#'              prec = c(0.24, 0.3, 5, 500))
+#'
 #' # with the Aeris Technologies MIRA Ultra CH4/C2H6 analyzer
 #' file.path <- system.file("extdata/uCH4", package = "goFlux")
 #' import2RData(path = file.path, instrument = "uCH4",
@@ -304,11 +328,12 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                          proc.data.field = NULL, pivot = "long",
                          active = TRUE, flag = c(7,11), background = FALSE,
                          SWC.col, Tsoil.col, Tcham.col, PAR.col, WTD.col,
-                         CH.col, Op.stat.col,
-                         inst1, inst2 = NULL, inst3 = NULL,
+                         CH.col, Op.stat.col, CH.clo.col,
+                         sensor1, sensor2,
+                         inst1, inst2 = NULL, inst3 = NULL, inst,
                          gas1, gas2 = NULL, gas3 = NULL, gas,
                          prec1, prec2 = NULL, prec3 = NULL,
-                         dry1 = T, dry2 = T, dry3 = NULL,
+                         dry1 = T, dry2 = T, dry3 = NULL, dry = T,
                          manual = F, sep = "\t", skip = 1,
                          CH4 = "HP_12CH4_dry", CO2 = "12CO2_dry",
                          sum = TRUE, range = 10){
@@ -321,11 +346,12 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
   if(!any(grepl(paste("\\<", instrument, "\\>", sep = ""),
                 c("DX4015", "UGGA", "G2201i", "G2508", "G4301", "GAIA", "LI-6400",
                   "EGM5", "LI-7810", "LI-7820", "LI-8100", "LI-8200", "N2OM1",
-                  "N2Oi2", "uCH4", "uN2O", "GasmetPD", "GT5000", "LI-8250")))){
+                  "N2Oi2", "uCH4", "uN2O", "GasmetPD", "GT5000", "LI-8250",
+                  "skyline")))){
     stop(paste("'instrument' must be of class character and one of the following:",
                "'DX4015', 'EGM5', 'G2508', 'G4301', 'GAIA', 'GasmetPD', 'GT5000',",
                "'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100', 'LI-8200', 'LI-8250',",
-               "'UGGA', 'N2OM1', 'N2Oi2', 'uCH4', 'uN2O'"))}
+               "'UGGA', 'N2OM1', 'N2Oi2', 'skyline', 'uCH4', 'uN2O'"))}
   if(!missing(date.format)){
     if(length(date.format) != 1) stop("'date.format' must be of length 1")
     if (!is.character(date.format)) stop("'date.format' must be of class character")
@@ -972,6 +998,42 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                      save = TRUE,
                      keep_all = keep_all,
                      prec = prec),
+
+        error = function(e){
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
+    })
+  }
+
+  # skyline ####
+  if(instrument == "skyline"){
+
+    # List all the files contained in the specified path
+    file_list <- list.files(path = path, pattern = "\\.csv", full.names = TRUE)
+
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .csv",
+                                       "was found in the folder path", path))
+
+    # Loop through files in "file_list" and apply import functions
+    pblapply(seq_along(file_list), function(i) {
+
+      withCallingHandlers(
+
+        import.skyline(inputfile = file_list[i], date.format = date.format,
+                       timezone = timezone, background = background, save = TRUE,
+                       CH.col = CH.col, CH.clo.col = CH.clo.col,
+                       sensor1 = sensor1, sensor2 = sensor2,
+                       inst = inst, gas = gas, prec = prec, dry = dry),
 
         error = function(e){
           errs <<- c(errs, conditionMessage(e))

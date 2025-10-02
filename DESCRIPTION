@@ -55,6 +55,7 @@ Collate:
     'import.GasmetPD.R'
     'import.LI8250.R'
     'import.N2Oi2.R'
+    'import.skyline.R'
     'uN2O_import.R'
     'uCH4_import.R'
     'import2RData.R'
