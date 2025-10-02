@@ -18,6 +18,7 @@ high accuracy analyzer and
 CH4/
 C2H6
 natural gas detection system
+Earth Bound Scientific: SkyLine2D system
 GasmetPD: Custom multiplexer from the University of Padova, Italy
 
 "><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -79,6 +80,7 @@ high accuracy analyzer and
 CH<sub>4</sub>/
 C<sub>2</sub>H<sub>6</sub>
 natural gas detection system</p></li>
+<li><p><strong>Earth Bound Scientific</strong>: SkyLine2D system</p></li>
 <li><p><strong>GasmetPD</strong>: Custom multiplexer from the University of Padova, Italy</p></li>
 </ul></div>
 
@@ -103,9 +105,13 @@ natural gas detection system</p></li>
 <span>  <span class="va">WTD.col</span>,</span>
 <span>  <span class="va">CH.col</span>,</span>
 <span>  <span class="va">Op.stat.col</span>,</span>
+<span>  <span class="va">CH.clo.col</span>,</span>
+<span>  <span class="va">sensor1</span>,</span>
+<span>  <span class="va">sensor2</span>,</span>
 <span>  <span class="va">inst1</span>,</span>
 <span>  inst2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  inst3 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">inst</span>,</span>
 <span>  <span class="va">gas1</span>,</span>
 <span>  gas2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  gas3 <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -116,6 +122,7 @@ natural gas detection system</p></li>
 <span>  dry1 <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>  dry2 <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>  dry3 <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  dry <span class="op">=</span> <span class="cn">T</span>,</span>
 <span>  manual <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>  sep <span class="op">=</span> <span class="st">"\t"</span>,</span>
 <span>  skip <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -141,9 +148,9 @@ files to be imported.</p></dd>
 generate the files contained in the folder path. Choose one
 of the following: "DX4015", "EGM5", "G2201i", "G2508", "G4301",
 "GAIA", "GasmetPD", "GT5000", "LI-6400", "LI-7810", "LI-7820",
-"LI-8100", "LI-8200", "LI-8250", "N2OM1", "N2Oi2", "uCH4",
-"uN2O", "UGGA". For more information about an instrument,
-see the section "See Also" below.</p></dd>
+"LI-8100", "LI-8200", "LI-8250", "N2OM1", "N2Oi2", "skyline",
+"uCH4", "uN2O", "UGGA". For more information about an
+instrument, see the section "See Also" below.</p></dd>
 
 
 <dt id="arg-date-format">date.format<a class="anchor" aria-label="anchor" href="#arg-date-format"></a></dt>
@@ -216,11 +223,24 @@ See <code><a href="GAIA_import.html">import.GAIA</a></code> or <code><a href="im
 for more details.</p></dd>
 
 
+<dt id="arg-sensor-sensor-">sensor1, sensor2<a class="anchor" aria-label="anchor" href="#arg-sensor-sensor-"></a></dt>
+<dd><p>character strings; a pattern to match the columns
+containing the name of each sensor. By default,
+<code>sensor1 = "Analog Sensor1"</code>, <code>sensor2 = "Analog Sensor2"</code>,
+to match the example data file provided with the package. Set to NULL
+to ignore these columns.</p></dd>
+
+
 <dt id="arg-inst-inst-inst-">inst1, inst2, inst3<a class="anchor" aria-label="anchor" href="#arg-inst-inst-inst-"></a></dt>
 <dd><p>character strings; a pattern to match the columns
 containing the name of each instrument. See
 <code><a href="GAIA_import.html">import.GAIA</a></code> or <code><a href="import.LI8250.html">import.LI8250</a></code>
 for more details.</p></dd>
+
+
+<dt id="arg-inst">inst<a class="anchor" aria-label="anchor" href="#arg-inst"></a></dt>
+<dd><p>character string; a pattern to match the column containing the
+name of the GHG analyzer: <code>inst = "Instrument"</code>.</p></dd>
 
 
 <dt id="arg-gas-gas-gas-">gas1, gas2, gas3<a class="anchor" aria-label="anchor" href="#arg-gas-gas-gas-"></a></dt>
@@ -250,6 +270,13 @@ vapor (dry fraction)? If <code>dryX = TRUE</code> (default), the gases are
 compensated for water vapor, and will be named accordingly. See
 <code><a href="GAIA_import.html">import.GAIA</a></code> or <code><a href="import.LI8250.html">import.LI8250</a></code>
 for more details.</p></dd>
+
+
+<dt id="arg-dry">dry<a class="anchor" aria-label="anchor" href="#arg-dry"></a></dt>
+<dd><p>logical; are the gas measurements compensated for water vapor
+(dry fraction)? If <code>dry = TRUE</code> (default), the gases are already
+compensated for water vapor. Otherwise, the gases will be converted to
+a dry fraction.</p></dd>
 
 
 <dt id="arg-manual">manual<a class="anchor" aria-label="anchor" href="#arg-manual"></a></dt>
@@ -326,6 +353,7 @@ one of the columns in the raw data file:</p><ul><li><p>DX4015: column Date</p></
 <li><p>LI-8200: (see comment below)</p></li>
 <li><p>N2OM1: column Time</p></li>
 <li><p>N2Oi2: column Time</p></li>
+<li><p>SkyLine: column Titles:</p></li>
 <li><p>uCH4: column Time Stamp</p></li>
 <li><p>uN2O: column Time Stamp</p></li>
 <li><p>UGGA: column Time</p></li>
@@ -339,17 +367,22 @@ instrument only. Look up the
 <a href="https://ppsystems.com/download/technical_manuals/80109-1-EGM-5_Operation_V103.pdf" class="external-link">EGM-5 Operation Manual</a>
 at page 90 for more details about the different Process Data Fields
 (<code>proc.data.field</code>).</p>
-<p>The arguments <code>active</code>, <code>pivot</code>, <code>flag</code>, <code>background</code>,
-<code>CH.col</code>, <code>PAR.col</code>, <code>Tcham.col</code>, <code>WTD.col</code>, <code>Op.stat.col</code>,
-<code>inst3</code>, <code>gas3</code>, <code>prec3</code>, <code>dry3</code>, <code>sep</code>, <code>manual</code>
-and <code>skip</code> are used with the function <code><a href="GAIA_import.html">import.GAIA</a></code>
-only. The arguments <code>Tsoil.col</code>, <code>SWC.col</code>, <code>inst1</code>, <code>inst2</code>,
+<p>The arguments <code>active</code>, <code>pivot</code>, <code>flag</code>, <code>PAR.col</code>,
+<code>Tcham.col</code>, <code>WTD.col</code>, <code>Op.stat.col</code>, <code>inst3</code>,
+<code>gas3</code>, <code>prec3</code>, <code>dry3</code>, <code>sep</code>, <code>manual</code> and
+<code>skip</code> are used with the function <code><a href="GAIA_import.html">import.GAIA</a></code> only.
+The arguments <code>Tsoil.col</code>, <code>SWC.col</code>, <code>inst1</code>, <code>inst2</code>,
 <code>gas1</code>, <code>gas2</code>, <code>prec1</code>, <code>prec2</code>, <code>dry1</code>, <code>dry2</code>,
 are used with both the function <code><a href="GAIA_import.html">import.GAIA</a></code> and the
-function <code><a href="import.LI8250.html">import.LI8250</a></code>.</p>
+function <code><a href="import.LI8250.html">import.LI8250</a></code>. The arguments <code>CH.col</code> and
+<code>background</code> are used with the functions <code><a href="GAIA_import.html">import.GAIA</a></code>
+and <code><a href="import.skyline.html">import.skyline</a></code>.</p>
 <p>The arguments <code>CH4</code>, <code>CO2</code>, <code>sum</code> and <code>range</code> are used
 with the function <code><a href="import.G2201i.html">import.G2201i</a></code> only.</p>
-<p>The argument <code>gas</code> is used with the function <code><a href="import.GasmetPD.html">import.GasmetPD</a></code> only.</p>
+<p>The arguments <code>CH.clo.col</code>, <code>sensor1</code>, <code>sensor2</code>, <code>inst</code>
+and <code>dry</code> are used with the function <code><a href="import.skyline.html">import.skyline</a></code> only.</p>
+<p>The argument <code>gas</code> is used with the functions
+<code><a href="import.GasmetPD.html">import.GasmetPD</a></code> and <code><a href="import.skyline.html">import.skyline</a></code>.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -372,6 +405,7 @@ to import multiple files from the same folder path using any instrument.</p>
 <code><a href="import.LI8250.html">import.LI8250</a></code>,
 <code><a href="N2OM1_import.html">import.N2OM1</a></code>,
 <code><a href="import.N2Oi2.html">import.N2Oi2</a></code>,
+<code><a href="import.skyline.html">import.skyline</a></code>,
 <code><a href="uCH4_import.html">import.uCH4</a></code>,
 <code><a href="uN2O_import.html">import.uN2O</a></code>,
 <code><a href="LGR_import.html">import.UGGA</a></code></p></div>
@@ -509,6 +543,20 @@ to import multiple files from the same folder path using any instrument.</p>
 <span class="r-in"><span>             inst1 <span class="op">=</span> <span class="st">"LI-7810"</span>, gas1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CO2_DRY"</span>, <span class="st">"CH4_DRY"</span>, <span class="st">"H2O"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>             prec1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3.5</span>, <span class="fl">0.6</span>, <span class="fl">45</span><span class="op">)</span>, SWC.col <span class="op">=</span> <span class="st">"SWC_1"</span>, Tsoil.col <span class="op">=</span> <span class="st">"TS_1"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> LI8250.82z saved as LI8250_LI8250_imp.RData in RData folder, in working directory</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># with the SkyLine2D system (Earth Bound Scientific)</span></span></span>
+<span class="r-in"><span><span class="co"># with this instrument, "keep_all" is not a valid argument.</span></span></span>
+<span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/skyline"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">import2RData</span><span class="op">(</span>path <span class="op">=</span> <span class="va">file.path</span>, instrument <span class="op">=</span> <span class="st">"skyline"</span>, date.format <span class="op">=</span> <span class="st">"ymd"</span>,</span></span>
+<span class="r-in"><span>             background <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>             CH.col <span class="op">=</span> <span class="st">"CH ID"</span>,</span></span>
+<span class="r-in"><span>             CH.clo.col <span class="op">=</span> <span class="st">"Chamber closed"</span>,</span></span>
+<span class="r-in"><span>             sensor1 <span class="op">=</span> <span class="st">"Analog Sensor1"</span>,</span></span>
+<span class="r-in"><span>             sensor2 <span class="op">=</span> <span class="st">"Analog Sensor2"</span>,</span></span>
+<span class="r-in"><span>             inst <span class="op">=</span> <span class="st">"Instrument"</span>,</span></span>
+<span class="r-in"><span>             gas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CO2"</span>, <span class="st">"CH4 Dry"</span>, <span class="st">"N2O Dry"</span>, <span class="st">"H2O"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>             prec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.24</span>, <span class="fl">0.3</span>, <span class="fl">5</span>, <span class="fl">500</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> skyline.csv saved as skyline_skyline_imp.RData in RData folder, in working directory</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># with the Aeris Technologies MIRA Ultra CH4/C2H6 analyzer</span></span></span>
 <span class="r-in"><span><span class="va">file.path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata/uCH4"</span>, package <span class="op">=</span> <span class="st">"goFlux"</span><span class="op">)</span></span></span>
