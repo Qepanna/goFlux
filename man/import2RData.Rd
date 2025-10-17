@@ -107,10 +107,9 @@ for the flux calculation. Default is \code{flag = c(7,11)}, where
 \item{background}{logical; if \code{background = FALSE}, removes all data from
 \code{activ.cham == "Background"}.}
 
-\item{Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, WTD.col, CH.col}{character
-vector; a pattern to match the columns that fit the corresponding parameter.
-See \code{\link[goFlux]{import.GAIA}} or \code{\link[goFlux]{import.LI8250}}
-for more details.}
+\item{CH.clo.col, Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, WTD.col, CH.col}{character vector; a pattern to match the columns that fit the corresponding
+parameter. See \code{\link[goFlux]{import.GAIA}}, \code{\link[goFlux]{import.LI8250}},
+or \code{\link[goFlux]{import.skyline}} for more details.}
 
 \item{sensor1, sensor2}{character strings; a pattern to match the columns
 containing the name of each sensor. By default,
