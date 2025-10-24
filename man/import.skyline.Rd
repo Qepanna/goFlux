@@ -9,6 +9,7 @@ import.skyline(
   date.format = "ymd",
   timezone = "UTC",
   save = FALSE,
+  keep_all = FALSE,
   background = FALSE,
   CH.col = "CH ID",
   CH.clo.col = "Chamber closed",
@@ -37,6 +38,10 @@ related to summer time and winter time changes.}
 in a RData folder in the current working directory. If
 \code{save = FALSE}, returns the file in the Console, or load in
 the Environment if assigned to an object.}
+
+\item{keep_all}{logical; if \code{keep_all = TRUE}, keep all columns from the raw
+file. The default is \code{keep_all = FALSE}, and columns that
+are not necessary for gas flux calculation are removed.}
 
 \item{background}{logical; if \code{background = FALSE}, removes all data
 from the opened chamber.}

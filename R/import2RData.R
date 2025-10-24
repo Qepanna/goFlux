@@ -43,41 +43,88 @@
 #' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from the raw
 #'                 file. The default is \code{keep_all = FALSE}, and columns that
 #'                 are not necessary for gas flux calculation are removed.
-#' @param prec numerical vector; the precision of the instrument for each gas.
-#'             Look at the examples below, or the help for each import function
-#'             of each instrument, to know what values to use.
+#' @param prec,prec1,prec2,prec3 numerical vector; the precision of the instrument
+#'        for each gas. Look at the examples below, or the help for each import
+#'        function of each instrument, to know what values to use.
 #' @param merge logical; if TRUE, merge all files as one data frame and return
 #'              it in the Console, or load it in the Environment if assigned to
 #'              an object.
 #' @param proc.data.field numeric value; select the process data field used with
 #'                        the EGM-5. See \code{\link[goFlux]{import.EGM5}} for
 #'                        more details.
-#' @param inst1,inst2,inst3 character strings; a pattern to match the columns
-#'        containing the name of each instrument. See
-#'        \code{\link[goFlux]{import.GAIA}} or \code{\link[goFlux]{import.LI8250}}
-#'        for more details.
-#' @param gas1,gas2,gas3 character vectors; a pattern to match the columns
-#'        containing each gas measurement. See
-#'        \code{\link[goFlux]{import.GAIA}} or \code{\link[goFlux]{import.LI8250}}
-#'        for more details.
-#' @param prec1,prec2,prec3 numerical vectors; the precision of the instrument
-#'        for each gas mentioned in \code{gas1} and \code{gas2}. See
-#'        \code{\link[goFlux]{import.GAIA}} or \code{\link[goFlux]{import.LI8250}}
-#'        for more details. Note that the order in the arguments \code{precX} must
-#'        match the order of the arguments in \code{gasX}.
-#' @param dry1,dry2,dry3 logical; are the gas measurements compensated for water
-#'        vapor (dry fraction)? If \code{dryX = TRUE} (default), the gases are
-#'        compensated for water vapor, and will be named accordingly. See
-#'        \code{\link[goFlux]{import.GAIA}} or \code{\link[goFlux]{import.LI8250}}
-#'        for more details.
+#' @param pivot character string; either "long" or "wide". If \code{pivot = "long"},
+#'              each column containing information about \code{Tsoil},
+#'              \code{Tcham}, \code{SWC}, \code{PAR} and operating status
+#'              (\code{Op.stat}) will be saved in a single column per parameter.
+#'              If \code{pivot = "wide"}, the default display of one column per
+#'              chamber per parameter will be used.
+#'              Used with \code{instrument = "GAIA"} only.
+#' @param active logical; if \code{active = TRUE}, preserve data for active
+#'               chambers only. Used with \code{instrument = "GAIA"} only.
+#' @param flag numeric vector; indicates the operating status that should be used
+#'             for the flux calculation. Default is \code{flag = c(7,11)}, where
+#'             7 indicates "Chamber Idle Closed Clear" and 11 indicates "Chamber
+#'             Idle Closed Dark". Used with \code{instrument = "GAIA"} only.
+#' @param background logical; if \code{background = FALSE}, removes all data from
+#'                   opened chambers. See \code{\link[goFlux]{import.GAIA}} or
+#'                   \code{\link[goFlux]{import.skyline}} for more details.
 #' @param CH.clo.col,Op.stat.col,PAR.col,Tcham.col,Tsoil.col,SWC.col,WTD.col,CH.col
 #'        character vector; a pattern to match the columns that fit the corresponding
 #'        parameter. See \code{\link[goFlux]{import.GAIA}}, \code{\link[goFlux]{import.LI8250}},
 #'        or \code{\link[goFlux]{import.skyline}} for more details.
-#' @inheritParams import.GAIA
-#' @inheritParams import.G2201i
-#' @inheritParams import.GasmetPD
-#' @inheritParams import.skyline
+#' @param inst,inst1,inst2,inst3 character strings; a pattern to match the columns
+#'        containing the name of each instrument. See
+#'        \code{\link[goFlux]{import.GAIA}}, \code{\link[goFlux]{import.LI8250}}
+#'        or \code{instrument = "skyline"} for more details.
+#' @param gas,gas1,gas2,gas3 character vectors; a pattern to match the columns
+#'        containing each gas measurement. See \code{\link[goFlux]{import.GAIA}},
+#'        \code{\link[goFlux]{import.LI8250}}, \code{\link[goFlux]{import.GasmetPD}}
+#'        or \code{\link[goFlux]{import.skyline}} for more details.
+#' @param dry,dry1,dry2,dry3 logical; are the gas measurements compensated for water
+#'        vapor (dry fraction)? If \code{dryX = TRUE} (default), the gases are
+#'        compensated for water vapor, and will be named accordingly. See
+#'        \code{\link[goFlux]{import.GAIA}}, \code{\link[goFlux]{import.LI8250}}
+#'        or \code{\link[goFlux]{import.skyline}} for more details.
+#' @param sensor1,sensor2 character strings; a pattern to match the columns
+#'        containing the name of each sensor. By default,
+#'        \code{sensor1 = "Analog Sensor1"}, \code{sensor2 = "Analog Sensor2"},
+#'        to match the example data file provided with the package. Set to NULL
+#'        to ignore these columns. Used with \code{instrument = "skyline"} only.
+#' @param manual logical; indicates if measurements were made manually and there
+#'               are no records of chamber identification, sequence, etc. If
+#'               \code{TRUE}, the arguments \code{Op.stat.col}, \code{CH.col},
+#'               \code{active}, \code{background}, \code{flag}, and \code{pivot}
+#'               are ignored. Used with \code{instrument = "GAIA"} only.
+#' @param sep character string defining the field separator character. Values on
+#'            each line of the file are separated by this character. By default,
+#'            \code{sep = "\t"} for tabulation. Used with
+#'            \code{instrument = "GAIA"} only.
+#' @param skip integer; the number of lines of the data file to skip before
+#'             beginning to read data. By default, \code{skip = 1}. Used with
+#'             \code{instrument = "GAIA"} only.
+#' @param CH4 character string; which column should be used for
+#'            \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} concentration.
+#'            By default, \code{CH4 = "HP_12CH4_dry"}. Used with
+#'             \code{instrument = "G2201i"} only.
+#' @param CO2 character string; which column should be used for
+#'            \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} concentration.
+#'            By default, \code{CO2 = "12CO2_dry"}.Used with
+#'             \code{instrument = "G2201i"} only.
+#' @param sum logical; if \code{sum = TRUE} (default), the arguments \code{CH4} and
+#'            \code{CO2} are ignored and, instead, both fractions (carbon isotope
+#'            12 and 13) of each gas, are summed after correction for water vapor,
+#'            to obtain the total gas concentration. See the argument \code{range}
+#'            for the selection between the HP or the HR measurement of
+#'            \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} concentration.
+#'            Used with \code{instrument = "G2201i"} only.
+#' @param range numerical value; at which threshold should the function select
+#'              between high precision (HP) and high resolution (HR) of
+#'              \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}
+#'              concentration? The default is \code{range = 10}. If the methane
+#'              concentration recorded in the column \code{HP_12CH4_dry} is above
+#'              10 ppm, the concentration from the columns \code{HR_12CH4_dry}
+#'              and \code{HR_13CH4} are used for the sum instead of HP.
+#'              Used with \code{instrument = "G2201i"} only.
 #'
 #' @returns Raw files saved as RData in a newly created folder, RData, into
 #'          the working directory.

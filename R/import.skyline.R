@@ -22,6 +22,9 @@
 #'             in a RData folder in the current working directory. If
 #'             \code{save = FALSE}, returns the file in the Console, or load in
 #'             the Environment if assigned to an object.
+#' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from the raw
+#'                 file. The default is \code{keep_all = FALSE}, and columns that
+#'                 are not necessary for gas flux calculation are removed.
 #' @param background logical; if \code{background = FALSE}, removes all data
 #'                   from the opened chamber.
 #' @param CH.clo.col,CH.col character string; a pattern to match columns that
@@ -136,6 +139,7 @@
 
 import.skyline <- function(inputfile, date.format = "ymd", timezone = "UTC",
                            save = FALSE,
+                           keep_all = FALSE,
                            background = FALSE,
                            CH.col = "CH ID",
                            CH.clo.col = "Chamber closed",
@@ -155,6 +159,7 @@ import.skyline <- function(inputfile, date.format = "ymd", timezone = "UTC",
     stop("'date.format' must be one of the following: 'ymd', 'dmy' or 'mdy'")}
   if(!is.character(timezone)) stop("'timezone' must be of class character")
   if(save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
+  if (keep_all != TRUE & keep_all != FALSE) stop("'keep_all' must be TRUE or FALSE")
   if(background != TRUE & background != FALSE) stop("'background' must be TRUE or FALSE")
 
   # Column names
@@ -181,7 +186,7 @@ import.skyline <- function(inputfile, date.format = "ymd", timezone = "UTC",
   # Assign NULL to variables without binding ####
   CH <- CH.clo <- DATE_TIME <- Obs <- Titles. <- activ.cham <- cham.close <-
     cham.open <- chamID <- dry.log <- flag <- start.time <- POSIX.time <-
-    import.error <- POSIX.warning <- . <- NULL
+    import.error <- POSIX.warning <- N2Odry_ppm <- CH4dry_ppm <- . <- NULL
 
   # Input file name
   inputfile.name <- gsub(".*/", "", inputfile)
@@ -277,20 +282,26 @@ import.skyline <- function(inputfile, date.format = "ymd", timezone = "UTC",
       dplyr::rename(DATE_TIME = Titles.) %>%
       # Detect new observations (Obs) and give a chamber UniqueID (chamID)
       arrange(DATE_TIME) %>%
-      # Select only useful columns
-      select(contains(c("DATE_TIME", "activ.cham", "CH.clo", "ppb", "ppm", "%",
-                        "Sensor1", "Sensor2", "flag"))) %>%
       # Convert column class automatically
       type.convert(as.is = TRUE) %>%
       # Make sure that all gas data are class numerical
       mutate_at(gas.col$new.name, as.numeric)
+
+    # Keep only useful columns for gas flux calculation
+    if(keep_all == FALSE){
+      data.raw <- data.raw %>%
+        select(contains(c("DATE_TIME", "activ.cham", "CH.clo", "ppb", "ppm", "%",
+                          "Sensor1", "Sensor2", "flag")))}
 
     # Convert H2O_% to ppm
     if(any(grepl("%", gas.col$units))){
       humidity.cols <- select(data.raw, contains("%")) %>%
         mutate_all(~.*10000) %>% setNames(gsub("%", "ppm", names(.)))
 
-      data.raw <- cbind.data.frame(data.raw, humidity.cols)}
+      data.raw <- cbind.data.frame(data.raw, humidity.cols)
+
+      if(keep_all == FALSE) data.raw <- select(data.raw, -contains("%"))
+    }
 
     # Compensate for water vapor
     if(any(grepl("wet", gas.col$dry))){
@@ -298,7 +309,23 @@ import.skyline <- function(inputfile, date.format = "ymd", timezone = "UTC",
         mutate_all(~./(1-H2O_ppm/1000000)) %>%
         setNames(gsub("wet", "dry", names(.)))
 
-      data.raw <- cbind.data.frame(data.raw, wet.cols)}
+      data.raw <- cbind.data.frame(data.raw, wet.cols)
+
+      if(keep_all == FALSE) data.raw <- select(data.raw, -contains("wet"))
+    }
+
+    # Convert CH4 and N2O ppm to ppb
+    if(any(grepl("CH4dry_ppm", names(data.raw)))){
+      data.raw <- data.raw %>% mutate(CH4dry_ppb = CH4dry_ppm*1000)
+
+      if(keep_all == FALSE) data.raw <- select(data.raw, -contains("CH4dry_ppm"))
+    }
+
+    if(any(grepl("N2Odry_ppm", names(data.raw)))){
+      data.raw <- data.raw %>% mutate(N2Odry_ppb = N2Odry_ppm*1000)
+
+      if(keep_all == FALSE) data.raw <- select(data.raw, -contains("N2Odry_ppm"))
+    }
 
     # Create a new column containing date and time (POSIX format)
     tryCatch(
