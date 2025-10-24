@@ -26,14 +26,26 @@
 #' Note that this function was designed for the following units in the raw file:
 #' \itemize{
 #'   \item seconds for DeadBand
-#'   \item cm for Area and Offset
+#'   \item cm for Offset (collar height)
+#'   \item \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} for Area
+#'   \item \ifelse{html}{\out{(cm<sup>3</sup>)}}{\eqn{(cm^3)}{ASCII}} for volumes
 #'   \item mmol/mol for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
-#'   \item litters for volumes
 #'   \item kPa for pressure
 #'   \item Celsius for temperature}
 #' If your Smart Chamber uses different units, either convert the units after
 #' import, change the settings on your instrument, or contact the maintainer of
 #' this package for support.
+#'
+#' Important note about the total volume: it is calculated from the addition
+#' of the Area x Offset and the Chamber Volume. If a chamber volume is specified
+#' ("ChamVolume" in the raw file), that value is used, otherwise, the default
+#' value is 4244.1\ifelse{html}{\out{(cm<sup>3</sup>)}}{\eqn{(cm^3)}{ASCII}}.
+#' For more precise results, remember to add the volume inside your GHG analyzer
+#' (IRGA volume; e.g., 6.4 \ifelse{html}{\out{(cm<sup>3</sup>)}}{\eqn{(cm^3)}{ASCII}}
+#' for the LI-7810 and the LI-7820), plus the volume inside the tubing connecting
+#' your instruments. For more details about volume estimation, download the
+#' example auxiliary file from
+#' \href{https://qepanna.quarto.pub/goflux/example.html#create-an-auxiliary-file}{the goFlux webpage}.
 #'
 #' In addition, soil temperature and moisture are read with a HydraProbe
 #' connected to the Smart Chamber. If you are using a different setup, please
@@ -138,8 +150,8 @@ LI8200_import <- function(inputfile, date.format = "ymd",
           cham.close.ls[[j]] <- all.reps[[j]]$header$Date
           # Extract deadband before measurement start from "DeadBand"
           deadband.ls[[j]] <- all.reps[[j]]$header$DeadBand
-          # Extract chamber volume from "Vcham"
-          Vcham.ls[[j]] <- all.reps[[j]]$header$TotalVolume
+          # Extract chamber volume from "ChamVolume"
+          Vcham.ls[[j]] <- all.reps[[j]]$header$ChamVolume
           # Extract chamber offset (collar height) from "Offset"
           offset.ls[[j]] <- all.reps[[j]]$header$Offset
           # Extract chamber Area (collar inner Area) from "Area"
@@ -156,7 +168,9 @@ LI8200_import <- function(inputfile, date.format = "ymd",
           Vcham = unlist(Vcham.ls),
           offset = unlist(offset.ls),
           Area = unlist(Area.ls)) %>%
-          mutate(Vcham = Vcham/100)
+          mutate(Vcham = Vcham/1000)
+
+        if(metadata$Vcham == 0) metadata$Vcham <- 4244.1/1000
 
         # Merge data with metadata
         rep.res <- rep.res %>%
