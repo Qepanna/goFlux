@@ -63,6 +63,7 @@ example data file provided with the package.</p>
 <span>  date.format <span class="op">=</span> <span class="st">"ymd"</span>,</span>
 <span>  timezone <span class="op">=</span> <span class="st">"UTC"</span>,</span>
 <span>  save <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  background <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  CH.col <span class="op">=</span> <span class="st">"CH ID"</span>,</span>
 <span>  CH.clo.col <span class="op">=</span> <span class="st">"Chamber closed"</span>,</span>
@@ -102,6 +103,12 @@ related to summer time and winter time changes.</p></dd>
 in a RData folder in the current working directory. If
 <code>save = FALSE</code>, returns the file in the Console, or load in
 the Environment if assigned to an object.</p></dd>
+
+
+<dt id="arg-keep-all">keep_all<a class="anchor" aria-label="anchor" href="#arg-keep-all"></a></dt>
+<dd><p>logical; if <code>keep_all = TRUE</code>, keep all columns from the raw
+file. The default is <code>keep_all = FALSE</code>, and columns that
+are not necessary for gas flux calculation are removed.</p></dd>
 
 
 <dt id="arg-background">background<a class="anchor" aria-label="anchor" href="#arg-background"></a></dt>
