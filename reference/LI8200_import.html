@@ -88,14 +88,25 @@ the Environment if assigned to an object.</p></dd>
 file, not the date format in the file name. For the instrument LI-8200, the
 date is found under one of the measurements, next to '"Date":'.</p>
 <p>Note that this function was designed for the following units in the raw file:</p><ul><li><p>seconds for DeadBand</p></li>
-<li><p>cm for Area and Offset</p></li>
+<li><p>cm for Offset (collar height)</p></li>
+<li><p>(cm<sup>2</sup>) for Area</p></li>
+<li><p>(cm<sup>3</sup>) for volumes</p></li>
 <li><p>mmol/mol for H<sub>2</sub>O</p></li>
-<li><p>litters for volumes</p></li>
 <li><p>kPa for pressure</p></li>
 <li><p>Celsius for temperature</p></li>
 </ul><p>If your Smart Chamber uses different units, either convert the units after
 import, change the settings on your instrument, or contact the maintainer of
 this package for support.</p>
+<p>Important note about the total volume: it is calculated from the addition
+of the Area x Offset and the Chamber Volume. If a chamber volume is specified
+("ChamVolume" in the raw file), that value is used, otherwise, the default
+value is 4244.1(cm<sup>3</sup>).
+For more precise results, remember to add the volume inside your GHG analyzer
+(IRGA volume; e.g., 6.4 (cm<sup>3</sup>)
+for the LI-7810 and the LI-7820), plus the volume inside the tubing connecting
+your instruments. For more details about volume estimation, download the
+example auxiliary file from
+<a href="https://qepanna.quarto.pub/goflux/example.html#create-an-auxiliary-file" class="external-link">the goFlux webpage</a>.</p>
 <p>In addition, soil temperature and moisture are read with a HydraProbe
 connected to the Smart Chamber. If you are using a different setup, please
 contact the maintainer of this package for support.</p>
