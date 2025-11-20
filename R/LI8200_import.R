@@ -168,9 +168,8 @@ LI8200_import <- function(inputfile, date.format = "ymd",
           Vcham = unlist(Vcham.ls),
           offset = unlist(offset.ls),
           Area = unlist(Area.ls)) %>%
-          mutate(Vcham = Vcham/1000)
-
-        if(metadata$Vcham == 0) metadata$Vcham <- 4244.1/1000
+          mutate(Vcham = Vcham/1000) %>%
+          mutate(Vcham = if_else(Vcham == 0, 4.2441, Vcham))
 
         # Merge data with metadata
         rep.res <- rep.res %>%
