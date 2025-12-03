@@ -64,7 +64,8 @@ example data file provided with the package.</p>
 <span>  timezone <span class="op">=</span> <span class="st">"UTC"</span>,</span>
 <span>  save <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  keep_all <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  background <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  deadband <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  shoulder <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  CH.col <span class="op">=</span> <span class="st">"CH ID"</span>,</span>
 <span>  CH.clo.col <span class="op">=</span> <span class="st">"Chamber closed"</span>,</span>
 <span>  sensor1 <span class="op">=</span> <span class="st">"Analog Sensor1"</span>,</span>
@@ -111,9 +112,13 @@ file. The default is <code>keep_all = FALSE</code>, and columns that
 are not necessary for gas flux calculation are removed.</p></dd>
 
 
-<dt id="arg-background">background<a class="anchor" aria-label="anchor" href="#arg-background"></a></dt>
-<dd><p>logical; if <code>background = FALSE</code>, removes all data
-from the opened chamber.</p></dd>
+<dt id="arg-deadband">deadband<a class="anchor" aria-label="anchor" href="#arg-deadband"></a></dt>
+<dd><p>numerical; define a deadband at the start of measurements (seconds).</p></dd>
+
+
+<dt id="arg-shoulder">shoulder<a class="anchor" aria-label="anchor" href="#arg-shoulder"></a></dt>
+<dd><p>numerical; include background data points before and after
+the measurement (seconds).</p></dd>
 
 
 <dt id="arg-ch-clo-col-ch-col">CH.clo.col, CH.col<a class="anchor" aria-label="anchor" href="#arg-ch-clo-col-ch-col"></a></dt>
