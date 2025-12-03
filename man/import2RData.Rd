@@ -17,6 +17,8 @@ import2RData(
   active = TRUE,
   flag = c(7, 11),
   background = FALSE,
+  deadband = 0,
+  shoulder = 20,
   SWC.col,
   Tsoil.col,
   Tcham.col,
@@ -106,8 +108,14 @@ for the flux calculation. Default is \code{flag = c(7,11)}, where
 Idle Closed Dark". Used with \code{instrument = "GAIA"} only.}
 
 \item{background}{logical; if \code{background = FALSE}, removes all data from
-opened chambers. See \code{\link[goFlux]{import.GAIA}} or
-\code{\link[goFlux]{import.skyline}} for more details.}
+opened chambers. See \code{\link[goFlux]{import.GAIA}} for
+more details.}
+
+\item{deadband}{numerical; define a deadband at the start of measurements
+(seconds). Used with \code{instrument = "skyline"} only.}
+
+\item{shoulder}{numerical; include background data points before and after the
+measurement (seconds). Used with \code{instrument = "skyline"} only.}
 
 \item{CH.clo.col, Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, WTD.col, CH.col}{character vector; a pattern to match the columns that fit the corresponding
 parameter. See \code{\link[goFlux]{import.GAIA}}, \code{\link[goFlux]{import.LI8250}},
@@ -251,8 +259,7 @@ The arguments \code{Tsoil.col}, \code{SWC.col}, \code{inst1}, \code{inst2},
 \code{gas1}, \code{gas2}, \code{prec1}, \code{prec2}, \code{dry1}, \code{dry2},
 are used with both the function \code{\link[goFlux]{import.GAIA}} and the
 function \code{\link[goFlux]{import.LI8250}}. The arguments \code{CH.col} and
-\code{background} are used with the functions \code{\link[goFlux]{import.GAIA}}
-and \code{\link[goFlux]{import.skyline}}.
+\code{background} are used with the function \code{\link[goFlux]{import.GAIA}}.
 
 The arguments \code{CH4}, \code{CO2}, \code{sum} and \code{range} are used
 with the function \code{\link[goFlux]{import.G2201i}} only.
@@ -380,7 +387,8 @@ import2RData(path = file.path, instrument = "LI-8250", date.format = "ymd",
 # with this instrument, "keep_all" is not a valid argument.
 file.path <- system.file("extdata/skyline", package = "goFlux")
 import2RData(path = file.path, instrument = "skyline", date.format = "ymd",
-             background = FALSE,
+             deadband = 0,
+             shoulder = 20,
              CH.col = "CH ID",
              CH.clo.col = "Chamber closed",
              sensor1 = "Analog Sensor1",

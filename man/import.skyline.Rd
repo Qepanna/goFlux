@@ -10,7 +10,8 @@ import.skyline(
   timezone = "UTC",
   save = FALSE,
   keep_all = FALSE,
-  background = FALSE,
+  deadband = 0,
+  shoulder = 20,
   CH.col = "CH ID",
   CH.clo.col = "Chamber closed",
   sensor1 = "Analog Sensor1",
@@ -43,8 +44,10 @@ the Environment if assigned to an object.}
 file. The default is \code{keep_all = FALSE}, and columns that
 are not necessary for gas flux calculation are removed.}
 
-\item{background}{logical; if \code{background = FALSE}, removes all data
-from the opened chamber.}
+\item{deadband}{numerical; define a deadband at the start of measurements (seconds).}
+
+\item{shoulder}{numerical; include background data points before and after
+the measurement (seconds).}
 
 \item{CH.clo.col, CH.col}{character string; a pattern to match columns that
 fit the corresponding parameters: \code{CH.col = "CH ID"} and

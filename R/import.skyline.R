@@ -25,8 +25,9 @@
 #' @param keep_all logical; if \code{keep_all = TRUE}, keep all columns from the raw
 #'                 file. The default is \code{keep_all = FALSE}, and columns that
 #'                 are not necessary for gas flux calculation are removed.
-#' @param background logical; if \code{background = FALSE}, removes all data
-#'                   from the opened chamber.
+#' @param deadband numerical; define a deadband at the start of measurements (seconds).
+#' @param shoulder numerical; include background data points before and after
+#'                 the measurement (seconds).
 #' @param CH.clo.col,CH.col character string; a pattern to match columns that
 #'        fit the corresponding parameters: \code{CH.col = "CH ID"} and
 #'        \code{CH.clo.col = "Chamber closed"}.
@@ -140,7 +141,8 @@
 import.skyline <- function(inputfile, date.format = "ymd", timezone = "UTC",
                            save = FALSE,
                            keep_all = FALSE,
-                           background = FALSE,
+                           deadband = 0,
+                           shoulder = 20,
                            CH.col = "CH ID",
                            CH.clo.col = "Chamber closed",
                            sensor1 = "Analog Sensor1",
@@ -160,7 +162,9 @@ import.skyline <- function(inputfile, date.format = "ymd", timezone = "UTC",
   if(!is.character(timezone)) stop("'timezone' must be of class character")
   if(save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
   if (keep_all != TRUE & keep_all != FALSE) stop("'keep_all' must be TRUE or FALSE")
-  if(background != TRUE & background != FALSE) stop("'background' must be TRUE or FALSE")
+  if(!is.numeric(deadband)) stop("'deadband' must be of class numeric")
+  if(!is.numeric(shoulder)) stop("'shoulder' must be of class numeric")
+  if(shoulder < 0) stop("'shoulder' must be greater or equal to 0")
 
   # Column names
   if(is.null(CH.col)) stop("'CH.col' is required")
@@ -186,7 +190,8 @@ import.skyline <- function(inputfile, date.format = "ymd", timezone = "UTC",
   # Assign NULL to variables without binding ####
   CH <- CH.clo <- DATE_TIME <- Obs <- Titles. <- activ.cham <- cham.close <-
     cham.open <- chamID <- dry.log <- flag <- start.time <- POSIX.time <-
-    import.error <- POSIX.warning <- N2Odry_ppm <- CH4dry_ppm <- . <- NULL
+    import.error <- POSIX.warning <- N2Odry_ppm <- CH4dry_ppm <- DATE <-
+    end.time <- UniqueID <- . <- NULL
 
   # Input file name
   inputfile.name <- gsub(".*/", "", inputfile)
@@ -364,19 +369,61 @@ import.skyline <- function(inputfile, date.format = "ymd", timezone = "UTC",
         filter(flag == 1) %>% group_by(activ.cham, chamID) %>%
         summarise(cham.close = first(POSIX.time),
                   cham.open = last(POSIX.time)) %>% ungroup() %>%
-        mutate(start.time = cham.close) %>%
+        mutate(start.time = cham.close + deadband) %>%
         mutate(UniqueID = paste(activ.cham, start.time, sep="_"))
 
-      # Calculate Etime
-      Etime <- filter(data.raw, !grepl("Background", activ.cham)) %>%
-        full_join(data.time, by = "chamID") %>%
-        select(POSIX.time, chamID, start.time) %>%
-        group_by(chamID) %>%
-        mutate(Etime = as.numeric(POSIX.time - start.time, units = "secs")) %>%
-        ungroup()
+      # Include shoulder ####
+      if(shoulder > 0){
 
-      # Merge data
-      data.raw <- data.raw %>% full_join(Etime, by = c("chamID", "POSIX.time"))
+        # Create a window of observation for each measurement
+        time_range <- data.time %>% group_by(UniqueID) %>%
+          reframe(cham.close = cham.close,
+                  cham.open = cham.open,
+                  time_min = cham.close - shoulder,
+                  time_max = cham.open + shoulder)
+
+        time_filter.ls <- list()
+        for (i in 1:nrow(time_range)) {
+          time_filter.ls[[i]] <- cbind.data.frame(
+            UniqueID = time_range$UniqueID[[i]],
+            cham.close = time_range$cham.close[[i]],
+            cham.open = time_range$cham.open[[i]],
+            start.time = time_range$cham.close[[i]] + deadband,
+            end.time = time_range$cham.open[[i]],
+            POSIX.time = seq(from = time_range$time_min[[i]],
+                             to = time_range$time_max[[i]],
+                             by = 'sec'))
+        }
+
+        time_filter <- map_df(time_filter.ls, ~as.data.frame(.x)) %>%
+          # Calculate Etime and flag
+          mutate(Etime = as.numeric(POSIX.time - start.time, units = "secs")) %>%
+          mutate(flag = if_else(between(POSIX.time, start.time, end.time), 1, 0)) %>%
+          mutate(obs.length = as.numeric(end.time - start.time, units = "secs")) %>%
+          # Add arguments
+          mutate(deadband = deadband, shoulder = shoulder)
+
+        data.raw <- select(data.raw, -flag) %>%
+          full_join(time_filter, relationship = "many-to-many", by = "POSIX.time") %>%
+          drop_na(DATE) %>%
+          drop_na(UniqueID)
+      }
+
+      # Exclude background ####
+      if(shoulder == 0){
+        # Calculate Etime and create UniqueID
+        Etime <- filter(data.raw, !grepl("Background", activ.cham)) %>%
+          full_join(data.time, by = c("chamID", "activ.cham")) %>%
+          select(POSIX.time, chamID, UniqueID, start.time, cham.close, cham.open) %>%
+          group_by(chamID) %>%
+          mutate(Etime = as.numeric(POSIX.time - start.time, units = "secs")) %>%
+          ungroup()
+
+        # Merge data
+        data.raw <- data.raw %>% full_join(Etime, by = c("chamID", "POSIX.time")) %>%
+          drop_na(UniqueID)
+
+      }
 
       # Add instrument precision for each gas
       data.raw[gas.col$prec.name] <- 1
@@ -386,11 +433,6 @@ import.skyline <- function(inputfile, date.format = "ymd", timezone = "UTC",
 
       # Add column for instrument
       if(!is.null(inst)) data.raw$inst <- select(try.import, all_of(inst2))[[1]][1]
-
-      # Remove background
-      if(background == FALSE){
-        data.raw <- data.raw %>% filter(activ.cham != "Background")
-      }
 
       ## Warn if there is no match with unnecessary columns ####
       # Sensor1

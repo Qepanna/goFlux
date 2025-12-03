@@ -66,8 +66,12 @@
 #'             7 indicates "Chamber Idle Closed Clear" and 11 indicates "Chamber
 #'             Idle Closed Dark". Used with \code{instrument = "GAIA"} only.
 #' @param background logical; if \code{background = FALSE}, removes all data from
-#'                   opened chambers. See \code{\link[goFlux]{import.GAIA}} or
-#'                   \code{\link[goFlux]{import.skyline}} for more details.
+#'                   opened chambers. See \code{\link[goFlux]{import.GAIA}} for
+#'                   more details.
+#' @param deadband numerical; define a deadband at the start of measurements
+#'                 (seconds). Used with \code{instrument = "skyline"} only.
+#' @param shoulder numerical; include background data points before and after the
+#'                 measurement (seconds). Used with \code{instrument = "skyline"} only.
 #' @param CH.clo.col,Op.stat.col,PAR.col,Tcham.col,Tsoil.col,SWC.col,WTD.col,CH.col
 #'        character vector; a pattern to match the columns that fit the corresponding
 #'        parameter. See \code{\link[goFlux]{import.GAIA}}, \code{\link[goFlux]{import.LI8250}},
@@ -174,8 +178,7 @@
 #' \code{gas1}, \code{gas2}, \code{prec1}, \code{prec2}, \code{dry1}, \code{dry2},
 #' are used with both the function \code{\link[goFlux]{import.GAIA}} and the
 #' function \code{\link[goFlux]{import.LI8250}}. The arguments \code{CH.col} and
-#' \code{background} are used with the functions \code{\link[goFlux]{import.GAIA}}
-#' and \code{\link[goFlux]{import.skyline}}.
+#' \code{background} are used with the function \code{\link[goFlux]{import.GAIA}}.
 #'
 #' The arguments \code{CH4}, \code{CO2}, \code{sum} and \code{range} are used
 #' with the function \code{\link[goFlux]{import.G2201i}} only.
@@ -349,7 +352,8 @@
 #' # with this instrument, "keep_all" is not a valid argument.
 #' file.path <- system.file("extdata/skyline", package = "goFlux")
 #' import2RData(path = file.path, instrument = "skyline", date.format = "ymd",
-#'              background = FALSE,
+#'              deadband = 0,
+#'              shoulder = 20,
 #'              CH.col = "CH ID",
 #'              CH.clo.col = "Chamber closed",
 #'              sensor1 = "Analog Sensor1",
@@ -374,6 +378,7 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                          keep_all = FALSE, prec, merge = FALSE,
                          proc.data.field = NULL, pivot = "long",
                          active = TRUE, flag = c(7,11), background = FALSE,
+                         deadband = 0, shoulder = 20,
                          SWC.col, Tsoil.col, Tcham.col, PAR.col, WTD.col,
                          CH.col, Op.stat.col, CH.clo.col,
                          sensor1, sensor2,
@@ -1077,7 +1082,8 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
       withCallingHandlers(
 
         import.skyline(inputfile = file_list[i], date.format = date.format,
-                       timezone = timezone, background = background, save = TRUE,
+                       timezone = timezone, deadband = deadband,
+                       shoulder = shoulder, save = TRUE,
                        CH.col = CH.col, CH.clo.col = CH.clo.col,
                        sensor1 = sensor1, sensor2 = sensor2,
                        inst = inst, gas = gas, prec = prec, dry = dry),
