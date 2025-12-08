@@ -62,8 +62,9 @@
 #'                          for unit conversion. Default is 1 (no conversion). 
 #'                          For example, use 3600 to convert from per-second to 
 #'                          per-hour. When using a conversion factor other than 1, 
-#'                          you should also specify \code{flux.unit} to match 
-#'                          the converted units.
+#'                          you should also specify \code{flux.unit} and 
+#'                          \code{flux.term.unit} to match the converted units, 
+#'                          so that both the flux and flux term labels are correct in the plots.
 #'
 #' @details
 #' In \code{flux.results}, one may choose to use the output from the
@@ -499,8 +500,13 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
   }
 
   ## Check flux.unit when conversion.factor != 1 ####
-  if(conversion.factor != 1 & is.null(flux.unit)){
-    warning("'conversion.factor' is not 1, but 'flux.unit' was not specified. Make sure the default unit matches your converted data.")
+  if(conversion.factor != 1) {
+    if(is.null(flux.unit)) {
+      warning("'conversion.factor' is not 1, but 'flux.unit' was not specified. Make sure the default unit matches your converted data.")
+    }
+    if(is.null(flux.term.unit)) {
+      warning("'conversion.factor' is not 1, but 'flux.term.unit' was not specified. Make sure the flux term unit matches your converted data.")
+    }
   }
 
   # Assign NULL to variables without binding ####
