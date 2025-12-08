@@ -1,0 +1,105 @@
+# Install devtools if you don't have it#
+install.packages("devtools")#
+#
+# Load devtools#
+library(devtools)#
+#
+# Set working directory to the package root#
+setwd("/Users/au783075/Documents/GitHub/goFlux")#
+#
+# Load all functions from the package (for development/testing)#
+load_all()#
+#
+# Now test your code#
+library(goFlux)#
+data(manID.UGGA)#
+#
+CO2_flux <- goFlux(manID.UGGA, "CO2dry_ppm")#
+criteria <- c("MAE", "AICc", "g.factor", "MDF")#
+CO2_best <- best.flux(CO2_flux, criteria)#
+#
+# Test 1: Default#
+CO2_plots <- flux.plot(#
+  flux.results = CO2_best,#
+  dataframe = manID.UGGA,#
+  gastype = "CO2dry_ppm",#
+  quality.check = TRUE,#
+  plot.legend = c("MAE", "AICc", "k.ratio", "g.factor"),#
+  plot.display = c("Ci", "C0", "MDF", "prec", "nb.obs", "flux.term"))#
+#
+print(CO2_plots[[1]])#
+#
+# Test 2: With conversion factor#
+CO2_plots_hourly <- flux.plot(#
+  flux.results = CO2_best,#
+  dataframe = manID.UGGA,#
+  gastype = "CO2dry_ppm",#
+  conversion.factor = 3600,#
+  flux.unit = "\u00B5mol~m^-2*h^-1")#
+#
+print(CO2_plots_hourly[[1]])
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1

@@ -58,6 +58,12 @@
 #'             \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{mol C[0]}{ASCII}} and
 #'             \ifelse{html}{\out{C<sub>i</sub>}}{\eqn{mol C[i]}{ASCII}} values.
 #'             By default, they are displayed on the left side of the plot.
+#' @param conversion.factor numerical value; factor to multiply flux values by 
+#'                          for unit conversion. Default is 1 (no conversion). 
+#'                          For example, use 3600 to convert from per-second to 
+#'                          per-hour. When using a conversion factor other than 1, 
+#'                          you should also specify \code{flux.unit} to match 
+#'                          the converted units.
 #'
 #' @details
 #' In \code{flux.results}, one may choose to use the output from the
@@ -158,7 +164,8 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
                       plot.display = c("MDF", "prec"),
                       quality.check = TRUE, flux.unit = NULL,
                       flux.term.unit = NULL, best.model = TRUE,
-                      p.val.disp = "round", side = "left") {
+                      p.val.disp = "round", side = "left",
+                      conversion.factor=1) {
 
   # Check arguments ####
   if(is.null(shoulder)) stop("'shoulder' is required") else{
@@ -482,6 +489,20 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
         stop("'side' must be one of the following: 'left' or 'right'")}
     }
 
+  ## conversion.factor ####
+  if(is.null(conversion.factor)) {
+    stop("'conversion.factor' cannot be NULL")
+  } else if(!is.numeric(conversion.factor)){
+    stop("'conversion.factor' must be of class numeric")
+  } else if(conversion.factor <= 0){
+    stop("'conversion.factor' must be a positive value")
+  }
+
+  ## Check flux.unit when conversion.factor != 1 ####
+  if(conversion.factor != 1 & is.null(flux.unit)){
+    warning("'conversion.factor' is not 1, but 'flux.unit' was not specified. Make sure the default unit matches your converted data.")
+  }
+
   # Assign NULL to variables without binding ####
   UniqueID <- HM.Ci <- HM.C0 <- HM.k <- . <- flag <- start.Etime <-
     end.Etime <- Etime <- x <- y <- content <- color <- POSIX.time <-
@@ -661,8 +682,8 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
     gas.dec <- nb.decimal(unique(data_corr[[f]]$prec))
 
     ### LM and HM flux are always in the legend
-    LM.flux <- round(unique(data_corr[[f]]$LM.flux), flux.dec)
-    HM.flux <- round(unique(data_corr[[f]]$HM.flux), flux.dec)
+    LM.flux <- round(unique(data_corr[[f]]$LM.flux) * conversion.factor, flux.dec)
+    HM.flux <- round(unique(data_corr[[f]]$HM.flux) * conversion.factor, flux.dec)
 
     legend.flux <- cbind.data.frame(
       content = c("Model", "lm", "HM", paste("'Flux units:'", "~", flux.unit),
@@ -860,7 +881,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
         if(MDF.ord <= 2) MDF.y <- -0.4
         if(MDF.ord > 2) MDF.y <- 1.6
         # value
-        MDF <- signif(unique(data_corr[[f]]$MDF), 2)
+        MDF <- signif(unique(data_corr[[f]]$MDF) * conversion.factor, 2)
         # MDF.display
         MDF.display <- annotate(
           "text", x = seq(xmin, xmax, length.out=9)[MDF.x], colour = "black",
@@ -878,7 +899,7 @@ flux.plot <- function(flux.results, dataframe, gastype, shoulder = 30,
         if(flux.term.ord <= 2) flux.term.y <- -0.4
         if(flux.term.ord > 2) flux.term.y <- 1.6
         # value
-        flux.term <- round(unique(data_corr[[f]]$flux.term), 1)
+        flux.term <- round(unique(data_corr[[f]]$flux.term) * conversion.factor, 1)
         # flux.term.display
         flux.term.display <- annotate(
           "text", x = seq(xmin, xmax, length.out=9)[flux.term.x], colour = "black",
