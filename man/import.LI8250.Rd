@@ -18,8 +18,8 @@ import.LI8250(
   prec2 = NULL,
   dry1 = T,
   dry2 = T,
-  SWC.col,
-  Tsoil.col
+  SWC.col = NULL,
+  Tsoil.col = NULL
 )
 }
 \arguments{

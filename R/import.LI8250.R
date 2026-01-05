@@ -128,7 +128,7 @@ import.LI8250 <- function(inputfile, date.format = "ymd", timezone = "UTC",
                           gas1, gas2 = NULL,
                           prec1, prec2 = NULL,
                           dry1 = T, dry2 = T,
-                          SWC.col, Tsoil.col){
+                          SWC.col = NULL, Tsoil.col = NULL){
 
   # Check arguments ####
   if(missing(inputfile)) stop("'inputfile' is required")
