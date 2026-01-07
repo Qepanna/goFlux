@@ -20,15 +20,12 @@
 <url><loc>/reference/N2OM1_import.html</loc></url>
 <url><loc>/reference/autoID.html</loc></url>
 <url><loc>/reference/best.flux.html</loc></url>
-<url><loc>/reference/click.peak.html</loc></url>
-<url><loc>/reference/click.peak.loop.html</loc></url>
 <url><loc>/reference/click.peak2.html</loc></url>
 <url><loc>/reference/flux.plot.html</loc></url>
 <url><loc>/reference/flux.term.html</loc></url>
 <url><loc>/reference/flux2pdf.html</loc></url>
 <url><loc>/reference/g.factor.html</loc></url>
 <url><loc>/reference/goFlux.html</loc></url>
-<url><loc>/reference/goFlux.nokmax.html</loc></url>
 <url><loc>/reference/imp.LI6400.html</loc></url>
 <url><loc>/reference/imp.LI7820.html</loc></url>
 <url><loc>/reference/imp.LI8200.html</loc></url>
@@ -36,6 +33,7 @@
 <url><loc>/reference/import.G2201i.html</loc></url>
 <url><loc>/reference/import.GT5000.html</loc></url>
 <url><loc>/reference/import.GasmetPD.html</loc></url>
+<url><loc>/reference/import.HT8850.html</loc></url>
 <url><loc>/reference/import.LI8250.html</loc></url>
 <url><loc>/reference/import.N2Oi2.html</loc></url>
 <url><loc>/reference/import.skyline.html</loc></url>
