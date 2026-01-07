@@ -91,8 +91,9 @@
 #'
 #' # Run function
 #' imp.LI8200 <- import.LI8200(inputfile = file.path)
+#' @export
 
-LI8200_import <- function(inputfile, date.format = "ymd",
+import.LI8200 <- function(inputfile, date.format = "ymd",
                           timezone = "UTC", save = FALSE){
 
   # Check arguments
@@ -237,12 +238,6 @@ LI8200_import <- function(inputfile, date.format = "ymd",
         mutate(chamID = paste(plotID, rep, sep = "_"),
                flag = if_else(between(POSIX.time, start.time, cham.open), 1, 0))
 
-      # New function name
-      if (as.character(match.call()[[1]]) == "LI8200_import") {
-        warning(paste("All import functions have changed names in this new version of goFlux.",
-                      "\nIn the future, use import.LI8200() instead of LI8200_import()"), call. = FALSE)
-      }
-
       # Save cleaned data file
       if(save == TRUE){
         # Create RData folder in working directory
@@ -266,8 +261,3 @@ LI8200_import <- function(inputfile, date.format = "ymd",
     }
   }
 }
-
-#' @export
-#' @rdname LI8200_import
-import.LI8200 <- LI8200_import
-

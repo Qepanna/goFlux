@@ -101,8 +101,9 @@
 #'
 #' # Run function
 #' imp.DX4015 <- import.DX4015(inputfile = file.path)
+#' @export
 
-DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
+import.DX4015 <- function(inputfile, date.format = "ymd", timezone = "UTC",
                           save = FALSE, keep_all = FALSE,
                           prec = c(1.6, 23, 13, 2, 23, 33)){
 
@@ -268,12 +269,6 @@ DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
         mutate(CO2_prec = prec[1], CO_prec = prec[2], CH4_prec = prec[3],
                N2O_prec = prec[4], NH3_prec = prec[5], H2O_prec = prec[6])
 
-      # New function name
-      if (as.character(match.call()[[1]]) == "DX4015_import") {
-        warning(paste("All import functions have changed names in this new version of goFlux.",
-                      "\nIn the future, use import.DX4015() instead of DX4015_import()"), call. = FALSE)
-      }
-
       # Save cleaned data file
       if(save == TRUE){
         # Create RData folder in working directory
@@ -297,7 +292,3 @@ DX4015_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
     }
   }
 }
-
-#' @export
-#' @rdname DX4015_import
-import.DX4015 <- DX4015_import

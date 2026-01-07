@@ -1,20 +1,15 @@
-#' Import function for the MIRA Ultra
-#' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}/
-#' \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}} analyzer
-#' from Aeris Technologies
+#' Import function for the Los Gatos Research GHG analyzer N2OM1
 #'
-#' Imports single raw gas measurement files from the MIRA Ultra
-#' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}/
-#' \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}}
-#' Natural Gas Leak Detection System (with GPS) from Aeris Technologies
-#' (\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
-#' \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}} and
+#' Imports single raw gas measurement files from the N2OM1
+#' (GLA151 series) from Los Gatos Research
+#' (\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
+#' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}) with the extension .txt
 #'
 #' @param inputfile character string; the name of a file with the extension .txt
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
-#'                    or "mdy". Default is "mdy", as it is the date format from
+#'                    or "mdy". Default is "dmy", as it is the date format from
 #'                    the example data file provided.
 #' @param timezone character string; a time zone in which to import the data to
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
@@ -28,48 +23,43 @@
 #'                 file. The default is \code{keep_all = FALSE}, and columns that
 #'                 are not necessary for gas flux calculation are removed.
 #' @param prec numerical vector; the precision of the instrument for each gas,
-#'             in the following order: "CH4_ppb", "C2H6dry_ppb" and "H2O_ppm".
-#'             The default is \code{prec = c(1, 0.5, 15)}. The precision for
-#'             water vapor is currently unknown, and a default of 1 ppm is used.
+#'             in the following order: "N2Odry_ppb", "CH4dry_ppb" and "H2O_ppm".
+#'             The default is \code{prec = c(0.5, 2, 50)}.
 #'
-#' @returns A data frame containing raw data from the MIRA Ultra
-#' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}/
-#' \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}} analyzer
-#' from Aeris Technologies
+#' @returns A data frame containing raw data from the LGR GHG analyzer
+#'          N2OM1 (GLA151 series).
 #'
 #' @include goFlux-package.R
 #'
 #' @details
 #' In \code{date.format}, the date format refers to a date found in the raw data
-#' file, not the date format in the file name. For these instruments, the date
-#' is found in the column "Time Stamp".
+#' file, not the date format in the file name. For the instrument N2OM1, the date
+#' is found in the column "Time".
 #'
 #' Note that this function was designed for the following units in the raw file:
 #' \itemize{
-#'   \item ppm for \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
+#'   \item ppm for \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
+#'   \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
 #'   \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
-#'   \item ppb for \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}}
-#'   \item mbars for pressure
+#'   \item Torr for pressure
 #'   \item Celsius for temperature}
-#' If your Aeris instrument (MIRA Ultra
-#' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}/
-#' \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}} analyzer) uses
-#' different units, either convert the units after import, change the settings
-#' on your instrument, or contact the maintainer of this package for support.
+#' If your LGR N2OM1 instrument uses different units, either convert
+#' the units after import, change the settings on your instrument, or contact
+#' the maintainer of this package for support.
 #'
 #' The precision of the instrument is needed to restrict kappa-max
 #' (\code{\link[goFlux]{k.max}}) in the non-linear flux calculation
 #' (\code{\link[goFlux]{HM.flux}}). Kappa-max is inversely proportional to
 #' instrument precision. If the precision of your instrument is unknown, it is
 #' better to use a low value (e.g. 1 ppm for
-#' \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}} and
-#' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}, or 1 ppb for
-#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}) to allow for more
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}, or 1 ppb for
+#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+#' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}) to allow for more
 #' curvature, especially for water vapor fluxes, or very long measurements, that
 #' are normally curved. The default values given for instrument precision are
-#' the ones found \href{https://aerissensors.com/mira-pico-mobile-lds/}{online}
-#' for the latest model of this instrument available at the
-#' time of the creation of this function (01-2024).
+#' the ones found \href{https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers/lgr-icos-qc-portable-gas-analyzers-gla151-series/lgr-icos-portable-analyzers-gla151-n2om1-919}{online}
+#' for the latest model of this instrument available at the time of the
+#' creation of this function (12-2023).
 #'
 #' @seealso Use the wrapper function \code{\link[goFlux]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.
@@ -90,9 +80,9 @@
 #'          \code{\link[goFlux]{import.LI8150}},
 #'          \code{\link[goFlux]{import.LI8200}},
 #'          \code{\link[goFlux]{import.LI8250}},
-#'          \code{\link[goFlux]{import.N2OM1}},
 #'          \code{\link[goFlux]{import.N2Oi2}},
 #'          \code{\link[goFlux]{import.skyline}},
+#'          \code{\link[goFlux]{import.uCH4}},
 #'          \code{\link[goFlux]{import.uN2O}},
 #'          \code{\link[goFlux]{import.UGGA}}
 #'
@@ -101,13 +91,14 @@
 #'
 #' @examples
 #' # Load file from downloaded package
-#' file.path <- system.file("extdata", "uCH4/uCH4.txt", package = "goFlux")
+#' file.path <- system.file("extdata", "N2OM1/N2OM1.txt", package = "goFlux")
 #'
 #' # Run function
-#' imp.uCH4 <- import.uCH4(inputfile = file.path)
+#' imp.N2OM1 <- import.N2OM1(inputfile = file.path)
+#' @export
 
-uCH4_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
-                        save = FALSE, keep_all = FALSE, prec = c(1, 0.5, 15)){
+import.N2OM1 <- function(inputfile, date.format = "dmy", timezone = "UTC",
+                         save = FALSE, keep_all = FALSE, prec = c(0.5, 2, 50)){
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")
@@ -124,16 +115,16 @@ uCH4_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
       if(length(prec) != 3) stop("'prec' must be of length 3")}}
 
   # Assign NULL to variables without binding
-  POSIX.time <- DATE_TIME <- H2O_ppm <- CH4dry_ppb <- Time <- InletNumber <-
-    CH4dry_ppm <- C2H6dry_ppb <- POSIX.warning <- C2H6_ppb <- TimeStamp <- . <-
-    CH4_ppm <- import.error <- TgasdegC <- SOC_ <- NULL
+  POSIX.time <- DATE_TIME <- H2O_ppm <- CH4dry_ppb <- Time <- . <-
+    CH4dry_ppm <- N2Odry_ppb <- N2Odry_ppm <- POSIX.warning <- N2O_ppm <-
+    N2Owet_ppm <- CH4_ppm <- CH4wet_ppm <- import.error <- NULL
 
   # Input file name
   inputfile.name <- gsub(".*/", "", inputfile)
 
   # Try to load data file
   try.import <- tryCatch(
-    {read.delim(inputfile, sep = ",")},
+    {read.delim(inputfile, skip = 1, sep = ",")},
     error = function(e) {import.error <<- e}
   )
 
@@ -145,22 +136,34 @@ uCH4_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
     # Load data file
     data.raw <- try.import %>%
       # Clean column names
-      `colnames<-`(gsub("__", "_",
-                        gsub("\\.", "",
-                             gsub("\\.\\.", "_", names(.))))) %>%
-      rename(Time = TimeStamp, Inlet = InletNumber, Tgas_degC = TgasdegC,
-             SOC = SOC_, C2H6dry_ppb = C2H6_ppb, CH4dry_ppm = CH4_ppm) %>%
+      `colnames<-`(gsub("\\.", "",
+                        gsub("X.", "",
+                             gsub("d_", "dry_",
+                                  gsub("__", "_", names(.))))))
+
+    # Compensate for water vapor
+    if(!any(grepl("N2Odry_ppm", names(data.raw)))){
+      data.raw <- data.raw %>%
+        rename(N2Owet_ppm = N2O_ppm) %>%
+        mutate(N2Odry_ppm = N2Owet_ppm/(1-H2O_ppm/1000000))}
+    if(!any(grepl("CH4dry_ppm", names(data.raw)))){
+      data.raw <- data.raw %>%
+        rename(CH4wet_ppm = CH4_ppm) %>%
+        mutate(CH4dry_ppm = CH4wet_ppm/(1-H2O_ppm/1000000))}
+
+    data.raw <- data.raw %>%
       # Remove rows at the end of the file
-      drop_na(C2H6dry_ppb) %>%
-      # Convert ppm into ppb for CH4dry
+      drop_na(N2Odry_ppm) %>%
+      # Convert ppm into ppb
+      mutate(N2Odry_ppb = N2Odry_ppm*1000) %>%
       mutate(CH4dry_ppb = CH4dry_ppm*1000) %>%
       # Replace characters in Time ("/" -> "-") and remove first space
-      mutate(DATE_TIME = gsub("/", "-", Time))
+      mutate(DATE_TIME = gsub("/", "-", sub("  ", "" , Time)))
 
     # Keep only useful columns for gas flux calculation
     if(keep_all == FALSE){
       data.raw <- data.raw %>%
-        select(DATE_TIME, CH4dry_ppb, C2H6dry_ppb, H2O_ppm)}
+        select(DATE_TIME, N2Odry_ppb, CH4dry_ppb, H2O_ppm)}
 
     # Create a new column containing date and time (POSIX format)
     tryCatch(
@@ -183,7 +186,7 @@ uCH4_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
               "   An error occured while converting DATE and TIME into POSIX.time.\n",
               "   Verify that the 'date.format' you specified (", date.format,
               ") corresponds to the\n",
-              "   column 'Time Stamp' in the raw data file. Here is a sample: ",
+              "   column 'Time' in the raw data file. Here is a sample: ",
               data.raw$DATE_TIME[1], "\n", call. = F)
     } else {
 
@@ -194,13 +197,7 @@ uCH4_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
 
       # Add instrument precision for each gas
       data.raw <- data.raw %>%
-        mutate(CH4_prec = prec[1],  C2H6_prec = prec[2], H2O_prec = prec[3])
-
-      # New function name
-      if (as.character(match.call()[[1]]) == "uCH4_import") {
-        warning(paste("All import functions have changed names in this new version of goFlux.",
-                      "\nIn the future, use import.uCH4() instead of uCH4_import()"), call. = FALSE)
-      }
+        mutate(N2O_prec = prec[1], CH4_prec = prec[2],  H2O_prec = prec[3])
 
       # Save cleaned data file
       if(save == TRUE){
@@ -211,7 +208,7 @@ uCH4_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
         # Create output file: change extension to .RData, and
         # add instrument name and "imp" for import to file name
         file.name <- gsub(".*/", "", sub("\\.txt", "", inputfile))
-        outputfile <- paste("uCH4_", file.name, "_imp.RData", sep = "")
+        outputfile <- paste("N2OM1_", file.name, "_imp.RData", sep = "")
 
         save(data.raw, file = paste(RData_folder, outputfile, sep = "/"))
 
@@ -225,7 +222,3 @@ uCH4_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
     }
   }
 }
-
-#' @export
-#' @rdname uCH4_import
-import.uCH4 <- uCH4_import

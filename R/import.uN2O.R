@@ -105,8 +105,9 @@
 #'
 #' # Run function
 #' imp.uN2O <- import.uN2O(inputfile = file.path)
+#' @export
 
-uN2O_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
+import.uN2O <- function(inputfile, date.format = "mdy", timezone = "UTC",
                         save = FALSE, keep_all = FALSE, prec = c(0.2, 0.2, 15)){
 
   # Check arguments
@@ -196,12 +197,6 @@ uN2O_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
       data.raw <- data.raw %>%
         mutate(CO2_prec = prec[1], N2O_prec = prec[2],  H2O_prec = prec[3])
 
-      # New function name
-      if (as.character(match.call()[[1]]) == "uN2O_import") {
-        warning(paste("All import functions have changed names in this new version of goFlux.",
-                      "\nIn the future, use import.uN2O() instead of uN2O_import()"), call. = FALSE)
-      }
-
       # Save cleaned data file
       if(save == TRUE){
         # Create RData folder in working directory
@@ -225,7 +220,3 @@ uN2O_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
     }
   }
 }
-
-#' @export
-#' @rdname uN2O_import
-import.uN2O <- uN2O_import

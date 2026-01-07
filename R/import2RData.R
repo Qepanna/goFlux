@@ -193,28 +193,28 @@
 #' \code{\link[goFlux]{import.GasmetPD}} and \code{\link[goFlux]{import.skyline}}.
 #'
 #' @include goFlux-package.R
-#' @include DX4015_import.R
-#' @include EGM5_import.R
+#' @include import.DX4015.R
+#' @include import.EGM5.R
 #' @include import.G2201i.R
-#' @include G2508_import.R
-#' @include G4301_import.R
-#' @include GAIA_import.R
+#' @include import.G2508.R
+#' @include import.G4301.R
+#' @include import.GAIA.R
 #' @include import.GasmetPD.R
 #' @include import.GT5000.R
 #' @include import.HT8850.R
-#' @include LGR_import.R
-#' @include LI6400_import.R
-#' @include LI7810_import.R
-#' @include LI7820_import.R
-#' @include LI8100_import.R
+#' @include import.LI6400.R
+#' @include import.LI7810.R
+#' @include import.LI7820.R
+#' @include import.LI8100.R
 #' @include import.LI8150.R
-#' @include LI8200_import.R
+#' @include import.LI8200.R
 #' @include import.LI8250.R
-#' @include N2OM1_import.R
+#' @include import.N2OM1.R
 #' @include import.N2Oi2.R
 #' @include import.skyline.R
-#' @include uCH4_import.R
-#' @include uN2O_import.R
+#' @include import.uCH4.R
+#' @include import.uN2O.R
+#' @include import.UGGA.R
 #'
 #' @seealso Use the wrapper function \code{\link[goFlux]{import2RData}}
 #'          to import multiple files from the same folder path using any instrument.

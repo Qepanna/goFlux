@@ -115,8 +115,9 @@
 #'
 #' # Run function
 #' imp.EGM5 <- import.EGM5(inputfile = file.path)
+#' @export
 
-EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
+import.EGM5 <- function(inputfile, date.format = "dmy", timezone = "UTC",
                         save = FALSE, keep_all = FALSE, prec = c(3, 1, 500),
                         proc.data.field = NULL){
 
@@ -303,12 +304,6 @@ EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
       data.raw <- data.raw %>%
         mutate(CO2_prec = prec[1], O2_prec = prec[2],  H2O_prec = prec[3])
 
-      # New function name
-      if (as.character(match.call()[[1]]) == "EGM5_import") {
-        warning(paste("All import functions have changed names in this new version of goFlux.",
-                      "\nIn the future, use import.EGM5() instead of EGM5_import()"), call. = FALSE)
-      }
-
       # Save cleaned data file
       if(save == TRUE){
         # Create RData folder in working directory
@@ -332,7 +327,3 @@ EGM5_import <- function(inputfile, date.format = "dmy", timezone = "UTC",
     }
   }
 }
-
-#' @export
-#' @rdname EGM5_import
-import.EGM5 <- EGM5_import

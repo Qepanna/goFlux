@@ -1,10 +1,12 @@
-#' Import function for LI-COR GHG analyzer LI-8100
+#' Import function for LI-COR GHG analyzer LI-7810
 #'
-#' Imports single raw gas measurement files from the LI-COR 8100
-#' (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
+#' Imports single raw gas measurement files from the LI-COR 7810
+#' (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+#' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} GHG analyzer)
 #'
-#' @param inputfile character string; the name of a file with the extension .81x
+#' @param inputfile character string; the name of a file with the extension
+#'                  .data or .txt
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
 #'                    or "mdy". Default is "ymd", as it is the date format from
@@ -21,22 +23,24 @@
 #'                 file. The default is \code{keep_all = FALSE}, and columns that
 #'                 are not necessary for gas flux calculation are removed.
 #' @param prec numerical vector; the precision of the instrument for each gas,
-#'             in the following order: "CO2dry_ppm" and "H2O_ppm". The default
-#'             is \code{prec = c(1, 10)}.
+#'             in the following order: "CO2dry_ppm", "CH4dry_ppb" and "H2O_ppm".
+#'             The default is \code{prec = c(3.5, 0.6, 45)}.
 #'
-#' @returns A data frame containing raw data from LI-COR GHG analyzer LI-8100.
+#' @returns A data frame containing raw data from LI-COR GHG analyzer LI-7810.
 #'
 #' @details
 #' In \code{date.format}, the date format refers to a date found in the raw data
-#' file, not the date format in the file name. For the instrument LI-8100, the
-#' date is found in the column "Date".
+#' file, not the date format in the file name. For the instrument LI-7810, the
+#' date is found in the column "DATE".
 #'
 #' Note that this function was designed for the following units in the raw file:
 #' \itemize{
-#'   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}}
-#'   \item mmol/mol for \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
+#'   \item ppm for \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
+#'   \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}
+#'   \item ppb for \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}
+#'   \item kPa for pressure
 #'   \item Celsius for temperature}
-#' If your LI-COR LI-8100 uses different units, either convert the units after
+#' If your LI-COR LI-7810 uses different units, either convert the units after
 #' import, change the settings on your instrument, or contact the maintainer of
 #' this package for support.
 #'
@@ -44,11 +48,15 @@
 #' (\code{\link[goFlux]{k.max}}) in the non-linear flux calculation
 #' (\code{\link[goFlux]{HM.flux}}). Kappa-max is inversely proportional to
 #' instrument precision. If the precision of your instrument is unknown, it is
-#' better to use a low value (e.g. 1 ppm) to allow for more curvature, especially
-#' for water vapor fluxes, or very long measurements, that are normally curved.
-#' The default values given for instrument precision are the ones provided by
-#' the manufacturer upon request, for the latest model of this instrument
-#' available at the time of the creation of this function (11-2023).
+#' better to use a low value (e.g. 1 ppm for
+#' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}, or 1 ppb for
+#' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}) to allow for more
+#' curvature, especially for water vapor fluxes, or very long measurements, that
+#' are normally curved. The default values given for instrument precision are
+#' the ones found \href{https://www.licor.com/env/products/trace-gas/LI-7810}{online}
+#' for the latest model of this instrument available at the time of the
+#' creation of this function (11-2023).
 #'
 #' @include goFlux-package.R
 #'
@@ -65,7 +73,8 @@
 #'          \code{\link[goFlux]{import.GT5000}},
 #'          \code{\link[goFlux]{import.HT8850}},
 #'          \code{\link[goFlux]{import.LI6400}},
-#'          \code{\link[goFlux]{import.LI7810}},
+#'          \code{\link[goFlux]{import.LI7820}},
+#'          \code{\link[goFlux]{import.LI8100}},
 #'          \code{\link[goFlux]{import.LI8150}},
 #'          \code{\link[goFlux]{import.LI8200}},
 #'          \code{\link[goFlux]{import.LI8250}},
@@ -81,13 +90,14 @@
 #'
 #' @examples
 #' # Load file from downloaded package
-#' file.path <- system.file("extdata", "LI8100/LI8100.81x", package = "goFlux")
+#' file.path <- system.file("extdata", "LI7810/LI7810.data", package = "goFlux")
 #'
 #' # Run function
-#' imp.LI8100 <- import.LI8100(inputfile = file.path)
+#' imp.LI7810 <- import.LI7810(inputfile = file.path)
+#' @export
 
-LI8100_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
-                          save = FALSE, keep_all = FALSE, prec = c(1, 10)) {
+import.LI7810 <- function(inputfile, date.format = "ymd", timezone = "UTC",
+                          save = FALSE, keep_all = FALSE, prec = c(3.5, 0.6, 45)){
 
   # Check arguments
   if (missing(inputfile)) stop("'inputfile' is required")
@@ -101,33 +111,20 @@ LI8100_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   if (keep_all != TRUE & keep_all != FALSE) stop("'keep_all' must be TRUE or FALSE")
   if(is.null(prec)) stop("'prec' is required") else{
     if(!is.numeric(prec)) stop("'prec' must be of class numeric") else{
-      if(length(prec) != 2) stop("'prec' must be of length 2")}}
+      if(length(prec) != 3) stop("'prec' must be of length 3")}}
 
   # Assign NULL to variables without binding
-  Type <- Etime <- Tcham <- Pressure <- H2O <- . <- Cdry <- V1 <- V2 <- V3 <-
-    V4 <- H2O_mmol <- DATE_TIME <- Obs <- cham.close <- cham.open <- plotID <-
-    deadband <- start.time <- obs.start <- POSIX.time <- import.error <-
-    Date <- CO2dry_ppm <- POSIX.warning <- H2O_ppm <- Pcham <- Obs2 <- NULL
+  H2O_ppm <- H2O <- CH4 <- CO2 <- TIME <- DATE <- DATAH <- REMARK <-
+    CH4dry_ppb <- CO2dry_ppm <- POSIX.warning <- import.error <- NULL
 
   # Input file name
   inputfile.name <- gsub(".*/", "", inputfile)
 
   # Try to load data file
   try.import <- tryCatch(
-    {read.delim(inputfile)},
+    {read.delim(inputfile, nrows = 20)},
     error = function(e) {import.error <<- e}
   )
-
-  # Skip first line in problematic files
-  skip.extra <- 0
-  if(inherits(try.import, "simpleError")){
-    if(try.import$message == "more columns than column names"){
-      try.import <- tryCatch(
-        {read.delim(inputfile, skip = 1)},
-        error = function(e) {import.error <<- e}
-      )
-      skip.extra <- 1
-    }}
 
   if(inherits(try.import, "simpleError")){
     warning("Error occurred in file ", inputfile.name, ":\n", "   ",
@@ -135,37 +132,34 @@ LI8100_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
   } else {
 
     # Find how many rows need to be skipped
-    skip.rows <- as.numeric(which(try.import == "Type"))[1] + skip.extra
+    skip.rows <- as.numeric(which(try.import == "DATAH", arr.ind = TRUE)[1])
 
-    # Import raw data file from LI8100 (.81x)
+    # Import raw data file from LI7810 (.data or .txt)
     data.raw <- read.delim(inputfile, skip = skip.rows) %>%
-      # Keep only Type == 1, as everything else is metadata
-      filter(Type == "1") %>%
-      # Standardize column names
-      rename(DATE_TIME = Date, Pcham = Pressure, H2O_mmol = H2O, CO2dry_ppm = Cdry) %>%
+      # Remove the row "DATAU"
+      filter(!DATAH == 'DATAU') %>% select(!DATAH) %>%
       # Convert column class automatically
       type.convert(as.is = TRUE) %>%
-      # Convert mmol into ppm for H2O
-      mutate(H2O_ppm = H2O_mmol*1000) %>%
-      # Detect new observations
-      arrange(DATE_TIME) %>%
-      mutate(Obs2 = ifelse(is.na(Etime - lag(Etime)), 0, Etime - lag(Etime))) %>%
-      mutate(Obs2 = rleid(cumsum(Obs2 < 0)))
+      # Standardize column names
+      rename(CO2dry_ppm = CO2, CH4dry_ppb = CH4, H2O_ppm = H2O)
+
+    # Convert column class REMARK
+    if(any(grepl("REMARK", names(data.raw)))){
+      data.raw <- mutate(data.raw, REMARK = as.character(REMARK))}
 
     # Keep only useful columns for gas flux calculation
     if(keep_all == FALSE){
       data.raw <- data.raw %>%
-        select(Obs2, DATE_TIME, Etime, H2O_ppm, CO2dry_ppm,
-               Tcham, Pcham, V1, V2, V3, V4)}
+        select(DATE, TIME, CO2dry_ppm, CH4dry_ppb, H2O_ppm)}
 
     # Create a new column containing date and time (POSIX format)
     tryCatch(
       {if(date.format == "dmy"){
-        try.POSIX <- as.POSIXct(dmy_hms(data.raw$DATE_TIME, tz = timezone))
+        try.POSIX <- as.POSIXct(dmy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone))
       } else if(date.format == "mdy"){
-        try.POSIX <- as.POSIXct(mdy_hms(data.raw$DATE_TIME, tz = timezone))
+        try.POSIX <- as.POSIXct(mdy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone))
       } else if(date.format == "ymd"){
-        try.POSIX <- as.POSIXct(ymd_hms(data.raw$DATE_TIME, tz = timezone))
+        try.POSIX <- as.POSIXct(ymd_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone))
       }}, warning = function(w) {POSIX.warning <<- "date.format.error"}
     )
 
@@ -175,61 +169,14 @@ LI8100_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
               "   Verify that the 'date.format' you specified (", date.format,
               ") corresponds to the\n",
               "   column 'DATE' in the raw data file. Here is a sample: ",
-              data.raw$DATE_TIME[1], "\n", call. = F)
+              data.raw$DATE[1], "\n", call. = F)
     } else {
 
       data.raw$POSIX.time <- try.POSIX
 
-      # Import metadata from LI8100 (.81x)
-      meta <- read.delim(inputfile, header = F) %>% select(c(1:2)) %>%
-        filter(V1 == "Obs#:" | V1 == "Label:" | V1 == "Area:" | V1 == "Vcham:" |
-                 V1 == "Offset:" | V1 == "Dead Band:")
-
-      if (nrow(meta)/6 == ceiling(nrow(meta)/6)) {
-        metadata <- meta %>% reframe(
-          Obs = as.numeric(.[which(.[,1] == "Obs#:"),2]),
-          plotID = .[which(.[,1] == "Label:"),2],
-          Area = as.numeric(.[which(.[,1] == "Area:"),2]),
-          Vcham = as.numeric(.[which(.[,1] == "Vcham:"),2]),
-          offset = as.numeric(.[which(.[,1] == "Offset:"),2]),
-          deadband = as.numeric(ms(meta[which(meta[,1] == "Dead Band:"),2]), units = "secs"))
-      } else {
-        metadata <- meta %>% reframe(
-          Obs = as.numeric(.[which(.[,1] == "Obs#:"),2]),
-          plotID = .[which(.[,1] == "Label:"),2],
-          Area = as.numeric(.[which(.[,1] == "Area:"),2]),
-          Vcham = as.numeric(.[which(.[,1] == "Vcham:"),2]),
-          offset = as.numeric(.[which(.[,1] == "Offset:"),2]),
-          deadband = c(as.numeric(ms(meta[which(meta[,1] == "Dead Band:"),2]), units = "secs"),
-                       last(as.numeric(ms(meta[which(meta[,1] == "Dead Band:"),2]), units = "secs"))))
-      }
-
-      # Modify Obs in metadata, if duplicated Obs# (but different Label)
-      metadata <- mutate(metadata, Obs2 = row_number())
-
-      # Add metadata to data.raw
-      data.raw <- data.raw %>%
-        left_join(metadata, by = "Obs2") %>% group_by(Obs2) %>%
-        # Calculate cham.close, cham.open, flag and correct negative values of Etime
-        mutate(cham.close = POSIX.time[which(Etime == 0)],
-               cham.open = max(na.omit(POSIX.time)),
-               obs.start = min(na.omit(POSIX.time))) %>%
-        ungroup() %>%
-        mutate(DATE = substr(POSIX.time, 0, 10),
-               chamID = paste(plotID, Obs, sep = "_"),
-               start.time = cham.close + deadband,
-               Etime = as.numeric(POSIX.time - start.time, units = "secs"),
-               flag = if_else(between(POSIX.time, start.time, cham.open), 1, 0))
-
       # Add instrument precision for each gas
       data.raw <- data.raw %>%
-        mutate(CO2_prec = prec[1], H2O_prec = prec[2])
-
-      # New function name
-      if (as.character(match.call()[[1]]) == "LI8100_import") {
-        warning(paste("All import functions have changed names in this new version of goFlux.",
-                      "\nIn the future, use import.LI8100() instead of LI8100_import()"), call. = FALSE)
-      }
+        mutate(CO2_prec = prec[1], CH4_prec = prec[2],  H2O_prec = prec[3])
 
       # Save cleaned data file
       if(save == TRUE){
@@ -239,8 +186,8 @@ LI8100_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
 
         # Create output file: change extension to .RData, and
         # add instrument name and "imp" for import to file name
-        file.name <- gsub(".*/", "", sub("\\.81x", "", inputfile))
-        outputfile <- paste("LI8100_", file.name, "_imp.RData", sep = "")
+        file.name <- gsub(".*/", "", sub("\\.data|\\.txt", "", inputfile))
+        outputfile <- paste("LI7810_", file.name, "_imp.RData", sep = "")
 
         save(data.raw, file = paste(RData_folder, outputfile, sep = "/"))
 
@@ -254,8 +201,3 @@ LI8100_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
     }
   }
 }
-
-#' @export
-#' @rdname LI8100_import
-import.LI8100 <- LI8100_import
-

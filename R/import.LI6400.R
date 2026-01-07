@@ -90,8 +90,9 @@
 #'
 #' # Run function
 #' imp.LI6400 <- import.LI6400(inputfile = file.path)
+#' @export
 
-LI6400_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
+import.LI6400 <- function(inputfile, date.format = "mdy", timezone = "UTC",
                           save = FALSE, keep_all = FALSE, prec = c(0.15, 20)){
 
   # Check arguments
@@ -216,12 +217,6 @@ LI6400_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
       data.raw <- data.raw %>%
         mutate(CO2_prec = prec[1], H2O_prec = prec[2])
 
-      # New function name
-      if (as.character(match.call()[[1]]) == "LI6400_import") {
-        warning(paste("All import functions have changed names in this new version of goFlux.",
-                      "\nIn the future, use import.LI6400() instead of LI6400_import()"), call. = FALSE)
-      }
-
       # Save cleaned data file
       if(save == TRUE){
         # Create RData folder in working directory
@@ -244,7 +239,3 @@ LI6400_import <- function(inputfile, date.format = "mdy", timezone = "UTC",
     }
   }
 }
-
-#' @export
-#' @rdname LI6400_import
-import.LI6400 <- LI6400_import

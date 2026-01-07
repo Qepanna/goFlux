@@ -182,8 +182,9 @@
 #'
 #' # Run function
 #' imp.GAIA <- import.GAIA(inputfile = file.path)
+#' @export
 
-GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
+import.GAIA <- function(inputfile, date.format = "ymd", timezone = "UTC",
                         pivot = "long", active = TRUE, flag = c(7,11),
                         background = FALSE, save = FALSE,
                         CH.col = "COM5A0",
@@ -803,12 +804,6 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
           mutate_at("activ.cham", as.numeric)
       }
 
-      # New function name
-      if(as.character(match.call()[[1]]) == "GAIA_import") {
-        warning(paste("All import functions have changed names in this new version of goFlux.",
-                      "\nIn the future, use import.GAIA() instead of GAIA_import()"), call. = FALSE)
-      }
-
       ## Warn if there is no match with unnecessary columns ####
       # SWC
       if(!any(grepl(SWC.col2[1], names(try.import)))){
@@ -907,7 +902,3 @@ GAIA_import <- function(inputfile, date.format = "ymd", timezone = "UTC",
     }
   }
 }
-
-#' @export
-#' @rdname GAIA_import
-import.GAIA <- GAIA_import
