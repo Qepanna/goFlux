@@ -43,7 +43,7 @@ of this package."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax
 
     <div class="ref-description">
     <p>Raw data from the LI-6400 greenhouse gas analyzer that has
-been processed by the function <code><a href="LI6400_import.html">import.LI6400</a></code>
+been processed by the function <code><a href="import.LI6400.html">import.LI6400</a></code>
 of this package.</p>
     </div>
 
@@ -61,18 +61,17 @@ of this package.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">imp.LI6400</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">imp.LI6400</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 21</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   POSIX.time                 DATE       TIME   chamID   Obs Meas.type CO2dry_ppm</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 2021-05-19 <span style="color: #949494;">09:27:04.000000</span> 2021-05-19 09:27… 1_61_…     1 NEE             409.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 2021-05-19 <span style="color: #949494;">09:27:05.000000</span> 2021-05-19 09:27… 1_61_…     1 NEE             409.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 2021-05-19 <span style="color: #949494;">09:27:06.000000</span> 2021-05-19 09:27… 1_61_…     1 NEE             409.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> 2021-05-19 <span style="color: #949494;">09:27:07.000000</span> 2021-05-19 09:27… 1_61_…     1 NEE             408.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> 2021-05-19 <span style="color: #949494;">09:27:08.000000</span> 2021-05-19 09:27… 1_61_…     1 NEE             409.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> 2021-05-19 <span style="color: #949494;">09:27:09.000000</span> 2021-05-19 09:27… 1_61_…     1 NEE             409.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 14 more variables: H2O_ppm &lt;dbl&gt;, Tcham &lt;dbl&gt;, Pcham &lt;dbl&gt;, Area &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   Vcham &lt;dbl&gt;, offset &lt;dbl&gt;, plotID &lt;chr&gt;, Etime &lt;dbl&gt;, flag &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   start.time &lt;dttm&gt;, cham.close &lt;dttm&gt;, cham.open &lt;dttm&gt;, CO2_prec &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   H2O_prec &lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   POSIX.time          DATE       TIME  chamID   Obs Meas.type CO2dry_ppm H2O_ppm</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 2021-05-19 <span style="color: #949494;">09:27:04</span> 2021-05-19 09:2… 1_61_…     1 NEE             409.    <span style="text-decoration: underline;">9</span>838</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 2021-05-19 <span style="color: #949494;">09:27:05</span> 2021-05-19 09:2… 1_61_…     1 NEE             409.    <span style="text-decoration: underline;">9</span>833</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 2021-05-19 <span style="color: #949494;">09:27:06</span> 2021-05-19 09:2… 1_61_…     1 NEE             409.    <span style="text-decoration: underline;">9</span>845</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> 2021-05-19 <span style="color: #949494;">09:27:07</span> 2021-05-19 09:2… 1_61_…     1 NEE             408.    <span style="text-decoration: underline;">9</span>864</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> 2021-05-19 <span style="color: #949494;">09:27:08</span> 2021-05-19 09:2… 1_61_…     1 NEE             409.    <span style="text-decoration: underline;">9</span>870</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> 2021-05-19 <span style="color: #949494;">09:27:09</span> 2021-05-19 09:2… 1_61_…     1 NEE             409.    <span style="text-decoration: underline;">9</span>871</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 13 more variables: Tcham &lt;dbl&gt;, Pcham &lt;dbl&gt;, Area &lt;dbl&gt;, Vcham &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   offset &lt;dbl&gt;, plotID &lt;chr&gt;, Etime &lt;dbl&gt;, flag &lt;dbl&gt;, start.time &lt;dttm&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   cham.close &lt;dttm&gt;, cham.open &lt;dttm&gt;, CO2_prec &lt;dbl&gt;, H2O_prec &lt;dbl&gt;</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

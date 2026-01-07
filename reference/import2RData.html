@@ -190,7 +190,7 @@ an object.</p></dd>
 
 <dt id="arg-proc-data-field">proc.data.field<a class="anchor" aria-label="anchor" href="#arg-proc-data-field"></a></dt>
 <dd><p>numeric value; select the process data field used with
-the EGM-5. See <code><a href="EGM5_import.html">import.EGM5</a></code> for
+the EGM-5. See <code><a href="import.EGM5.html">import.EGM5</a></code> for
 more details.</p></dd>
 
 
@@ -218,7 +218,7 @@ Idle Closed Dark". Used with <code>instrument = "GAIA"</code> only.</p></dd>
 
 <dt id="arg-background">background<a class="anchor" aria-label="anchor" href="#arg-background"></a></dt>
 <dd><p>logical; if <code>background = FALSE</code>, removes all data from
-opened chambers. See <code><a href="GAIA_import.html">import.GAIA</a></code> for
+opened chambers. See <code><a href="import.GAIA.html">import.GAIA</a></code> for
 more details.</p></dd>
 
 
@@ -234,7 +234,7 @@ measurement (seconds). Used with <code>instrument = "skyline"</code> only.</p></
 
 <dt id="arg-ch-clo-col-op-stat-col-par-col-tcham-col-tsoil-col-swc-col-wtd-col-ch-col">CH.clo.col, Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, WTD.col, CH.col<a class="anchor" aria-label="anchor" href="#arg-ch-clo-col-op-stat-col-par-col-tcham-col-tsoil-col-swc-col-wtd-col-ch-col"></a></dt>
 <dd><p>character vector; a pattern to match the columns that fit the corresponding
-parameter. See <code><a href="GAIA_import.html">import.GAIA</a></code>, <code><a href="import.LI8250.html">import.LI8250</a></code>,
+parameter. See <code><a href="import.GAIA.html">import.GAIA</a></code>, <code><a href="import.LI8250.html">import.LI8250</a></code>,
 or <code><a href="import.skyline.html">import.skyline</a></code> for more details.</p></dd>
 
 
@@ -249,13 +249,13 @@ to ignore these columns. Used with <code>instrument = "skyline"</code> only.</p>
 <dt id="arg-inst-inst-inst-inst-">inst, inst1, inst2, inst3<a class="anchor" aria-label="anchor" href="#arg-inst-inst-inst-inst-"></a></dt>
 <dd><p>character strings; a pattern to match the columns
 containing the name of each instrument. See
-<code><a href="GAIA_import.html">import.GAIA</a></code>, <code><a href="import.LI8250.html">import.LI8250</a></code>
+<code><a href="import.GAIA.html">import.GAIA</a></code>, <code><a href="import.LI8250.html">import.LI8250</a></code>
 or <code>instrument = "skyline"</code> for more details.</p></dd>
 
 
 <dt id="arg-gas-gas-gas-gas-">gas, gas1, gas2, gas3<a class="anchor" aria-label="anchor" href="#arg-gas-gas-gas-gas-"></a></dt>
 <dd><p>character vectors; a pattern to match the columns
-containing each gas measurement. See <code><a href="GAIA_import.html">import.GAIA</a></code>,
+containing each gas measurement. See <code><a href="import.GAIA.html">import.GAIA</a></code>,
 <code><a href="import.LI8250.html">import.LI8250</a></code>, <code><a href="import.GasmetPD.html">import.GasmetPD</a></code>
 or <code><a href="import.skyline.html">import.skyline</a></code> for more details.</p></dd>
 
@@ -264,7 +264,7 @@ or <code><a href="import.skyline.html">import.skyline</a></code> for more detail
 <dd><p>logical; are the gas measurements compensated for water
 vapor (dry fraction)? If <code>dryX = TRUE</code> (default), the gases are
 compensated for water vapor, and will be named accordingly. See
-<code><a href="GAIA_import.html">import.GAIA</a></code>, <code><a href="import.LI8250.html">import.LI8250</a></code>
+<code><a href="import.GAIA.html">import.GAIA</a></code>, <code><a href="import.LI8250.html">import.LI8250</a></code>
 or <code><a href="import.skyline.html">import.skyline</a></code> for more details.</p></dd>
 
 
@@ -367,12 +367,12 @@ at page 90 for more details about the different Process Data Fields
 <p>The arguments <code>active</code>, <code>pivot</code>, <code>flag</code>, <code>PAR.col</code>,
 <code>Tcham.col</code>, <code>WTD.col</code>, <code>Op.stat.col</code>, <code>inst3</code>,
 <code>gas3</code>, <code>prec3</code>, <code>dry3</code>, <code>sep</code>, <code>manual</code> and
-<code>skip</code> are used with the function <code><a href="GAIA_import.html">import.GAIA</a></code> only.
+<code>skip</code> are used with the function <code><a href="import.GAIA.html">import.GAIA</a></code> only.
 The arguments <code>Tsoil.col</code>, <code>SWC.col</code>, <code>inst1</code>, <code>inst2</code>,
 <code>gas1</code>, <code>gas2</code>, <code>prec1</code>, <code>prec2</code>, <code>dry1</code>, <code>dry2</code>,
-are used with both the function <code><a href="GAIA_import.html">import.GAIA</a></code> and the
+are used with both the function <code><a href="import.GAIA.html">import.GAIA</a></code> and the
 function <code><a href="import.LI8250.html">import.LI8250</a></code>. The arguments <code>CH.col</code> and
-<code>background</code> are used with the function <code><a href="GAIA_import.html">import.GAIA</a></code>.</p>
+<code>background</code> are used with the function <code><a href="import.GAIA.html">import.GAIA</a></code>.</p>
 <p>The arguments <code>CH4</code>, <code>CO2</code>, <code>sum</code> and <code>range</code> are used
 with the function <code><a href="import.G2201i.html">import.G2201i</a></code> only.</p>
 <p>The arguments <code>CH.clo.col</code>, <code>sensor1</code>, <code>sensor2</code>, <code>inst</code>
@@ -385,28 +385,28 @@ and <code>dry</code> are used with the function <code><a href="import.skyline.ht
     <div class="dont-index"><p>Use the wrapper function <code>import2RData</code>
 to import multiple files from the same folder path using any instrument.</p>
 <p>Import functions for individual instruments:
-<code><a href="DX4015_import.html">import.DX4015</a></code>,
-<code><a href="EGM5_import.html">import.EGM5</a></code>,
+<code><a href="import.DX4015.html">import.DX4015</a></code>,
+<code><a href="import.EGM5.html">import.EGM5</a></code>,
 <code><a href="import.G2201i.html">import.G2201i</a></code>,
-<code><a href="G2508_import.html">import.G2508</a></code>,
-<code><a href="G4301_import.html">import.G4301</a></code>,
-<code><a href="GAIA_import.html">import.GAIA</a></code>,
+<code><a href="import.G2508.html">import.G2508</a></code>,
+<code><a href="import.G4301.html">import.G4301</a></code>,
+<code><a href="import.GAIA.html">import.GAIA</a></code>,
 <code><a href="import.GasmetPD.html">import.GasmetPD</a></code>,
 <code><a href="import.GT5000.html">import.GT5000</a></code>,
 <code><a href="import.HT8850.html">import.HT8850</a></code>,
-<code><a href="LI6400_import.html">import.LI6400</a></code>,
-<code><a href="LI7810_import.html">import.LI7810</a></code>,
-<code><a href="LI7820_import.html">import.LI7820</a></code>,
-<code><a href="LI8100_import.html">import.LI8100</a></code>,
+<code><a href="import.LI6400.html">import.LI6400</a></code>,
+<code><a href="import.LI7810.html">import.LI7810</a></code>,
+<code><a href="import.LI7820.html">import.LI7820</a></code>,
+<code><a href="import.LI8100.html">import.LI8100</a></code>,
 <code><a href="import.LI8150.html">import.LI8150</a></code>,
-<code><a href="LI8200_import.html">import.LI8200</a></code>,
+<code><a href="import.LI8200.html">import.LI8200</a></code>,
 <code><a href="import.LI8250.html">import.LI8250</a></code>,
-<code><a href="N2OM1_import.html">import.N2OM1</a></code>,
+<code><a href="import.N2OM1.html">import.N2OM1</a></code>,
 <code><a href="import.N2Oi2.html">import.N2Oi2</a></code>,
 <code><a href="import.skyline.html">import.skyline</a></code>,
-<code><a href="uCH4_import.html">import.uCH4</a></code>,
-<code><a href="uN2O_import.html">import.uN2O</a></code>,
-<code><a href="LGR_import.html">import.UGGA</a></code></p></div>
+<code><a href="import.uCH4.html">import.uCH4</a></code>,
+<code><a href="import.uN2O.html">import.uN2O</a></code>,
+<code><a href="import.UGGA.html">import.UGGA</a></code></p></div>
     </div>
 
     <div id="ref-examples">

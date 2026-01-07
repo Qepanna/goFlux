@@ -43,7 +43,7 @@ of this package."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax
 
     <div class="ref-description">
     <p>Raw data from the LI-8200 Smart Chamber that has
-been processed by the function <code><a href="LI8200_import.html">import.LI8200</a></code>
+been processed by the function <code><a href="import.LI8200.html">import.LI8200</a></code>
 of this package.</p>
     </div>
 
@@ -61,18 +61,18 @@ of this package.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">imp.LI8200</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">imp.LI8200</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 22</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   POSIX.time                 plotID   rep   cham.close                 deadband</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 2023-09-06 <span style="color: #949494;">09:16:03.000000</span> 601d_A_W 1     2023-09-06 <span style="color: #949494;">09:16:02.000000</span>       20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 2023-09-06 <span style="color: #949494;">09:16:04.000000</span> 601d_A_W 1     2023-09-06 <span style="color: #949494;">09:16:02.000000</span>       20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 2023-09-06 <span style="color: #949494;">09:16:05.000000</span> 601d_A_W 1     2023-09-06 <span style="color: #949494;">09:16:02.000000</span>       20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> 2023-09-06 <span style="color: #949494;">09:16:06.000000</span> 601d_A_W 1     2023-09-06 <span style="color: #949494;">09:16:02.000000</span>       20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> 2023-09-06 <span style="color: #949494;">09:16:07.000000</span> 601d_A_W 1     2023-09-06 <span style="color: #949494;">09:16:02.000000</span>       20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> 2023-09-06 <span style="color: #949494;">09:16:08.000000</span> 601d_A_W 1     2023-09-06 <span style="color: #949494;">09:16:02.000000</span>       20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 17 more variables: Etime &lt;dbl&gt;, N2Odry_ppb &lt;dbl&gt;, CH4dry_ppb &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   CO2dry_ppm &lt;dbl&gt;, H2O_ppm &lt;dbl&gt;, Tcham &lt;dbl&gt;, Pcham &lt;dbl&gt;, Vcham &lt;dbl&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   Area &lt;dbl&gt;, SWC &lt;dbl&gt;, Tsoil &lt;dbl&gt;, DATE &lt;chr&gt;, start.time &lt;dttm&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   cham.open &lt;dttm&gt;, obs.length &lt;dbl&gt;, chamID &lt;chr&gt;, flag &lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   POSIX.time          plotID rep   cham.close          deadband Etime N2Odry_ppb</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 2023-09-06 <span style="color: #949494;">09:16:03</span> 601d_… 1     2023-09-06 <span style="color: #949494;">09:16:02</span>       20   -<span style="color: #BB0000;">19</span>         <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> 2023-09-06 <span style="color: #949494;">09:16:04</span> 601d_… 1     2023-09-06 <span style="color: #949494;">09:16:02</span>       20   -<span style="color: #BB0000;">18</span>         <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> 2023-09-06 <span style="color: #949494;">09:16:05</span> 601d_… 1     2023-09-06 <span style="color: #949494;">09:16:02</span>       20   -<span style="color: #BB0000;">17</span>         <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> 2023-09-06 <span style="color: #949494;">09:16:06</span> 601d_… 1     2023-09-06 <span style="color: #949494;">09:16:02</span>       20   -<span style="color: #BB0000;">16</span>         <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> 2023-09-06 <span style="color: #949494;">09:16:07</span> 601d_… 1     2023-09-06 <span style="color: #949494;">09:16:02</span>       20   -<span style="color: #BB0000;">15</span>         <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> 2023-09-06 <span style="color: #949494;">09:16:08</span> 601d_… 1     2023-09-06 <span style="color: #949494;">09:16:02</span>       20   -<span style="color: #BB0000;">14</span>         <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 15 more variables: CH4dry_ppb &lt;dbl&gt;, CO2dry_ppm &lt;dbl&gt;, H2O_ppm &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   Tcham &lt;dbl&gt;, Pcham &lt;dbl&gt;, Vcham &lt;dbl&gt;, Area &lt;dbl&gt;, SWC &lt;dbl&gt;, Tsoil &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   DATE &lt;chr&gt;, start.time &lt;dttm&gt;, cham.open &lt;dttm&gt;, obs.length &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   chamID &lt;chr&gt;, flag &lt;dbl&gt;</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
