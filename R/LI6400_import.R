@@ -67,6 +67,7 @@
 #'          \code{\link[goFlux]{import.GAIA}},
 #'          \code{\link[goFlux]{import.GasmetPD}},
 #'          \code{\link[goFlux]{import.GT5000}},
+#'          \code{\link[goFlux]{import.HT8850}},
 #'          \code{\link[goFlux]{import.LI7810}},
 #'          \code{\link[goFlux]{import.LI7820}},
 #'          \code{\link[goFlux]{import.LI8100}},
@@ -74,6 +75,7 @@
 #'          \code{\link[goFlux]{import.LI8250}},
 #'          \code{\link[goFlux]{import.N2OM1}},
 #'          \code{\link[goFlux]{import.N2Oi2}},
+#'          \code{\link[goFlux]{import.skyline}},
 #'          \code{\link[goFlux]{import.uCH4}},
 #'          \code{\link[goFlux]{import.uN2O}},
 #'          \code{\link[goFlux]{import.UGGA}}

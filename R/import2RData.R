@@ -20,6 +20,7 @@
 #'                                \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}}
 #'                                natural gas detection system
 #' * \strong{Earth Bound Scientific}: SkyLine2D system
+#' * \strong{Healthy Photon}: HT8850
 #' * \strong{GasmetPD}: Custom multiplexer from the University of Padova, Italy
 #' @md
 #'
@@ -29,10 +30,10 @@
 #' @param instrument character string; specifies which instrument was used to
 #'                   generate the files contained in the folder path. Choose one
 #'                   of the following: "DX4015", "EGM5", "G2201i", "G2508", "G4301",
-#'                   "GAIA", "GasmetPD", "GT5000", "LI-6400", "LI-7810", "LI-7820",
-#'                   "LI-8100", "LI-8200", "LI-8250", "N2OM1", "N2Oi2", "skyline",
-#'                   "uCH4", "uN2O", "UGGA". For more information about an
-#'                   instrument, see the section "See Also" below.
+#'                   "GAIA", "GasmetPD", "GT5000", "HT8850", "LI-6400", "LI-7810",
+#'                   "LI-7820", "LI-8100", "LI-8200", "LI-8250", "N2OM1", "N2Oi2",
+#'                   "skyline", "uCH4", "uN2O", "UGGA". For more information about
+#'                   an instrument, see the section "See Also" below.
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
 #'                    or "mdy".
@@ -146,6 +147,7 @@
 #' \item GAIA: column Titles:
 #' \item GasmetPD: column Date
 #' \item GT5000: column Date
+#' \item HT8850: column time
 #' \item LI-6400: (see comment below)
 #' \item LI-7810: column DATE
 #' \item LI-7820: column DATE
@@ -198,6 +200,7 @@
 #' @include GAIA_import.R
 #' @include import.GasmetPD.R
 #' @include import.GT5000.R
+#' @include import.HT8850.R
 #' @include LGR_import.R
 #' @include LI6400_import.R
 #' @include LI7810_import.R
@@ -222,6 +225,7 @@
 #'          \code{\link[goFlux]{import.GAIA}},
 #'          \code{\link[goFlux]{import.GasmetPD}},
 #'          \code{\link[goFlux]{import.GT5000}},
+#'          \code{\link[goFlux]{import.HT8850}},
 #'          \code{\link[goFlux]{import.LI6400}},
 #'          \code{\link[goFlux]{import.LI7810}},
 #'          \code{\link[goFlux]{import.LI7820}},
@@ -372,6 +376,11 @@
 #' import2RData(path = file.path, instrument = "uN2O",
 #'              date.format = "mdy", prec = c(0.2, 0.2, 15))
 #'
+#' # with the Healthy Photon HT8850 all-in-one GHG analyzer
+#' file.path <- system.file("extdata/HT8850", package = "goFlux")
+#' import2RData(path = file.path, instrument = "HT8850",
+#'              date.format = "ymd", prec = c(0.5, 3, 0.5, 10))
+#'
 #' @export
 
 import2RData <- function(path, instrument, date.format, timezone = "UTC",
@@ -399,11 +408,12 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                 c("DX4015", "UGGA", "G2201i", "G2508", "G4301", "GAIA", "LI-6400",
                   "EGM5", "LI-7810", "LI-7820", "LI-8100", "LI-8200", "N2OM1",
                   "N2Oi2", "uCH4", "uN2O", "GasmetPD", "GT5000", "LI-8250",
-                  "skyline")))){
+                  "skyline", "HT8850")))){
     stop(paste("'instrument' must be of class character and one of the following:",
-               "'DX4015', 'EGM5', 'G2508', 'G4301', 'GAIA', 'GasmetPD', 'GT5000',",
-               "'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100', 'LI-8200', 'LI-8250',",
-               "'UGGA', 'N2OM1', 'N2Oi2', 'skyline', 'uCH4', 'uN2O'"))}
+               "'DX4015', 'EGM5', 'G2201i', 'G2508', 'G4301', 'GAIA', 'GasmetPD',",
+               "'GT5000', 'HT8850', 'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100',",
+               "'LI-8200', 'LI-8250', 'UGGA', 'N2OM1', 'N2Oi2', 'skyline', 'uCH4',",
+               "'uN2O'"))}
   if(!missing(date.format)){
     if(length(date.format) != 1) stop("'date.format' must be of length 1")
     if (!is.character(date.format)) stop("'date.format' must be of class character")
@@ -757,6 +767,42 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                     save = TRUE,
                     keep_all = keep_all,
                     prec = prec),
+
+        error = function(e){
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
+    })
+  }
+
+  # HT8850 ####
+  if(instrument == "HT8850"){
+
+    # List all the files contained in the specified path
+    file_list <- list.files(path = path, pattern = "\\.txt", full.names = TRUE)
+
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .txt",
+                                       "was found in the folder path", path))
+
+    # Loop through files in "file_list" and apply import functions
+    pblapply(seq_along(file_list), function(i) {
+
+      withCallingHandlers(
+
+        import.HT8850(inputfile = file_list[i],
+                      date.format = date.format,
+                      timezone = timezone,
+                      save = TRUE,
+                      prec = prec),
 
         error = function(e){
           errs <<- c(errs, conditionMessage(e))

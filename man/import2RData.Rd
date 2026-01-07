@@ -61,10 +61,10 @@ files to be imported.}
 \item{instrument}{character string; specifies which instrument was used to
 generate the files contained in the folder path. Choose one
 of the following: "DX4015", "EGM5", "G2201i", "G2508", "G4301",
-"GAIA", "GasmetPD", "GT5000", "LI-6400", "LI-7810", "LI-7820",
-"LI-8100", "LI-8200", "LI-8250", "N2OM1", "N2Oi2", "skyline",
-"uCH4", "uN2O", "UGGA". For more information about an
-instrument, see the section "See Also" below.}
+"GAIA", "GasmetPD", "GT5000", "HT8850", "LI-6400", "LI-7810",
+"LI-7820", "LI-8100", "LI-8200", "LI-8250", "N2OM1", "N2Oi2",
+"skyline", "uCH4", "uN2O", "UGGA". For more information about
+an instrument, see the section "See Also" below.}
 
 \item{date.format}{character string; specifies the date format found in the
 raw data file. Choose one of the following: "dmy", "ymd",
@@ -211,6 +211,7 @@ high accuracy analyzer and
 \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}}
 natural gas detection system
 \item \strong{Earth Bound Scientific}: SkyLine2D system
+\item \strong{Healthy Photon}: HT8850
 \item \strong{GasmetPD}: Custom multiplexer from the University of Padova, Italy
 }
 }
@@ -227,6 +228,7 @@ one of the columns in the raw data file:
 \item GAIA: column Titles:
 \item GasmetPD: column Date
 \item GT5000: column Date
+\item HT8850: column time
 \item LI-6400: (see comment below)
 \item LI-7810: column DATE
 \item LI-7820: column DATE
@@ -407,6 +409,11 @@ file.path <- system.file("extdata/uN2O", package = "goFlux")
 import2RData(path = file.path, instrument = "uN2O",
              date.format = "mdy", prec = c(0.2, 0.2, 15))
 
+# with the Healthy Photon HT8850 all-in-one GHG analyzer
+file.path <- system.file("extdata/HT8850", package = "goFlux")
+import2RData(path = file.path, instrument = "HT8850",
+             date.format = "ymd", prec = c(0.5, 3, 0.5, 10))
+
 }
 \seealso{
 Use the wrapper function \code{\link[goFlux]{import2RData}}
@@ -421,6 +428,7 @@ Import functions for individual instruments:
 \code{\link[goFlux]{import.GAIA}},
 \code{\link[goFlux]{import.GasmetPD}},
 \code{\link[goFlux]{import.GT5000}},
+\code{\link[goFlux]{import.HT8850}},
 \code{\link[goFlux]{import.LI6400}},
 \code{\link[goFlux]{import.LI7810}},
 \code{\link[goFlux]{import.LI7820}},
