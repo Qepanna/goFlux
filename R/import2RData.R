@@ -2,8 +2,8 @@
 #'
 #' Imports all raw gas measurement files contained in a folder.
 #' Adapted to multiple greenhouse gas analyzers and other instruments:
-#' * \strong{LI-COR}: LI-6400, LI-7810, LI-7820, LI-8100, LI-8200 (smart chamber),
-#'                    LI-8250 (Multiplexer)
+#' * \strong{LI-COR}: LI-6400, LI-7810, LI-7820, LI-8100, LI-8150 (Multiplexer),
+#'                    LI-8200 (smart chamber), LI-8250 (Multiplexer)
 #' * \strong{Los Gatos Research (LGR)}: ultra-portable GGA (GLA132 series),
 #'                                      micro ultra-portable GGA (GLA131 series),
 #'                                      N2OM1 (GLA151 series), and the
@@ -31,9 +31,9 @@
 #'                   generate the files contained in the folder path. Choose one
 #'                   of the following: "DX4015", "EGM5", "G2201i", "G2508", "G4301",
 #'                   "GAIA", "GasmetPD", "GT5000", "HT8850", "LI-6400", "LI-7810",
-#'                   "LI-7820", "LI-8100", "LI-8200", "LI-8250", "N2OM1", "N2Oi2",
-#'                   "skyline", "uCH4", "uN2O", "UGGA". For more information about
-#'                   an instrument, see the section "See Also" below.
+#'                   "LI-7820", "LI-8100", "LI-8150", "LI-8200", "LI-8250", "N2OM1",
+#'                   "N2Oi2", "skyline", "uCH4", "uN2O", "UGGA". For more information
+#'                   about an instrument, see the section "See Also" below.
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
 #'                    or "mdy".
@@ -152,6 +152,7 @@
 #' \item LI-7810: column DATE
 #' \item LI-7820: column DATE
 #' \item LI-8100: column Date
+#' \item LI-8150: column Date
 #' \item LI-8200: (see comment below)
 #' \item N2OM1: column Time
 #' \item N2Oi2: column Time
@@ -206,6 +207,7 @@
 #' @include LI7810_import.R
 #' @include LI7820_import.R
 #' @include LI8100_import.R
+#' @include import.LI8150.R
 #' @include LI8200_import.R
 #' @include import.LI8250.R
 #' @include N2OM1_import.R
@@ -230,6 +232,7 @@
 #'          \code{\link[goFlux]{import.LI7810}},
 #'          \code{\link[goFlux]{import.LI7820}},
 #'          \code{\link[goFlux]{import.LI8100}},
+#'          \code{\link[goFlux]{import.LI8150}},
 #'          \code{\link[goFlux]{import.LI8200}},
 #'          \code{\link[goFlux]{import.LI8250}},
 #'          \code{\link[goFlux]{import.N2OM1}},
@@ -341,6 +344,11 @@
 #' import2RData(path = file.path, instrument = "LI-8100",
 #'              date.format = "ymd", prec = c(1, 10))
 #'
+#' # with the LI-COR LI-8150 Multiplexer and LI-8100A gas analyzer
+#' file.path <- system.file("extdata/LI8150", package = "goFlux")
+#' import2RData(path = file.path, instrument = "LI-8150",
+#'              date.format = "ymd", prec = c(1, 10))
+#'
 #' # with the LI-COR smart chamber (LI-8200)
 #' # with this instrument, "keep_all" and "prec" are not valid arguments.
 #' file.path <- system.file("extdata/LI8200", package = "goFlux")
@@ -406,14 +414,14 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
   if(length(instrument) != 1) stop("'instrument' must be of length 1")
   if(!any(grepl(paste("\\<", instrument, "\\>", sep = ""),
                 c("DX4015", "UGGA", "G2201i", "G2508", "G4301", "GAIA", "LI-6400",
-                  "EGM5", "LI-7810", "LI-7820", "LI-8100", "LI-8200", "N2OM1",
-                  "N2Oi2", "uCH4", "uN2O", "GasmetPD", "GT5000", "LI-8250",
+                  "EGM5", "LI-7810", "LI-7820", "LI-8100", "LI-8150", "LI-8200",
+                  "N2OM1", "N2Oi2", "uCH4", "uN2O", "GasmetPD", "GT5000", "LI-8250",
                   "skyline", "HT8850")))){
     stop(paste("'instrument' must be of class character and one of the following:",
                "'DX4015', 'EGM5', 'G2201i', 'G2508', 'G4301', 'GAIA', 'GasmetPD',",
                "'GT5000', 'HT8850', 'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100',",
-               "'LI-8200', 'LI-8250', 'UGGA', 'N2OM1', 'N2Oi2', 'skyline', 'uCH4',",
-               "'uN2O'"))}
+               "'LI-8150', 'LI-8200', 'LI-8250', 'UGGA', 'N2OM1', 'N2Oi2', 'skyline',",
+               "'uCH4', 'uN2O'"))}
   if(!missing(date.format)){
     if(length(date.format) != 1) stop("'date.format' must be of length 1")
     if (!is.character(date.format)) stop("'date.format' must be of class character")
@@ -946,6 +954,43 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
       withCallingHandlers(
 
         import.LI8100(inputfile = file_list[i],
+                      date.format = date.format,
+                      timezone = timezone,
+                      save = TRUE,
+                      keep_all = keep_all,
+                      prec = prec),
+
+        error = function(e){
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
+    })
+  }
+
+  # LI-8150 Multiplexer ####
+  if(instrument == "LI-8150"){
+
+    # List all the files contained in the specified path
+    file_list <- list.files(path = path, pattern = "\\.81x", full.names = TRUE)
+
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .81x",
+                                       "was found in the folder path", path))
+
+    # Loop through files in "file_list" and apply import functions
+    pblapply(seq_along(file_list), function(i) {
+
+      withCallingHandlers(
+
+        import.LI8150(inputfile = file_list[i],
                       date.format = date.format,
                       timezone = timezone,
                       save = TRUE,

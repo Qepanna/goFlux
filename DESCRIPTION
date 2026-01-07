@@ -51,6 +51,7 @@ Collate:
     'import.GT5000.R'
     'import.GasmetPD.R'
     'import.HT8850.R'
+    'import.LI8150.R'
     'import.LI8250.R'
     'import.N2Oi2.R'
     'import.skyline.R'

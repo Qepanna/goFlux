@@ -62,9 +62,9 @@ files to be imported.}
 generate the files contained in the folder path. Choose one
 of the following: "DX4015", "EGM5", "G2201i", "G2508", "G4301",
 "GAIA", "GasmetPD", "GT5000", "HT8850", "LI-6400", "LI-7810",
-"LI-7820", "LI-8100", "LI-8200", "LI-8250", "N2OM1", "N2Oi2",
-"skyline", "uCH4", "uN2O", "UGGA". For more information about
-an instrument, see the section "See Also" below.}
+"LI-7820", "LI-8100", "LI-8150", "LI-8200", "LI-8250", "N2OM1",
+"N2Oi2", "skyline", "uCH4", "uN2O", "UGGA". For more information
+about an instrument, see the section "See Also" below.}
 
 \item{date.format}{character string; specifies the date format found in the
 raw data file. Choose one of the following: "dmy", "ymd",
@@ -193,8 +193,8 @@ the working directory.
 Imports all raw gas measurement files contained in a folder.
 Adapted to multiple greenhouse gas analyzers and other instruments:
 \itemize{
-\item \strong{LI-COR}: LI-6400, LI-7810, LI-7820, LI-8100, LI-8200 (smart chamber),
-LI-8250 (Multiplexer)
+\item \strong{LI-COR}: LI-6400, LI-7810, LI-7820, LI-8100, LI-8150 (Multiplexer),
+LI-8200 (smart chamber), LI-8250 (Multiplexer)
 \item \strong{Los Gatos Research (LGR)}: ultra-portable GGA (GLA132 series),
 micro ultra-portable GGA (GLA131 series),
 N2OM1 (GLA151 series), and the
@@ -233,6 +233,7 @@ one of the columns in the raw data file:
 \item LI-7810: column DATE
 \item LI-7820: column DATE
 \item LI-8100: column Date
+\item LI-8150: column Date
 \item LI-8200: (see comment below)
 \item N2OM1: column Time
 \item N2Oi2: column Time
@@ -374,6 +375,11 @@ file.path <- system.file("extdata/LI8100", package = "goFlux")
 import2RData(path = file.path, instrument = "LI-8100",
              date.format = "ymd", prec = c(1, 10))
 
+# with the LI-COR LI-8150 Multiplexer and LI-8100A gas analyzer
+file.path <- system.file("extdata/LI8150", package = "goFlux")
+import2RData(path = file.path, instrument = "LI-8150",
+             date.format = "ymd", prec = c(1, 10))
+
 # with the LI-COR smart chamber (LI-8200)
 # with this instrument, "keep_all" and "prec" are not valid arguments.
 file.path <- system.file("extdata/LI8200", package = "goFlux")
@@ -433,6 +439,7 @@ Import functions for individual instruments:
 \code{\link[goFlux]{import.LI7810}},
 \code{\link[goFlux]{import.LI7820}},
 \code{\link[goFlux]{import.LI8100}},
+\code{\link[goFlux]{import.LI8150}},
 \code{\link[goFlux]{import.LI8200}},
 \code{\link[goFlux]{import.LI8250}},
 \code{\link[goFlux]{import.N2OM1}},

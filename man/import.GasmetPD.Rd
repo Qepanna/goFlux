@@ -121,6 +121,7 @@ See also, import functions for other instruments:
          \code{\link[goFlux]{import.LI7810}},
          \code{\link[goFlux]{import.LI7820}},
          \code{\link[goFlux]{import.LI8100}},
+         \code{\link[goFlux]{import.LI8150}},
          \code{\link[goFlux]{import.LI8200}},
          \code{\link[goFlux]{import.LI8250}},
          \code{\link[goFlux]{import.N2OM1}},
