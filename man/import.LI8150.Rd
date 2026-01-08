@@ -14,7 +14,7 @@ import.LI8150(
 )
 }
 \arguments{
-\item{inputfile}{character string; the name of a file with the extension .82z}
+\item{inputfile}{character string; the name of a file with the extension .81x}
 
 \item{date.format}{character string; specifies the date format found in the
 raw data file. Choose one of the following: "dmy", "ymd",

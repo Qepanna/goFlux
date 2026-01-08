@@ -5,7 +5,7 @@
 #' (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 #'
-#' @param inputfile character string; the name of a file with the extension .82z
+#' @param inputfile character string; the name of a file with the extension .81x
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
 #'                    or "mdy". Default is "ymd", as it is the date format from

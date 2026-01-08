@@ -67,8 +67,7 @@
 #'             7 indicates "Chamber Idle Closed Clear" and 11 indicates "Chamber
 #'             Idle Closed Dark". Used with \code{instrument = "GAIA"} only.
 #' @param background logical; if \code{background = FALSE}, removes all data from
-#'                   opened chambers. See \code{\link[goFlux]{import.GAIA}} for
-#'                   more details.
+#'                   opened chambers. Used with \code{instrument = "GAIA"} only.
 #' @param deadband numerical; define a deadband at the start of measurements
 #'                 (seconds). Used with \code{instrument = "skyline"} only.
 #' @param shoulder numerical; include background data points before and after the
@@ -80,7 +79,7 @@
 #' @param inst,inst1,inst2,inst3 character strings; a pattern to match the columns
 #'        containing the name of each instrument. See
 #'        \code{\link[goFlux]{import.GAIA}}, \code{\link[goFlux]{import.LI8250}}
-#'        or \code{instrument = "skyline"} for more details.
+#'        or \code{\link[goFlux]{import.skyline}} for more details.
 #' @param gas,gas1,gas2,gas3 character vectors; a pattern to match the columns
 #'        containing each gas measurement. See \code{\link[goFlux]{import.GAIA}},
 #'        \code{\link[goFlux]{import.LI8250}}, \code{\link[goFlux]{import.GasmetPD}}

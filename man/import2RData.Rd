@@ -108,8 +108,7 @@ for the flux calculation. Default is \code{flag = c(7,11)}, where
 Idle Closed Dark". Used with \code{instrument = "GAIA"} only.}
 
 \item{background}{logical; if \code{background = FALSE}, removes all data from
-opened chambers. See \code{\link[goFlux]{import.GAIA}} for
-more details.}
+opened chambers. Used with \code{instrument = "GAIA"} only.}
 
 \item{deadband}{numerical; define a deadband at the start of measurements
 (seconds). Used with \code{instrument = "skyline"} only.}
@@ -130,7 +129,7 @@ to ignore these columns. Used with \code{instrument = "skyline"} only.}
 \item{inst, inst1, inst2, inst3}{character strings; a pattern to match the columns
 containing the name of each instrument. See
 \code{\link[goFlux]{import.GAIA}}, \code{\link[goFlux]{import.LI8250}}
-or \code{instrument = "skyline"} for more details.}
+or \code{\link[goFlux]{import.skyline}} for more details.}
 
 \item{gas, gas1, gas2, gas3}{character vectors; a pattern to match the columns
 containing each gas measurement. See \code{\link[goFlux]{import.GAIA}},

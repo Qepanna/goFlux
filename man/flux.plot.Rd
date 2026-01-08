@@ -16,7 +16,8 @@ flux.plot(
   flux.term.unit = NULL,
   best.model = TRUE,
   p.val.disp = "round",
-  side = "left"
+  side = "left",
+  conversion.factor = 1
 )
 }
 \arguments{
@@ -85,6 +86,14 @@ the following: "star", "round", "value".}
 \ifelse{html}{\out{C<sub>0</sub>}}{\eqn{mol C[0]}{ASCII}} and
 \ifelse{html}{\out{C<sub>i</sub>}}{\eqn{mol C[i]}{ASCII}} values.
 By default, they are displayed on the left side of the plot.}
+
+\item{conversion.factor}{numerical value; factor to multiply flux values by 
+for unit conversion. Default is 1 (no conversion). 
+For example, use 3600 to convert from per-second to 
+per-hour. When using a conversion factor other than 1, 
+you should also specify \code{flux.unit} and 
+\code{flux.term.unit} to match the converted units, 
+so that both the flux and flux term labels are correct in the plots.}
 }
 \value{
 A list of plots, one per \code{UniqueID}, drawn from flux results (output
