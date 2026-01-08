@@ -60,7 +60,8 @@ The plots are customizable.</p>
 <span>  flux.term.unit <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  best.model <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  p.val.disp <span class="op">=</span> <span class="st">"round"</span>,</span>
-<span>  side <span class="op">=</span> <span class="st">"left"</span></span>
+<span>  side <span class="op">=</span> <span class="st">"left"</span>,</span>
+<span>  conversion.factor <span class="op">=</span> <span class="fl">1</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -156,6 +157,16 @@ the following: "star", "round", "value".</p></dd>
 C<sub>0</sub> and
 C<sub>i</sub> values.
 By default, they are displayed on the left side of the plot.</p></dd>
+
+
+<dt id="arg-conversion-factor">conversion.factor<a class="anchor" aria-label="anchor" href="#arg-conversion-factor"></a></dt>
+<dd><p>numerical value; factor to multiply flux values by
+for unit conversion. Default is 1 (no conversion).
+For example, use 3600 to convert from per-second to
+per-hour. When using a conversion factor other than 1,
+you should also specify <code>flux.unit</code> and
+<code>flux.term.unit</code> to match the converted units,
+so that both the flux and flux term labels are correct in the plots.</p></dd>
 
 </dl></div>
     <div id="value">
