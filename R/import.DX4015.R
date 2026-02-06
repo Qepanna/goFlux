@@ -245,9 +245,9 @@ import.DX4015 <- function(inputfile, date.format = "ymd", timezone = "UTC",
         select(!c(CH4dry_ppm, N2Odry_ppm, NH3dry_ppm, COdry_ppm, `H2O_vol-%`))}
 
     # Create a new column containing date and time (POSIX format)
+    op <- options()
     try.POSIX <- tryCatch(
       expr = {
-        op <- options()
         options(digits.secs = 6)
 
         if (date.format == "dmy") {
@@ -266,9 +266,11 @@ import.DX4015 <- function(inputfile, date.format = "ymd", timezone = "UTC",
             format = "%Y-%m-%d %H:%M:%OS"
           )
         }
-        options(op)
       },
-      warning = function(w) w
+      warning = function(w) w,
+      finally = {
+        options(op)
+      }
     )
 
     if (inherits(try.POSIX, "simpleWarning")) {
