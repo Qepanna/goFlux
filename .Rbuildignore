@@ -11,3 +11,4 @@
 ^paper$
 ^LICENSE$
 ^RData$
+^tests
