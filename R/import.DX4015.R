@@ -108,18 +108,23 @@ import.DX4015 <- function(inputfile, date.format = "ymd", timezone = "UTC",
                           prec = c(1.6, 23, 13, 2, 23, 33)){
 
   # Check arguments
-  if(missing(inputfile)) stop("'inputfile' is required")
-  if(!is.character(inputfile)) stop("'inputfile' must be of class character")
-  if(length(date.format) != 1) stop("'date.format' must be of length 1")
+  if (missing(inputfile)) stop("'inputfile' is required")
+  if (!is.character(inputfile)) stop("'inputfile' must be of class character")
+  if (length(date.format) != 1) stop("'date.format' must be of length 1")
   if (!is.character(date.format)) stop("'date.format' must be of class character")
   if (!any(grepl(date.format, c("ymd", "dmy", "mdy")))) {
-    stop("'date.format' must be one of the following: 'ymd', 'dmy' or 'mdy'")}
-  if(!is.character(timezone)) stop("'timezone' must be of class character")
-  if(save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
-  if(keep_all != TRUE & keep_all != FALSE) stop("'keep_all' must be TRUE or FALSE")
-  if(is.null(prec)) stop("'prec' is required") else{
-    if(!is.numeric(prec)) stop("'prec' must be of class numeric") else{
-      if(length(prec) != 6) stop("'prec' must be of length 6")}}
+    stop("'date.format' must be one of the following: 'ymd', 'dmy' or 'mdy'")
+  }
+  if (!is.character(timezone)) stop("'timezone' must be of class character")
+  if (save != TRUE & save != FALSE) stop("'save' must be TRUE or FALSE")
+  if (keep_all != TRUE & keep_all != FALSE) stop("'keep_all' must be TRUE or FALSE")
+  if (is.null(prec)) {
+    stop("'prec' is required")
+  } else if (!is.numeric(prec)) {
+    stop("'prec' must be of class numeric")
+  }else if(length(prec) != 6) {
+    stop("'prec' must be of length 6")
+  }
 
   # Assign NULL to variables without binding
   POSIX.warning <- Line <- SpectrumFile <- H2O_frac <- Time <- Date <-
@@ -136,12 +141,14 @@ import.DX4015 <- function(inputfile, date.format = "ymd", timezone = "UTC",
   # Try to load data file
   try.import <- tryCatch(
     {read.delim(inputfile, colClasses = "character")},
-    error = function(e) {import.error <<- e}
+    error = function(e) e
   )
 
-  if(inherits(try.import, "simpleError")){
-    warning("Error occurred in file ", inputfile.name, ":\n", "   ",
-            import.error, call. = F)
+  if (inherits(try.import, "simpleError")) {
+    warning(
+      "Error occurred in file ", inputfile.name, ":\n", "   ",
+      try.import, call. = FALSE
+    )
   } else {
 
     # Load data file
@@ -238,28 +245,41 @@ import.DX4015 <- function(inputfile, date.format = "ymd", timezone = "UTC",
         select(!c(CH4dry_ppm, N2Odry_ppm, NH3dry_ppm, COdry_ppm, `H2O_vol-%`))}
 
     # Create a new column containing date and time (POSIX format)
-    tryCatch(
-      {op <- options()
-      options(digits.secs=6)
-      if(date.format == "dmy"){
-        try.POSIX <- as.POSIXct(dmy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone),
-                                format = "%Y-%m-%d %H:%M:%OS")
-      } else if(date.format == "mdy"){
-        try.POSIX <- as.POSIXct(mdy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone),
-                                format = "%Y-%m-%d %H:%M:%OS")
-      } else if(date.format == "ymd"){
-        try.POSIX <- as.POSIXct(ymd_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone),
-                                format = "%Y-%m-%d %H:%M:%OS")}
-      options(op)}, warning = function(w) {POSIX.warning <<- "date.format.error"}
+    try.POSIX <- tryCatch(
+      expr = {
+        op <- options()
+        options(digits.secs = 6)
+
+        if (date.format == "dmy") {
+          as.POSIXct(
+            dmy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone),
+            format = "%Y-%m-%d %H:%M:%OS"
+          )
+        } else if (date.format == "mdy") {
+          as.POSIXct(
+            mdy_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone),
+            format = "%Y-%m-%d %H:%M:%OS"
+          )
+        } else if (date.format == "ymd") {
+          as.POSIXct(
+            ymd_hms(paste(data.raw$DATE, data.raw$TIME), tz = timezone),
+            format = "%Y-%m-%d %H:%M:%OS"
+          )
+        }
+        options(op)
+      },
+      warning = function(w) w
     )
 
-    if(isTRUE(POSIX.warning == "date.format.error")){
-      warning("Error occurred in file ", inputfile.name, ":\n",
-              "   An error occured while converting DATE and TIME into POSIX.time.\n",
-              "   Verify that the 'date.format' you specified (", date.format,
-              ") corresponds to the\n",
-              "   column 'Date' in the raw data file. Here is a sample: ",
-              data.raw$DATE[1], "\n", call. = F)
+    if (inherits(try.POSIX, "simpleWarning")) {
+      warning(
+        "Error occurred in file ", inputfile.name, ":\n",
+        "   An error occured while converting DATE and TIME into POSIX.time.\n",
+        "   Verify that the 'date.format' you specified (", date.format,
+        ") corresponds to the\n",
+        "   column 'Date' in the raw data file. Here is a sample: ",
+        data.raw$DATE[1], "\n", call. = FALSE
+      )
     } else {
 
       data.raw$POSIX.time <- try.POSIX
