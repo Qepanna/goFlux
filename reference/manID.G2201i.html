@@ -60,34 +60,34 @@ and <code><a href="click.peak2.html">click.peak2</a></code> of this package.</p>
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">manID.G2201i</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">manID.G2201i</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         DATE         TIME CO2dry_ppm CH4dry_ppb  H2O_ppm res Delta_Raw_iCO2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 2025-05-13 07:51:14.496   481.6969   2078.170 10121.76  HP      -9.516096</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 2025-05-13 07:51:15.776   481.6969   2078.251 10122.19  HP      -9.516096</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 2025-05-13 07:51:17.048   481.6969   2078.251 10122.19  HP      -9.516096</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 2025-05-13 07:51:17.624   481.0911   2078.251 10122.19  HP      -9.516096</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 2025-05-13 07:51:18.193   481.0861   2078.251 10122.19  HP     -10.439490</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 2025-05-13 07:51:19.474   481.0861   2077.737 10121.26  HP     -10.439490</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Delta_30s_iCO2 Delta_2min_iCO2 Delta_5min_iCO2          POSIX.time CO2_prec</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1      -10.12768       -10.81804       -11.06555 2025-05-13 07:51:14      0.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2      -10.12768       -10.81804       -11.06555 2025-05-13 07:51:16      0.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3      -10.12768       -10.81804       -11.06555 2025-05-13 07:51:17      0.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4      -10.12768       -10.81804       -11.06555 2025-05-13 07:51:18      0.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5      -10.18667       -10.79021       -11.05171 2025-05-13 07:51:18      0.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6      -10.18667       -10.79021       -11.05171 2025-05-13 07:51:19      0.2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   CH4_prec H2O_prec UniqueID          start.time obs.length flag Etime</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       50      100    meas1 2025-05-13 07:51:30        300    0   -64</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2       50      100    meas1 2025-05-13 07:51:30        300    0   -62</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3       50      100    meas1 2025-05-13 07:51:30        300    0   -61</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4       50      100    meas1 2025-05-13 07:51:30        300    0   -60</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5       50      100    meas1 2025-05-13 07:51:30        300    0   -60</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6       50      100    meas1 2025-05-13 07:51:30        300    0   -59</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       start.time_corr       end.time_corr obs.length_corr</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 2025-05-13 07:52:18 2025-05-13 07:57:25             307</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 2025-05-13 07:52:18 2025-05-13 07:57:25             307</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 2025-05-13 07:52:18 2025-05-13 07:57:25             307</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 2025-05-13 07:52:18 2025-05-13 07:57:25             307</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 2025-05-13 07:52:18 2025-05-13 07:57:25             307</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 2025-05-13 07:52:18 2025-05-13 07:57:25             307</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   UniqueID       DATE         TIME          POSIX.time CO2dry_ppm CH4dry_ppb</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1    meas1 2025-05-13 07:51:14.496 2025-05-13 07:51:14   481.6969   2078.170</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2    meas1 2025-05-13 07:51:15.776 2025-05-13 07:51:16   481.6969   2078.251</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3    meas1 2025-05-13 07:51:17.048 2025-05-13 07:51:17   481.6969   2078.251</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    meas1 2025-05-13 07:51:17.624 2025-05-13 07:51:18   481.0911   2078.251</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5    meas1 2025-05-13 07:51:18.193 2025-05-13 07:51:18   481.0861   2078.251</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6    meas1 2025-05-13 07:51:19.474 2025-05-13 07:51:19   481.0861   2077.737</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    H2O_ppm res Delta_Raw_iCO2 Delta_30s_iCO2 Delta_2min_iCO2 Delta_5min_iCO2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 10121.76  HP      -9.516096      -10.12768       -10.81804       -11.06555</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 10122.19  HP      -9.516096      -10.12768       -10.81804       -11.06555</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 10122.19  HP      -9.516096      -10.12768       -10.81804       -11.06555</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 10122.19  HP      -9.516096      -10.12768       -10.81804       -11.06555</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 10122.19  HP     -10.439490      -10.18667       -10.79021       -11.05171</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 10121.26  HP     -10.439490      -10.18667       -10.79021       -11.05171</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            start.time            end.time obs.length flag Etime CO2_prec</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 2025-05-13 07:52:18 2025-05-13 07:57:25        307    0   -64      0.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 2025-05-13 07:52:18 2025-05-13 07:57:25        307    0   -62      0.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 2025-05-13 07:52:18 2025-05-13 07:57:25        307    0   -61      0.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 2025-05-13 07:52:18 2025-05-13 07:57:25        307    0   -60      0.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 2025-05-13 07:52:18 2025-05-13 07:57:25        307    0   -60      0.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 2025-05-13 07:52:18 2025-05-13 07:57:25        307    0   -59      0.2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   CH4_prec H2O_prec</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       50      100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2       50      100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3       50      100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4       50      100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5       50      100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6       50      100</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
