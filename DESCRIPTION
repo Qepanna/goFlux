@@ -25,6 +25,7 @@ Collate:
     'autoID.R'
     'best.flux.R'
     'click.peak2.R'
+    'crop.meas.R'
     'flux.plot.R'
     'flux.term.R'
     'flux2pdf.R'
