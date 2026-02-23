@@ -1,9 +1,6 @@
 ---
 title: "goFlux, For User-Friendly Chamber Data Processing, Flux Estimation, and Diagnostics"
 editor: visual
-format:
-  html:
-    toc: false
 author: Karelle Rheault
 csl: apa-numeric-superscript-brackets.csl
 ---

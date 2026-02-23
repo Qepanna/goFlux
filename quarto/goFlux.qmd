@@ -28,7 +28,7 @@ Where $H_2O$ is the water vapor in mol·mol^-1^, $V$ is the volume inside the ch
 
 Note that the total volume (Vtot) needed for the calculation of the $flux.term$, includes the volume inside the tubing and inside your instruments. Even though these volumes may seem negligible, it is important to include them, especially when comparing flux estimates measured with different instruments.
 
-The good news is, we did the research for you! Find the internal volume of each instrument compatible with the goFlux R package in this Excel spreadsheet: [Download](docs/example_auxfile.xlsx)
+The good news is, we did the research for you! Find the internal volume of each instrument compatible with the goFlux R package in this Excel spreadsheet: [Download](quarto/docs/example_auxfile.xlsx)
 :::
 
 ### Water vapor correction

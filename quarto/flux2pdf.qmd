@@ -1,6 +1,5 @@
 ---
 title: "Visual inspection"
-format: html
 editor: visual
 ---
 

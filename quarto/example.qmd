@@ -12,7 +12,7 @@ Both workflows are using the ultra-portable GHG analyzer from Los Gatos Research
 
 #### Create an auxiliary file
 
-To help you create an auxiliary file (used for the [manual identification of measurements](manualID.qmd#sec-manID)), you can [Download](docs/example_auxfile.xlsx) this example Excel spreadsheet.
+To help you create an auxiliary file (used for the [manual identification of measurements](manualID.qmd#sec-manID)), you can [Download](quarto/docs/example_auxfile.xlsx) this example Excel spreadsheet.
 
 #### Simple workflow {#sec-simple}
 

@@ -1,9 +1,6 @@
 ---
 title: "Installation"
 editor: visual
-format:
-  html:
-    toc: false
 ---
 
 ## Installing R and RStudio
