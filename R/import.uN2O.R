@@ -75,6 +75,7 @@
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso See also, import functions for other instruments:
 #'          \code{\link[goFlux]{import.DX4015}},
+#'          \code{\link[goFlux]{import.eosMX12}},
 #'          \code{\link[goFlux]{import.EGM5}},
 #'          \code{\link[goFlux]{import.G2201i}},
 #'          \code{\link[goFlux]{import.G2508}},
