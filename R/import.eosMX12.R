@@ -83,6 +83,15 @@ import.eosMX12 <- function(inputfile, timezone = "UTC", save = FALSE){
   POSIX.time <- import.error <- Epoch_Time <- cham_num <- chamID <- Pcham <-
     cham_status <- DATE <- cham.close <- cham.open <- port_num <- Obs <- NULL
 
+  # Conversion factor for Tcham_volt to Celsius
+  Tvolt_convert <- function(temp_volt){
+    1 / (
+      0.0000000876656 * log((5.0 / (temp_volt / 2150)) - 2150)^3 +
+        0.000234126 * log((5.0 / (temp_volt / 2150)) - 2150) +
+        0.001129138
+    ) - 273.15
+  }
+
   # Input file name
   inputfile.name <- gsub(".*/", "", inputfile)
 
@@ -115,7 +124,7 @@ import.eosMX12 <- function(inputfile, timezone = "UTC", save = FALSE){
       mutate(DATE = substr(POSIX.time, 0, 10), .after = POSIX.time) %>%
 
       # Pivot longer
-      pivot_longer(
+      tidyr::pivot_longer(
         cols = matches(paste0("^(", paste(Cham_colnames, collapse="|"), ")_cham\\d{2}$")),
         names_to = c(".value", "cham_num"),
         names_pattern = "^(.*)_cham(\\d{2})$"
@@ -137,7 +146,7 @@ import.eosMX12 <- function(inputfile, timezone = "UTC", save = FALSE){
     meta_active <- data.raw %>%
       # Create chamID
       arrange(Epoch_Time) %>%
-      mutate(Obs = rleid(cham_num)) %>%
+      mutate(Obs = data.table::rleid(cham_num)) %>%
       mutate(chamID = paste(cham_num, Obs, sep = "_")) %>%
       filter(cham_status == 1) %>%
       # Create cham.close and cham.open
@@ -156,7 +165,7 @@ import.eosMX12 <- function(inputfile, timezone = "UTC", save = FALSE){
                          to = meta$time_max[[i]],
                          by = 'sec'))
     }
-    time_filter <- map_df(time_filter.ls, ~as.data.frame(.x)) %>%
+    time_filter <- purrr::map_df(time_filter.ls, ~as.data.frame(.x)) %>%
       # Add meta
       full_join(meta, by = "chamID")
 
@@ -164,11 +173,14 @@ import.eosMX12 <- function(inputfile, timezone = "UTC", save = FALSE){
     data.filter <- right_join(time_filter, data.raw, by = "POSIX.time",
                               relationship = "many-to-many") %>%
       # Filter out duplicated rows
-      filter(str_detect(chamID, fixed(cham_num))) %>%
+      filter(stringr::str_detect(chamID, stringr::fixed(cham_num))) %>%
       # Select and reorder columns
       select(POSIX.time, DATE, chamID, cham.close, cham.open, port_num:Pcham) %>%
       # Remove chamID if cham.close = NA (all inactive chambers)
-      mutate(chamID = if_else(is.na(cham.close), NA, chamID))
+      mutate(chamID = if_else(is.na(cham.close), NA, chamID)) %>%
+
+      # Convert Tcham_volt to Celcius
+      mutate(Tcham = Tvolt_convert(Tcham_volt)) %>% select(-Tcham_volt)
 
     # Save cleaned data file
     if(save == TRUE){

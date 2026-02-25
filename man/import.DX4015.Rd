@@ -98,6 +98,7 @@ Use the wrapper function \code{\link[goFlux]{import2RData}}
          to import multiple files from the same folder path using any instrument.
 
 See also, import functions for other instruments:
+         \code{\link[goFlux]{import.eosMX12}},
          \code{\link[goFlux]{import.EGM5}},
          \code{\link[goFlux]{import.G2201i}},
          \code{\link[goFlux]{import.G2508}},
