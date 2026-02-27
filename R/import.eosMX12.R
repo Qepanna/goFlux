@@ -81,7 +81,8 @@ import.eosMX12 <- function(inputfile, timezone = "UTC", save = FALSE){
 
   # Assign NULL to variables without binding
   POSIX.time <- import.error <- Epoch_Time <- cham_num <- chamID <- Pcham <-
-    cham_status <- DATE <- cham.close <- cham.open <- port_num <- Obs <- NULL
+    cham_status <- DATE <- cham.close <- cham.open <- port_num <- Obs <-
+    Tcham_volt <- NULL
 
   # Conversion factor for Tcham_volt to Celsius
   Tvolt_convert <- function(temp_volt){
