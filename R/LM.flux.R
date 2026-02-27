@@ -63,10 +63,10 @@ LM.flux <- function(gas.meas, time.meas, flux.term) {
 
   # Use the delta method to propagate total error to the flux calculation.
   form <- sprintf("~ x2 * %f", flux.term)
-  LM.SE <- deltamethod(as.formula(form), coef(LM), vcov(LM))
+  LM.SE <- msm::deltamethod(as.formula(form), coef(LM), vcov(LM))
 
   # Indices of model fit
-  LM.AICc <- AICc(LM)
+  LM.AICc <- AICcmodavg::AICc(LM)
   LM.se.rel <- (LM.SE / LM.flux) * 100
   LM.r2 <- as.numeric(summary(lm(fitted(LM) ~ gas.meas))[9])[1]
   LM.p.val <- summary(LM)[[4]][2,4]

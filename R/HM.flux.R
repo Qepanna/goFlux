@@ -104,13 +104,13 @@ HM.flux <- function(gas.meas, time.meas, flux.term, k.max, k.min,
 
   # Run the model using the nlsLM function from the minpack.lm package
   HM <- tryCatch({
-    nlsLM(HMmod,
+    minpack.lm::nlsLM(HMmod,
           data = cbind.data.frame(conc = gas.meas, t = time.meas),
           lower = c(Ci=0, C0=0, k=k.min),
           upper = c(Ci=Inf, C0=Inf, k=k.max*k.mult),
           start = start,
           na.action = na.exclude,
-          control = nls.lm.control(
+          control = minpack.lm::nls.lm.control(
             ftol = sqrt(.Machine$double.eps),
             ptol = sqrt(.Machine$double.eps),
             gtol = 0, diag = list(), epsfcn = 0, factor = 100,
@@ -137,12 +137,12 @@ HM.flux <- function(gas.meas, time.meas, flux.term, k.max, k.min,
 
     # Use the delta method to propagate total error to the flux calculation.
     form <- sprintf("~ (x1 - x2) * x3 * %f", flux.term)
-    HM.SE <- deltamethod(as.formula(form), coef(HM), vcov(HM))
+    HM.SE <- msm::deltamethod(as.formula(form), coef(HM), vcov(HM))
 
     # Indices of model fit
     ## Catch warning with sample size too small with AICc
-    tryCatch(AICc(HM), warning = function(w) AICc.warning <<- w)
-    HM.AICc <- suppressWarnings(AICc(HM))
+    tryCatch(AICcmodavg::AICc(HM), warning = function(w) AICc.warning <<- w)
+    HM.AICc <- suppressWarnings(AICcmodavg::AICc(HM))
     HM.se.rel <- (HM.SE / HM.flux) * 100
     HM.r2 <- as.numeric(summary(lm(fitted(HM) ~ gas.meas))[9])[1]
     HM.RMSE <- RMSE(gas.meas, fitted(HM))
