@@ -191,7 +191,7 @@ constant gas source below the surface (<code>HM.Ci</code>), slope at <code>t=0</
 (<code>HM.RMSE</code>), Akaike's information criterion corrected for small sample
 size (<code>HM.AICc</code>), standard error (<code>HM.SE</code>), relative standard error
 (<code>HM.se.rel</code>), coefficient of determination (<code>HM.r2</code>), and curvature
-(kappa; <code>HM.k</code>), as well as the minimal detectable flux
+(kappa; <code>HM.k</code>)), as well as the minimal detectable flux
 (<code><a href="MDF.html">MDF</a></code>), the precision of the instrument
 (<code>prec</code>), the flux term (<code><a href="flux.term.html">flux.term</a></code>),
 kappa-max (<code><a href="k.max.html">k.max</a></code>) and its multiplier (<code>k.mult</code>),
@@ -228,19 +228,17 @@ the flux units to obtain a term in nmol or
 µmol m<sup>-2</sup>s<sup>-1</sup>.</p>
 <p>The argument <code>Area</code> is in (cm<sup>2</sup>),
 but the output units from <code>goFlux</code> are in
-(m<sup>2</sup>). This is due to the
-conversion from (cm<sup>2</sup>)
-to (m<sup>2</sup>) within the
-function. This means that there is a factor of 10,000 to convert from
-(cm<sup>2</sup>)
-to (m<sup>2</sup>). This is important
+(m<sup>2</sup>). This means that
+there is a factor of 10,000 to convert from
+cm<sup>2</sup>
+to m<sup>2</sup>. This is important
 to take into account if one would provide something else than an <code>Area</code>
 in (cm<sup>2</sup>) to the function.
 For example, with incubated soil samples, one may provide an amount of soil
 (kg) instead of an area in the column <code>Area</code>. To get the right units in
 that case, multiply the kilograms of soil by 10,000 to remove the conversion
-from (cm<sup>2</sup>) to
-(m<sup>2</sup>).</p>
+from cm<sup>2</sup> to
+m<sup>2</sup>.</p>
 <p>In <code>gastype</code>, the gas species listed are the ones for which this package
 has been adapted. Please write to the maintainer of this package for
 adaptation of additional gases.</p>
