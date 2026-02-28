@@ -95,19 +95,17 @@
 #'
 #' The argument \code{Area} is in \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}},
 #' but the output units from \code{\link[goFlux]{goFlux}} are in
-#' \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This is due to the
-#' conversion from \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}
-#' to \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}} within the
-#' function. This means that there is a factor of 10,000 to convert from
-#' \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}
-#' to \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This is important
+#' \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This means that
+#' there is a factor of 10,000 to convert from
+#' \ifelse{html}{\out{cm<sup>2</sup>}}{\eqn{cm^2}{ASCII}}
+#' to \ifelse{html}{\out{m<sup>2</sup>}}{\eqn{m^2}{ASCII}}. This is important
 #' to take into account if one would provide something else than an \code{Area}
 #' in \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to the function.
 #' For example, with incubated soil samples, one may provide an amount of soil
 #' (kg) instead of an area in the column \code{Area}. To get the right units in
 #' that case, multiply the kilograms of soil by 10,000 to remove the conversion
-#' from \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to
-#' \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}.
+#' from \ifelse{html}{\out{cm<sup>2</sup>}}{\eqn{cm^2}{ASCII}} to
+#' \ifelse{html}{\out{m<sup>2</sup>}}{\eqn{m^2}{ASCII}}.
 #'
 #' In \code{gastype}, the gas species listed are the ones for which this package
 #' has been adapted. Please write to the maintainer of this package for
@@ -145,7 +143,7 @@
 #' (\code{HM.RMSE}), Akaike's information criterion corrected for small sample
 #' size (\code{HM.AICc}), standard error (\code{HM.SE}), relative standard error
 #' (\code{HM.se.rel}), coefficient of determination (\code{HM.r2}), and curvature
-#' (kappa; \code{HM.k}), as well as the minimal detectable flux
+#' (kappa; \code{HM.k})), as well as the minimal detectable flux
 #' (\code{\link[goFlux]{MDF}}), the precision of the instrument
 #' (\code{prec}), the flux term (\code{\link[goFlux]{flux.term}}),
 #' kappa-max (\code{\link[goFlux]{k.max}}) and its multiplier (\code{k.mult}),
