@@ -84,7 +84,7 @@
 #' \code{clickflux} for more information about usage.
 #'
 #' @export
-goFlux.aqua <- function(dataframe, gastype, auxfile, criteria, force.separation){
+goAquaFlux <- function(dataframe, gastype, auxfile, criteria, force.separation){
 
   id = unique(dataframe$UniqueID)
 
@@ -157,7 +157,7 @@ goFlux.aqua <- function(dataframe, gastype, auxfile, criteria, force.separation)
     aqua.flux$start_diffusion <- 0
     aqua.flux$obs.length_diffusion <- diffusive.flux$first_bubble_time
 
-
+  }
   return(aqua.flux)
 }
 
