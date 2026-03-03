@@ -126,7 +126,7 @@ find.bubbles <- function(time,
                              fill = NA)
 
   # --- threshold
-  thresh <- max(1e-4,
+  thresh <- max(0.02,
                 quantile(roll_var, var.quantile, na.rm = TRUE))
 
   high_var <- roll_var > thresh
