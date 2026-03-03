@@ -10,28 +10,72 @@ flux_conversion <- function(V_L, P_kPa, A_cm2, T_C, H2O_mol) {
 goAquaFlux.total <- function(dataframe,
                              gastype,
                              auxfile,
-                             t.window = 30) {
+                             bubbles = NULL,
+                             t.window = 30,
+                             minimum_window = 10) {
 
-  # Build working dataframe
+  # --- Build time vector
   time0 <- dataframe$POSIX.time[1]
 
-  mydf <- data.frame(
+  df <- data.frame(
     time = as.numeric(dataframe$POSIX.time - time0),
     conc = dataframe[[gastype]]
   )
 
-  mydf <- mydf[!duplicated(mydf$time), ]
+  df <- df[!duplicated(df$time), ]
 
-  T_total <- max(mydf$time)
+  T_total <- max(df$time)
 
-  # Define windows
-  idx0 <- mydf$time <= t.window
-  idxf <- mydf$time >= (T_total - t.window)
+  # ----------------------------
+  # Determine final stable window
+  # ----------------------------
 
-  C0_vals <- mydf$conc[idx0]
-  Cf_vals <- mydf$conc[idxf]
+  if (is.null(bubbles) || nrow(bubbles) == 0) {
 
-  # Means
+    # No bubbling → use end window
+    end_limit <- T_total
+
+  } else {
+
+    last_bubble_start <- bubbles$start[nrow(bubbles)]
+
+    # If last bubble occurs near the end,
+    # define Cf before that bubble
+    end_limit <- last_bubble_start
+
+  }
+
+  # Define final window
+  idxf <- df$time >= (end_limit - t.window) & df$time < end_limit
+
+  if (sum(idxf) < minimum_window) {
+    return(list(
+      flux = NA,
+      SE = NA,
+      message = "No stable final window available",
+      incubation_time = T_total
+    ))
+  }
+
+  # ----------------------------
+  # Initial window (always at start)
+  # ----------------------------
+
+  idx0 <- df$time <= t.window
+
+  if (sum(idx0) < minimum_window) {
+    return(list(
+      flux = NA,
+      SE = NA,
+      message = "No stable initial window available",
+      incubation_time = T_total
+    ))
+  }
+
+  # Compute means
+  C0_vals <- df$conc[idx0]
+  Cf_vals <- df$conc[idxf]
+
   C0 <- mean(C0_vals, na.rm = TRUE)
   Cf <- mean(Cf_vals, na.rm = TRUE)
 
@@ -42,7 +86,10 @@ goAquaFlux.total <- function(dataframe,
   n0 <- sum(idx0)
   nf <- sum(idxf)
 
+  # ----------------------------
   # Conversion term
+  # ----------------------------
+
   H2O_mol <- mean(dataframe$H2O_ppm[1:30], na.rm = TRUE) / 1e6
 
   K <- flux_conversion(
@@ -53,18 +100,22 @@ goAquaFlux.total <- function(dataframe,
     H2O_mol = H2O_mol
   )
 
-  # Flux
-  flux <- (Cf - C0) / T_total * K
+  # ----------------------------
+  # Flux and SE
+  # ----------------------------
 
-  # Standard Error (analytical propagation)
-  flux_se <- (K / T_total) *
-    sqrt( (s0 / n0) + (sf / nf) )
+  effective_time <- end_limit  # time span used
+
+  flux <- (Cf - C0) / effective_time * K
+
+  flux_se <- (K / effective_time) *
+    sqrt((s0 / n0) + (sf / nf))
 
   return(list(
     flux = flux,
     SE = flux_se,
     C0 = C0,
     Cf = Cf,
-    incubation_time = T_total
+    incubation_time = effective_time
   ))
 }
