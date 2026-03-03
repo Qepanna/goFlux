@@ -17,7 +17,7 @@ goAquaFlux.diffusive <- function(dataframe,
   if (is.null(bubbles) || nrow(bubbles) == 0) {
 
     # No bubbling detected
-    df_diff <- df
+    df_diff <- dataframe
     first_bubble_time <- NA
 
   } else {
@@ -41,7 +41,7 @@ goAquaFlux.diffusive <- function(dataframe,
   }
 
   # --- calling goFlux to compute diffusive flux
-  auxfile$obs.length <- first_bubble_time
+  if(!is.na(first_bubble_time)){auxfile$obs.length <- first_bubble_time}
   autoIDed <- autoID(inputfile = df_diff, auxfile = auxfile, shoulder = 0)
 
   aquaFlux.diff <- goFlux(autoIDed, gastype)
