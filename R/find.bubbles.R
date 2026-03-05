@@ -1,100 +1,95 @@
-#' Detect Ebullition Events in Floating Chamber CH4 Time Series
+#' Detect bubbling events in incubation time series
 #'
-#' Identifies putative methane (CH4) ebullition events in floating chamber
-#' incubation time series by detecting sustained periods of elevated
-#' short-term variance relative to background diffusive dynamics.
+#' Identifies potential bubbling (ebullition) events in gas concentration
+#' incubation time series by analysing rolling dispersion within a moving
+#' window. Dispersion can be quantified using either rolling variance or
+#' rolling median absolute deviation (MAD). Periods where dispersion exceeds
+#' an adaptive threshold are classified as bubbling events.
 #'
-#' The algorithm assumes that:
-#' \itemize{
-#'   \item Diffusive flux produces a smooth, low-variance concentration increase.
-#'   \item Ebullition produces abrupt concentration jumps, generating
-#'         locally elevated variance.
-#' }
+#' The threshold is defined as the maximum between:
+#' - a user-defined quantile of the rolling dispersion distribution, and
+#' - a robust dispersion criterion (median + k * MAD).
 #'
-#' Detection is performed by:
-#' \enumerate{
-#'   \item Robust standardization of the concentration time series.
-#'   \item Linear interpolation to a regular time grid.
-#'   \item Computation of rolling-window variance.
-#'   \item Thresholding using an empirical variance quantile.
-#'   \item Grouping contiguous high-variance windows into bubbling events.
-#'   \item Merging temporally close events.
-#'   \item Removing short-duration events.
-#' }
+#' Additional safeguards prevent false detections in low-variance time series,
+#' including a minimum dispersion ratio and an optional global variability
+#' threshold.
 #'
-#' @param time Numeric vector of elapsed time (seconds).
-#'   Must be monotonic (duplicates are removed internally).
+#' @param time Numeric vector of time stamps (typically seconds since the
+#'   beginning of the incubation).
 #'
-#' @param conc Numeric vector of CH4 concentrations corresponding to `time`
-#'   (e.g., ppm, ppb, or µmol mol-1). Units do not affect detection
-#'   because the algorithm operates on standardized values.
+#' @param conc Numeric vector of gas concentrations corresponding to `time`.
 #'
-#' @param window.size Integer.
-#'   Width of the rolling variance window (in number of interpolated time steps).
-#'   Controls the temporal scale of detectable bubbling events.
+#' @param window.size Integer. Width of the moving window used to compute
+#'   rolling dispersion (in number of interpolated time steps).
 #'
-#' @param dt Numeric.
-#'   Interpolation time step (seconds). Default is 1.
-#'   Smaller values increase temporal resolution but may amplify noise.
+#' @param dt Numeric. Temporal resolution of the interpolated time grid
+#'   (default = 1 second).
 #'
-#' @param var.quantile Numeric in (0,1).
-#'   Empirical quantile used to derive the variance threshold.
-#'   The threshold equals:
-#'   \deqn{Q_{var.quantile}(Var_w)}
-#'   where \eqn{Var_w} is the rolling variance of the standardized series.
-#'   Larger values yield more conservative detection.
+#' @param method Character string specifying the dispersion metric used for
+#'   detection. Options are `"mad"` (default) for rolling median absolute
+#'   deviation or `"variance"` for rolling variance.
 #'
-#' @param min_gap Numeric.
-#'   Maximum time gap (seconds) between adjacent high-variance segments
-#'   to be merged into a single bubbling event.
+#' @param var.quantile Numeric between 0 and 1 defining the empirical quantile
+#'   used to derive the adaptive threshold from the rolling dispersion
+#'   distribution.
 #'
-#' @param min_length Numeric.
-#'   Minimum duration (seconds) required for a segment to be classified
-#'   as an ebullition event.
+#' @param k Numeric multiplier applied to the MAD of rolling dispersion when
+#'   computing the robust threshold (median + k * MAD). Higher values make the
+#'   detector more conservative.
+#'
+#' @param min_ratio Numeric. Minimum ratio between the maximum and median
+#'   rolling dispersion required to classify a time series as containing
+#'   bubbling events. Helps prevent detections in low-variance incubations.
+#'
+#' @param min_sd Optional numeric value defining the minimum standard deviation
+#'   of the original concentration time series required to perform bubbling
+#'   detection. If the global variability is below this threshold, the function
+#'   returns `NULL`.
+#'
+#' @param min_gap Numeric. Minimum gap (in seconds) separating two bubbling
+#'   events. Chunks separated by less than this value are merged.
+#'
+#' @param min_length Numeric. Minimum duration (in seconds) required for a
+#'   bubbling event to be retained.
 #'
 #' @return
-#' A data.frame with columns:
-#' \describe{
-#'   \item{start}{Start time (seconds) of detected ebullition event.}
-#'   \item{end}{End time (seconds) of detected ebullition event.}
-#' }
-#' Returns NULL if no bubbling events are detected.
+#' A data frame with two columns:
+#' - `start` : starting time of detected bubbling event
+#' - `end`   : ending time of detected bubbling event
+#'
+#' Returns `NULL` if no bubbling events are detected or if the time series
+#' does not meet the minimum variability criteria.
 #'
 #' @details
-#' This method implements a variance-based regime classification approach,
-#' separating high-frequency concentration instability (ebullition)
-#' from smooth diffusive accumulation.
+#' The algorithm first standardizes the concentration signal using robust
+#' statistics (median and MAD), interpolates the signal to a regular time grid,
+#' and computes rolling dispersion within a moving window. Bubbling events are
+#' identified as contiguous periods where dispersion exceeds an adaptive
+#' threshold.
 #'
-#' The detection threshold is data-adaptive, making the method robust
-#' across systems with differing background flux magnitudes.
-#'
-#' Users are encouraged to evaluate sensitivity to `window.size` and
-#' `var.quantile`, as these parameters control temporal resolution and
-#' detection conservativeness.
-#'
-#' @section Assumptions:
-#' \itemize{
-#'   \item Ebullition events manifest as short-term variance increases.
-#'   \item Background diffusion is locally smooth relative to bubbling.
-#'   \item Interpolation does not distort event structure.
-#' }
-#'
-#' @section Recommended practice:
-#' Perform sensitivity analysis across multiple `var.quantile` values
-#' and visually inspect detected events against raw time series.
+#' This method is designed to detect sustained fluctuations associated with
+#' ebullition while minimizing false detections caused by instrumental noise
+#' or minor variability in diffusive incubations.
 #'
 #' @examples
-#' # Example:
-#' # chunks <- find.bubbles(time, conc, window.size = 30)
+#' bubbles <- find.bubbles(time = df$time,
+#'                         conc = df$CH4dry_ppb,
+#'                         window.size = 15)
 #'
 #' @export
 find.bubbles <- function(time,
                          conc,
                          window.size,
                          dt = 1,
+                         method = c("mad","variance"),
                          var.quantile = 0.7,
+                         k = 4,
+                         min_ratio = 3,
+                         min_sd = NULL,
                          min_gap = 10,
                          min_length = 5) {
+
+  method <- match.arg(method)
 
   # --- sort and remove duplicates
   ord <- order(time)
@@ -108,34 +103,78 @@ find.bubbles <- function(time,
     conc <- conc[!dup]
   }
 
-  # --- scaling
-  conc_std <- (conc - median(conc)) / mad(conc)
+  if (length(time) < window.size)
+    return(NULL)
 
-  # --- interpolation
+  # --- global low-variance guard
+  global_sd <- sd(conc, na.rm = TRUE)
+
+  if (!is.null(min_sd)) {
+    if (global_sd < min_sd)
+      return(NULL)
+  }
+
+  # --- robust scaling (avoid division by zero)
+  mad_conc <- mad(conc, na.rm = TRUE)
+  if (mad_conc == 0 || is.na(mad_conc))
+    return(NULL)
+
+  conc_std <- (conc - median(conc, na.rm = TRUE)) / mad_conc
+
+  # --- interpolation to regular grid
   x <- seq(min(time), max(time), by = dt)
   conc_interp <- approx(time, conc_std,
                         xout = x,
                         method = "linear",
                         rule = 2)$y
 
-  # --- rolling variance
-  roll_var <- zoo::rollapply(conc_interp,
-                             width = window.size,
-                             FUN = var,
-                             align = "center",
-                             fill = NA)
+  if (length(conc_interp) < window.size)
+    return(NULL)
 
-  # --- threshold
-  thresh <- max(0.02,
-                quantile(roll_var, var.quantile, na.rm = TRUE))
+  # --- rolling dispersion
+  roll_stat <- zoo::rollapply(
+    conc_interp,
+    width = window.size,
+    align = "center",
+    fill = NA,
+    FUN = if (method == "variance") {
+      function(v) var(v)
+    } else {
+      function(v) mad(v)
+    }
+  )
 
-  high_var <- roll_var > thresh
-  high_var[is.na(high_var)] <- FALSE
+  if (all(is.na(roll_stat)))
+    return(NULL)
 
-  if (!any(high_var)) return(NULL)
+  # remove NA for threshold estimation
+  valid_stat <- roll_stat[!is.na(roll_stat)]
+
+  if (length(valid_stat) < 5)
+    return(NULL)
+
+  # --- variance/MAD ratio guard
+  med_stat <- median(valid_stat)
+  if (med_stat == 0)
+    return(NULL)
+
+  if (max(valid_stat) / med_stat < min_ratio)
+    return(NULL)
+
+  # --- adaptive threshold
+  q_thresh   <- quantile(valid_stat, var.quantile, na.rm = TRUE)
+  rob_thresh <- med_stat + k * mad(valid_stat, na.rm = TRUE)
+
+  thresh <- max(q_thresh, rob_thresh)
+
+  high_disp <- roll_stat > thresh
+  high_disp[is.na(high_disp)] <- FALSE
+
+  if (!any(high_disp))
+    return(NULL)
 
   # --- find contiguous chunks
-  r <- rle(high_var)
+  r <- rle(high_disp)
   ends <- cumsum(r$lengths)
   starts <- ends - r$lengths + 1
 
@@ -162,8 +201,8 @@ find.bubbles <- function(time,
   # --- discard short chunks
   chunks <- chunks[(chunks$end - chunks$start) > min_length, ]
 
-  if (nrow(chunks) == 0) return(NULL)
+  if (nrow(chunks) == 0)
+    return(NULL)
 
   return(chunks)
 }
-
