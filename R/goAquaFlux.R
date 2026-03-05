@@ -1,173 +1,18 @@
-#' Automatic flux separation between diffusion and ebullition
-#'
-#' This function calculate diffusion and ebullition fluxes based on measurements
-#' separation. First, if CH4 is available, the function uses \code{find.bubbles}
-#' to check if it makes sense trying to separate fluxes. If \code{find.bubbles}
-#' returns NULL, \code{flux_separator} automatically skips the flux separation
-#' and calculates total fluxes as diffusion only.
-#' If \code{find.bubbles} identifies probable bubbling events,
-#' \code{flux_separator}
-#' uses function \code{find_first_linear_chunk}
-#' to identify which is the first linear chunk in the measurements. This will be used to calculate diffusion flux
-#'  (\code{diffusion.flux}).
-#'  Total flux (\code{total.flux}) is calculated as the total change of concentration
-#' during the incubation.
-#' Ebullition (\code{ebullition.flux}) is calculated as the difference between
-#' \code{total.flux} and \code{diffusion.flux}.
-#' If user specifies `force.separation = TRUE`, the separation is performed regardless
-#' of what returned \code{find.bubbles}.
-#'
-#' @param dataframe a data.frame containing gas measurements (see \code{gastype}
-#'                  below), water vapor measurements (see \code{H2O_col} below)
-#'                  and the following columns: \code{UniqueID}, \code{Etime}, and
-#'                  the precision of the instrument for each gas (see description below).
-#' The precision of the instrument is needed to restrict kappa-max
-#' (\code{\link[goFlux]{k.max}}) in the non-linear flux calculation
-#' (\code{\link[goFlux]{HM.flux}}). Kappa-max is inversely proportional to
-#' instrument precision. If the precision of your instrument is unknown, it is
-#' better to use a low value (e.g. 1 ppm) to allow for more curvature, especially
-#' for water vapor fluxes, or very long measurements, that are normally curved.
-#' The default values given for instrument precision are the ones provided by
-#' the manufacturer upon request, for the latest model of this instrument
-#' available at the time of the creation of this function (11-2023).
-#'
-#' @param gastype character string; specifies which column should be used for the
-#'                flux calculations. Must be one of the following: "CO2dry_ppm",
-#'                "CH4dry_ppb", "COdry_ppb", "N2Odry_ppb", "NH3dry_ppb" or "H2O_ppm".
-#' @param auxfile a data.frame containing auxiliary information needed with the
-#'                  following columns: \code{UniqueID}, \code{start.time}, \code{obs.length},
-#'                  \code{Vtot}, \code{Area}, \code{Pcham}, and \code{Tcham}.
-#' @param criteria character vector; criteria used to assess the goodness of fit
-#'                 of the LM or HM flux estimates. Must be at least one the
-#'                 following: "MAE", "RMSE", "AICc", "SE", "g.factor", "kappa",
-#'                 "MDF", "nb.obs", "p-value", or "intercept". The default is
-#'                 all of them.
-#' @param force.separation logical; if \code{fluxSeparation = TRUE}, the model proceeds with
-#'                        automatic separation between diffusion and ebullition fluxes.
-#' @param aqua.flux data.frame, output of the flux calculation over the entire
-#' incubation time.
-#'
-#' @return Returns a data frame with a \code{UniqueID} per
-#' measurement, and model outputs for the diffusion component: 11 columns for
-#' the linear model results (linear flux estimate
-#' (\code{\link[goFlux]{LM.flux}}), initial gas concentration
-#' (\code{LM.C0}), final gas concentration (\code{LM.Ct}), slope of linear
-#' regression (\code{LM.slope}), mean absolute error (\code{LM.MAE}), root mean
-#' square error (\code{LM.RMSE}), Akaike's information criterion corrected for
-#' small sample size (\code{LM.AICc}), standard error (\code{LM.SE}), relative
-#' standard error (\code{LM.se.rel}), coefficient of determination (\code{LM.r2}),
-#' and \emph{p-value} (\code{LM.p.val})), 11 columns for the non-linear model
-#' results (non-linear flux estimate (\code{\link[goFlux]{HM.flux}}),
-#' initial gas concentration (\code{HM.C0}), the assumed concentration of
-#' constant gas source below the surface (\code{HM.Ci}), slope at \code{t=0}
-#' (\code{HM.slope}), mean absolute error (\code{HM.MAE}), root mean square error
-#' (\code{HM.RMSE}), Akaike's information criterion corrected for small sample
-#' size (\code{HM.AICc}), standard error (\code{HM.SE}), relative standard error
-#' (\code{HM.se.rel}), coefficient of determination (\code{HM.r2}), and curvature
-#' (kappa; \code{HM.k}), as well as the minimal detectable flux
-#' (\code{\link[goFlux]{MDF}}), the precision of the instrument
-#' (\code{prec}), the flux term (\code{\link[goFlux]{flux.term}}),
-#' kappa-max (\code{\link[goFlux]{k.max}}), the g factor (g.fact;
-#' \code{\link[goFlux]{g.factor}}), the number of observations used
-#' (\code{nb.obs}) and the true initial gas concentration (\code{C0}) and final
-#' gas concentration (\code{Ct}).
-#' When \code{fluxSeparation} was successfully performed, it also returns
-#' information on flux separation, with flux value and
-#' standard deviation estimated for total, diffusive, and ebullition fluxes, along with
-#' the number of observations used for the calculatino of diffusion (\code{nb.obs}).
-#'
-#'
-#' @examples
-#' blabla
-#'
-#' @seealso See also the function \code{automaticflux} and
-#' \code{clickflux} for more information about usage.
+#' @include flux.term.R
+#' @include MDF.R
 #'
 #' @export
 #'
-
-
-
-# goAquaFlux <- function(dataframe, gastype, auxfile, criteria, force.separation){
-#
-#   id = unique(dataframe$UniqueID)
-#
-#   # Initializing variables
-#   aqua.flux <- NULL
-#   aqua.flux$total.flux <- aqua.flux$ebullition.flux <- aqua.flux$diffusive.flux <-
-#     aqua.flux$start_diffusion <- aqua.flux$obs.length_diffusion <-
-#     aqua.flux$total.flux.SE <- aqua.flux$diffusive.flux.SE <- aqua.flux$ebullition.flux.SE <- NA
-#
-#   # if CH4 in dataframe, check bubbles
-#   if(any(grepl(paste0("\\<CH4dry_ppb\\>"), names(dataframe)))){
-#     bubbles <- find.bubbles(time = dataframe$Etime,
-#                             conc = dataframe$CH4dry_ppb, window.size = 10)
-#   } else {
-#     warning(paste0("For ",id, ", CH4 measurements are unavailable, `find.bubbles()` cannot look for potential bubbles.
-#                    `bubbles` was set to NULL"))
-#     bubbles = NULL
-#   }
-#
-#   if (is.null(bubbles) & force.separation==FALSE){
-#     warning(paste0("For ",id, ", no bubbles were found. Total flux is attributed to diffusion only"))
-#
-#     autoIDed <- autoID(inputfile = dataframe, auxfile = auxfile_corr, shoulder = 0)
-#
-#     aqua.flux <- goFlux(autoIDed, gastype)
-#
-#     best_aqua.flux <- best.flux(aqua.flux)
-#
-#     # p <- flux.plot(flux.results = best_aqua.flux, dataframe = dataframe, gastype = gastype)
-#     # print(p)
-#
-#     aqua.flux$start_diffusion <- auxfile_corr$start.time
-#     aqua.flux$obs.length_diffusion <- auxfile_corr$obs.length
-#
-#     aqua.flux$total.flux <- aqua.flux$best.flux
-#     aqua.flux$ebullition.flux <- 0
-#     aqua.flux$diffusive.flux <- aqua.flux$best.flux
-#
-#     SD_total.flux <- SD_diffusion.flux <- aqua.flux$LM.SE*sqrt(aqua.flux$nb.obs)
-#     SD_ebullition.flux <- NA
-#
-#   } else {
-#     if (is.null(bubbles)){warning(paste0("For ",id, ", no bubbles were found but flux separation was forced with `force.separation = TRUE`.
-#                                          Consider setting force.separation to FALSE."))}
-#
-#     # trim dataframe if bubbles are identified at the end of the incubation
-#
-#     # MAKE CHANGES HERE
-#
-#
-#
-#     # calculate total flux with 2-points method + uncertainty propagation axpressed as SE
-#     total.flux <- goAquaFlux.total(dataframe, gastype, auxfile, t.window = 30)
-#
-#     # calculate diffusion using goFlux and best.flux on the observations available before any bubbling event
-#     diffusive.flux <- goAquaFlux.diffusive(dataframe, gastype, auxfile, bubbles, minimum_window = 30)
-#
-#     # calculate ebullition by difference between the two terms: ebullition = total - diffusive
-#     # Errors are propagated to obtain ebullition flux SE
-#     ebullition.flux <- goAquaFlux.ebullition(total.flux, diffusive.flux)
-#
-#
-#     aqua.flux$total.flux <- total.flux$flux
-#     aqua.flux$ebullition.flux <- ebullition.flux$flux
-#     aqua.flux$diffusive.flux <- diffusive.flux$flux
-#
-#     aqua.flux$total.flux.SE <- total.flux$SE
-#     aqua.flux$ebullition.flux.SE <- ebullition.flux$SE
-#     aqua.flux$diffusive.flux.SE <- diffusive.flux$SE
-#     aqua.flux$start_diffusion <- 0
-#     aqua.flux$obs.length_diffusion <- diffusive.flux$first_bubble_time
-#
-#   }
-#   return(aqua.flux)
-# }
-
 goAquaFlux <- function(dataframe,
                        gastype,
-                       auxfile,
+                       H2O_col = "H2O_ppm",
+                       prec = NULL,
+                       criteria = c("MAE", "RMSE", "AICc", "SE", "g.factor",
+                                    "kappa", "MDF", "nb.obs", "intercept", "p-value"),
+
+                       # Auxiliary information derived from obs.win()
+                       Area = NULL, offset = NULL, Vtot = NULL, Vcham = NULL,
+                       Pcham = NULL, Tcham = NULL,
 
                        # Bubble detection
                        window.size = 30,
@@ -178,134 +23,576 @@ goAquaFlux <- function(dataframe,
 
                        # Total flux
                        t.window = 30,
-                       minimum_window = 10) {
+                       minimum_window = 10,
 
-  # ----------------------------
-  # 1. Determine which gas to use for bubble detection
-  # ----------------------------
+                       # Do you want results as dataframe? Default is list.
+                       return_df = TRUE) {
 
-  use_bubble_detection <- FALSE
-  bubble_source <- NA
 
-  if (gastype == bubble_gas) {
+  # Check arguments ####
+  is_scalar_num <- function(x) {
+    is.numeric(x) && length(x) == 1L && !is.na(x) && is.finite(x)}
+  has_col <- function(nm) {nm %in% names(dataframe)}
 
-    # CH4 flux calculation
-    use_bubble_detection <- TRUE
-    bubble_source <- gastype
 
-  } else if (bubble_gas %in% names(dataframe)) {
+  ## Check dataframe ####
+  if (missing(dataframe)) {
+    stop("'dataframe' is required.", call. = FALSE)}
+  if (!is.data.frame(dataframe)) {
+    stop("'dataframe' must be a data.frame.", call. = FALSE)}
+  if (nrow(dataframe) == 0) {
+    stop("'dataframe' is empty.", call. = FALSE)}
 
-    # Non-CH4 flux but CH4 available for bubble detection
-    use_bubble_detection <- TRUE
-    bubble_source <- bubble_gas
 
-  }
+  ### gastype and match in dataframe ####
+  .allowed_gastype <- c(
+    "CO2dry_ppm", "CH4dry_ppb", "COdry_ppb", "N2Odry_ppb",
+    "NH3dry_ppb", "NO2dry_ppb", "NOdry_ppb", "H2O_ppm"
+  )
+  if (missing(gastype)) {
+    stop("'gastype' is required and must be one of: ",
+         paste0("'", .allowed_gastype, "'", collapse = ", "), call. = FALSE)}
+  if (!is.character(gastype) || length(gastype) != 1L || is.na(gastype)) {
+    stop("'gastype' must be a character string of length 1.", call. = FALSE)}
+  if (!(gastype %in% .allowed_gastype)) {
+    stop("'gastype' must be one of: ",
+         paste0("'", .allowed_gastype, "'", collapse = ", "), call. = FALSE)}
+  if (!has_col(gastype)) {
+    stop("'dataframe' must contain a column that matches 'gastype'", call. = FALSE)}
+  if (!is.numeric(dataframe[[gastype]])) {
+    stop("Column '", gastype, "' in 'dataframe' must be numeric.", call. = FALSE)}
 
-  # ----------------------------
-  # 2. Detect bubbles if possible
-  # ----------------------------
 
-  if (use_bubble_detection) {
-
-    time0 <- dataframe$POSIX.time[1]
-    time_vec <- as.numeric(dataframe$POSIX.time - time0)
-    conc_vec <- dataframe[[bubble_source]]
-
-    bubbles <- find.bubbles(
-      time = time_vec,
-      conc = conc_vec,
-      window.size = window.size
-    )
+  ### prec and match in dataframe ####
+  if (!is.null(prec)) {
+    if (!is_scalar_num(prec) || prec <= 0) {
+      stop("'prec' must be a finite numeric scalar greater than 0.", call. = FALSE)}
 
   } else {
 
-    bubbles <- NULL
+    prec_col <- switch(gastype,
+                       "CO2dry_ppm" = "CO2_prec",
+                       "CH4dry_ppb" = "CH4_prec",
+                       "COdry_ppb"  = "CO_prec",
+                       "N2Odry_ppb" = "N2O_prec",
+                       "NO2dry_ppb" = "NO2_prec",
+                       "NOdry_ppb"  = "NO_prec",
+                       "NH3dry_ppb" = "NH3_prec",
+                       "H2O_ppm"    = "H2O_prec")
+
+    if (!has_col(prec_col)) {
+      stop("'dataframe' must contain the column '", prec_col,
+           "' when prec = NULL.", call. = FALSE)}
+    if (!is.numeric(dataframe[[prec_col]])) {
+      stop("Column '", prec_col, "' in 'dataframe' must be numeric.",
+           call. = FALSE)}
+  }
+
+
+  ### H2O_col and match in dataframe ####
+  if (!is.null(H2O_col)) {
+
+    if (!is.character(H2O_col) || length(H2O_col) != 1L ||
+        is.na(H2O_col) || H2O_col == "") {
+      stop("'H2O_col' must be a non-missing, non-empty character string",
+           "of length 1, or NULL.", call. = FALSE)}
+
+    if (!has_col(H2O_col)) {
+      stop("'dataframe' must contain a column that matches 'H2O_col'.",
+           call. = FALSE)}
+
+    if (!is.numeric(dataframe[[H2O_col]])) {
+      stop("Column '", H2O_col, "' in 'dataframe' must be numeric.",
+           call. = FALSE)}
+
+  } else {
+
+    warning("H2O_col is NULL: water vapour dilution correction is disabled ",
+            "(H2O_ppm assumed 0).", call. = FALSE)}
+
+
+  ### UniqueID (or chamID) ####
+  if (!has_col("UniqueID") && !has_col("chamID")) {
+    stop("'dataframe' must contain column 'UniqueID' or 'chamID'.", call. = FALSE)}
+  if (has_col("UniqueID") && all(is.na(dataframe$UniqueID))) {
+    stop("'UniqueID' in 'dataframe' contains only NA values.", call. = FALSE)}
+  if (has_col("UniqueID") &&
+      !(is.character(dataframe$UniqueID) || is.factor(dataframe$UniqueID))) {
+    stop("'UniqueID' in 'dataframe' must be character or factor.", call. = FALSE)}
+
+  # Construct UniqueID from chamID + DATE, if missing
+  if (!has_col("UniqueID") && has_col("chamID") && !has_col("DATE")) {
+    stop("'dataframe' must contain 'DATE' to construct 'UniqueID' from 'chamID'.",
+         call. = FALSE)}
+
+  if (has_col("chamID") && all(is.na(dataframe$chamID))) {
+    stop("'chamID' in 'dataframe' contains only NA values.", call. = FALSE)}
+  if (has_col("chamID") &&
+      !(is.character(dataframe$chamID) || is.factor(dataframe$chamID))) {
+    stop("'chamID' in 'dataframe' must be character or factor.", call. = FALSE)
+  }
+
+  if (!has_col("UniqueID")){
+    dataframe$UniqueID <- paste(dataframe$chamID, dataframe$DATE, sep = "_")}
+
+
+  ### Etime ####
+  if (!has_col("Etime")) {
+    stop("'dataframe' must contain the column 'Etime'.", call. = FALSE)}
+  if (!is.numeric(dataframe$Etime)) {
+    stop("'Etime' in 'dataframe' must be numeric (or integer).", call. = FALSE)}
+  if (all(is.na(dataframe$Etime))) {
+    stop("'Etime' in 'dataframe' contains only NA values.", call. = FALSE)}
+
+
+  ### flag ####
+  if (!has_col("flag")) {
+    stop("'dataframe' must contain the column 'flag'.", call. = FALSE)}
+  if (!is.numeric(dataframe$flag)) {
+    stop("'flag' in 'dataframe' must be numeric (or integer).", call. = FALSE)}
+  if (all(is.na(dataframe$flag))) {
+    stop("'flag' in 'dataframe' contains only NA values.", call. = FALSE)}
+
+
+  ### Area ####
+  if (!is.null(Area)) {
+    # Area is an argument
+    if (!is_scalar_num(Area) || Area <= 0) {
+      stop("'Area' must be a finite numeric scalar greater than 0.",
+           call. = FALSE)}
+
+  } else {
+    # Area must be in dataframe
+    if (!has_col("Area")) {
+      stop("'Area' missing: provide 'Area' as an argument or as a column in ",
+           "'dataframe'.", call. = FALSE)}
+    if (!is.numeric(dataframe$Area)) {
+      stop("'Area' in 'dataframe' must be numeric.", call. = FALSE)}
+    if (all(is.na(dataframe$Area))) {
+      stop("'Area' in 'dataframe' contains only NA values.", call. = FALSE)}
+    if (any(na.omit(dataframe$Area) <= 0)) {
+      stop("'Area' in 'dataframe' must be greater than 0.", call. = FALSE)}
+  }
+
+  # Add Area to dataframe if provided
+  if (!is.null(Area)) dataframe$Area <- Area
+
+
+  ### Vtot (or Vcham + offset) ####
+  # 1) If Vtot provided as argument, validate it
+  if (!is.null(Vtot)) {
+    if (!is_scalar_num(Vtot) || Vtot <= 0) {
+      stop("'Vtot' must be a finite numeric scalar greater than 0.", call. = FALSE)
+    }
+
+  } else if (has_col("Vtot")) {
+    # 2) Else: Vtot must be present as a numeric column (and not all NA)
+    if (!is.numeric(dataframe$Vtot)) {
+      stop("'Vtot' in 'dataframe' must be numeric.", call. = FALSE)}
+    if (all(is.na(dataframe$Vtot))) {
+      stop("'Vtot' in 'dataframe' contains only NA values.", call. = FALSE)}
+
+  } else {
+    # 3) Else: must be able to compute Vtot from Vcham + Area*offset (both required)
+
+    # Vcham is an argument
+    if (!is.null(Vcham)) {
+      if (!is_scalar_num(Vcham) || Vcham <= 0) {
+        stop("'Vcham' must be a finite numeric scalar greater than 0.",
+             call. = FALSE)}
+
+    } else {
+      # Vcham must be in dataframe
+      if (!has_col("Vcham")) {
+        stop("'Vtot' missing: provide 'Vtot' as an argument or as a column in ",
+             "'dataframe'. Alternatively, provide 'Vcham' (arg/column), ",
+             "'Area' (arg/column) and 'offset' (arg/column).", call. = FALSE)
+      }
+      if (!is.numeric(dataframe$Vcham)) {
+        stop("'Vcham' in 'dataframe' must be numeric.", call. = FALSE)}
+      if (all(is.na(dataframe$Vcham))) {
+        stop("'Vcham' in 'dataframe' contains only NA values.", call. = FALSE)}
+    }
+
+    # offset is an argument
+    if (!is.null(offset)) {
+      if (!is_scalar_num(offset) || offset < 0) {
+        stop("'offset' must be a finite numeric scalar greater or equal to 0.",
+             call. = FALSE)}
+
+    } else {
+      # offset must be in dataframe
+      if (!has_col("offset")) {
+        stop("'Vtot' missing: provide 'Vtot' as an argument or as a column in ",
+             "'dataframe'. Alternatively, provide 'Vcham' (arg/column), ",
+             "'Area' (arg/column) and 'offset' (arg/column).", call. = FALSE)
+      }
+      if (!is.numeric(dataframe$offset)) {
+        stop("'offset' in 'dataframe' must be numeric.", call. = FALSE)}
+      if (all(is.na(dataframe$offset))) {
+        stop("'offset' in 'dataframe' contains only NA values.", call. = FALSE)}
+    }
+  }
+
+  # Add Vtot, offset and Vcham to dataframe if provided
+  if (!is.null(Vtot)) dataframe$Vtot <- Vtot
+  if (!is.null(offset)) dataframe$offset <- offset
+  if (!is.null(Vcham)) dataframe$Vcham <- Vcham
+
+  # Calculate Vtot if absent from dataframe
+  if (is.null(Vtot) && !has_col("Vtot")){
+    dataframe$Vtot <- dataframe$Vcham + (dataframe$Area * dataframe$offset)/1000
+  }
+
+
+  ### Pcham ####
+  if (!is.null(Pcham)) {
+
+    # Pcham is an argument
+    if (!is_scalar_num(Pcham) || Pcham <= 0) {
+      stop("'Pcham' must be a finite numeric scalar greater than 0.",
+           call. = FALSE)}
+
+  } else if (has_col("Pcham")) {
+
+    # Check Pcham in dataframe
+    if (!is.numeric(dataframe$Pcham)) {
+      stop("'Pcham' in 'dataframe' must be numeric.", call. = FALSE)}
+    if (all(is.na(dataframe$Pcham))) {
+      stop("'Pcham' in 'dataframe' contains only NA values.", call. = FALSE)}
+    if (any(na.omit(dataframe$Pcham) <= 0)) {
+      stop("'Pcham' in 'dataframe' must be greater than 0.", call. = FALSE)}
+
+  } else {
+
+    # Use normal atmospheric pressure if Pcham is not provided
+    dataframe$Pcham <- 101.325
+    warning("Normal atmospheric pressure (101.325kPa) is used when Pcham ",
+            "is not provided.", call. = FALSE)
+  }
+
+  # Add Pcham to dataframe if provided
+  if (!is.null(Pcham)) dataframe$Pcham <- Pcham
+
+
+  ### Tcham ####
+  if (!is.null(Tcham)) {
+
+    # Tcham is an argument
+    if (!is_scalar_num(Tcham)) {
+      stop("'Tcham' must be a finite numeric scalar.", call. = FALSE)}
+    if (Tcham < -273.15) {
+      stop("'Tcham' cannot be smaller than -273.15 Celsius (physical limit).",
+           call. = FALSE)}
+
+  } else if (has_col("Tcham")) {
+
+    # Check Tcham in dataframe
+    if (!is.numeric(dataframe$Tcham)) {
+      stop("'Tcham' in 'dataframe' must be numeric.", call. = FALSE)}
+    if (all(is.na(dataframe$Tcham))) {
+      stop("'Tcham' in 'dataframe' contains only NA values.", call. = FALSE)}
+    if (any(na.omit(dataframe$Tcham) < -273.15)) {
+      stop("Values under the physical limits of temperature (-273.15 Celsius) ",
+           "were detected in 'Tcham' in 'dataframe'.", call. = FALSE)}
+
+  } else {
+
+    # Use air temperature if Tcham is not provided
+    dataframe$Tcham <- 15
+    warning("Normal ambient temperature (15 Celsius) is used when ",
+            "Tcham is not provided.", call. = FALSE)
+  }
+
+  # Add Tcham to dataframe if provided
+  if (!is.null(Tcham)) dataframe$Tcham <- Tcham
+
+
+  # Assign NULL to variables without binding ####
+  H2O_ppm_select <- H2O_mol <- Etime <- flag <- NULL
+
+
+
+
+  # ------------------------------------
+  # FUNCTION STARTS ####
+  # ------------------------------------
+
+
+  ## Clean and split data ####
+  if (gastype != "H2O_ppm"){
+
+    # If water vapor is missing, set H2O_ppm = 0
+    if (is.null(H2O_col)) {
+      dataframe$H2O_ppm <- 0
+      H2O_col <- "H2O_ppm"
+    }
+
+    data_split <- dataframe %>%
+      # Rename H2O_col
+      rename(H2O_ppm_select = all_of(H2O_col)) %>%
+      # Convert H2O_ppm into H2O_mol
+      mutate(H2O_mol = H2O_ppm_select / (1000*1000)) %>%
+      select(UniqueID, any_of(c("chamID", "DATE")), Etime, flag, all_of(gastype),
+             contains("_prec"), H2O_mol, Vtot, Area, Pcham, Tcham) %>%
+      # Filter flag == 1
+      filter(flag == 1) %>%
+      # Remove NAs in gastype
+      tidyr::drop_na(all_of(gastype)) %>%
+      tidyr::drop_na(Etime) %>%
+      tidyr::drop_na(UniqueID) %>%
+      # Split dataset by UniqueID
+      group_by(UniqueID) %>% group_split() %>% as.list()
+  }
+
+  if (gastype == "H2O_ppm"){
+
+    data_split <- dataframe %>%
+      select(UniqueID, any_of(c("chamID", "DATE")), Etime, flag,
+             all_of(gastype), contains("_prec"), Vtot, Area, Pcham, Tcham) %>%
+      # Filter flag == 1
+      filter(flag == 1) %>%
+      # Remove NAs in gastype and UniqueID
+      tidyr::drop_na(all_of(gastype)) %>%
+      tidyr::drop_na(Etime) %>%
+      tidyr::drop_na(UniqueID) %>%
+      # Split dataset by UniqueID
+      group_by(UniqueID) %>% group_split() %>% as.list()
+  }
+
+  # Ensure data_split is not empty
+  if (length(data_split) == 0L) {
+    stop("No valid observations after filtering (flag == 1) and removing NAs in '",
+         gastype, "'.", call. = FALSE)}
+
+  # Ensure Etime is ordered within each UniqueID
+  data_split <- lapply(data_split, function(df) {df %>% arrange(Etime)})
+
+  ## Calculate auxiliary variables: flux term and minimal detectable flux ####
+  for (f in 1:length(data_split)){
+
+    # Instrument precision (by gastype)
+    # If prec = NULL, the instrument precision must be provided in 'dataframe'
+    if (is.null(prec)) {
+
+      prec_col <- switch(gastype,
+                         "CO2dry_ppm" = "CO2_prec",
+                         "CH4dry_ppb" = "CH4_prec",
+                         "COdry_ppb"  = "CO_prec",
+                         "N2Odry_ppb" = "N2O_prec",
+                         "NO2dry_ppb" = "NO2_prec",
+                         "NOdry_ppb"  = "NO_prec",
+                         "NH3dry_ppb" = "NH3_prec",
+                         "H2O_ppm"    = "H2O_prec"
+      )
+
+      prec_vals <- unique(na.omit(data_split[[f]][[prec_col]]))
+      uid <- unique(data_split[[f]]$UniqueID)
+
+      if (length(prec_vals) != 1) {
+        stop("'", prec_col, "' in 'dataframe' must contain exactly one non-missing ",
+             "value per UniqueID. Problem detected for UniqueID: ",
+             uid, ".", call. = FALSE)
+      }
+
+      data_split[[f]]$prec_f <- prec_vals
+
+    } else { data_split[[f]]$prec_f <- prec }
+
+    # Extract water vapor concentration at the start of the measurement
+    if (gastype == "H2O_ppm") {
+      # Assign 0 if gastype == "H2O_ppm"
+      H2O_flux.term <- 0
+      data_split[[f]]$warn.H2O_mol <- FALSE
+    }
+    if (gastype != "H2O_ppm") {
+      # If H2O_mol is all NAs, default to 0
+      if (all(is.na(data_split[[f]]$H2O_mol))) {
+        H2O_flux.term <- 0
+        data_split[[f]]$warn.H2O_mol <- TRUE
+      } else {
+        H2O_flux.term <- first(na.omit(data_split[[f]]$H2O_mol))
+        data_split[[f]]$warn.H2O_mol <- FALSE}
+    }
+
+    # First flagged time must be chamber closure (Etime == 0)
+    if (is.na(data_split[[f]]$Etime[1]) || data_split[[f]]$Etime[1] != 0) {
+      stop("Invalid Etime origin: for each UniqueID, the first row with ",
+           "flag == 1 must have Etime == 0. Problem detected for UniqueID: ",
+           data_split[[f]]$UniqueID[1], ".", call. = FALSE)}
+
+    # Ensure values are available and unique per UniqueID for Vtot and Area
+    if (all(is.na(data_split[[f]]$Vtot))) {
+      stop("Vtot missing and could not be calculated for UniqueID: ",
+           data_split[[f]]$UniqueID[1], call. = FALSE)}
+    if (length(unique(na.omit(data_split[[f]]$Vtot))) != 1) {
+      stop("'Vtot' in 'dataframe' must contain exactly one value ",
+           "per UniqueID. Problem detected for UniqueID: ",
+           data_split[[f]]$UniqueID[1], ".", call. = FALSE)}
+
+    if (all(is.na(data_split[[f]]$Area))) {
+      stop("Area missing for UniqueID: ",
+           data_split[[f]]$UniqueID[1], call. = FALSE)}
+    if (length(unique(na.omit(data_split[[f]]$Area))) != 1) {
+      stop("'Area' in 'dataframe' must contain exactly one value ",
+           "per UniqueID. Problem detected for UniqueID: ",
+           data_split[[f]]$UniqueID[1], ".", call. = FALSE)}
+
+    # If Pcham and Tcham are all NAs, default to normal P and T
+    if (all(is.na(data_split[[f]]$Pcham))) {
+      data_split[[f]]$Pcham <- 101.325
+      data_split[[f]]$warn.Pcham <- TRUE
+    } else data_split[[f]]$warn.Pcham <- FALSE
+
+    if (all(is.na(data_split[[f]]$Tcham))) {
+      data_split[[f]]$Tcham <- 15
+      data_split[[f]]$warn.Tcham <- TRUE
+    } else data_split[[f]]$warn.Tcham <- FALSE
+
+    # Calculate flux.term and MDF
+    flux_term_f <- flux.term(first(na.omit(data_split[[f]]$Vtot)),
+                             first(na.omit(data_split[[f]]$Pcham)),
+                             first(na.omit(data_split[[f]]$Area)),
+                             first(na.omit(data_split[[f]]$Tcham)),
+                             H2O_flux.term)
+    data_split[[f]]$flux_term <- flux_term_f
+
+    MDF_f <- MDF(data_split[[f]]$prec_f[1],
+                 (max(data_split[[f]]$Etime)+1), flux_term_f)
+    data_split[[f]]$MDF <- MDF_f
+  }
+
+
+
+  # -------------------------------------------------
+  # ---------- FLUX CALCULATION
+  # -------------------------------------------------
+
+  # Create an empty list to store results
+  flux.res.ls <- list()
+
+  # Print a progress bar
+  pb = txtProgressBar(min = 0, max = length(data_split), initial = 0, style = 3)
+
+
+  # ---------- Loop through incubations
+  for (f in seq_along(data_split)){
+    df <- data_split[[f]]
+
+    # Extract auxiliary variables
+    UniqueID <- data_split[[f]]$UniqueID[1]
+    flux.term_f <- data_split[[f]]$flux_term[1]
+    MDF <- data_split[[f]]$MDF[1]
+    nb.obs <- length(data_split[[f]][[gastype]])
+    prec_f <- data_split[[f]]$prec_f[1]
+
+
+    # ----------------------------
+    # 1. Determine which gas to use for bubble detection
+    # ----------------------------
+
+    use_bubble_detection <- FALSE
+    bubble_source <- NA
+
+    if (gastype == bubble_gas) {
+
+      # CH4 flux calculation
+      use_bubble_detection <- TRUE
+      bubble_source <- gastype
+
+    } else if (bubble_gas %in% names(df)) {
+
+      # Non-CH4 flux but CH4 available for bubble detection
+      use_bubble_detection <- TRUE
+      bubble_source <- bubble_gas
+
+    }
+
+
+    # ----------------------------
+    # 2. Detect bubbles if possible
+    # ----------------------------
+
+    if (use_bubble_detection) {
+
+      time0 <- df$POSIX.time[1]
+      time_vec <- as.numeric(df$POSIX.time - time0)
+      conc_vec <- df[[bubble_source]]
+
+      bubbles <- find.bubbles(
+        time = time_vec,
+        conc = conc_vec,
+        window.size = window.size
+      )
+
+    } else {
+
+      bubbles <- NULL
+
+    }
+
+    # ----------------------------
+    # 3. Total flux (for requested gas)
+    # ----------------------------
+
+    total_flux <- goAquaFlux.total(
+      df = df,
+      gastype = gastype,
+      flux.term = flux.term_f,
+      bubbles = bubbles,
+      t.window = t.window,
+      minimum_window = minimum_window
+    )
+
+    # ----------------------------
+    # 4. Diffusive flux (restricted by CH4 bubbling if available)
+    # ----------------------------
+
+    diffusive_flux <- goAquaFlux.diffusive(
+      df = df,
+      gastype = gastype,
+      criteria = criteria,
+      bubbles = bubbles,
+      minimum_window = minimum_diffusive
+    )
+
+    # ----------------------------
+    # 5. Ebullition flux
+    # ----------------------------
+
+    ebullition_flux <- goAquaFlux.ebullition(
+      total_flux = total_flux,
+      diffusive_flux = diffusive_flux
+    )
+
+
+    # ---- combine outputs ----
+    flux.res.ls[[f]] <- data.frame(
+      UniqueID = df$UniqueID[1],
+
+      flux_total = total_flux$flux,
+      SE_total = total_flux$SE,
+
+      flux_diffusive = diffusive_flux$flux,
+      SE_diffusive = diffusive_flux$SE,
+
+      flux_ebullition = ebullition_flux$flux,
+      SE_ebullition = ebullition_flux$SE,
+
+      first_bubble_time = diffusive_flux$first_bubble_time
+    )
 
   }
 
-  # ----------------------------
-  # 3. Total flux (for requested gas)
-  # ----------------------------
+  # -------------------------------------------------
+  # 6. Return format
+  # -------------------------------------------------
 
-  total_flux <- goAquaFlux.total(
-    dataframe = dataframe,
-    gastype = gastype,
-    auxfile = auxfile,
-    bubbles = bubbles,
-    t.window = t.window,
-    minimum_window = minimum_window
-  )
-
-  # ----------------------------
-  # 4. Diffusive flux (restricted by CH4 bubbling if available)
-  # ----------------------------
-
-  diffusive_flux <- goAquaFlux.diffusive(
-    dataframe = dataframe,
-    gastype = gastype,
-    auxfile = auxfile,
-    bubbles = bubbles,
-    minimum_window = minimum_diffusive
-  )
-
-  # ----------------------------
-  # 5. Ebullition flux
-  # ----------------------------
-
-  ebullition_flux <- goAquaFlux.ebullition(
-    total_flux = total_flux,
-    diffusive_flux = diffusive_flux
-  )
-
-  # ----------------------------
-  # 6. Diagnostics
-  # ----------------------------
-
-  diagnostics <- list(
-    bubble_detection_gas = bubble_source,
-    n_bubbles = ifelse(is.null(bubbles), 0, nrow(bubbles)),
-    first_bubble_time = ifelse(is.null(bubbles), NA, bubbles$start[1]),
-    last_bubble_time  = ifelse(is.null(bubbles), NA, bubbles$end[nrow(bubbles)]),
-    total_valid = !is.na(total_flux$flux),
-    diffusive_valid = !is.na(diffusive_flux$flux)
-  )
-
-  # ----------------------------
-  # 7. Return object
-  # ----------------------------
-
-  result <- list(
-    call = match.call(),
-
-    settings = list(
-      window.size = window.size,
-      minimum_diffusive = minimum_diffusive,
-      t.window = t.window,
-      minimum_window = minimum_window,
-      bubble_gas = bubble_gas
-    ),
-
-    bubbles = bubbles,
-    total = total_flux,
-    diffusive = diffusive_flux,
-    ebullition = ebullition_flux,
-    diagnostics = diagnostics
-  )
-
-  class(result) <- "goAquaFlux"
-
-  return(result)
+  if (return_df) {
+    return(dplyr::bind_rows(flux.res.ls))
+  } else {
+    return(flux.res.ls)
+  }
 }
-
-
-
-goAquaFlux.loop <-  function(x, list_of_dataframes, gastype, auxfile) {
-
-  # function to apply in the loop. Adapt parameters to your needs.
-  myseparated.flux <- goAquaFlux(dataframe = list_of_dataframes[[x]], gastype = gastype, auxfile = auxfile[auxfile$UniqueID==list_of_dataframes[[x]]]$UniqueID[1])
-
-  return(myseparated.flux)
-}
-
 
 
