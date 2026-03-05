@@ -10,15 +10,12 @@
 #' after which the best model is selected using \code{best.flux()}. The standard
 #' error of the flux is taken from the selected model (linear or HMR).
 #'
-#' @param dataframe A data.frame containing the incubation time series,
-#' including a \code{POSIX.time} column and gas concentration measurements.
+#' @param df A data.frame containing the incubation time series,
+#' including a \code{Etime} column and gas concentration measurements.
 #'
 #' @param gastype Character string specifying the gas concentration variable
 #' to analyze (e.g., \code{"CH4dry_ppb"}, \code{"CO2dry_ppm"}).
 #'
-#' @param auxfile A list or data structure containing chamber metadata required
-#' by \code{autoID()} and \code{goFlux()}, such as chamber volume, pressure,
-#' temperature, and surface area.
 #'
 #' @param criteria Optional parameter passed to flux model selection routines.
 #' Typically used to define model evaluation criteria.
@@ -63,29 +60,29 @@
 #' \code{\link{goFlux}},
 #' \code{\link{best.flux}}
 #'
+#' @include goFlux-package.R
+#'
 #' @export
-
-
-goAquaFlux.diffusive <- function(dataframe,
+#'
+goAquaFlux.diffusive <- function(df,
                                  gastype,
-                                 auxfile,
                                  criteria = criteria,
                                  bubbles = NULL,
                                  minimum_window = 30) {
 
-  dataframe <- dataframe[!duplicated(dataframe$POSIX.time), ]
+  df <- df[!duplicated(df$Etime), ]
 
   # --- Determine diffusive window
   if (is.null(bubbles) || nrow(bubbles) == 0) {
 
     # No bubbling detected
-    df_diff <- dataframe
+    df_diff <- df
     first_bubble_time <- NA
 
   } else {
 
     first_bubble_time <- bubbles$start[1]
-    df_diff <- dataframe[dataframe$Etime < first_bubble_time, ]
+    df_diff <- df[df$Etime < first_bubble_time, ]
 
   }
 
@@ -103,10 +100,10 @@ goAquaFlux.diffusive <- function(dataframe,
   }
 
   # --- calling goFlux to compute diffusive flux
-  if(!is.na(first_bubble_time)){auxfile$obs.length <- first_bubble_time}
-  autoIDed <- autoID(inputfile = df_diff, auxfile = auxfile, shoulder = 0)
+  if(!is.na(first_bubble_time)){df_diff$obs.length <- first_bubble_time}
+  # autoIDed <- autoID(inputfile = df_diff, auxfile = auxfile, shoulder = 0)
 
-  aquaFlux.diff <- goFlux(autoIDed, gastype)
+  aquaFlux.diff <- goFlux(df_diff, gastype, H2O_col = "H2O_mol") # here a doubt if using H2O_col = "H2O_mol" is correct
 
   best.flux.diff <- best.flux(aquaFlux.diff)
   best.flux.diff$SE_best_model <- ifelse(best.flux.diff$model =="LM", best.flux.diff$LM.SE, best.flux.diff$HM.SE)
