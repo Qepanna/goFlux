@@ -91,7 +91,9 @@ find.bubbles <- function(time,
                          min_ratio = 3,
                          min_sd = NULL,
                          min_gap = 10,
-                         min_length = 5) {
+                         min_length = 5,
+                         reg.window = 20,
+                         reg.min.obs = 10) {
 
   method <- match.arg(method)
 
@@ -203,10 +205,58 @@ find.bubbles <- function(time,
   }
 
   # --- discard short chunks
-  chunks <- chunks[(chunks$end - chunks$start) > min_length, ]
+  chunks <- chunks[(chunks$end - chunks$start) >= min_length, ]
 
   if (nrow(chunks) == 0)
     return(NULL)
+
+
+  # --------------------------------------------------
+  # Estimate bubble magnitude using step dummy model
+  # --------------------------------------------------
+
+  chunks$magnitude <- NA
+  chunks$SE <- NA
+  chunks$slope <- NA
+  chunks$n_used <- NA
+
+  for (i in seq_len(nrow(chunks))) {
+
+    tb <- chunks$start[i]  # bubble timing
+
+    # define local regression window
+    tmin <- tb - reg.window
+    tmax <- chunks$end[i] + reg.window
+
+    idx <- time >= tmin & time <= tmax
+
+    if (sum(idx) < reg.min.obs)
+      next
+
+    df_local <- data.frame(
+      time = time[idx],
+      conc = conc[idx]
+    )
+
+    # dummy variable (bubble step)
+    df_local$bubble <- ifelse(df_local$time >= tb, 1, 0)
+
+    # regression model
+    mod <- try(lm(conc ~ time + bubble, data = df_local), silent = TRUE)
+
+    if (inherits(mod, "try-error"))
+      next
+
+    coefs <- summary(mod)$coefficients
+
+    if (!"bubble" %in% rownames(coefs))
+      next
+
+    chunks$magnitude[i] <- coefs["bubble","Estimate"]
+    chunks$SE[i] <- coefs["bubble","Std. Error"]
+    chunks$slope[i] <- coefs["time","Estimate"]
+    chunks$n_used[i] <- nrow(df_local)
+  }
 
   return(chunks)
 }
