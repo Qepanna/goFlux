@@ -16,8 +16,8 @@
 #' the variance of concentration measurements within the initial and
 #' final windows.
 #'
-#' @param dataframe Data frame containing incubation time series data.
-#'   Must include a `POSIX.time` column and a column corresponding to
+#' @param df Data frame containing incubation time series data.
+#'   Must include a `Etime` column and a column corresponding to
 #'   the gas concentration specified by `gastype`. If available, the
 #'   column `H2O_ppm` is used to correct for water vapor dilution.
 #'
@@ -78,7 +78,7 @@
 #'
 #' @examples
 #' total_flux <- goAquaFlux.total(
-#'   dataframe = incubation_data,
+#'   df = incubation_data,
 #'   gastype = "CH4dry_ppb",
 #'   auxfile = chamber_metadata,
 #'   bubbles = bubbles
@@ -86,32 +86,22 @@
 #'
 #' total_flux$flux
 #'
+#' @include goFlux-package.R
+#'
 #' @export
-
-
-flux_conversion <- function(V_L, P_kPa, A_cm2, T_C, H2O_mol) {
-  (V_L * P_kPa * (1 - H2O_mol)) /
-    (8.314 * (A_cm2 / 10000) * (T_C + 273.15))
-}
-
-goAquaFlux.total <- function(dataframe,
+#'
+goAquaFlux.total <- function(df,
                              gastype,
-                             auxfile,
+                             flux.term,
                              bubbles = NULL,
                              t.window = 30,
                              minimum_window = 10) {
 
-  # --- Build time vector
-  time0 <- dataframe$POSIX.time[1]
+  # --- Get clean time vector
 
-  df <- data.frame(
-    time = as.numeric(dataframe$POSIX.time - time0),
-    conc = dataframe[[gastype]]
-  )
+  df <- df[!duplicated(df$Etime), ]
 
-  df <- df[!duplicated(df$time), ]
-
-  T_total <- max(df$time)
+  T_total <- max(df$Etime)
 
   # ----------------------------
   # Determine final stable window
@@ -133,7 +123,7 @@ goAquaFlux.total <- function(dataframe,
   }
 
   # Define final window
-  idxf <- df$time >= (end_limit - t.window) & df$time < end_limit
+  idxf <- df$Etime >= (end_limit - t.window) & df$Etime < end_limit
 
   if (sum(idxf) < minimum_window) {
     return(list(
@@ -148,7 +138,7 @@ goAquaFlux.total <- function(dataframe,
   # Initial window (always at start)
   # ----------------------------
 
-  idx0 <- df$time <= t.window
+  idx0 <- df$Etime <= t.window
 
   if (sum(idx0) < minimum_window) {
     return(list(
@@ -160,8 +150,8 @@ goAquaFlux.total <- function(dataframe,
   }
 
   # Compute means
-  C0_vals <- df$conc[idx0]
-  Cf_vals <- df$conc[idxf]
+  C0_vals <- df[[gastype]][idx0]
+  Cf_vals <- df[[gastype]][idxf]
 
   C0 <- mean(C0_vals, na.rm = TRUE)
   Cf <- mean(Cf_vals, na.rm = TRUE)
@@ -173,19 +163,6 @@ goAquaFlux.total <- function(dataframe,
   n0 <- sum(idx0)
   nf <- sum(idxf)
 
-  # ----------------------------
-  # Conversion term
-  # ----------------------------
-
-  H2O_mol <- mean(dataframe$H2O_ppm[1:30], na.rm = TRUE) / 1e6
-
-  K <- flux_conversion(
-    V_L = auxfile$Vtot,
-    P_kPa = auxfile$Pcham,
-    A_cm2 = auxfile$Area,
-    T_C = auxfile$Tcham,
-    H2O_mol = H2O_mol
-  )
 
   # ----------------------------
   # Flux and SE
@@ -193,9 +170,9 @@ goAquaFlux.total <- function(dataframe,
 
   effective_time <- end_limit  # time span used
 
-  flux <- (Cf - C0) / effective_time * K
+  flux <- (Cf - C0) / effective_time * flux.term
 
-  flux_se <- (K / effective_time) *
+  flux_se <- (flux.term / effective_time) *
     sqrt((s0 / n0) + (sf / nf))
 
   return(list(
