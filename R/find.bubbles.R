@@ -76,7 +76,11 @@
 #'                         conc = df$CH4dry_ppb,
 #'                         window.size = 15)
 #'
-#' @export
+#'
+#' @include goFlux-package.R
+#'
+#' @keywords internal
+#'
 find.bubbles <- function(time,
                          conc,
                          window.size,
