@@ -225,7 +225,7 @@ goAquaFlux.ebullition <- function(df,
     deltaC_bubbles = deltaC_bubbles,
     deltaC_total = deltaC_total,
     bubble_ratio = ratio,
-    inconsistent = flag_inconsistent
+    flag_inconsistent = flag_inconsistent
   ))
 }
 

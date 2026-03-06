@@ -128,6 +128,7 @@ goAquaFlux.diffusive <- function(df,
     flux = best.flux.diff$best.flux,
     SE = best.flux.diff$SE_best_model,
     n_used = n_used,
-    first_bubble_time = first_bubble_time
+    first_bubble_time = first_bubble_time,
+    best.flux.output = best.flux.diff
   ))
 }
