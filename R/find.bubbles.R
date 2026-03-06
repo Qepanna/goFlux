@@ -149,7 +149,7 @@ find.bubbles <- function(df,
 
   dup <- duplicated(time)
   if (any(dup)) {
-    warning("Duplicated time values detected; keeping first occurrence.")
+    # warning("Duplicated time values detected; keeping first occurrence.")
     time <- time[!dup]
     conc <- conc[!dup]
   }
