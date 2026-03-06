@@ -1,185 +1,147 @@
-#' Estimate total gas flux from incubation endpoint concentrations
+#' Compute total chamber flux from diffusive and ebullitive components
 #'
-#' Computes the total gas flux from a floating chamber incubation using
-#' the endpoint method, defined as the difference between the mean gas
-#' concentration at the end and the beginning of the incubation divided
-#' by the effective incubation time. Concentrations are averaged within
-#' fixed observation windows at the start and end of the incubation to
-#' reduce the influence of short-term variability.
+#' Combines diffusive and ebullitive methane flux estimates into a total
+#' chamber flux. The total flux is calculated as the sum of both components,
+#' and the associated uncertainty is propagated assuming independence of
+#' errors. The function also compares the reconstructed total flux against a
+#' simple two-point endpoint flux estimate to detect potential overestimation
+#' of ebullition.
 #'
-#' If bubbling events are detected, the final concentration window is
-#' positioned immediately before the start of the last bubbling event
-#' to avoid contamination of the endpoint estimate by ebullition-driven
-#' concentration spikes.
+#' If the reconstructed flux exceeds the endpoint flux by more than a defined
+#' tolerance (default = 1.2), the function issues a warning and flags the
+#' result as potentially suspicious.
 #'
-#' Flux uncertainty is estimated using standard error propagation from
-#' the variance of concentration measurements within the initial and
-#' final windows.
-#'
-#' @param df Data frame containing incubation time series data.
-#'   Must include a `Etime` column and a column corresponding to
-#'   the gas concentration specified by `gastype`. If available, the
-#'   column `H2O_ppm` is used to correct for water vapor dilution.
-#'
-#' @param gastype Character string specifying the column name of the gas
-#'   concentration to analyse (e.g., `"CH4dry_ppb"` or `"CO2dry_ppm"`).
-#'
-#' @param auxfile Data frame or list containing chamber and environmental
-#'   parameters required for flux conversion:
-#'   \describe{
-#'     \item{Vtot}{Chamber volume (L)}
-#'     \item{Pcham}{Chamber pressure (kPa)}
-#'     \item{Area}{Chamber surface area (cm²)}
-#'     \item{Tcham}{Chamber temperature (°C)}
+#' @param ebullition_flux A list returned by \code{goAquaFlux.ebullition}
+#'   containing at least:
+#'   \itemize{
+#'     \item \code{flux} ebullitive flux estimate
+#'     \item \code{SE} standard error of the ebullitive flux
+#'     \item \code{F_tot2pts} total flux estimated using a two-point endpoint method
 #'   }
 #'
-#' @param bubbles Optional data frame describing bubbling events detected
-#'   with \code{\link{find.bubbles}}. Must contain columns `start` and `end`
-#'   defining bubbling periods in seconds since incubation start.
-#'   If provided, the final concentration window is placed immediately
-#'   before the last bubbling event.
+#' @param diffusive_flux A list returned by \code{goAquaFlux.diffusive}
+#'   containing at least:
+#'   \itemize{
+#'     \item \code{flux} diffusive flux estimate
+#'     \item \code{SE} standard error of the diffusive flux
+#'   }
 #'
-#' @param t.window Numeric. Duration (in seconds) of the observation windows
-#'   used to estimate initial and final concentrations (default = 30 s).
+#' @param flux.term Character string describing the flux component
+#'   being calculated (currently not used internally but kept for
+#'   compatibility with the main \code{goAquaFlux} workflow).
 #'
-#' @param minimum_window Integer. Minimum number of observations required
-#'   within a window to compute concentration statistics (default = 10).
-#'
-#' @return
-#' A list containing:
-#' \describe{
-#'   \item{flux}{Estimated total gas flux (nmol m⁻² s⁻¹)}
-#'   \item{SE}{Standard error of the flux estimate derived from
-#'   concentration variability within endpoint windows}
-#'   \item{C0}{Mean concentration in the initial window}
-#'   \item{Cf}{Mean concentration in the final window}
-#'   \item{incubation_time}{Effective incubation duration used for the
-#'   flux calculation (seconds)}
+#' @return A list containing:
+#' \itemize{
+#'   \item \code{flux} total methane flux (diffusion + ebullition)
+#'   \item \code{SE} propagated standard error of the total flux
+#'   \item \code{ratio} ratio between reconstructed total flux and the
+#'   two-point endpoint flux estimate
+#'   \item \code{flag_suspicious} logical flag indicating whether the
+#'   reconstructed flux substantially exceeds the endpoint estimate
+#'   \item \code{diagnostic} diagnostic message explaining the warning
+#'   when the tolerance threshold is exceeded
 #' }
-#'
-#' If suitable endpoint windows cannot be identified (e.g., insufficient
-#' observations or excessive bubbling), the function returns `NA` values
-#' for flux and standard error.
 #'
 #' @details
-#' The total flux is computed as:
+#' Total flux is computed as:
+#' \deqn{F_T = F_E + F_D}
 #'
-#' \deqn{
-#' F = \frac{(C_f - C_0)}{t} \times K
+#' where:
+#' \itemize{
+#'   \item \eqn{F_E} is the ebullition flux
+#'   \item \eqn{F_D} is the diffusive flux
 #' }
 #'
-#' where \eqn{C_0} and \eqn{C_f} are the mean concentrations in the
-#' initial and final observation windows, \eqn{t} is the effective
-#' incubation duration, and \eqn{K} is a conversion factor derived
-#' from chamber geometry and environmental conditions.
+#' Error propagation assumes independent uncertainties:
 #'
-#' The standard error of the flux estimate is obtained via error
-#' propagation from the concentration variances in the two windows.
+#' \deqn{SE_T = \sqrt{SE_E^2 + SE_D^2}}
 #'
-#' @examples
-#' total_flux <- goAquaFlux.total(
-#'   df = incubation_data,
-#'   gastype = "CH4dry_ppb",
-#'   auxfile = chamber_metadata,
-#'   bubbles = bubbles
-#' )
+#' The resulting flux is compared to a two-point endpoint estimate
+#' (\code{F_tot2pts}) obtained from the full chamber deployment to
+#' detect cases where bubble magnitude estimation may be excessive.
 #'
-#' total_flux$flux
-#'
-#' @include goFlux-package.R
+#' @seealso
+#' \code{\link{goAquaFlux.diffusive}},
+#' \code{\link{goAquaFlux.ebullition}},
+#' \code{\link{find.bubbles}}
 #'
 #' @export
 #'
-goAquaFlux.total <- function(df,
-                             gastype,
-                             flux.term,
-                             bubbles = NULL,
-                             t.window = 30,
-                             minimum_window = 10) {
+goAquaFlux.total <- function(ebullition_flux,
+                             diffusive_flux,
+                             flux.term) {
 
-  # --- Get clean time vector
+  # -----------------------------
+  # Check structure
+  # -----------------------------
+  if (is.null(ebullition_flux) || is.null(diffusive_flux)) {
+    return(list(
+      flux = NA,
+      SE = NA,
+      message = "Ebullition or Diffusive flux object is NULL"
+    ))
+  }
 
-  df <- df[!duplicated(df$Etime), ]
+  # -----------------------------
+  # Extract values
+  # -----------------------------
+  F_E  <- ebullition_flux$flux
+  SE_E <- ebullition_flux$SE
 
-  T_total <- max(df$Etime)
+  F_D  <- diffusive_flux$flux
+  SE_D <- diffusive_flux$SE
 
-  # ----------------------------
-  # Determine final stable window
-  # ----------------------------
+  # -----------------------------
+  # Check availability
+  # -----------------------------
+  if (is.na(F_E) || is.na(F_D)) {
+    return(list(
+      flux = NA,
+      SE = NA,
+      message = "Ebullition or Diffusive flux could not be computed"
+    ))
+  }
 
-  if (is.null(bubbles) || nrow(bubbles) == 0) {
+  # -----------------------------
+  # Compute total flux as sum of diffusion and ebullition
+  # -----------------------------
+  F_T <- F_E + F_D
 
-    # No bubbling → use end window
-    end_limit <- T_total
 
+  # Error propagation
+  if (!is.na(SE_E) && !is.na(SE_D)) {
+    SE_T <- sqrt(SE_E^2 + SE_D^2)
   } else {
+    SE_T <- NA
+  }
 
-    last_bubble_start <- bubbles$start[nrow(bubbles)]
 
-    # If last bubble occurs near the end,
-    # define Cf before that bubble
-    end_limit <- last_bubble_start
+  # Compare F_T with total flux calcuated with endpoint approach
+  F_T.2pts <- ebullition_flux$F_tot2pts
+  ratio <- F_T / F_T.2pts
+
+  # issue a warning when ratio > tolerance
+  tolerance = 1.2
+  flag_suspicious <- FALSE
+  if (!is.na(F_T) && !is.na(F_T.2pts) && F_T > F_T.2pts * tolerance) {
+    flag_suspicious <- TRUE
+    diagnostic <- paste0(
+      "Total flux (", round(F_T,2),") as a sum of Diffusion and Ebullition is ",
+      round(ratio,1),
+      " times the 2-points total flux estimate (", round(F_T.2pts,2),")")
+    warning(diagnostic)
 
   }
 
-  # Define final window
-  idxf <- df$Etime >= (end_limit - t.window) & df$Etime < end_limit
 
-  if (sum(idxf) < minimum_window) {
-    return(list(
-      flux = NA,
-      SE = NA,
-      message = "No stable final window available",
-      incubation_time = T_total
-    ))
-  }
-
-  # ----------------------------
-  # Initial window (always at start)
-  # ----------------------------
-
-  idx0 <- df$Etime <= t.window
-
-  if (sum(idx0) < minimum_window) {
-    return(list(
-      flux = NA,
-      SE = NA,
-      message = "No stable initial window available",
-      incubation_time = T_total
-    ))
-  }
-
-  # Compute means
-  C0_vals <- df[[gastype]][idx0]
-  Cf_vals <- df[[gastype]][idxf]
-
-  C0 <- mean(C0_vals, na.rm = TRUE)
-  Cf <- mean(Cf_vals, na.rm = TRUE)
-
-  # Variances
-  s0 <- var(C0_vals, na.rm = TRUE)
-  sf <- var(Cf_vals, na.rm = TRUE)
-
-  n0 <- sum(idx0)
-  nf <- sum(idxf)
-
-
-  # ----------------------------
-  # Flux and SE
-  # ----------------------------
-
-  effective_time <- end_limit  # time span used
-
-  flux <- (Cf - C0) / effective_time * flux.term
-
-  flux_se <- (flux.term / effective_time) *
-    sqrt((s0 / n0) + (sf / nf))
-
+  # -----------------------------
+  # Return results
+  # -----------------------------
   return(list(
-    flux = flux,
-    SE = flux_se,
-    C0 = C0,
-    Cf = Cf,
-    incubation_time = effective_time
+    flux = F_T,
+    SE = SE_T,
+    ratio = ratio,
+    flag_suspicious = flag_suspicious,
+    diagnostic = diagnostic
   ))
 }
