@@ -1,150 +1,231 @@
-#' Compute Ebullition Flux from Total and Diffusive Flux Estimates
+#' Estimate ebullitive gas flux from detected bubbling events
 #'
-#' Calculates ebullition flux as the difference between total chamber flux
-#' and diffusive flux. Ebullition is defined as:
+#' Computes the ebullitive component of gas flux during an aquatic chamber
+#' incubation using bubbling events detected by \code{find.bubbles()}.
+#' Ebullition flux is estimated from the summed concentration increase
+#' associated with individual bubbling events and scaled by incubation time
+#' and a flux conversion factor.
 #'
-#' \deqn{F_E = F_T - F_D}
+#' The function also computes an independent total flux estimate using the
+#' endpoint (two-point) concentration method for diagnostic comparison.
+#' Several consistency checks are performed to detect situations where the
+#' summed bubble magnitudes exceed the observed overall concentration change.
 #'
-#' where \eqn{F_E} is ebullition flux, \eqn{F_T} is total flux, and
-#' \eqn{F_D} is diffusive flux. Uncertainty of the ebullition estimate is
-#' calculated by standard error propagation assuming independence of
-#' the two flux estimates:
+#' @param df A data.frame containing the incubation time series. Must include
+#'   an \code{Etime} column representing elapsed incubation time and the gas
+#'   concentration variable specified by \code{gastype}.
 #'
-#' \deqn{SE_E = \sqrt{SE_T^2 + SE_D^2}}
+#' @param gastype Character string specifying the gas concentration variable
+#'   to analyze (e.g. \code{"CH4dry_ppb"}, \code{"CO2dry_ppm"}).
 #'
-#' If either total or diffusive flux cannot be computed (i.e. \code{NA}
-#' or \code{NULL}), the function returns \code{NA} for ebullition flux.
+#' @param bubbles Optional data.frame containing bubbling events detected by
+#'   \code{find.bubbles()}. Must include at least a \code{magnitude} column
+#'   representing the estimated concentration step associated with each
+#'   bubbling event and optionally a \code{SE} column containing the standard
+#'   error of the magnitude estimate.
 #'
-#' Because ebullition represents bubble-mediated gas release, negative
-#' ebullition flux values are physically impossible. If the computed
-#' ebullition flux is negative (i.e. diffusive flux exceeds total flux),
-#' a warning is issued and diagnostic information is returned to help
-#' identify potential issues in flux estimation.
+#' @param flux.term Numeric conversion factor transforming concentration change
+#'   per unit time into flux units. Typically derived from chamber geometry and
+#'   environmental conditions (e.g., using a gas law conversion).
 #'
-#' @param total_flux A list containing the output of
-#'   \code{goAquaFlux.total()}, including elements \code{flux} and
-#'   \code{SE}.
+#' @param final_window.min Numeric. Minimum time (in seconds) required after the
+#'   last detected bubbling event to consider the full incubation length for
+#'   flux calculation. If the remaining time after the last bubble is shorter
+#'   than this threshold, the incubation time is truncated to the start of the
+#'   last bubbling event.
 #'
-#' @param diffusive_flux A list containing the output of
-#'   \code{goAquaFlux.diffusive()}, including elements \code{flux} and
-#'   \code{SE}.
+#' @param window_C0Cf Numeric. Duration (in seconds) of the initial and final
+#'   windows used to compute mean starting and ending concentrations for the
+#'   endpoint (two-point) flux estimate.
 #'
-#' @param tol Numeric tolerance threshold for detecting negative
-#'   ebullition flux. Small negative values within this tolerance are
-#'   ignored to account for numerical noise. Default is \code{0}.
-#'
-#' @return A list with the following elements:
+#' @return
+#' A list containing:
 #' \describe{
-#'   \item{flux}{Estimated ebullition flux.}
-#'   \item{SE}{Standard error of the ebullition flux estimated by
-#'   uncertainty propagation.}
-#'   \item{total_flux}{Total flux used in the calculation.}
-#'   \item{diffusive_flux}{Diffusive flux used in the calculation.}
-#'   \item{diagnostic}{Diagnostic message returned when negative
-#'   ebullition is detected, otherwise \code{NULL}.}
+#'   \item{flux}{Estimated ebullitive flux.}
+#'   \item{SE}{Standard error of the ebullitive flux estimate.}
+#'   \item{F_tot2pts}{Total flux estimated using the endpoint (two-point) method.}
+#'   \item{F_tot2pts.SE}{Standard error of the endpoint total flux estimate.}
+#'   \item{n_bubbles}{Number of bubbling events used in the calculation.}
+#'   \item{deltaC_bubbles}{Total concentration increase attributed to bubbling events.}
+#'   \item{deltaC_total}{Observed total concentration change over the incubation.}
+#'   \item{bubble_ratio}{Ratio between bubbling-induced concentration change and total change.}
+#'   \item{inconsistent}{Logical flag indicating that summed bubble magnitudes exceed the observed endpoint concentration change.}
+#'   \item{message}{Optional message returned when no bubbling events are detected
+#'   or when bubbling magnitudes are unavailable.}
 #' }
 #'
 #' @details
-#' Ebullition flux represents the component of gas emission driven by
-#' bubble release from sediments. It is obtained indirectly by
-#' subtracting the diffusive flux component from the total chamber
-#' flux. This approach assumes that total flux is the sum of diffusive
-#' and ebullitive transport.
+#' The ebullitive flux is computed as:
 #'
-#' Negative ebullition values may arise when:
+#' \deqn{F_E = \frac{\sum \Delta C_{bubble}}{t_{inc}} \times K}
+#'
+#' where:
 #' \itemize{
-#'   \item Diffusive flux is overestimated (e.g. unstable linear fit).
-#'   \item Total flux is underestimated due to late bubbling events.
-#'   \item Bubble detection incorrectly truncates the diffusive window.
+#'   \item \eqn{\sum \Delta C_{bubble}} is the summed concentration increase
+#'   associated with bubbling events,
+#'   \item \eqn{t_{inc}} is the effective incubation time,
+#'   \item \eqn{K} is the flux conversion factor (\code{flux.term}).
 #' }
 #'
-#' Such cases should be interpreted cautiously and may require manual
-#' inspection of the concentration time series.
+#' Standard errors are propagated assuming independence of individual bubble
+#' magnitude estimates:
+#'
+#' \deqn{SE(F_E) = \frac{K}{t_{inc}} \sqrt{\sum SE_{bubble}^2}}
+#'
+#' Diagnostic checks are implemented to identify inconsistencies between the
+#' cumulative bubble magnitude and the observed endpoint concentration change.
+#' When the sum of bubble magnitudes exceeds the observed concentration change,
+#' a warning is issued and the \code{inconsistent} flag is set to \code{TRUE}.
 #'
 #' @examples
-#' total <- list(flux = 0.45, SE = 0.05)
-#' diff  <- list(flux = 0.30, SE = 0.04)
+#' ebullition_flux <- goAquaFlux.ebullition(
+#'   df = incubation_data,
+#'   gastype = "CH4dry_ppb",
+#'   bubbles = bubbles,
+#'   flux.term = K
+#' )
 #'
-#' goAquaFlux.ebullition(total, diff)
+#' @seealso
+#' \code{\link{find.bubbles}},
+#' \code{\link{goAquaFlux.diffusive}},
+#' \code{\link{goAquaFlux.total}}
 #'
 #' @include goFlux-package.R
 #'
-#' @export
-#'
-goAquaFlux.ebullition <- function(total_flux,
-                                  diffusive_flux,
-                                  tol = 0) {
+#' @keywords internal
+goAquaFlux.ebullition <- function(df,
+                                  gastype,
+                                  bubbles,
+                                  flux.term,
+                                  final_window.min = 30,
+                                  window_C0Cf = 10) {
+  end_limit <- df$Etime[nrow(df)]
 
-  # -----------------------------
-  # Check structure
-  # -----------------------------
-  if (is.null(total_flux) || is.null(diffusive_flux)) {
+
+  # ----------- Retrieve initial and final concentrations Co and Cf
+  # Define initial window
+  idx0 <- df$Etime <= window_C0Cf
+
+  # Define final window
+  idxf <- df$Etime >= (end_limit - window_C0Cf) & df$Etime < end_limit
+
+  # Compute means
+  C0_vals <- df[[gastype]][idx0]
+  Cf_vals <- df[[gastype]][idxf]
+
+  C0 <- mean(C0_vals, na.rm = TRUE)
+  Cf <- mean(Cf_vals, na.rm = TRUE)
+
+  # Variances
+  s0 <- var(C0_vals, na.rm = TRUE)
+  sf <- var(Cf_vals, na.rm = TRUE)
+
+  n0 <- sum(idx0)
+  nf <- sum(idxf)
+
+
+
+  deltaC_total <- Cf - C0
+
+  # ----------------------------
+  # Total flux and SE with 2-points method
+  # ----------------------------
+
+  F_tot2pts <- deltaC_total / end_limit * flux.term
+
+  F_tot2pts.SE <- (flux.term / end_limit) *
+    sqrt((s0 / n0) + (sf / nf))
+
+
+  if (is.null(bubbles) || nrow(bubbles) == 0) {
+    return(list(
+      flux = 0,
+      SE = 0,
+      F_tot2pts = F_tot2pts,
+      F_tot2pts.SE = F_tot2pts.SE,
+      n_bubbles = 0,
+      deltaC_bubbles = 0,
+      deltaC_total = deltaC_total,
+      bubble_ratio = 0,
+      inconsistent = FALSE,
+      message = "No bubbling events detected"
+    ))
+
+  }
+
+  # Remove bubbles with invalid magnitude
+  bubbles <- bubbles[!is.na(bubbles$magnitude), ]
+
+  if (nrow(bubbles) == 0) {
     return(list(
       flux = NA,
       SE = NA,
-      message = "Total or Diffusive flux object is NULL"
+      F_tot2pts = F_tot2pts,
+      F_tot2pts.SE = F_tot2pts.SE,
+      n_bubbles = NA,
+      deltaC_bubbles = NA,
+      deltaC_total = deltaC_total,
+      bubble_ratio = NA,
+      inconsistent = FALSE,
+      message = "Bubble magnitudes unavailable"
     ))
-  }
-
-  # -----------------------------
-  # Extract values
-  # -----------------------------
-  F_T  <- total_flux$flux
-  SE_T <- total_flux$SE
-
-  F_D  <- diffusive_flux$flux
-  SE_D <- diffusive_flux$SE
-
-  # -----------------------------
-  # Check availability
-  # -----------------------------
-  if (is.na(F_T) || is.na(F_D)) {
-    return(list(
-      flux = NA,
-      SE = NA,
-      message = "Total or Diffusive flux could not be computed"
-    ))
-  }
-
-  # -----------------------------
-  # Compute ebullition
-  # -----------------------------
-  F_E <- F_T - F_D
-
-  # Error propagation
-  if (!is.na(SE_T) && !is.na(SE_D)) {
-    SE_E <- sqrt(SE_T^2 + SE_D^2)
   } else {
-    SE_E <- NA
+    # If not enough observations after last bubble, incubation_time is
+    # set to the start of the last bubble.
+    t.after_bubble <- end_limit - bubbles$end[nrow(bubbles)]
+    if (t.after_bubble >= final_window.min){
+      incubation_time = end_limit
+    } else {
+      incubation_time = bubbles$start[nrow(bubbles)]
+    }
   }
 
-  # -----------------------------
-  # Diagnostic check
-  # -----------------------------
-  diagnostic <- NULL
+  # Sum concentration increase
+  deltaC_bubbles <- sum(bubbles$magnitude, na.rm = TRUE)
 
-  if (F_E < -tol) {
 
-    diagnostic <- paste0(
-      "Negative ebullition detected: Diffusive flux (",
-      round(F_D, 4),
-      ") exceeds Total flux (",
-      round(F_T, 4),
-      ")."
-    )
 
-    warning(diagnostic)
+  ratio <- deltaC_bubbles / deltaC_total
 
+  # issue a warning when deltaC_bubbles > deltaC_total
+  flag_inconsistent <- FALSE
+  if (!is.na(deltaC_total) && deltaC_bubbles > deltaC_total) {
+    flag_inconsistent <- TRUE
+    message = "Sum of bubble magnitudes exceeds endpoint concentration change"
   }
 
-  # -----------------------------
-  # Return results
-  # -----------------------------
+
+  # Variance propagation
+  if ("SE" %in% colnames(bubbles)) {
+    var_sum <- sum(bubbles$SE^2, na.rm = TRUE)
+  } else {
+    var_sum <- NA
+  }
+
+
+  # ----------------------------
+  # Ebullition flux and SE estimates
+  # ----------------------------
+
+  flux <- deltaC_bubbles / incubation_time * flux.term
+
+  if (!is.na(var_sum)) {
+    flux_se <- (flux.term / incubation_time) * sqrt(var_sum)
+  } else {
+    flux_se <- NA
+  }
+
+  # Saving results in a list
   return(list(
-    flux = F_E,
-    SE = SE_E,
-    total_flux = F_T,
-    diffusive_flux = F_D,
-    diagnostic = diagnostic
+    flux = flux,
+    SE = flux_se,
+    F_tot2pts = F_tot2pts,
+    F_tot2pts.SE = F_tot2pts.SE,
+    n_bubbles = nrow(bubbles),
+    deltaC_bubbles = deltaC_bubbles,
+    deltaC_total = deltaC_total,
+    bubble_ratio = ratio,
+    inconsistent = flag_inconsistent
   ))
 }
+
