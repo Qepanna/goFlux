@@ -1,23 +1,31 @@
 #' Detect bubbling events in incubation time series
 #'
-#' Identifies potential bubbling (ebullition) events in gas concentration
-#' incubation time series by analysing rolling dispersion within a moving
-#' window. Dispersion can be quantified using either rolling variance or
-#' rolling median absolute deviation (MAD). Periods where dispersion exceeds
-#' an adaptive threshold are classified as bubbling events.
+#' Identifies bubbling (ebullition) events in gas concentration incubation
+#' time series by analysing rolling dispersion within a moving window.
+#' Dispersion can be quantified using either rolling variance or rolling
+#' median absolute deviation (MAD). Periods where dispersion exceeds an
+#' adaptive threshold are classified as bubbling events.
 #'
-#' The threshold is defined as the maximum between:
-#' - a user-defined quantile of the rolling dispersion distribution, and
-#' - a robust dispersion criterion (median + k * MAD).
+#' The detection algorithm first standardizes the concentration signal using
+#' robust statistics, interpolates the signal to a regular time grid, and
+#' computes rolling dispersion within a moving window. Contiguous periods
+#' where dispersion exceeds an adaptive threshold are identified as potential
+#' bubbling events.
 #'
-#' Additional safeguards prevent false detections in low-variance time series,
-#' including a minimum dispersion ratio and an optional global variability
-#' threshold.
+#' For each detected event, the magnitude of the concentration step is then
+#' estimated using a local linear regression with a step dummy variable.
+#' This regression estimates the concentration change attributable to the
+#' bubbling event while accounting for the underlying diffusive trend.
 #'
-#' @param time Numeric vector of time stamps (typically seconds since the
-#'   beginning of the incubation).
+#' Minor bubbling events can optionally be filtered based on their estimated
+#' magnitude or signal-to-noise ratio.
 #'
-#' @param conc Numeric vector of gas concentrations corresponding to `time`.
+#' @param df A data.frame containing the incubation time series. Must include
+#'   a column \code{Etime} representing elapsed time and the gas concentration
+#'   variable specified by \code{bubble_source}.
+#'
+#' @param bubble_source Character string specifying the column of \code{df}
+#'   used to detect bubbling events (e.g. \code{"CH4dry_ppb"}).
 #'
 #' @param window.size Integer. Width of the moving window used to compute
 #'   rolling dispersion (in number of interpolated time steps).
@@ -26,63 +34,93 @@
 #'   (default = 1 second).
 #'
 #' @param method Character string specifying the dispersion metric used for
-#'   detection. Options are `"mad"` (default) for rolling median absolute
-#'   deviation or `"variance"` for rolling variance.
+#'   detection. Options are \code{"mad"} or \code{"variance"}.
 #'
 #' @param var.quantile Numeric between 0 and 1 defining the empirical quantile
 #'   used to derive the adaptive threshold from the rolling dispersion
 #'   distribution.
 #'
 #' @param k Numeric multiplier applied to the MAD of rolling dispersion when
-#'   computing the robust threshold (median + k * MAD). Higher values make the
-#'   detector more conservative.
+#'   computing the robust threshold (\eqn{median + k * MAD}). Higher values
+#'   produce a more conservative bubbling detection.
 #'
 #' @param min_ratio Numeric. Minimum ratio between the maximum and median
 #'   rolling dispersion required to classify a time series as containing
 #'   bubbling events. Helps prevent detections in low-variance incubations.
 #'
-#' @param min_sd Optional numeric value defining the minimum standard deviation
-#'   of the original concentration time series required to perform bubbling
+#' @param min_sd Optional numeric threshold defining the minimum standard
+#'   deviation of the concentration time series required to perform bubbling
 #'   detection. If the global variability is below this threshold, the function
-#'   returns `NULL`.
+#'   returns \code{NULL}.
 #'
-#' @param min_gap Numeric. Minimum gap (in seconds) separating two bubbling
-#'   events. Chunks separated by less than this value are merged.
+#' @param min_gap Numeric. Minimum temporal gap (in seconds) separating two
+#'   bubbling events. Detected chunks closer than this value are merged.
 #'
 #' @param min_length Numeric. Minimum duration (in seconds) required for a
 #'   bubbling event to be retained.
 #'
-#' @return
-#' A data frame with two columns:
-#' - `start` : starting time of detected bubbling event
-#' - `end`   : ending time of detected bubbling event
+#' @param reg.min.obs Integer. Minimum number of observations required to
+#'   perform the local regression used to estimate bubble magnitude.
 #'
-#' Returns `NULL` if no bubbling events are detected or if the time series
+#' @param max_reg_window Numeric. Maximum temporal half-window (in seconds)
+#'   used for the local regression surrounding each bubbling event. This
+#'   prevents the regression from including excessively long periods that
+#'   could bias slope estimation.
+#'
+#' @param min_magnitude Numeric. Minimum absolute bubble magnitude required
+#'   for a bubbling event to be retained (same unit as the concentration
+#'   variable, e.g. ppb).
+#'
+#' @param min_snr Optional numeric threshold defining the minimum
+#'   signal-to-noise ratio required for a bubbling event to be retained.
+#'   The signal-to-noise ratio is computed as
+#'   \code{|magnitude| / SE}.
+#'
+#' @return
+#' A data.frame describing detected bubbling events with the following columns:
+#' \describe{
+#'   \item{start}{Start time of the bubbling event (seconds since incubation start).}
+#'   \item{end}{End time of the bubbling event.}
+#'   \item{magnitude}{Estimated concentration step associated with the bubble.}
+#'   \item{SE}{Standard error of the magnitude estimate.}
+#'   \item{slope}{Estimated diffusive slope during the local regression window.}
+#'   \item{n_used}{Number of observations used in the magnitude regression.}
+#' }
+#'
+#' Returns \code{NULL} if no bubbling events are detected or if the time series
 #' does not meet the minimum variability criteria.
 #'
 #' @details
-#' The algorithm first standardizes the concentration signal using robust
-#' statistics (median and MAD), interpolates the signal to a regular time grid,
-#' and computes rolling dispersion within a moving window. Bubbling events are
-#' identified as contiguous periods where dispersion exceeds an adaptive
-#' threshold.
+#' Bubbling events are detected using an adaptive dispersion threshold defined
+#' as the maximum of:
+#' \itemize{
+#'   \item an empirical quantile of the rolling dispersion distribution, and
+#'   \item a robust threshold defined as \eqn{median + k * MAD}.
+#' }
 #'
-#' This method is designed to detect sustained fluctuations associated with
-#' ebullition while minimizing false detections caused by instrumental noise
-#' or minor variability in diffusive incubations.
+#' Concentration time series are first standardized using the median and MAD
+#' to reduce sensitivity to outliers and scale differences between incubations.
+#'
+#' Bubble magnitudes are estimated using a local regression model of the form:
+#'
+#' \deqn{C_t = \beta_0 + \beta_1 t + \beta_2 I(t \ge t_b)}
+#'
+#' where \eqn{I(t \ge t_b)} is a dummy variable representing the bubbling step.
+#' The coefficient \eqn{\beta_2} provides the estimated bubble magnitude.
 #'
 #' @examples
-#' bubbles <- find.bubbles(time = df$time,
-#'                         conc = df$CH4dry_ppb,
-#'                         window.size = 15)
-#'
+#' bubbles <- find.bubbles(
+#'   df = incubation_data,
+#'   bubble_source = "CH4dry_ppb",
+#'   window.size = 15
+#' )
 #'
 #' @include goFlux-package.R
 #'
 #' @keywords internal
 #'
-find.bubbles <- function(time,
-                         conc,
+find.bubbles <- function(df,
+                         bubble_source,
                          window.size,
                          dt = 1,
                          method = c("mad","variance"),
@@ -92,10 +130,17 @@ find.bubbles <- function(time,
                          min_sd = NULL,
                          min_gap = 10,
                          min_length = 5,
-                         reg.window = 20,
-                         reg.min.obs = 10) {
+                         max_reg_window = 120,
+                         reg.min.obs = 10,
+                         min_magnitude = 5, #ppb
+                         min_snr = NULL) {
 
   method <- match.arg(method)
+
+  time0 <- df$Etime[1]
+  time <- as.numeric(df$Etime - time0)
+  conc <- df[[bubble_source]]
+
 
   # --- sort and remove duplicates
   ord <- order(time)
@@ -210,7 +255,6 @@ find.bubbles <- function(time,
   if (nrow(chunks) == 0)
     return(NULL)
 
-
   # --------------------------------------------------
   # Estimate bubble magnitude using step dummy model
   # --------------------------------------------------
@@ -222,11 +266,24 @@ find.bubbles <- function(time,
 
   for (i in seq_len(nrow(chunks))) {
 
-    tb <- chunks$start[i]  # bubble timing
+    tb.start <- chunks$start[i]
 
-    # define local regression window
-    tmin <- tb - reg.window
-    tmax <- chunks$end[i] + reg.window
+    # regression limits based on neighboring bubbles
+    if (i == 1) {
+      tmin <- min(time)
+    } else {
+      tmin <- chunks$end[i-1] + dt
+    }
+
+    if (i == nrow(chunks)) {
+      tmax <- max(time)
+    } else {
+      tmax <- chunks$start[i+1] - dt
+    }
+
+    # optional window clamp
+    tmin <- max(tmin, tb.start - max_reg_window)
+    tmax <- min(tmax, tb.start + max_reg_window)
 
     idx <- time >= tmin & time <= tmax
 
@@ -238,10 +295,15 @@ find.bubbles <- function(time,
       conc = conc[idx]
     )
 
-    # dummy variable (bubble step)
-    df_local$bubble <- ifelse(df_local$time >= tb, 1, 0)
+    # require observations on both sides
+    pre_obs  <- sum(df_local$time < tb.start)
+    post_obs <- sum(df_local$time >= tb.start)
 
-    # regression model
+    if (pre_obs < 3 || post_obs < 3)
+      next
+
+    df_local$bubble <- ifelse(df_local$time >= tb.start, 1, 0)
+
     mod <- try(lm(conc ~ time + bubble, data = df_local), silent = TRUE)
 
     if (inherits(mod, "try-error"))
@@ -257,6 +319,27 @@ find.bubbles <- function(time,
     chunks$slope[i] <- coefs["time","Estimate"]
     chunks$n_used[i] <- nrow(df_local)
   }
+
+
+  # --------------------------------------------
+  # Filter minor bubbles
+  # --------------------------------------------
+
+  valid <- !is.na(chunks$magnitude)
+
+  if (!is.null(min_magnitude)) {
+    valid <- valid & abs(chunks$magnitude) >= min_magnitude
+  }
+
+  if (!is.null(min_snr)) {
+    snr <- abs(chunks$magnitude) / pmax(chunks$SE, .Machine$double.eps) # guard against zero SE
+    valid <- valid & snr >= min_snr
+  }
+
+  chunks <- chunks[valid, ]
+
+  if (nrow(chunks) == 0)
+    return(NULL)
 
   return(chunks)
 }
