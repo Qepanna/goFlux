@@ -125,11 +125,11 @@ goAquaFlux.total <- function(ebullition_flux,
   flag_suspicious <- FALSE
   if (!is.na(F_T) && !is.na(F_T.2pts) && F_T > F_T.2pts * tolerance) {
     flag_suspicious <- TRUE
-    diagnostic <- paste0(
+    message <- paste0(
       "Total flux (", round(F_T,2),") as a sum of Diffusion and Ebullition is ",
       round(ratio,1),
       " times the 2-points total flux estimate (", round(F_T.2pts,2),")")
-    warning(diagnostic)
+    warning(message)
 
   }
 
@@ -142,6 +142,6 @@ goAquaFlux.total <- function(ebullition_flux,
     SE = SE_T,
     ratio = ratio,
     flag_suspicious = flag_suspicious,
-    diagnostic = diagnostic
+    message = message
   ))
 }
