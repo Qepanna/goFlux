@@ -140,6 +140,7 @@ goAquaFlux <- function(dataframe,
                        Pcham = NULL, Tcham = NULL,
 
                        # Bubble detection
+                       use_bubble_detection = TRUE,
                        bubble.window.size = 30,
                        bubble_gas = "CH4dry_ppb",
 
@@ -446,6 +447,9 @@ goAquaFlux <- function(dataframe,
 
 
   ## Clean and split data ####
+
+  gas_cols <- unique(c(gastype, bubble_gas))
+
   if (gastype != "H2O_ppm"){
 
     # If water vapor is missing, set H2O_ppm = 0
@@ -455,35 +459,47 @@ goAquaFlux <- function(dataframe,
     }
 
     data_split <- dataframe %>%
-      # Rename H2O_col
       rename(H2O_ppm_select = all_of(H2O_col)) %>%
-      # Convert H2O_ppm into H2O_mol
       mutate(H2O_mol = H2O_ppm_select / (1000*1000)) %>%
-      select(UniqueID, any_of(c("chamID", "DATE")), Etime, flag, all_of(gastype),
-             contains("_prec"), H2O_mol, Vtot, Area, Pcham, Tcham) %>%
-      # Filter flag == 1
+      select(
+        UniqueID,
+        any_of(c("chamID","DATE")),
+        Etime,
+        flag,
+        any_of(gas_cols),              # <-- keep both gases
+        contains("_prec"),
+        H2O_mol,
+        Vtot, Area, Pcham, Tcham
+      ) %>%
       filter(flag == 1) %>%
-      # Remove NAs in gastype
       tidyr::drop_na(all_of(gastype)) %>%
       tidyr::drop_na(Etime) %>%
       tidyr::drop_na(UniqueID) %>%
-      # Split dataset by UniqueID
-      group_by(UniqueID) %>% group_split() %>% as.list()
+      group_by(UniqueID) %>%
+      group_split() %>%
+      as.list()
   }
+
 
   if (gastype == "H2O_ppm"){
 
     data_split <- dataframe %>%
-      select(UniqueID, any_of(c("chamID", "DATE")), Etime, flag,
-             all_of(gastype), contains("_prec"), Vtot, Area, Pcham, Tcham) %>%
-      # Filter flag == 1
+      select(
+        UniqueID,
+        any_of(c("chamID","DATE")),
+        Etime,
+        flag,
+        any_of(gas_cols),              # <-- keep both gases
+        contains("_prec"),
+        Vtot, Area, Pcham, Tcham
+      ) %>%
       filter(flag == 1) %>%
-      # Remove NAs in gastype and UniqueID
       tidyr::drop_na(all_of(gastype)) %>%
       tidyr::drop_na(Etime) %>%
       tidyr::drop_na(UniqueID) %>%
-      # Split dataset by UniqueID
-      group_by(UniqueID) %>% group_split() %>% as.list()
+      group_by(UniqueID) %>%
+      group_split() %>%
+      as.list()
   }
 
   # Ensure data_split is not empty
@@ -594,6 +610,12 @@ goAquaFlux <- function(dataframe,
   # ---------- FLUX CALCULATION
   # -------------------------------------------------
 
+  # check if ebullition needs to be computed
+  compute_ebullition <- !is.null(bubble_gas) && gastype == bubble_gas
+  if (gastype != bubble_gas) {
+    message("Ebullition not computed because gastype != bubble_gas.")
+  }
+
   # Create an empty list to store results
   flux.res.ls <- list()
 
@@ -618,19 +640,16 @@ goAquaFlux <- function(dataframe,
     # 1. Determine which gas to use for bubble detection
     # ----------------------------
 
-    use_bubble_detection <- FALSE
     bubble_source <- NA
 
     if (gastype == bubble_gas) {
 
       # CH4 flux calculation
-      use_bubble_detection <- TRUE
       bubble_source <- gastype
 
     } else if (bubble_gas %in% names(df)) {
 
-      # Non-CH4 flux but CH4 available for bubble detection
-      use_bubble_detection <- TRUE
+      # Non-CH4 flux but bubble_gas (e.g. CH4) available for bubble detection
       bubble_source <- bubble_gas
     }
 
@@ -639,15 +658,18 @@ goAquaFlux <- function(dataframe,
     # 2. Detect bubbles if possible
     # ----------------------------
 
-    if (use_bubble_detection) {
+    if (use_bubble_detection && compute_ebullition && bubble_gas %in% names(df)) {
 
       bubbles <- find.bubbles(
         df = df,
-        bubble_source = bubble_source,
+        bubble_source = bubble_gas,
         window.size = bubble.window.size
       )
+
     } else {
+
       bubbles <- NULL
+
     }
 
 
@@ -655,14 +677,32 @@ goAquaFlux <- function(dataframe,
     # 5. Ebullition flux
     # ----------------------------
 
-    ebullition_flux <- goAquaFlux.ebullition(
-      df = df,
-      gastype = gastype,
-      bubbles = bubbles,
-      flux.term = flux.term_f,
-      final_window.min = ebullition.final_window_min,
-      window_C0Cf = ebullition.window_C0Cf
-    )
+    # we compute ebullition only if possible and if gastype = bubble_gas
+    if (compute_ebullition) {
+
+      ebullition_flux <- goAquaFlux.ebullition(
+        df = df,
+        gastype = gastype,
+        bubbles = bubbles,
+        flux.term = flux.term_f,
+        final_window.min = ebullition.final_window_min,
+        window_C0Cf = ebullition.window_C0Cf
+      )
+
+    } else {
+
+      ebullition_flux <- list(
+        flux = NA,
+        SE = NA,
+        F_tot2pts = NA,
+        F_tot2pts.SE = NA,
+        n_bubbles = NA,
+        deltaC_bubbles = NA,
+        deltaC_total = NA,
+        bubble_ratio = NA,
+        inconsistent = NA
+      )
+    }
 
     # ----------------------------
     # 4. Diffusive flux (restricted by CH4 bubbling if available)
@@ -678,17 +718,33 @@ goAquaFlux <- function(dataframe,
 
 
     # ----------------------------
-    # 3. Total flux (for requested gas)
+    # 3. Total flux
     # ----------------------------
+    # we compute total flux only if ebullition was computed. If not, total = diffusion
 
-    total_flux <- goAquaFlux.total(
-      ebullition_flux = ebullition_flux,
-      diffusive_flux = diffusive_flux
-    )
+    if (compute_ebullition) {
+
+      total_flux <- goAquaFlux.total(
+        ebullition_flux = ebullition_flux,
+        diffusive_flux = diffusive_flux
+      )
+
+    } else {
+
+      total_flux <- list(
+        flux = diffusive_flux$flux,
+        SE = diffusive_flux$SE,
+        ratio = NA,
+        flag_suspicious = FALSE,
+        message = NA
+      )
+
+    }
 
 
     # ---- combine outputs ----
     flux.res.ls[[f]] <- data.frame(
+      gastype = gastype,
       UniqueID = df$UniqueID[1],
 
       flux_total = total_flux$flux,
@@ -696,6 +752,7 @@ goAquaFlux <- function(dataframe,
 
       flux_diffusive = diffusive_flux$flux,
       SE_diffusive = diffusive_flux$SE,
+      n_obs.diffusion = diffusive_flux$n_used,
 
       flux_ebullition = ebullition_flux$flux,
       SE_ebullition = ebullition_flux$SE,
