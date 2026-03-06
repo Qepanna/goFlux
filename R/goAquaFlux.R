@@ -1,5 +1,130 @@
-#' @include flux.term.R
-#' @include MDF.R
+#' Compute gas fluxes from aquatic chamber measurements
+#'
+#' \code{goAquaFlux} computes gas fluxes from chamber-based aquatic
+#' incubations. The function partitions total flux into diffusive and
+#' ebullitive components when bubbling events are detected. Bubbling
+#' events are identified using high-frequency concentration variability
+#' (typically CH4), after which the time series is separated into
+#' diffusive and ebullitive segments.
+#'
+#' The workflow includes:
+#' \enumerate{
+#'   \item Data validation and cleaning
+#'   \item Calculation of auxiliary variables (flux conversion term and MDF)
+#'   \item Bubble detection (typically using CH4 concentration)
+#'   \item Estimation of ebullition flux based on detected bubble magnitudes
+#'   \item Estimation of diffusive flux using model selection
+#'   \item Combination of diffusive and ebullitive components into total flux
+#' }
+#'
+#' The function operates on datasets containing multiple chamber
+#' incubations, which are automatically split using the \code{UniqueID}
+#' column.
+#'
+#' @param dataframe A \code{data.frame} containing time series observations
+#'   for one or more chamber incubations.
+#'
+#' @param gastype Character string indicating the gas concentration column
+#'   to use for flux calculation. Allowed values include:
+#'   \code{"CO2dry_ppm"}, \code{"CH4dry_ppb"}, \code{"COdry_ppb"},
+#'   \code{"N2Odry_ppb"}, \code{"NH3dry_ppb"}, \code{"NO2dry_ppb"},
+#'   \code{"NOdry_ppb"}, and \code{"H2O_ppm"}.
+#'
+#' @param H2O_col Character string specifying the column containing water
+#'   vapor concentration used for dilution correction. Default is
+#'   \code{"H2O_ppm"}. If \code{NULL}, water vapor correction is disabled.
+#'
+#' @param prec Numeric scalar specifying instrument precision for the gas
+#'   analyzer. If \code{NULL}, precision is retrieved from the corresponding
+#'   precision column in \code{dataframe} (e.g. \code{CH4_prec}).
+#'
+#' @param criteria Character vector specifying model selection criteria used
+#'   by \code{goFlux}. Default criteria include \code{"MAE"}, \code{"RMSE"},
+#'   \code{"AICc"}, \code{"SE"}, \code{"g.factor"}, \code{"kappa"},
+#'   \code{"MDF"}, \code{"nb.obs"}, \code{"intercept"}, and \code{"p-value"}.
+#'
+#' @param Area Numeric scalar representing chamber base area (m²). If
+#'   \code{NULL}, the value is retrieved from the \code{Area} column in
+#'   \code{dataframe}.
+#'
+#' @param offset Numeric scalar representing the vertical chamber offset
+#'   (mm) used to compute total chamber volume when \code{Vtot} is not
+#'   directly provided.
+#'
+#' @param Vtot Numeric scalar specifying total chamber volume (L). If
+#'   \code{NULL}, it is calculated as:
+#'   \deqn{Vtot = Vcham + (Area * offset) / 1000}
+#'
+#' @param Vcham Numeric scalar representing chamber headspace volume (L).
+#'   Used only when \code{Vtot} is not provided.
+#'
+#' @param Pcham Numeric scalar representing chamber pressure (kPa). If
+#'   \code{NULL}, atmospheric pressure (101.325 kPa) is assumed.
+#'
+#' @param Tcham Numeric scalar representing chamber temperature (°C).
+#'   If \code{NULL}, a default temperature of 15 °C is assumed.
+#'
+#' @param bubble.window.size Integer specifying the rolling window size
+#'   (number of observations) used for bubble detection.
+#'
+#' @param bubble_gas Character string specifying the gas used to detect
+#'   bubbling events. Default is \code{"CH4dry_ppb"}.
+#'
+#' @param ebullition.final_window_min Minimum time window (minutes) required
+#'   after the last bubble event to define the incubation end for ebullition
+#'   flux calculation.
+#'
+#' @param ebullition.window_C0Cf Time window (minutes) used to compute
+#'   initial and final concentrations for the endpoint flux estimate.
+#'
+#' @param diffusion.minimum_window Minimum number of observations required
+#'   to compute diffusive flux before the first bubble event.
+#'
+#' @param return_df Logical indicating whether results should be returned
+#'   as a single \code{data.frame}. If \code{FALSE}, results are returned
+#'   as a list of data.frames (one per incubation).
+#'
+#' @return
+#' If \code{return_df = TRUE}, a data frame containing one row per
+#' incubation with the following columns:
+#' \itemize{
+#'   \item \code{UniqueID} – incubation identifier
+#'   \item \code{flux_total} – total gas flux
+#'   \item \code{SE_total} – standard error of total flux
+#'   \item \code{flux_diffusive} – diffusive flux component
+#'   \item \code{SE_diffusive} – standard error of diffusive flux
+#'   \item \code{flux_ebullition} – ebullition flux component
+#'   \item \code{SE_ebullition} – standard error of ebullition flux
+#'   \item \code{first_bubble_time} – time of first detected bubbling event
+#' }
+#'
+#' If \code{return_df = FALSE}, a list containing one data frame per
+#' incubation is returned.
+#'
+#' @details
+#' Bubble detection is performed using a rolling window approach applied
+#' to concentration variability of the selected gas (typically CH4).
+#' Detected bubbling events are used to estimate ebullition fluxes and
+#' restrict the time window used for diffusive flux estimation.
+#'
+#' Diffusive fluxes are calculated using the \code{goFlux} framework,
+#' which evaluates multiple regression models and selects the best model
+#' according to user-defined criteria.
+#'
+#' @seealso
+#' \code{\link{find.bubbles}},
+#' \code{\link{goAquaFlux.ebullition}},
+#' \code{\link{goAquaFlux.diffusive}},
+#' \code{\link{goAquaFlux.total}},
+#' \code{\link{goFlux}}
+#'
+#' @examples
+#' \dontrun{
+#' results <- goAquaFlux(
+#'   dataframe = chamber_data,
+#'   gastype = "CH4dry_ppb"
+#' )
+#' }
 #'
 #' @export
 #'
@@ -15,21 +140,22 @@ goAquaFlux <- function(dataframe,
                        Pcham = NULL, Tcham = NULL,
 
                        # Bubble detection
-                       window.size = 30,
+                       bubble.window.size = 30,
                        bubble_gas = "CH4dry_ppb",
 
-                       # Diffusive flux
-                       minimum_diffusive = 30,
+                       # Ebullition flux
+                       ebullition.final_window_min = 30,
+                       ebullition.window_C0Cf = 10,
 
-                       # Total flux
-                       t.window = 30,
-                       minimum_window = 10,
+                       # Diffusive flux
+                       diffusion.minimum_window = 30,
 
                        # Do you want results as dataframe? Default is list.
                        return_df = TRUE) {
 
 
-  # Check arguments ####
+  # ------------------- Check arguments -------------------
+
   is_scalar_num <- function(x) {
     is.numeric(x) && length(x) == 1L && !is.na(x) && is.finite(x)}
   has_col <- function(nm) {nm %in% names(dataframe)}
@@ -477,6 +603,7 @@ goAquaFlux <- function(dataframe,
 
   # ---------- Loop through incubations
   for (f in seq_along(data_split)){
+
     df <- data_split[[f]]
 
     # Extract auxiliary variables
@@ -505,7 +632,6 @@ goAquaFlux <- function(dataframe,
       # Non-CH4 flux but CH4 available for bubble detection
       use_bubble_detection <- TRUE
       bubble_source <- bubble_gas
-
     }
 
 
@@ -515,33 +641,27 @@ goAquaFlux <- function(dataframe,
 
     if (use_bubble_detection) {
 
-      time0 <- df$POSIX.time[1]
-      time_vec <- as.numeric(df$POSIX.time - time0)
-      conc_vec <- df[[bubble_source]]
-
       bubbles <- find.bubbles(
-        time = time_vec,
-        conc = conc_vec,
-        window.size = window.size
+        df = df,
+        bubble_source = bubble_source,
+        window.size = bubble.window.size
       )
-
     } else {
-
       bubbles <- NULL
-
     }
 
+
     # ----------------------------
-    # 3. Total flux (for requested gas)
+    # 5. Ebullition flux
     # ----------------------------
 
-    total_flux <- goAquaFlux.total(
+    ebullition_flux <- goAquaFlux.ebullition(
       df = df,
       gastype = gastype,
-      flux.term = flux.term_f,
       bubbles = bubbles,
-      t.window = t.window,
-      minimum_window = minimum_window
+      flux.term = flux.term_f,
+      final_window.min = ebullition.final_window_min,
+      window_C0Cf = ebullition.window_C0Cf
     )
 
     # ----------------------------
@@ -553,15 +673,16 @@ goAquaFlux <- function(dataframe,
       gastype = gastype,
       criteria = criteria,
       bubbles = bubbles,
-      minimum_window = minimum_diffusive
+      minimum_window = diffusion.minimum_window
     )
 
+
     # ----------------------------
-    # 5. Ebullition flux
+    # 3. Total flux (for requested gas)
     # ----------------------------
 
-    ebullition_flux <- goAquaFlux.ebullition(
-      total_flux = total_flux,
+    total_flux <- goAquaFlux.total(
+      ebullition_flux = ebullition_flux,
       diffusive_flux = diffusive_flux
     )
 
