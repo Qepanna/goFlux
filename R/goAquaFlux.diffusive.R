@@ -1,68 +1,82 @@
-#' Estimate diffusive gas flux from chamber time series
+#' Estimate diffusive gas flux from chamber incubation time series
 #'
-#' Calculates the diffusive component of gas flux during an aquatic chamber
-#' incubation using concentration time series data. If bubbling events are
-#' detected, only the portion of the time series prior to the first bubbling
-#' event is used to estimate the diffusive flux. When no bubbling is detected,
-#' the entire time series is used.
+#' Computes the diffusive component of gas flux during an aquatic chamber
+#' incubation using concentration time series data. When bubbling events are
+#' detected, only the portion of the time series preceding the first bubbling
+#' event is used to estimate the diffusive flux. If no bubbling events are
+#' detected, the entire time series is used.
 #'
-#' Flux estimation is performed by calling \code{autoID()} and \code{goFlux()},
-#' after which the best model is selected using \code{best.flux()}. The standard
-#' error of the flux is taken from the selected model (linear or HMR).
+#' Diffusive flux is estimated using the \code{goFlux} modelling framework,
+#' which fits candidate flux models (e.g. linear or Hutchinson–Mosier models)
+#' and selects the best-performing model using \code{best.flux()}.
 #'
-#' @param df A data.frame containing the incubation time series,
-#' including a \code{Etime} column and gas concentration measurements.
+#' @param df A data.frame containing the incubation time series. Must include
+#'   a column \code{Etime} representing elapsed incubation time and the gas
+#'   concentration variable specified by \code{gastype}. The data frame should
+#'   also contain a water vapour column (\code{H2O_mol}) used by \code{goFlux}.
 #'
 #' @param gastype Character string specifying the gas concentration variable
-#' to analyze (e.g., \code{"CH4dry_ppb"}, \code{"CO2dry_ppm"}).
+#'   to analyse (e.g. \code{"CH4dry_ppb"}, \code{"CO2dry_ppm"}).
 #'
-#'
-#' @param criteria Optional parameter passed to flux model selection routines.
-#' Typically used to define model evaluation criteria.
+#' @param criteria Optional parameter passed to the flux model selection
+#'   routines used internally by \code{goFlux} and \code{best.flux}. Typically
+#'   used to specify model evaluation criteria.
 #'
 #' @param bubbles Optional data.frame containing bubbling events detected by
-#' \code{find.bubbles()}, with at least a \code{start} column indicating the
-#' beginning time of each bubbling event. If provided, only observations before
-#' the first bubbling event are used to estimate diffusive flux.
+#'   \code{find.bubbles()}. Must contain a column \code{start} representing the
+#'   start time of each bubbling event. If provided, only observations occurring
+#'   before the first bubbling event are used to estimate the diffusive flux.
 #'
 #' @param minimum_window Integer specifying the minimum number of observations
-#' required to estimate diffusive flux. If fewer observations are available
-#' before the first bubbling event (or in the entire series when no bubbling
-#' occurs), the function returns \code{NA} values.
+#'   required to estimate diffusive flux. If fewer observations are available
+#'   in the diffusive portion of the time series, the function returns
+#'   \code{NA} values and a diagnostic message.
 #'
-#' @return A list containing:
+#' @return
+#' A list containing:
 #' \describe{
-#'   \item{flux}{Estimated diffusive flux.}
+#'   \item{flux}{Estimated diffusive flux from the selected model.}
 #'   \item{SE}{Standard error of the selected flux model.}
-#'   \item{n_used}{Number of observations used for the diffusive flux estimate.}
+#'   \item{n_used}{Number of observations used to estimate the diffusive flux.}
 #'   \item{first_bubble_time}{Time of the first detected bubbling event
-#'   (NA if no bubbling detected).}
+#'   (NA if no bubbling events were detected).}
 #'   \item{message}{Optional message returned when flux cannot be computed
-#'   (e.g., insufficient observations).}
+#'   (e.g. insufficient observations).}
 #' }
 #'
 #' @details
-#' Diffusive flux is estimated from the portion of the incubation that is free
-#' of ebullition events. When bubbling events are present, the time series is
-#' truncated at the first bubbling event to avoid contamination of the
-#' diffusive signal by abrupt concentration increases.
+#' Diffusive flux is estimated from the portion of the incubation time series
+#' unaffected by ebullition. When bubbling events are present, the time series
+#' is truncated at the start of the first bubbling event to avoid contamination
+#' of the diffusive signal by abrupt concentration increases.
 #'
-#' The function relies on the AquaFlux workflow:
+#' The function relies on the \code{goFlux} workflow:
 #' \itemize{
-#'   \item \code{autoID()} prepares the dataset for flux calculation.
-#'   \item \code{goFlux()} fits candidate flux models.
-#'   \item \code{best.flux()} selects the optimal model and corresponding flux.
+#'   \item \code{goFlux()} fits candidate flux models to the time series.
+#'   \item \code{best.flux()} selects the best-performing model.
 #' }
 #'
+#' The standard error returned corresponds to the model selected by
+#' \code{best.flux()}, using either the linear model (LM) or the
+#' Hutchinson–Mosier model (HM).
+#'
+#' @examples
+#' diff_flux <- goAquaFlux.diffusive(
+#'   df = incubation_data,
+#'   gastype = "CH4dry_ppb",
+#'   bubbles = bubbles
+#' )
+#'
 #' @seealso
-#' \code{\link{goAquaFlux.total}},
 #' \code{\link{find.bubbles}},
 #' \code{\link{goFlux}},
-#' \code{\link{best.flux}}
+#' \code{\link{best.flux}},
+#' \code{\link{goAquaFlux.ebullition}},
+#' \code{\link{goAquaFlux.total}}
 #'
 #' @include goFlux-package.R
 #'
-#' @export
+#' @keywords internal
 #'
 goAquaFlux.diffusive <- function(df,
                                  gastype,
@@ -105,7 +119,7 @@ goAquaFlux.diffusive <- function(df,
 
   aquaFlux.diff <- goFlux(df_diff, gastype, H2O_col = "H2O_mol") # here a doubt if using H2O_col = "H2O_mol" is correct
 
-  best.flux.diff <- best.flux(aquaFlux.diff)
+  best.flux.diff <- best.flux(aquaFlux.diff, criteria = criteria)
   best.flux.diff$SE_best_model <- ifelse(best.flux.diff$model =="LM", best.flux.diff$LM.SE, best.flux.diff$HM.SE)
 
 
