@@ -12,6 +12,7 @@ DOCUMENTATION.md
 quarto/_site/
 quarto/_freeze/
 quarto/.quarto/
+quarto/_generated/
 quarto/*.html
 quarto/~*.qmd
 
