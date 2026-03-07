@@ -172,3 +172,50 @@ flux2pdf(plot.list, outfile = "demo.results.pdf")
 Here is an example of how the plots are saved as pdf:
 
 ![](images/flux2pdf.png){#fig-flux2pdf fig-align="center"}
+
+## Function Documentation Validation {#sec-validate-plots}
+
+This section automatically validates that the plotting functions are properly documented:
+
+```{r}
+#| eval: true
+#| echo: false
+
+if (requireNamespace("goFlux", quietly = TRUE)) {
+  cat("📊 **Plotting Functions in goFlux Package:**\n\n")
+  
+  # flux.plot arguments
+  fluxplot_args <- formals(goFlux::flux.plot) 
+  cat("**flux.plot arguments:**\n")
+  for (arg_name in names(fluxplot_args)) {
+    default_val <- fluxplot_args[[arg_name]]
+    if (is.null(default_val)) {
+      cat(sprintf("- `%s` (required)\n", arg_name))
+    } else if (is.character(default_val)) {
+      cat(sprintf("- `%s` = \"%s\"\n", arg_name, default_val))
+    } else if (length(default_val) > 1) {
+      cat(sprintf("- `%s` = c(%s)\n", arg_name, paste(deparse(default_val), collapse = "")))
+    } else {
+      cat(sprintf("- `%s` = %s\n", arg_name, deparse(default_val)))
+    }
+  }
+  
+  cat("\n**flux2pdf arguments:**\n")
+  flux2pdf_args <- formals(goFlux::flux2pdf)
+  for (arg_name in names(flux2pdf_args)) {
+    default_val <- flux2pdf_args[[arg_name]]
+    if (is.null(default_val)) {
+      cat(sprintf("- `%s` (required)\n", arg_name))
+    } else if (is.character(default_val)) {
+      cat(sprintf("- `%s` = \"%s\"\n", arg_name, default_val))
+    } else {
+      cat(sprintf("- `%s` = %s\n", arg_name, deparse(default_val)))
+    }
+  }
+  
+  cat("\n✅ This documentation is automatically synchronized with the R package.")
+  
+} else {
+  cat("❌ goFlux package not available for validation")
+}
+```

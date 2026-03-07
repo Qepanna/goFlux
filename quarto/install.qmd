@@ -29,7 +29,7 @@ The package is constantly being updated with new functions or de-bugging. To mak
 :::
 
 ::: callout-warning
-**If prompted, it is recommended to update any pre-installed packages.** The functioning of the package depends on many other packages (`AICcmodavg`, `data.table`, `dplyr`, `ggnewscale`, `ggplot2`, `ggstar`, `graphics`, `grDevices`, `grid`, `gridExtra`, `lubridate`, `minpack.lm`, `msm`, `pbapply`, `plyr`, `purrr`, `rjson`, `rlist`, `SimDesign`, `stats`, `stringr`, `tibble`, `tidyr`, `toOrdinal`, `utils`), which will be installed when installing `goFlux`.
+**If prompted, it is recommended to update any pre-installed packages.** The functioning of the package depends on many other packages (`AICcmodavg`, `data.table`, `dplyr`, `ggnewscale`, `ggplot2`, `ggstar`, `graphics`, `grDevices`, `grid`, `gridExtra`, `jsonlite`, `lifecycle`, `lubridate`, `minpack.lm`, `msm`, `pbapply`, `plyr`, `purrr`, `rjson`, `rlang`, `rlist`, `SimDesign`, `stats`, `stringr`, `tibble`, `tidyr`, `toOrdinal`, `utils`), which will be installed when installing `goFlux`.
 :::
 
 Once installed, load the package `goFlux`:
@@ -37,6 +37,31 @@ Once installed, load the package `goFlux`:
 ```{r}
 #| eval: false
 library(goFlux)
+```
+
+## Verify installation {#sec-verify}
+
+You can verify that `goFlux` is properly installed and all dependencies are available:
+
+```{r}
+#| eval: false
+# Check if goFlux is installed and can be loaded
+if (requireNamespace("goFlux", quietly = TRUE)) {
+  cat("✓ goFlux is installed and available\n")
+  cat("✓ Version:", as.character(packageVersion("goFlux")), "\n")
+} else {
+  cat("✗ goFlux is not installed or cannot be loaded\n")
+}
+
+# Test that core functions are available
+core_functions <- c("goFlux", "best.flux", "import2RData", "autoID")
+for (func in core_functions) {
+  if (exists(func, mode = "function")) {
+    cat("✓", func, "function available\n")
+  } else {
+    cat("✗", func, "function not found\n")
+  }
+}
 ```
 
 ## Other required packages {#sec-packages}

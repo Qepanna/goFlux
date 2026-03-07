@@ -152,7 +152,7 @@ fallback_categories <- list(
 fallback_instruments <- list(
   "import.DX4015" = list(manufacturer = "Gasmet", name = "Gasmet DX4015", type = "portable"),
   "import.EGM5" = list(manufacturer = "PP-Systems", name = "PP-Systems EGM-5", type = "portable"),
-  "import.eosMX12" = list(manufacturer = "Aeris", name = "Aeris EOS MX12", type = "portable"),
+  "import.eosMX12" = list(manufacturer = "Eosense", name = "Eosense eosMX 12-Channel Multiplexer", type = "multiplexer"),
   "import.G2201i" = list(manufacturer = "Picarro", name = "Picarro G2201-i", type = "isotopic"),
   "import.G2508" = list(manufacturer = "Picarro", name = "Picarro G2508", type = "concentration"),
   "import.G4301" = list(manufacturer = "Picarro", name = "Picarro G4301", type = "mobile"),
@@ -221,13 +221,34 @@ for (func_name in exported_functions) {
   # Try to find the help entry for this function
   rd_file <- NULL
   
+  # First try exact match
   if (func_name %in% names(help_db)) {
     rd_file <- help_db[[func_name]]
   } else {
-    # Try to find by searching for the function name in the database
-    matching_keys <- grep(gsub("\\.", "_", func_name), names(help_db), value = TRUE)
-    if (length(matching_keys) > 0) {
-      rd_file <- help_db[[matching_keys[1]]]
+    # Try various matching strategies for the help database keys
+    possible_keys <- c(
+      func_name,                                    # exact match
+      paste0(func_name, ".Rd"),                    # with .Rd extension
+      gsub("\\.", "_", func_name),                 # dots to underscores
+      gsub("\\.", "-", func_name)                  # dots to hyphens
+    )
+    
+    # Look for any of these keys
+    for (key in possible_keys) {
+      if (key %in% names(help_db)) {
+        rd_file <- help_db[[key]]
+        break
+      }
+    }
+    
+    # If still not found, try pattern matching
+    if (is.null(rd_file)) {
+      # Create a regex pattern that's more flexible
+      pattern <- gsub("\\.", "[\\.\\-_]", func_name)
+      matching_keys <- grep(pattern, names(help_db), value = TRUE)
+      if (length(matching_keys) > 0) {
+        rd_file <- help_db[[matching_keys[1]]]
+      }
     }
   }
   
@@ -236,7 +257,11 @@ for (func_name in exported_functions) {
     if (!is.null(metadata)) {
       all_metadata[[func_name]] <- metadata
       cat("✓", func_name, "\n")
+    } else {
+      cat("✗ Failed to parse metadata for", func_name, "\n")
     }
+  } else {
+    cat("✗ No help found for", func_name, "\n")
   }
 }
 

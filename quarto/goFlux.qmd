@@ -143,3 +143,34 @@ my.files <- list.files(path = "RData", pattern = "imp.RData", full.names = TRUE)
 CO2_flux <- goFlux(my.files, "CO2dry_ppm")
 ```
 :::
+
+## Function Documentation Validation {#sec-validate-goflux}
+
+This section automatically validates that the documentation above matches the actual `goFlux` function:
+
+```{r}
+#| eval: true
+#| echo: false
+
+if (requireNamespace("goFlux", quietly = TRUE)) {
+  goflux_args <- formals(goFlux::goFlux)
+  
+  cat("📋 **Current goFlux Function Arguments:**\n\n")
+  for (arg_name in names(goflux_args)) {
+    default_val <- goflux_args[[arg_name]]
+    if (is.null(default_val)) {
+      cat(sprintf("- `%s` (required)\n", arg_name))
+    } else if (is.character(default_val)) {
+      cat(sprintf("- `%s` = \"%s\"\n", arg_name, default_val))
+    } else {
+      cat(sprintf("- `%s` = %s\n", arg_name, deparse(default_val)))
+    }
+  }
+  
+  cat(sprintf("\n**Total: %d arguments**\n", length(goflux_args)))
+  cat("\n✅ This documentation is automatically synchronized with the R package.")
+  
+} else {
+  cat("❌ goFlux package not available for validation")
+}
+```

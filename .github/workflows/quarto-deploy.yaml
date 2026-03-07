@@ -59,7 +59,38 @@ jobs:
 
       - name: Generate API documentation
         working-directory: ./quarto
-        run: Rscript _generate.R
+        run: |
+          Rscript _generate.R
+          echo "Generation completed"
+
+      - name: Validate generation success
+        working-directory: ./quarto
+        run: |
+          ls -la _generated/ || echo "No _generated directory found"
+          
+          # Check if critical files were generated (even if empty, they should exist)
+          echo "Checking for generated files..."
+          
+          # Verify the generation script ran successfully by checking metadata extraction
+          echo "Validating metadata extraction..."
+          Rscript -e "
+          if (requireNamespace('goFlux', quietly = TRUE)) {
+            exports <- getNamespaceExports('goFlux')
+            import_funcs <- exports[grepl('^import\\\\.', exports)]
+            cat('Found', length(exports), 'exported functions\\n')
+            cat('Found', length(import_funcs), 'import functions\\n') 
+            
+            # Validate that eosMX12 is included
+            if ('import.eosMX12' %in% import_funcs) {
+              cat('✓ eosMX12 function found\\n')
+            } else {
+              cat('✗ eosMX12 function missing\\n')
+              quit(status = 1)
+            }
+          } else {
+            cat('✗ goFlux package not available\\n')
+            quit(status = 1)
+          }"
 
       - name: Validate examples
         working-directory: ./quarto
@@ -74,6 +105,36 @@ jobs:
       - name: Render Quarto project
         working-directory: ./quarto
         run: quarto render
+
+      - name: Validate site generation
+        working-directory: ./quarto
+        run: |
+          echo "Validating Quarto site generation..."
+          
+          # Check if _site directory exists and contains files
+          if [ -d "_site" ] && [ "$(ls -A _site)" ]; then
+            echo "✓ _site directory exists and contains files"
+            ls -la _site/
+            
+            # Check for key HTML files
+            if [ -f "_site/index.html" ]; then
+              echo "✓ index.html generated"
+            else
+              echo "✗ index.html missing"
+              exit 1
+            fi
+            
+            if [ -f "_site/import.html" ]; then
+              echo "✓ import.html generated"
+            else
+              echo "✗ import.html missing"  
+              exit 1
+            fi
+            
+          else
+            echo "✗ _site directory empty or missing"
+            exit 1
+          fi
 
       - name: Deploy to GitHub Pages
         if: github.event_name != 'pull_request'

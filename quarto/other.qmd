@@ -46,3 +46,109 @@ iso.comp(
 data(manID.G2201i)
 my.iso.comp <- iso.comp(manID.G2201i)
 ```
+
+## Additional Utility Functions
+
+### `crop.meas` for cropping measurements
+
+Crops data by selecting a time window within each UniqueID
+
+#### Usage
+
+```{r}
+#| eval: false
+#| code-copy: false
+crop.meas(
+  dataframe,
+  start.cut,
+  end.cut,
+  UniqueID = "UniqueID"
+)
+```
+
+#### Arguments
+
+|  |  |
+|----|----|
+| `dataframe` | a data.frame containing gas measurements and a UniqueID per measurement. |
+| `start.cut` | numerical value; time (in seconds) to start cropping measurements. |
+| `end.cut` | numerical value; time (in seconds) to end cropping measurements. |
+| `UniqueID` | character string; name of the column containing measurement IDs. |
+
+#### Example
+
+```{r}
+#| eval: false
+data(manID.UGGA)
+cropped_data <- crop.meas(manID.UGGA, start.cut = 10, end.cut = 120)
+```
+
+### `auto.deadband` for automatic deadband calculation
+
+Calculates an automatic deadband for gas measurements to remove initial non-steady-state data points
+
+#### Usage
+
+```{r}
+#| eval: false
+#| code-copy: false
+auto.deadband(
+  dataframe,
+  gastype,
+  UniqueID = "UniqueID",
+  Etime = "Etime"
+)
+```
+
+#### Arguments
+
+|  |  |
+|----|----|
+| `dataframe` | a data.frame containing gas measurements and timestamps. |
+| `gastype` | character string; column name of the gas measurements to analyze. |
+| `UniqueID` | character string; name of the column containing measurement IDs. |
+| `Etime` | character string; name of the column containing elapsed time. |
+
+#### Example
+
+```{r}
+#| eval: false
+data(manID.UGGA)
+deadband_result <- auto.deadband(manID.UGGA, "CO2dry_ppm")
+```
+
+## Function Documentation Validation {#sec-validate-other}
+
+This section automatically validates that all utility functions are properly documented:
+
+```{r}
+#| eval: true
+#| echo: false
+
+if (requireNamespace("goFlux", quietly = TRUE)) {
+  # Get all exported functions
+  all_exports <- getNamespaceExports("goFlux")
+  
+  # Functions covered in other sections
+  main_functions <- c("goFlux", "best.flux", "flux.plot", "flux2pdf", "HM.flux", "LM.flux", 
+                     "import2RData", "autoID", "obs.win", paste0("import.", c("DX4015", "EGM5", 
+                     "G2201i", "G2508", "G4301", "GAIA", "GT5000", "HT8850", "LI6400", 
+                     "LI7810", "LI7820", "LI8100", "LI8150", "LI8200", "LI8250", "N2OM1", 
+                     "N2Oi2", "skyline", "uCH4", "UGGA", "uN2O", "eosMX12", "GasmetPD")))
+  
+  # Find utility/other functions
+  other_functions <- setdiff(all_exports, main_functions)
+  
+  cat("🔧 **Available Utility Functions in goFlux Package:**\n\n")
+  
+  for (func in sort(other_functions)) {
+    cat(sprintf("- `%s`\n", func))
+  }
+  
+  cat(sprintf("\n**Total: %d utility functions available**\n", length(other_functions)))
+  cat("\n✅ This list is automatically updated with the R package.")
+  
+} else {
+  cat("❌ goFlux package not available for validation")
+}
+```

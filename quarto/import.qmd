@@ -19,6 +19,7 @@ The package contains a wide range of functions that let the user import raw data
 -   [**Gasmet GT5000 Terra – Splashproof multigas FTIR analyzer**](https://www.gasmet.com/products/category/portable-gas-analyzers/gt5000-terra/): for CO, CO~2~, CH~4~, N~2~O, NH~3~ and H~2~O
 -   [**PP-Systems EGM-5 Portable CO~2~ Gas Analyzer**](https://ppsystems.com/egm-5/): for CO~2~, O~2~ and H~2~O
 -   [**Aeris Technologies MIRA Ultra Gas Analyzers**](https://aerissensors.com/ultra-series/): for N~2~O, CO~2~ and H~2~O or for CH~4~, C~2~H~6~ and H~2~O
+-   [**Eosense eosMX 12-Channel Autochamber Multiplexer**](https://eosense.com/products/eosac): for automated chamber measurements with multiple chambers
 -   [**Healthy Photon HT8850 all-in-one GHG analyzer**](https://en.healthyphoton.com/gongye/products/45.html): for CO~2~, CH~4~, N~2~O, and H~2~O
 -   **Custom made multiplexer** from the University of Padova, Italy, which integrates data from multiple automatic chambers linked to a Gasmet DX4015.
 
@@ -39,6 +40,7 @@ Import all raw gas measurement files contained in a folder (and all its sub-fold
 -   [**Picarro**](import.qmd#sec-import2RData-Picarro): G2201-*i*, G2508 and G4301
 -   [**PP-Systems**](import.qmd#sec-import2RData-PP-System): EGM-5
 -   [**Aeris Technologies**](import.qmd#sec-import2RData-Aeris): N~2~O/CO~2~ high accuracy analyzer and CH~4~/C~2~H~6~ natural gas detection system
+-   [**Eosense**](import.qmd#sec-import2RData-Eosense): eosMX 12-Channel Autochamber Multiplexer
 -   [**Healthy Photon**](import.qmd#sec-import2RData-HealthyPhoton): HT8850
 -   [**GasmetPD**](import.qmd#sec-import2RData-GasmetPD): Custom multiplexer from the University of Padova, Italy
 
@@ -68,7 +70,7 @@ import2RData(
 |  |  |
 |----------------------|--------------------------------------------------|
 | `path` | character string; a folder path containing all files to be imported. Ideally, to avoid any errors, the folder should only contain the files to be imported. |
-| `instrument` | character string; specifies which instrument was used to generate the files contained in the folder path. Choose one of the following: "DX4015", "EGM5", "G2201i", "G2508", "G4301", "GAIA", "GasmetPD", "GT5000", "HT8850", "LI-6400", "LI-7810", "LI-7820", "LI-8100", "LI-8150", "LI-8200", "LI-8250", "N2OM1", "N2Oi2", "skyline", "uCH4", "uN2O", "UGGA". For more information about an instrument, see the section "See Also" below. |
+| `instrument` | character string; specifies which instrument was used to generate the files contained in the folder path. Choose one of the following: "DX4015", "EGM5", "eosMX12", "G2201i", "G2508", "G4301", "GAIA", "GasmetPD", "GT5000", "HT8850", "LI-6400", "LI-7810", "LI-7820", "LI-8100", "LI-8150", "LI-8200", "LI-8250", "N2OM1", "N2Oi2", "skyline", "uCH4", "uN2O", "UGGA". For more information about an instrument, see the section "See Also" below. |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
 | `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
@@ -347,6 +349,23 @@ import2RData(path = file.path, instrument = "skyline", date.format = "ymd",
              inst = "Instrument",
              gas = c("CO2", "CH4 Dry", "N2O Dry", "H2O"),
              prec = c(0.24, 0.3, 5, 500))
+```
+
+### Eosense {#sec-import2RData-Eosense}
+
+#### eosMX 12-Channel Autochamber Multiplexer {#sec-import2RData-Eosense-eosMX12}
+
+```{r}
+#| eval: false
+# Retrieve file path from example file in the goFlux package
+file.path <- system.file("extdata", "eosMX12/eosMX12.log", package = "goFlux")
+
+# Run function
+import2RData(path = file.path, 
+             instrument = "eosMX12", 
+             date.format = "ymd",
+             keep_all = FALSE,
+             merge = TRUE)
 ```
 
 ### Gasmet {#sec-import2RData-Gasmet}
@@ -1951,4 +1970,57 @@ imp.GasmetPD <- import.GasmetPD(inputfile = file.path, prec = c(1.6, 13, 2, 23, 
 
 # Or save in a RData folder in the working directory
 import.GasmetPD(inputfile = file.path, prec = c(1.6, 13, 2, 23, 33), save = TRUE)
+```
+
+## Validation: Available Import Functions {#sec-validation}
+
+The following automatically checks all available import functions in the goFlux package to ensure complete documentation:
+
+```{r}
+#| eval: true
+#| echo: false
+
+# Get all imported functions from goFlux
+if (requireNamespace("goFlux", quietly = TRUE)) {
+  # Get all exported functions
+  exports <- getNamespaceExports("goFlux")
+  
+  # Filter for import functions
+  import_functions <- exports[grepl("^import\\.", exports)]
+  
+  cat("📋 **Available Import Functions in goFlux Package:**\n\n")
+  
+  # Create a data frame for better formatting
+  func_data <- data.frame(
+    Function = import_functions,
+    Instrument = gsub("^import\\.", "", import_functions),
+    stringsAsFactors = FALSE
+  )
+  
+  # Sort alphabetically
+  func_data <- func_data[order(func_data$Instrument), ]
+  
+  # Print the table
+  for (i in 1:nrow(func_data)) {
+    cat(sprintf("- `%s` - %s\n", func_data$Function[i], func_data$Instrument[i]))
+  }
+  
+  cat(sprintf("\n**Total: %d import functions available**\n", nrow(func_data)))
+  
+  # Check if example data exists for each instrument
+  cat("\n📁 **Sample Data Files Available:**\n\n")
+  extdata_path <- system.file("extdata", package = "goFlux")
+  if (dir.exists(extdata_path)) {
+    available_dirs <- list.dirs(extdata_path, recursive = FALSE, full.names = FALSE)
+    
+    for (instrument in func_data$Instrument) {
+      has_data <- instrument %in% available_dirs
+      status <- if (has_data) "✅" else "❌"
+      cat(sprintf("%s %s\n", status, instrument))
+    }
+  }
+  
+} else {
+  cat("❌ goFlux package not available for validation")
+}
 ```
