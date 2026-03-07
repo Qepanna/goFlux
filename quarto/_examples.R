@@ -15,11 +15,20 @@ suppressPackageStartupMessages({
 })
 
 # Load metadata saved by _generate.R
-generated_dir <- file.path(dirname(rstudioapi::getActiveDocumentContext()$path), "_generated")
+# Use dirname(getwd()) to get quarto directory, then _generated folder
+generated_dir <- file.path(getwd(), "_generated")
+
+# Fallback: if _generated not found in current dir, try parent
+if (!dir.exists(generated_dir)) {
+  generated_dir <- file.path(dirname(getwd()), "quarto", "_generated")
+}
+
 metadata_file <- file.path(generated_dir, "function_metadata.RDS")
 
 if (!file.exists(metadata_file)) {
-  cat("Error: function_metadata.RDS not found. Run _generate.R first.\n")
+  cat("Error: function_metadata.RDS not found at", metadata_file, "\n")
+  cat("Current working directory:", getwd(), "\n")
+  cat("Generated directory:", generated_dir, "\n")
   quit(status = 1)
 }
 
