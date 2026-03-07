@@ -62,7 +62,7 @@ for (func_name in names(all_metadata)) {
   # Remove \dontrun{...} and \donttest{...} blocks
   example_code <- str_replace_all(example_code, "\\\\dontrun\\{", "")
   example_code <- str_replace_all(example_code, "\\\\donttest\\{", "")
-  example_code <- str_replace_all(example_code, "(?<=^|\\n)\\}", "", perl = TRUE)
+  example_code <- str_replace_all(example_code, "(?<=^|\n)}", "")
   
   # Try to evaluate the example code
   tryCatch({
