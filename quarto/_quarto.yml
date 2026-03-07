@@ -3,6 +3,9 @@ project:
   resources:
     - docs/example_auxfile.xlsx
     - scripts/**  # Only include actual downloadable assets, not the output dir
+  # Exclude generated directory from source control tracking
+  ignore:
+    - _generated/
 
 format:
   html:
@@ -54,5 +57,12 @@ website:
         text: "Other functions"
       - file: example.qmd
         text: "Examples"
+      - section: "API Reference"
+        text: "API Reference"
+        contents:
+          - file: _generated/function_index.qmd
+            text: "All Functions"
+          - file: _generated/instruments_matrix.qmd
+            text: "Instruments"
       - file: troubleshoot.qmd
         text: "Troubleshoot"
