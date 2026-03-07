@@ -4,7 +4,7 @@ engine: knitr
 editor: visual
 ---
 
-Aside from the typical workflow of flux calculation, one may wish to estimate other parameters from gas measurements. Currently, this page only contains one additional function. To request more complementary functions, [open an issue on GitHub](https://github.com/Qepanna/goFlux/issues) or contact the maintainer of this package, Karelle Rheault ([karh\@ign.ku.dk](mailto:karh@ign.ku.dk){.email}), directly.
+Aside from the typical workflow of flux calculation, one may wish to estimate other parameters from gas measurements. Currently, this page only contains few additional functions. To request more complementary functions, [open an issue on GitHub](https://github.com/Qepanna/goFlux/issues) or contact the maintainer of this package, Karelle Rheault ([karh\@ign.ku.dk](mailto:karh@ign.ku.dk){.email}), directly.
 
 ### `iso.comp` for isotopic composition determination
 
