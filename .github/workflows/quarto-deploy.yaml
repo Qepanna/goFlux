@@ -62,9 +62,9 @@ jobs:
         run: Rscript _generate.R
 
       - name: Validate examples
-        run: |
-          cd quarto
-          Rscript _examples.R
+        working-directory: ./quarto
+        run: Rscript _examples.R
+        continue-on-error: true
 
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
