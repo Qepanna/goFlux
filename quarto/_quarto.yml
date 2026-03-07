@@ -16,7 +16,7 @@ format:
     link-external-icon: false
     link-external-newwindow: true
     link-external-filter: '^(?:http:|https:)\/\/(?:www\.)*(qepanna\.quarto\.pub)\/.*$'
-    bibliography: quarto/references.bib
+    bibliography: references.bib
     csl: apa-no-initials.csl
 
 website:
