@@ -1,0 +1,142 @@
+---
+title: "`autoID`"
+code-block-bg: true
+---
+
+
+ Uses an auxiliary file to identify start and end time of measurements, add
+ a  list("UniqueID")  per measurement, and merge other auxiliary data required
+ with the  list(list("goFlux"))  function.
+
+
+## Description
+
+Automatically define measurements' window based on an auxiliary file
+
+## Usage
+
+```r
+
+
+autoID(
+
+  inputfile,
+
+  auxfile = NULL,
+
+  obs.length = NULL,
+
+  deadband = 0,
+
+  crop.end = 0,
+
+  shoulder = 60,
+
+  drop = TRUE
+
+)
+
+```
+
+## Arguments
+
+**`list("inputfile")`**
+
+: list("data.frame; output from import or align functions.")
+
+**`list("auxfile")`**
+
+: list("data.frame; auxiliary data frame containing the columns\n", list("start.time"), " and ", list("UniqueID"), ". ", list("start.time"), " must\n", "contain a date and be in POSIXct format. The time zone must be\n", "the same as the POSIX.time in ", list("inputfile"), ". The default\n", "time zone for the import functions is \"UTC\". A data frame from\n", "the Smart Chamber (LI-8200) can be used as an auxiliary file.\n", "In that case, ", list("chamID"), " will be used instead of ", list("UniqueID"), 
+    ",\n", "if ", list("UniqueID"), " cannot be found.")
+
+**`list("obs.length")`**
+
+: list("numerical; chamber closure time (seconds). Default is NULL.\n", "If ", list("obs.length"), " is not provided, a column ", list("obs.length"), "\n", "should be contained in ", list("auxfile"), " or ", list("inputfile"), ".\n", "Alternatively, ", list("obs.length"), " will be calculated from\n", list("start.time"), " and ", list("cham.open"), " or ", list("end.time"), "\n", "if found in ", list("auxfile"), " or ", list("inputfile"), ".")
+
+**`list("deadband")`**
+
+: list("numerical; time (seconds) at the start of the measurement,\n", "after chamber closure, to be removed from the time stamps\n", "used to estimate the flux.")
+
+**`list("crop.end")`**
+
+: list("numerical; time (seconds) at the end of the measurement,\n", "before chamber opening, to be removed from the time stamps\n", "used to estimate the flux.")
+
+**`list("shoulder")`**
+
+: list("numerical; time before and after measurement in observation\n", "window (seconds). Default is 60 seconds. If the time between\n", "two measurements is smaller than ", list("shoulder"), ", the time\n", "stamps are duplicated.")
+
+**`list("drop")`**
+
+: list("logical; if ", list("drop = TRUE"), " (default), time stamps without an\n", "assigned ", list("UniqueID"), " are removed from the final data frame.")
+
+## Value
+
+
+ A merged data.frame between the  list("inputfile")  and the  list("auxfile") ,
+          with the additional columns  list("flag") ,  list("Etime")  and  list("obs.length") .
+
+
+## Details
+
+
+ Note that, if the time between two measurements is smaller than  list("shoulder") ,
+ the time stamps are duplicated, which can result in an output data frame
+ larger (more rows) than the  list("inputfile") . Conversely, if  list("drop = TRUE") ,
+ time stamps without an assigned  list("UniqueID")  are removed from the final data
+ frame, which can result in an output data frame smaller (less rows) than the
+ list("inputfile") .
+
+
+## Examples
+
+```r
+
+
+# How to use in multiple situations:
+
+library(dplyr)
+
+
+
+## with a LGR instrument and an auxiliary file (.txt)
+
+aux.path <- system.file("extdata", "aux_UGGA/aux_UGGA.txt", package = "goFlux")
+
+auxfile <- read.delim(aux.path) %>%
+
+  mutate(start.time = as.POSIXct(start.time, tz = "UTC"))
+
+data(imp.UGGA)
+
+autoID.UGGA <- autoID(inputfile = imp.UGGA, auxfile = auxfile, obs.length = 180)
+
+
+
+## with a LI-COR instrument and the Smart Chamber as auxiliary file
+
+data(imp.LI8200)
+
+data(imp.LI7820)
+
+autoID.LI7820 <- autoID(inputfile = imp.LI7820, deadband = 20, auxfile = imp.LI8200)
+
+
+
+## with the LI-6400 and no auxiliary file
+
+data(imp.LI6400)
+
+ow.LI6400 <- obs.win(inputfile = imp.LI6400, shoulder = 0)
+
+
+
+```
+
+## See Also
+
+
+ For a manual identification of start and end of gas measurements,
+ see the functions  list(list("obs.win"))  and
+ list(list("click.peak2")) .
+
+

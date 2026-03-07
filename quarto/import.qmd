@@ -508,6 +508,7 @@ Each instrument has a unique function for single file import. The advantage of u
 -   [**Picarro**](import.qmd#sec-single-Picarro): G2201-*i*, G2508 and G4301
 -   [**PP-Systems**](import.qmd#sec-single-PP-System): EGM-5
 -   [**Aeris Technologies**](import.qmd#sec-single-Aeris): N~2~O/CO~2~ high accuracy analyzer and CH~4~/C~2~H~6~ natural gas detection system
+-   [**Eosense**](import.qmd#sec-single-Eosense): eosMX 12-Channel Autochamber Multiplexer
 -   [**Healthy Photon**](import.qmd#sec-single-HealthyPhoton): HT8850
 -   [**GasmetPD**](import.qmd#sec-single-GasmetPD): Custom multiplexer from the University of Padova, Italy
 
@@ -1970,6 +1971,69 @@ imp.GasmetPD <- import.GasmetPD(inputfile = file.path, prec = c(1.6, 13, 2, 23, 
 
 # Or save in a RData folder in the working directory
 import.GasmetPD(inputfile = file.path, prec = c(1.6, 13, 2, 23, 33), save = TRUE)
+```
+
+## Eosense {#sec-single-Eosense}
+
+### eosMX 12-Channel Autochamber Multiplexer {#sec-single-Eosense-eosMX12}
+
+Imports single raw data files from the Eosense 12-Channel Autochamber Multiplexer (automated chamber system with multiple chamber ports).
+
+#### Usage
+
+```{r}
+#| eval: false
+#| code-copy: false
+import.eosMX12(
+  inputfile,
+  timezone = "UTC",
+  save = FALSE
+)
+```
+
+#### Arguments
+
+|  |  |
+|-----------|-----------------------------------------------------|
+| `inputfile` | character string; the name of a file with the extension .log |
+| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+
+#### Details
+
+The eosMX 12-Channel Autochamber Multiplexer (FRMonitor) files record data from automated chamber measurements including chamber port information, chamber status (open/closed), temperature, pressure, and readings from up to 5 auxiliary (AUX) sensors.
+
+Note that this function was designed for the following units in the raw file:
+
+-   Epoch (unix) time for date/time
+-   kPa for atmospheric pressure
+-   Voltage for temperature and AUX sensors
+
+If your eosMX instrument uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
+
+The imported file serves as an auxiliary file that records chamber metadata (ports, open/close times, environmental conditions) and should be matched with gas concentration data using the `autoID` function.
+
+#### Returns
+
+A data frame containing raw data from the Eosense 12-Channel Autochamber Multiplexer FRMonitor files, with columns recording: chamber port identifier, chamber status (closure/opening times), temperature (in voltage units), pressure, and auxiliary sensor readings.
+
+#### Example
+
+```{r}
+#| eval: false
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
+file.path <- system.file("extdata", "eosMX12/eosMX12.log", package = "goFlux")
+
+# Import FRMonitor file as auxiliary data
+imp.eosMX12 <- import.eosMX12(inputfile = file.path)
+
+# Or save in a RData folder in the working directory
+import.eosMX12(inputfile = file.path, save = TRUE)
+
+# Match the multiplexer file with gas data
+data(imp.G2508)
+autoID.eosMX12 <- autoID(imp.G2508, imp.eosMX12)
 ```
 
 ## Validation: Available Import Functions {#sec-validation}

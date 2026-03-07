@@ -1,0 +1,14 @@
+# Supported Instruments
+
+The goFlux package supports import functions for 22+ instruments from multiple manufacturers.
+
+| Function | Instrument | Manufacturer | Type | Import Method |
+|----------|-----------|--------------|------|----------------|
+| [`import.G2201i`](#import.g2201i) | Picarro G2201-i | Picarro | isotopic | Single or batch |
+| [`import.GasmetPD`](#import.gasmetpd) | Gasmet PD (Custom) | Gasmet | custom | Single or batch |
+| [`import.GT5000`](#import.gt5000) | Gasmet GT5000 | Gasmet | portable | Single or batch |
+| [`import.LI8250`](#import.li8250) | LI-COR LI-8250 | LI-COR | multiplexer | Single or batch |
+| [`import.N2Oi2`](#import.n2oi2) | Los Gatos N2Oi2 | Los Gatos | isotopic | Single or batch |
+| [`import.skyline`](#import.skyline) | Skyline2D | EarthBound Scientific | chamber | Single or batch |
+
+See individual function references for detailed documentation on each instrument.

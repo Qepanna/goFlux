@@ -39,6 +39,10 @@ iso.comp(
 | `N2Odry_ppb`, `delta_15N`, `delta_18O` | character string; specifies which columns should be used for N~2~O measurements, the delta 15N and the delta 18O, respectively. |
 | `save.plots` | character string; a file path with the extension .pdf to save Keeling plots. By default plots are not saved. |
 
+#### Returns
+
+A data frame containing the isotopic composition (intercept from the Keeling plot) for each measurement (UniqueID). For CO~2~ measurements, the column is named `iso.comp` (in ‰ relative to the isotope ratio). For N~2~O measurements, two columns are returned: `iso.comp_15N` and `iso.comp_18O`, both in ‰.
+
 #### Example
 
 ```{r}
@@ -47,11 +51,30 @@ data(manID.G2201i)
 my.iso.comp <- iso.comp(manID.G2201i)
 ```
 
+#### Details
+
+The isotopic composition is determined using the Keeling plot method, which plots the isotope ratios (δ13C, δ15N, or δ18O) against the inverse of the gas concentration. The y-intercept of the linear regression through these points represents the isotopic composition of the source gas.
+
+For accurate results, ensure that:
+- Multiple observations per measurement are available to establish a reliable linear relationship
+- The isotope ratio and gas concentration columns are correctly specified
+- For N~2~O measurements, both δ15N and δ18O columns must be provided if N~2~O data are present
+
+The optional `save.plots` argument produces Keeling plots for visual inspection of the linear fit quality (shown by R² values) for each measurement.
+
+#### References
+
+Keeling, C. D. (1958). The concentration and isotopic abundances of atmospheric carbon dioxide in rural areas. *Geochimica et Cosmochimica Acta*, 13(4), 322-334.
+
 ## Additional Utility Functions
 
 ### `crop.meas` for cropping measurements
 
-Crops data by selecting a time window within each UniqueID
+Manually edits the observation window of flux measurements by removing data points from the start, end, or by adjusting the deadband. Useful for quality control and measurement refinement.
+
+#### Description
+
+Crop measurements from the start, from the end, or adjust the deadband. Individual parameters can be provided for each measurement via an auxiliary file, or the same parameters can be applied to all measurements.
 
 #### Usage
 
@@ -60,9 +83,13 @@ Crops data by selecting a time window within each UniqueID
 #| code-copy: false
 crop.meas(
   dataframe,
-  start.cut,
-  end.cut,
-  UniqueID = "UniqueID"
+  auxfile = NULL,
+  crop_start = 0,
+  crop_end = 0,
+  deadband = NULL,
+  max.obs.length = NULL,
+  cham.close = "start.time",
+  cham.open = "end.time"
 )
 ```
 
@@ -70,22 +97,66 @@ crop.meas(
 
 |  |  |
 |----|----|
-| `dataframe` | a data.frame containing gas measurements and a UniqueID per measurement. |
-| `start.cut` | numerical value; time (in seconds) to start cropping measurements. |
-| `end.cut` | numerical value; time (in seconds) to end cropping measurements. |
-| `UniqueID` | character string; name of the column containing measurement IDs. |
+| `dataframe` | data.frame containing gas measurements from import or ID functions (click.peak2 or manID). Must contain columns: `UniqueID`, `start.time`, `end.time`, and `Etime`. |
+| `auxfile` | data.frame with columns for per-measurement adjustments: `UniqueID`, `crop_start`, `crop_end`, `deadband`, and/or `max.obs.length`. |
+| `crop_start` | numerical; number of observations to remove from measurement start. Use "aux" to apply values from `auxfile` per UniqueID. Accepts negative values to include more data. Default is 0. |
+| `crop_end` | numerical; number of observations to remove from measurement end. Use "aux" to apply values from `auxfile` per UniqueID. Accepts negative values to include more data. Default is 0. |
+| `deadband` | numerical; define a deadband at the start of measurements (seconds). Use "aux" to apply values from `auxfile` per UniqueID. Default is NULL. |
+| `max.obs.length` | numerical; maximum length of measurement (seconds) after `cham.close`. Use "aux" to apply values from `auxfile` per UniqueID. Default is NULL. |
+| `cham.close` | character; if "start.time" (default), original `start.time` is saved to column `cham.close`. Set to NULL to drop it. |
+| `cham.open` | character; if "end.time" (default), original `end.time` is saved to column `cham.open`. Set to NULL to drop it. |
+
+#### Details
+
+Note that `crop_start` and `deadband` crop the start of measurements in the same way.
+
+If `max.obs.length` is defined, `end.time` is calculated based on `cham.close` (original `start.time`) and `max.obs.length`, regardless of other values. If `cham.close = NULL`, then `end.time` is calculated from `start.time` and `max.obs.length`.
+
+If `cham.close` and `cham.open` are already present in the dataframe, set both arguments to NULL.
+
+The arguments `crop_start` and `crop_end` accept negative values and can be used to include more data points before and after previously defined `start.time` and `end.time`.
+
+#### Returns
+
+A data frame with corrected `Etime` and `flag` columns, based on newly defined `start.time`, `end.time`, and `deadband`.
 
 #### Example
 
 ```{r}
 #| eval: false
-data(manID.UGGA)
-cropped_data <- crop.meas(manID.UGGA, start.cut = 10, end.cut = 120)
+# Load example data
+data(manID.G2201i)
+
+# Create an auxiliary file with per-measurement crop parameters
+auxfile <- cbind.data.frame(
+  UniqueID = c("meas1", "meas2"),
+  crop_start = c(2, 10),
+  crop_end = c(5, 0)
+)
+
+# Apply cropping using values from auxiliary file
+crop.G2201i <- crop.meas(
+  dataframe = manID.G2201i,
+  auxfile = auxfile,
+  crop_start = "aux",
+  crop_end = "aux"
+)
+
+# Alternatively, apply same cropping to all measurements
+crop.G2201i.uniform <- crop.meas(
+  dataframe = manID.G2201i,
+  crop_start = 5,
+  crop_end = 10
+)
 ```
 
 ### `auto.deadband` for automatic deadband calculation
 
-Calculates an automatic deadband for gas measurements to remove initial non-steady-state data points
+Automatically selects a suitable deadband per measurement by defining observation windows and calculating linear model fit at different deadbands to identify the one with the highest coefficient of determination (R²).
+
+#### Description
+
+Loops through multiple gas measurements and automatically defines a suitable deadband per measurement based on R² values from linear regressions at different deadband timepoints.
 
 #### Usage
 
@@ -95,8 +166,11 @@ Calculates an automatic deadband for gas measurements to remove initial non-stea
 auto.deadband(
   dataframe,
   gastype,
-  UniqueID = "UniqueID",
-  Etime = "Etime"
+  db.min = 0,
+  db.max = 60,
+  obs.win = 90,
+  mov.win = 10,
+  min.r2 = 0
 )
 ```
 
@@ -104,18 +178,50 @@ auto.deadband(
 
 |  |  |
 |----|----|
-| `dataframe` | a data.frame containing gas measurements and timestamps. |
-| `gastype` | character string; column name of the gas measurements to analyze. |
-| `UniqueID` | character string; name of the column containing measurement IDs. |
-| `Etime` | character string; name of the column containing elapsed time. |
+| `dataframe` | data.frame; output from import or ID functions. Must contain columns: `UniqueID`, `POSIX.time`, `start.time` (or `cham.close`), and the specified `gastype` column. |
+| `gastype` | character string; specifies which gas column to use for detecting inflection point. Must be one of: "CO2dry_ppm", "CH4dry_ppb", "COdry_ppb", "N2Odry_ppb", "NH3dry_ppb", "NOdry_ppb", "NO2dry_ppb", or "H2O_ppm". |
+| `db.min` | numerical value (seconds); minimal deadband per measurement. Default is 0. Negative values are accepted. |
+| `db.max` | numerical value (seconds); maximal deadband per measurement. Default is 60. For Reco measurements, a longer deadband (e.g., 90 seconds) is recommended. |
+| `obs.win` | numerical value (seconds); maximal observation window to include in linear models. Default is 90 seconds. Keep at least 30 seconds between `db.max` and `obs.win` for accurate results. |
+| `mov.win` | numerical value (seconds); time increment between `obs.win` from chamber closure to `db.max`. Default is 10 seconds. Shorter values (e.g., 1s) increase computational time. |
+| `min.r2` | numerical value; minimum increase in R² required to accept dropping more data points. Default is 0. Use to restrict longer deadbands and minimize data loss. |
+
+#### Details
+
+For each measurement, a sequence of observation windows is defined from chamber closure (+ `mov.win`) to `obs.win`. For each observation window, a linear model is calculated and the R² is extracted. The "best" deadband is selected at the highest R².
+
+By default, `obs.win = 90s` based on observations that the most linear part of measurements is often in the first 2 minutes, typical for small chamber sizes (~4L). For longer chamber enclosures, use a longer `obs.win`.
+
+In `db.min` and `db.max`, negative values are accepted. This is useful when `start.time` already includes a deadband and `cham.close` is not provided.
+
+The argument `min.r2` can restrict longer deadbands. For example, if R² = 0.990 is found with deadband = 30s and R² = 0.992 with deadband = 40s (considering `mov.win = 10`), the best deadband is 30s if `min.r2 = 0.005`. By default (`min.r2 = 0`), the highest R² selects the best deadband, but this may result in unnecessary data loss.
+
+The gas species listed are the ones adapted in this package. Contact the maintainer for adaptation of additional gases.
+
+#### Returns
+
+A data.frame with a `deadband` value per `UniqueID`, representing the automatically selected deadband in seconds.
 
 #### Example
 
 ```{r}
 #| eval: false
-data(manID.UGGA)
-deadband_result <- auto.deadband(manID.UGGA, "CO2dry_ppm")
+# Load example data from UGGA instrument
+data("manID.UGGA")
+
+# Automatically find best deadband for CO2 measurements
+auto_db <- auto.deadband(manID.UGGA, "CO2dry_ppm")
+
+# View the results
+head(auto_db)
+
+# Apply the deadband to crop measurements
+crop_UGGA <- crop.meas(manID.UGGA, auto_db, deadband = "aux")
 ```
+
+#### References
+
+Johannesson, C. F., Nordén, J., Lange, H., Silvennoinen, H., & Larsen, K. S. (2024). Optimizing the closure period for improved accuracy of chamber-based greenhouse gas flux estimates. *Agricultural and Forest Meteorology*, 359, 110289.
 
 ## Function Documentation Validation {#sec-validate-other}
 
