@@ -7,7 +7,7 @@
 README.Rmd
 _GENERATION_GUIDE.md
 DOCUMENTATION.md
-.github/prompts/*
+.github/prompts/
 
 # Quarto outputs
 quarto/_site/
