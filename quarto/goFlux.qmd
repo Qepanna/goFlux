@@ -158,8 +158,8 @@ if (requireNamespace("goFlux", quietly = TRUE)) {
   cat("📋 **Current goFlux Function Arguments:**\n\n")
   for (i in seq_along(goflux_args)) {
     arg_name <- names(goflux_args)[i]
-    # Safely deparse without extracting the value (which can be missing)
-    arg_str <- deparse(goflux_args[[i]])
+    # Safely deparse and collapse in case result is multi-line
+    arg_str <- paste(deparse(goflux_args[[i]]), collapse = " ")
     
     # Check if argument has no default (missing/empty)
     if (arg_str == "" || arg_str == "NULL") {

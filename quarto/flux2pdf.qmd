@@ -189,8 +189,8 @@ if (requireNamespace("goFlux", quietly = TRUE)) {
   cat("**flux.plot arguments:**\n")
   for (i in seq_along(fluxplot_args)) {
     arg_name <- names(fluxplot_args)[i]
-    # Safely deparse without extracting the value
-    arg_str <- deparse(fluxplot_args[[i]])
+    # Safely deparse and collapse in case result is multi-line
+    arg_str <- paste(deparse(fluxplot_args[[i]]), collapse = " ")
     
     if (arg_str == "" || arg_str == "NULL") {
       cat(sprintf("- `%s` (required)\n", arg_name))
@@ -205,8 +205,8 @@ if (requireNamespace("goFlux", quietly = TRUE)) {
   flux2pdf_args <- formals(goFlux::flux2pdf)
   for (i in seq_along(flux2pdf_args)) {
     arg_name <- names(flux2pdf_args)[i]
-    # Safely deparse without extracting the value
-    arg_str <- deparse(flux2pdf_args[[i]])
+    # Safely deparse and collapse in case result is multi-line
+    arg_str <- paste(deparse(flux2pdf_args[[i]]), collapse = " ")
     
     if (arg_str == "" || arg_str == "NULL") {
       cat(sprintf("- `%s` (required)\n", arg_name))
