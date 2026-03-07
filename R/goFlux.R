@@ -3,11 +3,11 @@
 #' A wrapper function to calculate GHG fluxes from static chamber measurements.
 #' Calculates linear (\code{\link[goFlux]{LM.flux}}) and non-linear
 #' fluxes (Hutchinson and Mosier model; \code{\link[goFlux]{HM.flux}}),
-#' from a variety of greenhouse gasses (
+#' from a variety of greenhouse gases (
 #' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
 #' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
-#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{NO[2]}{ASCII}}, NO,
+#' \ifelse{html}{\out{NO<sub>2</sub>}}{\eqn{NO[2]}{ASCII}}, NO,
 #' \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}, CO, and
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}).
 #'
@@ -20,11 +20,12 @@
 #'                  \code{chamID} may be used instead of \code{UniqueID}.
 #' @param gastype character string; specifies which column should be used for the
 #'                flux calculations. Must be one of the following: "CO2dry_ppm",
-#'                "CH4dry_ppb", "COdry_ppb", "N2Odry_ppb", "NH3dry_ppb", "NO_ppb",
-#'                "NO2_ppb" or "H2O_ppm".
+#'                "CH4dry_ppb", "COdry_ppb", "N2Odry_ppb", "NH3dry_ppb",
+#'                "NOdry_ppb", "NO2dry_ppb" or "H2O_ppm".
 #' @param H2O_col character string; specifies which column should be used to
 #'                subtract the effect of water vapor in the chamber space.
-#'                Default is \code{H2O_col = "H2O_ppm"}.
+#'                Default is \code{H2O_col = "H2O_ppm"}. If water vapor was not
+#'                measured, set to \code{H2O_col = NULL}.
 #' @param prec numerical value; precision of the instruments. Units must be the
 #'             same as \code{gastype}. With the default \code{prec = NULL},
 #'             instrument precision for each gas must be provided in
@@ -36,12 +37,12 @@
 #' @param Vtot numerical value; total volume inside the chamber, tubes, instruments,
 #'             etc. (L). Alternatively, provide the column \code{Vtot} in
 #'             \code{dataframe} if \code{Vtot} is different between samples. If
-#'             \code{Vtot} is missing, the function will calculate it from
-#'             \code{Area}, \code{Vcham} and \code{offset}.
+#'             \code{Vtot} is missing, the function will calculate it as
+#'             \code{Vcham + Area*offset/1000}.
 #' @param Vcham (optional) numerical value; volume inside the chamber, tubes and
 #'              instruments (L). Alternatively, provide the column \code{Vcham}
 #'              in \code{dataframe} if \code{Vcham} is different between samples.
-#'              \code{Vhcam} is only used if \code{Vtot} is missing.
+#'              \code{Vcham} is only used if \code{Vtot} is missing.
 #' @param offset (optional) numerical value; height between the soil surface and
 #'               the chamber (cm). Alternatively, provide the column \code{offset}
 #'               in \code{dataframe} if \code{offset} is different between samples.
@@ -50,14 +51,13 @@
 #'              Alternatively, provide the column \code{Pcham} in \code{dataframe}
 #'              if \code{Pcham} is different between samples. If \code{Pcham} is
 #'              not provided, normal atmospheric pressure (101.325 kPa) is used.
-#' @param Tcham numerical value; temperature inside the chamber (Celsius).
+#' @param Tcham numerical value; temperature inside the chamber (°C).
 #'              Alternatively, provide the column \code{Tcham} in \code{dataframe}
 #'              if \code{Tcham} is different between samples. If \code{Tcham} is
 #'              not provided, 15°C is used as default.
 #' @param k.mult numerical value; a multiplier for the allowed kappa-max.
 #'               Default setting is no multiplier (\code{k.mult = 1}).
-#'               \code{k.mult} cannot be negative and must be smaller or
-#'               equal to 10.
+#'               \code{k.mult} must be > 0 and =< 10.
 #' @param warn.length numerical value; limit under which a measurement is
 #'                    flagged for being too short (\code{nb.obs < warn.length}).
 #' @param k.min numerical value; a lower boundary value for kappa in the HM model.
@@ -83,28 +83,29 @@
 #' minimal threshold for kappa: to allow for a log-like curvature, set
 #' \code{k.min} below 0 (ex. -1).
 #'
-#' All flux estimates, including the \code{\link[goFlux]{MDF}}, are
-#' obtained from the multiplication of the slope and the
-#' \code{\link[goFlux]{flux.term}}, which is used to correct the
-#' pressure inside the chamber (due to water vapor), as well as convert the
-#' units to obtain a term in nmol or
+#' Flux estimates and the \code{\link[goFlux]{MDF}} are calculated from
+#' \code{Etime} (in seconds). Make sure that chamber closure is indicated by
+#' \code{Etime == 0} and the first instance of \code{flag == 1} per UniqueID.
+#'
+#' All flux estimates, including the \code{\link[goFlux]{MDF}}, are obtained
+#' from the multiplication of the slope and the \code{\link[goFlux]{flux.term}},
+#' which is used to correct for the dilution effect of water vapor and convert
+#' the flux units to obtain a term in nmol or
 #' \ifelse{html}{\out{µmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{µmol m^{-2}s^{-1}}{ASCII}}.
 #'
 #' The argument \code{Area} is in \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}},
 #' but the output units from \code{\link[goFlux]{goFlux}} are in
-#' \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This is due to the
-#' conversion from \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}
-#' to \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}} within the
-#' function. This means that there is a factor of 10,000 to convert from
-#' \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}
-#' to \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This is important
+#' \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This means that
+#' there is a factor of 10,000 to convert from
+#' \ifelse{html}{\out{cm<sup>2</sup>}}{\eqn{cm^2}{ASCII}}
+#' to \ifelse{html}{\out{m<sup>2</sup>}}{\eqn{m^2}{ASCII}}. This is important
 #' to take into account if one would provide something else than an \code{Area}
 #' in \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to the function.
 #' For example, with incubated soil samples, one may provide an amount of soil
 #' (kg) instead of an area in the column \code{Area}. To get the right units in
 #' that case, multiply the kilograms of soil by 10,000 to remove the conversion
-#' from \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to
-#' \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}.
+#' from \ifelse{html}{\out{cm<sup>2</sup>}}{\eqn{cm^2}{ASCII}} to
+#' \ifelse{html}{\out{m<sup>2</sup>}}{\eqn{m^2}{ASCII}}.
 #'
 #' In \code{gastype}, the gas species listed are the ones for which this package
 #' has been adapted. Please write to the maintainer of this package for
@@ -126,7 +127,7 @@
 #' field measurement of nitrous oxide fluxes.
 #' \emph{Soil Science Society of America Journal}, 45(2), 311-316.
 #'
-#' @returns Returns a data frame with 28 columns: a \code{UniqueID} per
+#' @returns Returns a data frame with 32 columns: a \code{UniqueID} per
 #' measurement, 11 columns for the linear model results (linear flux estimate
 #' (\code{\link[goFlux]{LM.flux}}), initial gas concentration
 #' (\code{LM.C0}), final gas concentration (\code{LM.Ct}), slope of linear
@@ -142,13 +143,13 @@
 #' (\code{HM.RMSE}), Akaike's information criterion corrected for small sample
 #' size (\code{HM.AICc}), standard error (\code{HM.SE}), relative standard error
 #' (\code{HM.se.rel}), coefficient of determination (\code{HM.r2}), and curvature
-#' (kappa; \code{HM.k}), as well as the minimal detectable flux
+#' (kappa; \code{HM.k})), as well as the minimal detectable flux
 #' (\code{\link[goFlux]{MDF}}), the precision of the instrument
 #' (\code{prec}), the flux term (\code{\link[goFlux]{flux.term}}),
-#' kappa-max (\code{\link[goFlux]{k.max}}), the g factor (g.fact;
-#' \code{\link[goFlux]{g.factor}}), the number of observations used
-#' (\code{nb.obs}) and the true initial gas concentration (\code{C0}) and final
-#' gas concentration (\code{Ct}).
+#' kappa-max (\code{\link[goFlux]{k.max}}) and its multiplier (\code{k.mult}),
+#' the g-factor (g.fact; \code{\link[goFlux]{g.factor}}), the number of
+#' observations used (\code{nb.obs}) and the true initial gas concentration
+#' (\code{C0}) and final gas concentration (\code{Ct}).
 #'
 #' @include goFlux-package.R
 #' @include flux.term.R
@@ -166,23 +167,6 @@
 #'          \code{\link[goFlux]{LM.flux}} of this package for more
 #'          information about these parameters.
 #'
-#' @seealso See also the import functions to find the
-#'          default instrument precision for each instrument:
-#'          \code{\link[goFlux]{import.DX4015}},
-#'          \code{\link[goFlux]{import.EGM5}},
-#'          \code{\link[goFlux]{import.G2508}},
-#'          \code{\link[goFlux]{import.G4301}},
-#'          \code{\link[goFlux]{import.GAIA}},
-#'          \code{\link[goFlux]{import.LI6400}},
-#'          \code{\link[goFlux]{import.LI7810}},
-#'          \code{\link[goFlux]{import.LI7820}},
-#'          \code{\link[goFlux]{import.LI8100}},
-#'          \code{\link[goFlux]{import.LI8200}},
-#'          \code{\link[goFlux]{import.N2OM1}},
-#'          \code{\link[goFlux]{import.uCH4}},
-#'          \code{\link[goFlux]{import.uN2O}},
-#'          \code{\link[goFlux]{import.UGGA}}
-#'
 #' @examples
 #' data(manID.UGGA)
 #' CO2_flux <- goFlux(manID.UGGA, "CO2dry_ppm")
@@ -197,269 +181,455 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
                    warn.length = 60, k.min = 0){
 
   # Check arguments ####
-  if(!is.numeric(k.mult)) stop("'k.mult' must be of class numeric")
-  if(!dplyr::between(k.mult, 0, 10) | k.mult <= 0){
-    stop("'k.mult' cannot be negative and must be smaller or equal to 10")}
-  if(!is.numeric(warn.length)){stop("'warn.length' must be of class numeric")
-  } else {if(warn.length <= 0) stop("'warn.length' must be greater than 0")}
-  if(!is.numeric(k.min)) stop("'k.min' must be of class numeric")
+  is_scalar_num <- function(x) {
+    is.numeric(x) && length(x) == 1L && !is.na(x) && is.finite(x)}
+  has_col <- function(nm) {nm %in% names(dataframe)}
+
+
+  # k.mult
+  if (!is_scalar_num(k.mult)) {
+    stop("'k.mult' must be a finite numeric scalar.", call. = FALSE)}
+  if (k.mult <= 0 || k.mult > 10) {
+    stop("'k.mult' must be > 0 and <= 10.", call. = FALSE)}
+
+
+  # warn.length
+  if (!is_scalar_num(warn.length)) {
+    stop("'warn.length' must be a finite numeric scalar.", call. = FALSE)}
+  if (warn.length <= 0) {
+    stop("'warn.length' must be > 0.", call. = FALSE)}
+  if (warn.length %% 1 != 0) {
+    stop("'warn.length' must be an integer.", call. = FALSE)}
+
+
+  # k.min
+  if (!is_scalar_num(k.min)) {
+    stop("'k.min' must be a finite numeric scalar.", call. = FALSE)}
+
 
   ## Check dataframe ####
-  if(missing(dataframe)) stop("'dataframe' is required")
-  if(!is.null(dataframe) & !is.data.frame(dataframe)){
-    stop("'dataframe' must be of class data.frame")}
+  if (missing(dataframe)) {
+    stop("'dataframe' is required.", call. = FALSE)}
+  if (!is.data.frame(dataframe)) {
+    stop("'dataframe' must be a data.frame.", call. = FALSE)}
+  if (nrow(dataframe) == 0) {
+    stop("'dataframe' is empty.", call. = FALSE)}
+
 
   ### gastype and match in dataframe ####
-  if(missing(gastype)){
-    stop("'gastype' must be one of the following: 'CO2dry_ppm', 'CH4dry_ppb', 'COdry_ppb', 'N2Odry_ppb', 'NH3dry_ppb', 'NO2dry_ppb', 'NOdry_ppb' or 'H2O_ppm'")}
-  if(!is.null(gastype) & !is.character(gastype)) stop("'gastype' must be a character string")
-  if(!any(grepl(paste("\\<", gastype, "\\>", sep = ""),
-                c("CO2dry_ppm", "CH4dry_ppb", "COdry_ppb", "N2Odry_ppb", "NH3dry_ppb", "NO2dry_ppb", "NOdry_ppb", "H2O_ppm")))){
-    stop("'gastype' must be one of the following: 'CO2dry_ppm', 'CH4dry_ppb', 'COdry_ppb', 'N2Odry_ppb', 'NH3dry_ppb', 'NO2dry_ppb', 'NOdry_ppb' or 'H2O_ppm'")}
-  if(!any(grepl(paste("\\<", gastype, "\\>", sep = ""), names(dataframe)))){
-    stop("'dataframe' must contain a column that matches 'gastype'")}
-  if(any(grepl(paste("\\<", gastype, "\\>", sep = ""), names(dataframe))) &
-     !is.numeric(dataframe[,gastype][[1]])){
-    stop("The column that matches 'gastype' in 'dataframe' must be of class numeric")}
+  .allowed_gastype <- c(
+    "CO2dry_ppm", "CH4dry_ppb", "COdry_ppb", "N2Odry_ppb",
+    "NH3dry_ppb", "NO2dry_ppb", "NOdry_ppb", "H2O_ppm"
+  )
+  if (missing(gastype)) {
+    stop("'gastype' is required and must be one of: ",
+         paste0("'", .allowed_gastype, "'", collapse = ", "), call. = FALSE)}
+  if (!is.character(gastype) || length(gastype) != 1L || is.na(gastype)) {
+    stop("'gastype' must be a character string of length 1.", call. = FALSE)}
+  if (!(gastype %in% .allowed_gastype)) {
+    stop("'gastype' must be one of: ",
+         paste0("'", .allowed_gastype, "'", collapse = ", "), call. = FALSE)}
+  if (!has_col(gastype)) {
+    stop("'dataframe' must contain a column that matches 'gastype'", call. = FALSE)}
+  if (!is.numeric(dataframe[[gastype]])) {
+    stop("Column '", gastype, "' in 'dataframe' must be numeric.", call. = FALSE)}
+
 
   ### prec and match in dataframe ####
-  if(!is.null(prec)) {
-    if(length(prec) != 1)  stop("'prec' must be of length = 1")
-    if(!is.numeric(prec)) stop("'prec' must be of class numeric")}
-  if(is.null(prec)){
-    if(gastype == "CO2dry_ppm" &
-       !any(grepl(paste("\\<CO2_prec\\>", sep = ""), names(dataframe)))){
-      stop("'dataframe' must contain the column 'CO2_prec' if prec = NULL")}
-    if(gastype == "H2O_ppm" &
-       !any(grepl(paste("\\<H2O_prec\\>", sep = ""), names(dataframe)))){
-      stop("'dataframe' must contain the column 'H2O_prec' if prec = NULL")}
-    if(gastype == "CH4dry_ppb" &
-       !any(grepl(paste("\\<CH4_prec\\>", sep = ""), names(dataframe)))){
-      stop("'dataframe' must contain the column 'CH4_prec' if prec = NULL")}
-    if(gastype == "COdry_ppb" &
-       !any(grepl(paste("\\<CO_prec\\>", sep = ""), names(dataframe)))){
-      stop("'dataframe' must contain the column 'CO_prec' if prec = NULL")}
-    if(gastype == "NH3dry_ppb" &
-       !any(grepl(paste("\\<NH3_prec\\>", sep = ""), names(dataframe)))){
-      stop("'dataframe' must contain the column 'NH3_prec' if prec = NULL")}
-    if(gastype == "N2Odry_ppb" &
-       !any(grepl(paste("\\<N2O_prec\\>", sep = ""), names(dataframe)))){
-      stop("'dataframe' must contain the column 'N2O_prec' if prec = NULL")}
-    if(gastype == "NO2dry_ppb" &
-       !any(grepl(paste("\\<NO2_prec\\>", sep = ""), names(dataframe)))){
-      stop("'dataframe' must contain the column 'NO2_prec' if prec = NULL")}
-    if(gastype == "NOdry_ppb" &
-       !any(grepl(paste("\\<NO_prec\\>", sep = ""), names(dataframe)))){
-      stop("'dataframe' must contain the column 'NO_prec' if prec = NULL")}
+  if (!is.null(prec)) {
+    if (!is_scalar_num(prec) || prec <= 0) {
+      stop("'prec' must be a finite numeric scalar greater than 0.", call. = FALSE)}
+
+  } else {
+
+    prec_col <- switch(gastype,
+                       "CO2dry_ppm" = "CO2_prec",
+                       "CH4dry_ppb" = "CH4_prec",
+                       "COdry_ppb"  = "CO_prec",
+                       "N2Odry_ppb" = "N2O_prec",
+                       "NO2dry_ppb" = "NO2_prec",
+                       "NOdry_ppb"  = "NO_prec",
+                       "NH3dry_ppb" = "NH3_prec",
+                       "H2O_ppm"    = "H2O_prec")
+
+    if (!has_col(prec_col)) {
+      stop("'dataframe' must contain the column '", prec_col,
+           "' when prec = NULL.", call. = FALSE)}
+    if (!is.numeric(dataframe[[prec_col]])) {
+      stop("Column '", prec_col, "' in 'dataframe' must be numeric.",
+           call. = FALSE)}
   }
+
 
   ### H2O_col and match in dataframe ####
-  if(is.null(H2O_col)) stop("'H2O_col' is required")
-  if(!is.null(H2O_col) & !is.character(H2O_col)) stop("'H2O_col' must be a character string")
-  if(!any(grepl(paste("\\<", H2O_col, "\\>", sep = ""), names(dataframe)))){
-    stop("'dataframe' must contain a column that matches 'H2O_col'")}
-  if(any(grepl(paste("\\<", H2O_col, "\\>", sep = ""), names(dataframe))) &
-     !is.numeric(dataframe[,H2O_col][[1]])){
-    stop("The column that matches 'H2O_col' in 'dataframe' must be of class numeric")}
+  if (!is.null(H2O_col)) {
+
+    if (!is.character(H2O_col) || length(H2O_col) != 1L ||
+        is.na(H2O_col) || H2O_col == "") {
+      stop("'H2O_col' must be a non-missing, non-empty character string",
+           "of length 1, or NULL.", call. = FALSE)}
+
+    if (!has_col(H2O_col)) {
+      stop("'dataframe' must contain a column that matches 'H2O_col'.",
+           call. = FALSE)}
+
+    if (!is.numeric(dataframe[[H2O_col]])) {
+      stop("Column '", H2O_col, "' in 'dataframe' must be numeric.",
+           call. = FALSE)}
+
+  } else {
+
+    warning("H2O_col is NULL: water vapour dilution correction is disabled ",
+            "(H2O_ppm assumed 0).", call. = FALSE)}
+
 
   ### UniqueID (or chamID) ####
-  if(!any(grepl(paste(c("\\<UniqueID\\>", "\\<chamID\\>"), collapse = "|"), names(dataframe)))){
-    stop("'dataframe' must contain 'UniqueID'")}
+  if (!has_col("UniqueID") && !has_col("chamID")) {
+    stop("'dataframe' must contain column 'UniqueID' or 'chamID'.", call. = FALSE)}
+  if (has_col("UniqueID") && all(is.na(dataframe$UniqueID))) {
+    stop("'UniqueID' in 'dataframe' contains only NA values.", call. = FALSE)}
+  if (has_col("UniqueID") &&
+      !(is.character(dataframe$UniqueID) || is.factor(dataframe$UniqueID))) {
+    stop("'UniqueID' in 'dataframe' must be character or factor.", call. = FALSE)}
 
-  ### Etime and flag ####
-  if(!any(grepl("\\<Etime\\>", names(dataframe)))) stop("'dataframe' must contain 'Etime'")
-  if(any(grepl("\\<Etime\\>", names(dataframe))) & !is.numeric(dataframe$Etime)){
-    stop("'Etime' in 'dataframe' must be of class numeric (or integer)")}
-  if(!any(grepl("\\<flag\\>", names(dataframe)))) stop("'dataframe' must contain 'flag'")
-  if(any(grepl("\\<flag\\>", names(dataframe))) & !is.numeric(dataframe$flag)){
-    stop("'flag' in 'dataframe' must be of class numeric (or integer)")}
+  # Construct UniqueID from chamID + DATE, if missing
+  if (!has_col("UniqueID") && has_col("chamID") && !has_col("DATE")) {
+    stop("'dataframe' must contain 'DATE' to construct 'UniqueID' from 'chamID'.",
+         call. = FALSE)}
 
-  ### Vtot (or Vcham + offset) ####
-  ### if Vtot is an argument
-  if(!is.null(Vtot)){
-    if(!is.numeric(Vtot)) stop("'Vtot' must be of class numeric")
-    ### if Vtot is not an argument
-  } else {
-    #### look for it in dataframe
-    if(!any(grepl("\\<Vtot\\>", names(dataframe)))){
-      #### if not found, look for alternative arguments
-      ##### Vcham
-      if(!is.null(Vcham)){ # if Vcham is an argument
-        if(!is.numeric(Vcham)) stop("'Vcham' must be of class numeric")
-      } else { # if Vcham is not an argument, look in dataframe
-        if(!any(grepl("\\<Vcham\\>", names(dataframe)))){
-          stop("'Vtot' missing. Alternative argument 'Vcham' also missing.")
-        } else { # Vcham in dataframe must be numeric
-            if(!is.numeric(dataframe$Vcham)){
-              stop("'Vcham' in 'dataframe' must be of class numeric")}
-          }
-      }
-      ##### offset
-      if(!is.null(offset)){ # if offset is an argument
-        if(!is.numeric(offset)) stop("'offset' must be of class numeric")
-      } else { # if offset is not an argument, look in dataframe
-        if(!any(grepl("\\<offset\\>", names(dataframe)))){
-          stop("'Vtot' missing. Alternative argument 'offset' also missing.")
-        } else { # offset in dataframe must be numeric
-          if(!is.numeric(dataframe$offset)){
-            stop("'offset' in 'dataframe' must be of class numeric")}
-        }
-      }
-      # if found in dataframe
-    } else {
-      if(!is.numeric(dataframe$Vtot)){
-        stop("'Vtot' in 'dataframe' must be of class numeric")}
-    }
+  if (has_col("chamID") && all(is.na(dataframe$chamID))) {
+    stop("'chamID' in 'dataframe' contains only NA values.", call. = FALSE)}
+  if (has_col("chamID") &&
+      !(is.character(dataframe$chamID) || is.factor(dataframe$chamID))) {
+    stop("'chamID' in 'dataframe' must be character or factor.", call. = FALSE)
   }
+
+  if (!has_col("UniqueID")){
+    dataframe$UniqueID <- paste(dataframe$chamID, dataframe$DATE, sep = "_")}
+
+
+  ### Etime ####
+  if (!has_col("Etime")) {
+    stop("'dataframe' must contain the column 'Etime'.", call. = FALSE)}
+  if (!is.numeric(dataframe$Etime)) {
+    stop("'Etime' in 'dataframe' must be numeric (or integer).", call. = FALSE)}
+  if (all(is.na(dataframe$Etime))) {
+    stop("'Etime' in 'dataframe' contains only NA values.", call. = FALSE)}
+
+
+  ### flag ####
+  if (!has_col("flag")) {
+    stop("'dataframe' must contain the column 'flag'.", call. = FALSE)}
+  if (!is.numeric(dataframe$flag)) {
+    stop("'flag' in 'dataframe' must be numeric (or integer).", call. = FALSE)}
+  if (all(is.na(dataframe$flag))) {
+    stop("'flag' in 'dataframe' contains only NA values.", call. = FALSE)}
+
 
   ### Area ####
-  ### if Area is an argument
-  if(!is.null(Area)){
-    if(!is.numeric(Area)) stop("'Area' must be of class numeric")
-    ### if Area is not an argument
+  if (!is.null(Area)) {
+    # Area is an argument
+    if (!is_scalar_num(Area) || Area <= 0) {
+      stop("'Area' must be a finite numeric scalar greater than 0.",
+           call. = FALSE)}
+
   } else {
-    #### look for it in dataframe
-    if(any(grepl("\\<Area\\>", names(dataframe)))){
-      if(!is.numeric(dataframe$Area)){
-        stop("'Area' in 'dataframe' must be of class numeric")}
-    } else stop("'Area' missing")
+    # Area must be in dataframe
+    if (!has_col("Area")) {
+      stop("'Area' missing: provide 'Area' as an argument or as a column in ",
+           "'dataframe'.", call. = FALSE)}
+    if (!is.numeric(dataframe$Area)) {
+      stop("'Area' in 'dataframe' must be numeric.", call. = FALSE)}
+    if (all(is.na(dataframe$Area))) {
+      stop("'Area' in 'dataframe' contains only NA values.", call. = FALSE)}
+    if (any(na.omit(dataframe$Area) <= 0)) {
+      stop("'Area' in 'dataframe' must be greater than 0.", call. = FALSE)}
   }
+
+  # Add Area to dataframe if provided
+  if (!is.null(Area)) dataframe$Area <- Area
+
+
+  ### Vtot (or Vcham + offset) ####
+  # 1) If Vtot provided as argument, validate it
+  if (!is.null(Vtot)) {
+    if (!is_scalar_num(Vtot) || Vtot <= 0) {
+      stop("'Vtot' must be a finite numeric scalar greater than 0.", call. = FALSE)
+    }
+
+  } else if (has_col("Vtot")) {
+    # 2) Else: Vtot must be present as a numeric column (and not all NA)
+    if (!is.numeric(dataframe$Vtot)) {
+      stop("'Vtot' in 'dataframe' must be numeric.", call. = FALSE)}
+    if (all(is.na(dataframe$Vtot))) {
+      stop("'Vtot' in 'dataframe' contains only NA values.", call. = FALSE)}
+
+  } else {
+    # 3) Else: must be able to compute Vtot from Vcham + Area*offset (both required)
+
+    # Vcham is an argument
+    if (!is.null(Vcham)) {
+      if (!is_scalar_num(Vcham) || Vcham <= 0) {
+        stop("'Vcham' must be a finite numeric scalar greater than 0.",
+             call. = FALSE)}
+
+    } else {
+      # Vcham must be in dataframe
+      if (!has_col("Vcham")) {
+        stop("'Vtot' missing: provide 'Vtot' as an argument or as a column in ",
+             "'dataframe'. Alternatively, provide 'Vcham' (arg/column), ",
+             "'Area' (arg/column) and 'offset' (arg/column).", call. = FALSE)
+      }
+      if (!is.numeric(dataframe$Vcham)) {
+        stop("'Vcham' in 'dataframe' must be numeric.", call. = FALSE)}
+      if (all(is.na(dataframe$Vcham))) {
+        stop("'Vcham' in 'dataframe' contains only NA values.", call. = FALSE)}
+    }
+
+    # offset is an argument
+    if (!is.null(offset)) {
+      if (!is_scalar_num(offset) || offset < 0) {
+        stop("'offset' must be a finite numeric scalar greater or equal to 0.",
+             call. = FALSE)}
+
+    } else {
+      # offset must be in dataframe
+      if (!has_col("offset")) {
+        stop("'Vtot' missing: provide 'Vtot' as an argument or as a column in ",
+             "'dataframe'. Alternatively, provide 'Vcham' (arg/column), ",
+             "'Area' (arg/column) and 'offset' (arg/column).", call. = FALSE)
+      }
+      if (!is.numeric(dataframe$offset)) {
+        stop("'offset' in 'dataframe' must be numeric.", call. = FALSE)}
+      if (all(is.na(dataframe$offset))) {
+        stop("'offset' in 'dataframe' contains only NA values.", call. = FALSE)}
+    }
+  }
+
+  # Add Vtot, offset and Vcham to dataframe if provided
+  if (!is.null(Vtot)) dataframe$Vtot <- Vtot
+  if (!is.null(offset)) dataframe$offset <- offset
+  if (!is.null(Vcham)) dataframe$Vcham <- Vcham
+
+  # Calculate Vtot if absent from dataframe
+  if (is.null(Vtot) && !has_col("Vtot")){
+    dataframe$Vtot <- dataframe$Vcham + (dataframe$Area * dataframe$offset)/1000
+  }
+
 
   ### Pcham ####
-  ### if Pcham is an argument
-  if(!is.null(Pcham)){
-    if(!is.numeric(Pcham)) stop("'Pcham' must be of class numeric")
-    ### if Pcham is not an argument
+  if (!is.null(Pcham)) {
+
+    # Pcham is an argument
+    if (!is_scalar_num(Pcham) || Pcham <= 0) {
+      stop("'Pcham' must be a finite numeric scalar greater than 0.",
+           call. = FALSE)}
+
+  } else if (has_col("Pcham")) {
+
+    # Check Pcham in dataframe
+    if (!is.numeric(dataframe$Pcham)) {
+      stop("'Pcham' in 'dataframe' must be numeric.", call. = FALSE)}
+    if (all(is.na(dataframe$Pcham))) {
+      stop("'Pcham' in 'dataframe' contains only NA values.", call. = FALSE)}
+    if (any(na.omit(dataframe$Pcham) <= 0)) {
+      stop("'Pcham' in 'dataframe' must be greater than 0.", call. = FALSE)}
+
   } else {
-    #### look for it in dataframe
-    if(any(grepl("\\<Pcham\\>", names(dataframe)))){
-      if(!is.numeric(dataframe$Pcham)){
-        stop("'Pcham' in 'dataframe' must be of class numeric")}
-    }
+
+    # Use normal atmospheric pressure if Pcham is not provided
+    dataframe$Pcham <- 101.325
+    warning("Normal atmospheric pressure (101.325kPa) is used when Pcham ",
+            "is not provided.", call. = FALSE)
   }
+
+  # Add Pcham to dataframe if provided
+  if (!is.null(Pcham)) dataframe$Pcham <- Pcham
+
 
   ### Tcham ####
-  ### if Tcham is an argument
-  if(!is.null(Tcham)){
-    if(!is.numeric(Tcham)) stop("'Tcham' must be of class numeric")
-    ### if Tcham is not an argument
+  if (!is.null(Tcham)) {
+
+    # Tcham is an argument
+    if (!is_scalar_num(Tcham)) {
+      stop("'Tcham' must be a finite numeric scalar.", call. = FALSE)}
+    if (Tcham < -273.15) {
+      stop("'Tcham' cannot be smaller than -273.15 Celsius (physical limit).",
+           call. = FALSE)}
+
+  } else if (has_col("Tcham")) {
+
+    # Check Tcham in dataframe
+    if (!is.numeric(dataframe$Tcham)) {
+      stop("'Tcham' in 'dataframe' must be numeric.", call. = FALSE)}
+    if (all(is.na(dataframe$Tcham))) {
+      stop("'Tcham' in 'dataframe' contains only NA values.", call. = FALSE)}
+    if (any(na.omit(dataframe$Tcham) < -273.15)) {
+      stop("Values under the physical limits of temperature (-273.15 Celsius) ",
+           "were detected in 'Tcham' in 'dataframe'.", call. = FALSE)}
+
   } else {
-    #### look for it in dataframe
-    if(any(grepl("\\<Tcham\\>", names(dataframe)))){
-      if(!is.numeric(dataframe$Tcham)){
-        stop("'Tcham' in 'dataframe' must be of class numeric")}
-    }
+
+    # Use air temperature if Tcham is not provided
+    dataframe$Tcham <- 15
+    warning("Normal ambient temperature (15 Celsius) is used when ",
+            "Tcham is not provided.", call. = FALSE)
   }
 
+  # Add Tcham to dataframe if provided
+  if (!is.null(Tcham)) dataframe$Tcham <- Tcham
+
+
   # Assign NULL to variables without binding ####
-  H2O_ppm <- H2O_mol <- Etime <- flag <- chamID <- DATE <- NULL
+  H2O_ppm_select <- H2O_mol <- Etime <- flag <- NULL
+
 
   # FUNCTION STARTS ####
 
-  # Use provided values for Area, offset, Vcham, Vtot, Pcham and Tcham
-  # if they are missing from dataframe
-  if(!is.null(Area)){
-    dataframe <- dataframe %>% mutate(Area = Area)
-  }
-  if(!is.null(offset)){
-    dataframe <- dataframe %>% mutate(offset = offset)
-  }
-  if(!is.null(Vcham)){
-    dataframe <- dataframe %>% mutate(Vcham = Vcham)
-  }
-  if(!is.null(Vtot)){
-    dataframe <- dataframe %>% mutate(Vtot = Vtot)
-  }
-  if(!is.null(Pcham)){
-    dataframe <- dataframe %>% mutate(Pcham = Pcham)
-  }
-  if((!is.null(Tcham))){
-    dataframe <- dataframe %>% mutate(Tcham = Tcham)
-  }
+  ## Clean and split data ####
+  if (gastype != "H2O_ppm"){
 
-  # Calculate Vtot if absent from dataframe
-  if(!any(grepl("\\<Vtot\\>", names(dataframe)))){
-    dataframe <- dataframe %>% mutate(Vtot = Vcham + (Area * offset)/1000)
-  }
+    # If water vapor is missing, set H2O_ppm = 0
+    if (is.null(H2O_col)) {
+      dataframe$H2O_ppm <- 0
+      H2O_col <- "H2O_ppm"
+    }
 
-  # Use normal atmospheric pressure and ambient temperature
-  # if Pcham and Tcham are missing from dataframe
-  if(!any(grepl("\\<Pcham\\>", names(dataframe)))){
-    dataframe <- dataframe %>% mutate(Pcham = 101.325)
-  }
-  if(!any(grepl("\\<Tcham\\>", names(dataframe)))){
-    dataframe <- dataframe %>% mutate(Tcham = 15)
-  }
-
-  # Create UniqueID from chamID, if missing
-  if(!any(grepl("\\<UniqueID\\>", names(dataframe)))){
-    if(any(grepl("\\<chamID\\>", names(dataframe)))){
-      dataframe <- dataframe %>% mutate(UniqueID = paste(chamID, DATE, sep = "_"))}
-  }
-
-  # Clean and subset data (per gastype)
-  if(gastype != "H2O_ppm"){
     data_split <- dataframe %>%
       # Rename H2O_col
-      rename(H2O_ppm = all_of(H2O_col)) %>%
-      # Use mutate() to convert H2O_ppm into H2O_mol
-      mutate(H2O_mol = H2O_ppm / (1000*1000)) %>%
-      select(UniqueID, H2O_mol, Etime, Vtot, Pcham, Area, Tcham,
-             flag, matches(gastype), contains("_prec")) %>%
+      rename(H2O_ppm_select = all_of(H2O_col)) %>%
+      # Convert H2O_ppm into H2O_mol
+      mutate(H2O_mol = H2O_ppm_select / (1000*1000)) %>%
+      select(UniqueID, any_of(c("chamID", "DATE")), Etime, flag, all_of(gastype),
+             contains("_prec"), H2O_mol, Vtot, Area, Pcham, Tcham) %>%
       # Filter flag == 1
       filter(flag == 1) %>%
-      # Use drop_na() to remove NAs in gastype
-      drop_na(matches(gastype)) %>%
-      # Split dataset by UniqueID
-      group_by(UniqueID) %>% group_split() %>% as.list()
-  } else if(gastype == "H2O_ppm"){
-    data_split <- dataframe %>%
-      select(UniqueID, Etime, Vtot, Pcham, Area, Tcham,
-             flag, all_of(H2O_col), contains("_prec")) %>%
-      # Rename H2O_col
-      rename(H2O_ppm = all_of(H2O_col)) %>%
-      # Filter flag == 1
-      filter(flag == 1) %>%
-      # Use drop_na() to remove NAs in gastype
-      drop_na(matches(gastype)) %>%
+      # Remove NAs in gastype
+      tidyr::drop_na(all_of(gastype)) %>%
+      tidyr::drop_na(Etime) %>%
+      tidyr::drop_na(UniqueID) %>%
       # Split dataset by UniqueID
       group_by(UniqueID) %>% group_split() %>% as.list()
   }
 
-  # Calculate auxiliary variables: flux term and minimal detectable flux
+  if (gastype == "H2O_ppm"){
+
+    data_split <- dataframe %>%
+      select(UniqueID, any_of(c("chamID", "DATE")), Etime, flag,
+             all_of(gastype), contains("_prec"), Vtot, Area, Pcham, Tcham) %>%
+      # Filter flag == 1
+      filter(flag == 1) %>%
+      # Remove NAs in gastype and UniqueID
+      tidyr::drop_na(all_of(gastype)) %>%
+      tidyr::drop_na(Etime) %>%
+      tidyr::drop_na(UniqueID) %>%
+      # Split dataset by UniqueID
+      group_by(UniqueID) %>% group_split() %>% as.list()
+  }
+
+  # Ensure data_split is not empty
+  if (length(data_split) == 0L) {
+    stop("No valid observations after filtering (flag == 1) and removing NAs in '",
+         gastype, "'.", call. = FALSE)}
+
+  # Ensure Etime is ordered within each UniqueID
+  data_split <- lapply(data_split, function(df) {df %>% arrange(Etime)})
+
+  ## Calculate auxiliary variables: flux term and minimal detectable flux ####
   for (f in 1:length(data_split)){
 
     # Instrument precision (by gastype)
     # If prec = NULL, the instrument precision must be provided in 'dataframe'
-    if(is.null(prec)){
-      if(gastype == "CO2dry_ppm") prec <- unique(na.omit(data_split[[f]]$CO2_prec))
-      if(gastype == "CH4dry_ppb") prec <- unique(na.omit(data_split[[f]]$CH4_prec))
-      if(gastype == "COdry_ppb") prec <- unique(na.omit(data_split[[f]]$CO_prec))
-      if(gastype == "N2Odry_ppb") prec <- unique(na.omit(data_split[[f]]$N2O_prec))
-      if(gastype == "NO2dry_ppb") prec <- unique(na.omit(data_split[[f]]$NO2_prec))
-      if(gastype == "NOdry_ppb") prec <- unique(na.omit(data_split[[f]]$NO_prec))
-      if(gastype == "NH3dry_ppb") prec <- unique(na.omit(data_split[[f]]$NH3_prec))
-      if(gastype == "H2O_ppm") prec <- unique(na.omit(data_split[[f]]$H2O_prec))
+    if (is.null(prec)) {
+
+      prec_col <- switch(gastype,
+                         "CO2dry_ppm" = "CO2_prec",
+                         "CH4dry_ppb" = "CH4_prec",
+                         "COdry_ppb"  = "CO_prec",
+                         "N2Odry_ppb" = "N2O_prec",
+                         "NO2dry_ppb" = "NO2_prec",
+                         "NOdry_ppb"  = "NO_prec",
+                         "NH3dry_ppb" = "NH3_prec",
+                         "H2O_ppm"    = "H2O_prec"
+      )
+
+      prec_vals <- unique(na.omit(data_split[[f]][[prec_col]]))
+      uid <- unique(data_split[[f]]$UniqueID)
+
+      if (length(prec_vals) != 1) {
+        stop("'", prec_col, "' in 'dataframe' must contain exactly one non-missing ",
+             "value per UniqueID. Problem detected for UniqueID: ",
+             uid, ".", call. = FALSE)
+      }
+
+      data_split[[f]]$prec_f <- prec_vals
+
+    } else { data_split[[f]]$prec_f <- prec }
+
+    # Extract water vapor concentration at the start of the measurement
+    if (gastype == "H2O_ppm") {
+      # Assign 0 if gastype == "H2O_ppm"
+      H2O_flux.term <- 0
+      data_split[[f]]$warn.H2O_mol <- FALSE
+    }
+    if (gastype != "H2O_ppm") {
+      # If H2O_mol is all NAs, default to 0
+      if (all(is.na(data_split[[f]]$H2O_mol))) {
+        H2O_flux.term <- 0
+        data_split[[f]]$warn.H2O_mol <- TRUE
+      } else {
+        H2O_flux.term <- first(na.omit(data_split[[f]]$H2O_mol))
+        data_split[[f]]$warn.H2O_mol <- FALSE}
     }
 
-    H2O_flux.term <- ifelse(gastype == "H2O_ppm", 0, first(data_split[[f]]$H2O_mol))
+    # First flagged time must be chamber closure (Etime == 0)
+    if (is.na(data_split[[f]]$Etime[1]) || data_split[[f]]$Etime[1] != 0) {
+      stop("Invalid Etime origin: for each UniqueID, the first row with ",
+           "flag == 1 must have Etime == 0. Problem detected for UniqueID: ",
+           data_split[[f]]$UniqueID[1], ".", call. = FALSE)}
 
-    # Are all Pcham or Tcham NAs?
-    if(is.na(first(na.omit(data_split[[f]]$Pcham)))) {
+    # Ensure values are available and unique per UniqueID for Vtot and Area
+    if (all(is.na(data_split[[f]]$Vtot))) {
+      stop("Vtot missing and could not be calculated for UniqueID: ",
+           data_split[[f]]$UniqueID[1], call. = FALSE)}
+    if (length(unique(na.omit(data_split[[f]]$Vtot))) != 1) {
+      stop("'Vtot' in 'dataframe' must contain exactly one value ",
+           "per UniqueID. Problem detected for UniqueID: ",
+           data_split[[f]]$UniqueID[1], ".", call. = FALSE)}
+
+    if (all(is.na(data_split[[f]]$Area))) {
+      stop("Area missing for UniqueID: ",
+           data_split[[f]]$UniqueID[1], call. = FALSE)}
+    if (length(unique(na.omit(data_split[[f]]$Area))) != 1) {
+      stop("'Area' in 'dataframe' must contain exactly one value ",
+           "per UniqueID. Problem detected for UniqueID: ",
+           data_split[[f]]$UniqueID[1], ".", call. = FALSE)}
+
+    # If Pcham and Tcham are all NAs, default to normal P and T
+    if (all(is.na(data_split[[f]]$Pcham))) {
       data_split[[f]]$Pcham <- 101.325
       data_split[[f]]$warn.Pcham <- TRUE
-      } else data_split[[f]]$warn.Pcham <- FALSE
-    if(is.na(first(na.omit(data_split[[f]]$Tcham)))) {
+    } else data_split[[f]]$warn.Pcham <- FALSE
+
+    if (all(is.na(data_split[[f]]$Tcham))) {
       data_split[[f]]$Tcham <- 15
       data_split[[f]]$warn.Tcham <- TRUE
     } else data_split[[f]]$warn.Tcham <- FALSE
 
-    data_split[[f]] <- data_split[[f]] %>%
-      mutate(flux.term = flux.term(first(na.omit(Vtot)), first(na.omit(Pcham)),
-                                   first(na.omit(Area)), first(na.omit(Tcham)),
-                                   H2O_flux.term)) %>%
-      mutate(MDF = MDF(prec, (max(Etime)+1), flux.term))
+    # Calculate flux.term and MDF
+    flux_term_f <- flux.term(first(na.omit(data_split[[f]]$Vtot)),
+                             first(na.omit(data_split[[f]]$Pcham)),
+                             first(na.omit(data_split[[f]]$Area)),
+                             first(na.omit(data_split[[f]]$Tcham)),
+                             H2O_flux.term)
+    data_split[[f]]$flux_term <- flux_term_f
+
+    MDF_f <- MDF(data_split[[f]]$prec_f[1],
+                 (max(data_split[[f]]$Etime)+1), flux_term_f)
+    data_split[[f]]$MDF <- MDF_f
   }
+
+  ##  Flux calculation ####
 
   # Create an empty list to store results
   flux.res.ls <- list()
@@ -467,17 +637,17 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
   # Print a progress bar
   pb = txtProgressBar(min = 0, max = length(data_split), initial = 0, style = 3)
 
-  # Flux calculation
   for (f in 1:length(data_split)){
 
     # Extract auxiliary variables
-    UniqueID <- unique(na.omit(data_split[[f]]$UniqueID))
-    flux.term <- unique(na.omit(data_split[[f]]$flux.term))
-    MDF <- unique(na.omit(data_split[[f]]$MDF))
-    nb.obs <- nrow(na.omit(data_split[[f]][, gastype]))
+    UniqueID <- data_split[[f]]$UniqueID[1]
+    flux.term_f <- data_split[[f]]$flux_term[1]
+    MDF <- data_split[[f]]$MDF[1]
+    nb.obs <- length(data_split[[f]][[gastype]])
+    prec_f <- data_split[[f]]$prec_f[1]
 
     # Skip if there is less than 3 data points
-    if(nb.obs < 3){
+    if (nb.obs < 3){
 
       # LM.res and HM.res <- NA
       LM.res <- cbind.data.frame(LM.flux = NA, LM.C0 = NA, LM.Ct = NA,
@@ -491,7 +661,7 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
                                  HM.r2 = NA, HM.k = NA)
 
       # Extract gas measurement (by gastype)
-      gas.meas <- Reduce("c", data_split[[f]][, gastype])
+      gas.meas <- data_split[[f]][[gastype]]
 
       # Get C0 and Ct from raw data
       C0 <- first(gas.meas)
@@ -503,13 +673,13 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     } else {
 
       # Extract gas measurement (by gastype)
-      gas.meas <- Reduce("c", data_split[[f]][, gastype])
+      gas.meas <- data_split[[f]][[gastype]]
 
       # Linear model
       LM.res <- suppressWarnings(
         LM.flux(gas.meas = gas.meas,
                 time.meas = data_split[[f]]$Etime,
-                flux.term = flux.term))
+                flux.term = flux.term_f))
 
       # Calculate C0 and Ct and their boundaries based on LM.flux
       C0.flux <- LM.res$LM.C0
@@ -526,10 +696,15 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
       Ct.best <- if_else(between(Ct, Ct.lim.flux[1], Ct.lim.flux[2]), Ct, Ct.flux)
       C0.best <- if_else(between(C0, C0.lim.flux[1], C0.lim.flux[2]), C0, C0.flux)
 
-      # Adjust C0 and Ct if the different between them is smaller than 1
-      if(abs(C.diff.flux) < 1){
-        Ct.best <- floor(Ct.best) - 1
-        C0.best <- ceiling(C0.best) + 1
+      # Adjust C0 and Ct if the difference between them is smaller than 1
+      if (abs(C.diff.flux) < 1) {
+        if (Ct.best < C0.best){
+          Ct.best <- floor(Ct.best) - 1
+          C0.best <- ceiling(C0.best) + 1
+        } else {
+          Ct.best <- ceiling(Ct.best) + 1
+          C0.best <- floor(C0.best) - 1
+        }
       }
 
       # Calculate kappa thresholds based on MDF, LM.flux and Etime
@@ -537,18 +712,18 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
 
       # Try to catch errors and warnings from HM calculation
       HM.catch <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
-                          flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-                          k.max = kappa.max*Inf, k.min = k.min)
+                          flux.term = flux.term_f, Ct = Ct.best, C0 = C0.best,
+                          k.max = Inf, k.min = k.min)
 
       # If there is an error with singular gradient
-      if(inherits(HM.catch[[2]], "simpleError")){
+      if (inherits(HM.catch[[2]], "simpleError")){
 
         # Print warning
-        if(isTRUE(grepl("singular gradient", HM.catch[[2]]$message))){
+        if (isTRUE(grepl("singular gradient", HM.catch[[2]]$message))){
           warning("Flux estimate is too close to zero to estimate HM flux in UniqueID ",
-                  UniqueID, ". NAs produced.", call. = F)
+                  UniqueID, ". NAs produced.", call. = FALSE)
         } else {
-          message("Error in UniqueID ", UniqueID, ": ", HM.catch[[2]]$message)
+          message("Warning in UniqueID ", UniqueID, ": ", HM.catch[[2]]$message)
         }
 
         # Return data frame
@@ -556,47 +731,45 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
       }
 
       # If there is no error
-      if(!inherits(HM.catch[[2]], "simpleError")){
+      if (!inherits(HM.catch[[2]], "simpleError")){
 
         # But there is a warning with HM
-        if(inherits(HM.catch[[3]], "simpleWarning")){
+        if (inherits(HM.catch[[3]], "simpleWarning")){
 
           # Print warning
-          message("Error in UniqueID ", UniqueID, ": ", HM.catch[[3]]$message)
+          message("Warning in UniqueID ", UniqueID, ": ", HM.catch[[3]]$message)
         }
 
         # Or there is a warning with AICc
-        if(inherits(HM.catch[[4]], "simpleWarning")){
+        if (inherits(HM.catch[[4]], "simpleWarning")){
 
           # Print warning
-          if(isTRUE(grepl("sample size", HM.catch[[4]]$message))){
+          if (isTRUE(grepl("sample size", HM.catch[[4]]$message))){
             warning("Sample size is too small for UniqueID ", UniqueID,
-                    ". Results may be meanignless or missing.", call. = F)
+                    ". Results may be meaningless or missing.", call. = FALSE)
           } else {
-            message("Error in UniqueID ", UniqueID, ": ", HM.catch[[4]]$message)
+            message("Warning in UniqueID ", UniqueID, ": ", HM.catch[[4]]$message)
           }
         }
 
         # Hutchison and Mosier without kappa max
-        HM.noK <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
-                          flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
-                          k.max = kappa.max*Inf, k.min = k.min)[[1]]
+        HM.noK <- HM.catch[[1]]
 
         # Hutchinson and Mosier with kappa max
         HM.K <- HM.flux(gas.meas = gas.meas, time.meas = data_split[[f]]$Etime,
-                        flux.term = flux.term, Ct = Ct.best, C0 = C0.best,
+                        flux.term = flux.term_f, Ct = Ct.best, C0 = C0.best,
                         k.max = kappa.max, k.mult = k.mult, k.min = k.min)[[1]]
 
         # Compare results, with and without kappa max.
         # Select the result with the smallest curvature.
-        if(abs(HM.K$HM.k) <= abs(HM.noK$HM.k)) HM.res <- HM.K else HM.res <- HM.noK
+        if (abs(HM.K$HM.k) <= abs(HM.noK$HM.k)) HM.res <- HM.K else HM.res <- HM.noK
       }
     }
 
     # Flux results
     flux.res.ls[[f]] <- cbind.data.frame(
-      UniqueID, LM.res, HM.res, C0, Ct, MDF, prec,
-      flux.term, nb.obs, k.max = kappa.max, k.mult,
+      UniqueID, LM.res, HM.res, C0, Ct, MDF, prec = prec_f,
+      flux.term = flux.term_f, nb.obs, k.max = kappa.max, k.mult,
       g.fact = g.factor(HM.res$HM.flux, LM.res$LM.flux))
 
     # Update progress bar
@@ -605,34 +778,41 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
   }
 
   # Unlist flux results
-  flux_results <- map_df(flux.res.ls,  ~as.data.frame(.x))
+  flux_results <- purrr::map_df(flux.res.ls,  ~as.data.frame(.x))
 
   # Close progress bar
   close(pb)
 
   for (f in 1:nrow(flux_results)){
-    if(flux_results$nb.obs[f] < warn.length){
+    if (flux_results$nb.obs[f] < warn.length){
       warning("Low number of observations: UniqueID ", flux_results$UniqueID[f],
               " has ", flux_results$nb.obs[f], " observations", call. = FALSE)}
   }
 
-  # Warn about NAs in Pcham or Tcham
+  # Warn about NAs in Pcham, Tcham or H2O_mol
   for (f in 1:length(data_split)){
-    if(first(data_split[[f]]$warn.Tcham) == TRUE){
+    if (first(data_split[[f]]$warn.Tcham) == TRUE){
       warning("Tcham missing in UniqueID ", first(data_split[[f]]$UniqueID),
-              ". 15 degrees Celsius was used as default.", call. = FALSE)}
+              ". 15 Celsius was used as default.", call. = FALSE)}
   }
   for (f in 1:length(data_split)){
-    if(first(data_split[[f]]$warn.Pcham) == TRUE){
+    if (first(data_split[[f]]$warn.Pcham) == TRUE){
       warning("Pcham missing in UniqueID ", first(data_split[[f]]$UniqueID),
               ". 101.325 kPa was used as default.", call. = FALSE)}
+  }
+  for (f in 1:length(data_split)){
+    if (first(data_split[[f]]$warn.H2O_mol) == TRUE){
+      warning("All NAs found in '", H2O_col, "' for UniqueID ",
+              first(data_split[[f]]$UniqueID), ". 0 ppm was used as default,",
+              "and water correction was suppressed.", call. = FALSE)}
   }
 
   # Warn about measurements with less than 3 data points
   for (f in 1:nrow(flux_results)){
-    if(flux_results$nb.obs[f] < 3){
-      warning("Error in UniqueID ", flux_results$UniqueID[f], ": cannot calculate ",
-              "flux estimates with less than 3 data points. NAs produced.", call. = FALSE)}
+    if (flux_results$nb.obs[f] < 3){
+      warning("Warning in UniqueID ", flux_results$UniqueID[f], ": cannot ",
+              "calculate flux estimates with less than 3 data points. ",
+              "NAs produced.", call. = FALSE)}
   }
 
   # Return results

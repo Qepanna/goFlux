@@ -26,6 +26,9 @@
 #'
 #' @keywords internal
 #'
-g.factor <- function(HM.flux, LM.flux){
-  HM.flux/LM.flux
+g.factor <- function(HM.flux, LM.flux, eps = .Machine$double.eps^0.5) {
+  if (is.na(HM.flux) || is.na(LM.flux)) return(NA_real_)
+  if (!is.finite(HM.flux) || !is.finite(LM.flux)) return(NA_real_)
+  if (abs(LM.flux) < eps) return(NA_real_)
+  HM.flux / LM.flux
 }

@@ -60,11 +60,12 @@ files to be imported.}
 
 \item{instrument}{character string; specifies which instrument was used to
 generate the files contained in the folder path. Choose one
-of the following: "DX4015", "EGM5", "G2201i", "G2508", "G4301",
-"GAIA", "GasmetPD", "GT5000", "LI-6400", "LI-7810", "LI-7820",
-"LI-8100", "LI-8200", "LI-8250", "N2OM1", "N2Oi2", "skyline",
-"uCH4", "uN2O", "UGGA". For more information about an
-instrument, see the section "See Also" below.}
+of the following: "DX4015", "eosMX12", "EGM5", "G2201i",
+"G2508", "G4301", "GAIA", "GasmetPD", "GT5000", "HT8850",
+"LI-6400", "LI-7810", "LI-7820", "LI-8100", "LI-8150",
+"LI-8200", "LI-8250", "N2OM1", "N2Oi2", "skyline", "uCH4",
+"uN2O", "UGGA". For more information about an instrument,
+see the section "See Also" below.}
 
 \item{date.format}{character string; specifies the date format found in the
 raw data file. Choose one of the following: "dmy", "ymd",
@@ -108,8 +109,7 @@ for the flux calculation. Default is \code{flag = c(7,11)}, where
 Idle Closed Dark". Used with \code{instrument = "GAIA"} only.}
 
 \item{background}{logical; if \code{background = FALSE}, removes all data from
-opened chambers. See \code{\link[goFlux]{import.GAIA}} for
-more details.}
+opened chambers. Used with \code{instrument = "GAIA"} only.}
 
 \item{deadband}{numerical; define a deadband at the start of measurements
 (seconds). Used with \code{instrument = "skyline"} only.}
@@ -130,7 +130,7 @@ to ignore these columns. Used with \code{instrument = "skyline"} only.}
 \item{inst, inst1, inst2, inst3}{character strings; a pattern to match the columns
 containing the name of each instrument. See
 \code{\link[goFlux]{import.GAIA}}, \code{\link[goFlux]{import.LI8250}}
-or \code{instrument = "skyline"} for more details.}
+or \code{\link[goFlux]{import.skyline}} for more details.}
 
 \item{gas, gas1, gas2, gas3}{character vectors; a pattern to match the columns
 containing each gas measurement. See \code{\link[goFlux]{import.GAIA}},
@@ -193,8 +193,8 @@ the working directory.
 Imports all raw gas measurement files contained in a folder.
 Adapted to multiple greenhouse gas analyzers and other instruments:
 \itemize{
-\item \strong{LI-COR}: LI-6400, LI-7810, LI-7820, LI-8100, LI-8200 (smart chamber),
-LI-8250 (Multiplexer)
+\item \strong{LI-COR}: LI-6400, LI-7810, LI-7820, LI-8100, LI-8150 (Multiplexer),
+LI-8200 (smart chamber), LI-8250 (Multiplexer)
 \item \strong{Los Gatos Research (LGR)}: ultra-portable GGA (GLA132 series),
 micro ultra-portable GGA (GLA131 series),
 N2OM1 (GLA151 series), and the
@@ -210,7 +210,9 @@ high accuracy analyzer and
 \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}/
 \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}}
 natural gas detection system
-\item \strong{Earth Bound Scientific}: SkyLine2D system
+\item \strong{EarthBound Scientific}: SkyLine2D system
+\item \strong{Healthy Photon}: HT8850
+\item \strong{Eosense}: eosMX 12-Channel Multiplexer
 \item \strong{GasmetPD}: Custom multiplexer from the University of Padova, Italy
 }
 }
@@ -227,10 +229,12 @@ one of the columns in the raw data file:
 \item GAIA: column Titles:
 \item GasmetPD: column Date
 \item GT5000: column Date
+\item HT8850: column time
 \item LI-6400: (see comment below)
 \item LI-7810: column DATE
 \item LI-7820: column DATE
 \item LI-8100: column Date
+\item LI-8150: column Date
 \item LI-8200: (see comment below)
 \item N2OM1: column Time
 \item N2Oi2: column Time
@@ -372,6 +376,11 @@ file.path <- system.file("extdata/LI8100", package = "goFlux")
 import2RData(path = file.path, instrument = "LI-8100",
              date.format = "ymd", prec = c(1, 10))
 
+# with the LI-COR LI-8150 Multiplexer and LI-8100A gas analyzer
+file.path <- system.file("extdata/LI8150", package = "goFlux")
+import2RData(path = file.path, instrument = "LI-8150",
+             date.format = "ymd", prec = c(1, 10))
+
 # with the LI-COR smart chamber (LI-8200)
 # with this instrument, "keep_all" and "prec" are not valid arguments.
 file.path <- system.file("extdata/LI8200", package = "goFlux")
@@ -383,7 +392,7 @@ import2RData(path = file.path, instrument = "LI-8250", date.format = "ymd",
              inst1 = "LI-7810", gas1 = c("CO2_DRY", "CH4_DRY", "H2O"),
              prec1 = c(3.5, 0.6, 45), SWC.col = "SWC_1", Tsoil.col = "TS_1")
 
-# with the SkyLine2D system (Earth Bound Scientific)
+# with the SkyLine2D system (EarthBound Scientific)
 # with this instrument, "keep_all" is not a valid argument.
 file.path <- system.file("extdata/skyline", package = "goFlux")
 import2RData(path = file.path, instrument = "skyline", date.format = "ymd",
@@ -407,6 +416,15 @@ file.path <- system.file("extdata/uN2O", package = "goFlux")
 import2RData(path = file.path, instrument = "uN2O",
              date.format = "mdy", prec = c(0.2, 0.2, 15))
 
+# with the Healthy Photon HT8850 all-in-one GHG analyzer
+file.path <- system.file("extdata/HT8850", package = "goFlux")
+import2RData(path = file.path, instrument = "HT8850",
+             date.format = "ymd", prec = c(0.5, 3, 0.5, 10))
+
+# with the Eosense eosMX 12-Channel Multiplexer
+file.path <- system.file("extdata/eosMX12", package = "goFlux")
+import2RData(path = file.path, instrument = "eosMX12")
+
 }
 \seealso{
 Use the wrapper function \code{\link[goFlux]{import2RData}}
@@ -414,6 +432,7 @@ to import multiple files from the same folder path using any instrument.
 
 Import functions for individual instruments:
 \code{\link[goFlux]{import.DX4015}},
+\code{\link[goFlux]{import.eosMX12}},
 \code{\link[goFlux]{import.EGM5}},
 \code{\link[goFlux]{import.G2201i}},
 \code{\link[goFlux]{import.G2508}},
@@ -421,10 +440,12 @@ Import functions for individual instruments:
 \code{\link[goFlux]{import.GAIA}},
 \code{\link[goFlux]{import.GasmetPD}},
 \code{\link[goFlux]{import.GT5000}},
+\code{\link[goFlux]{import.HT8850}},
 \code{\link[goFlux]{import.LI6400}},
 \code{\link[goFlux]{import.LI7810}},
 \code{\link[goFlux]{import.LI7820}},
 \code{\link[goFlux]{import.LI8100}},
+\code{\link[goFlux]{import.LI8150}},
 \code{\link[goFlux]{import.LI8200}},
 \code{\link[goFlux]{import.LI8250}},
 \code{\link[goFlux]{import.N2OM1}},

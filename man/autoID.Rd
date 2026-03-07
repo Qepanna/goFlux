@@ -67,7 +67,7 @@ frame, which can result in an output data frame smaller (less rows) than the
 \code{inputfile}.
 }
 \examples{
-# How to use in multiple situations:
+# How to use in different situations:
 library(dplyr)
 
 ## with a LGR instrument and an auxiliary file (.txt)
@@ -81,10 +81,6 @@ autoID.UGGA <- autoID(inputfile = imp.UGGA, auxfile = auxfile, obs.length = 180)
 data(imp.LI8200)
 data(imp.LI7820)
 autoID.LI7820 <- autoID(inputfile = imp.LI7820, deadband = 20, auxfile = imp.LI8200)
-
-## with the LI-6400 and no auxiliary file
-data(imp.LI6400)
-ow.LI6400 <- obs.win(inputfile = imp.LI6400, shoulder = 0)
 
 }
 \seealso{

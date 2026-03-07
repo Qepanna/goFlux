@@ -11,8 +11,10 @@ flux2pdf(plot.list, outfile = NULL, width = 11.6, height = 8.2)
 \code{\link[goFlux]{flux.plot}}.}
 
 \item{outfile}{a character string indicating the full name of the pdf
-output file (including the path). Default is to save the pdf
-in the working directory, with the name of the plot.list.}
+output file (including the path and '.pdf' extension). If
+\code{outfile} is not provided, it will be saved in R's
+temporary directory (\code{tempdir()}), with the name of
+the \code{plot.list}.}
 
 \item{width}{numerical value; width of the pdf page. Default is 11.6 inches.}
 
@@ -36,8 +38,7 @@ CO2_plots <- flux.plot(
   plot.legend = c("MAE", "RMSE", "k.ratio", "g.factor", "SErel"),
   plot.display = c("Ci", "C0", "MDF", "prec", "nb.obs", "flux.term"))
 
-\donttest{
-flux2pdf(CO2_plots)}
+flux2pdf(CO2_plots)
 
 }
 \seealso{
