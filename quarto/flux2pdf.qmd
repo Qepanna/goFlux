@@ -187,29 +187,33 @@ if (requireNamespace("goFlux", quietly = TRUE)) {
   # flux.plot arguments
   fluxplot_args <- formals(goFlux::flux.plot) 
   cat("**flux.plot arguments:**\n")
-  for (arg_name in names(fluxplot_args)) {
-    default_val <- fluxplot_args[[arg_name]]
-    if (is.null(default_val)) {
+  for (i in seq_along(fluxplot_args)) {
+    arg_name <- names(fluxplot_args)[i]
+    # Safely deparse without extracting the value
+    arg_str <- deparse(fluxplot_args[[i]])
+    
+    if (arg_str == "" || arg_str == "NULL") {
       cat(sprintf("- `%s` (required)\n", arg_name))
-    } else if (is.character(default_val)) {
-      cat(sprintf("- `%s` = \"%s\"\n", arg_name, default_val))
-    } else if (length(default_val) > 1) {
-      cat(sprintf("- `%s` = c(%s)\n", arg_name, paste(deparse(default_val), collapse = "")))
+    } else if (nchar(arg_str) > 60) {
+      cat(sprintf("- `%s` = %s\n", arg_name, substring(arg_str, 1, 50)))
     } else {
-      cat(sprintf("- `%s` = %s\n", arg_name, deparse(default_val)))
+      cat(sprintf("- `%s` = %s\n", arg_name, arg_str))
     }
   }
   
   cat("\n**flux2pdf arguments:**\n")
   flux2pdf_args <- formals(goFlux::flux2pdf)
-  for (arg_name in names(flux2pdf_args)) {
-    default_val <- flux2pdf_args[[arg_name]]
-    if (is.null(default_val)) {
+  for (i in seq_along(flux2pdf_args)) {
+    arg_name <- names(flux2pdf_args)[i]
+    # Safely deparse without extracting the value
+    arg_str <- deparse(flux2pdf_args[[i]])
+    
+    if (arg_str == "" || arg_str == "NULL") {
       cat(sprintf("- `%s` (required)\n", arg_name))
-    } else if (is.character(default_val)) {
-      cat(sprintf("- `%s` = \"%s\"\n", arg_name, default_val))
+    } else if (nchar(arg_str) > 60) {
+      cat(sprintf("- `%s` = %s\n", arg_name, substring(arg_str, 1, 50)))
     } else {
-      cat(sprintf("- `%s` = %s\n", arg_name, deparse(default_val)))
+      cat(sprintf("- `%s` = %s\n", arg_name, arg_str))
     }
   }
   

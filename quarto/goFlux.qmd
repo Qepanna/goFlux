@@ -156,14 +156,19 @@ if (requireNamespace("goFlux", quietly = TRUE)) {
   goflux_args <- formals(goFlux::goFlux)
   
   cat("📋 **Current goFlux Function Arguments:**\n\n")
-  for (arg_name in names(goflux_args)) {
-    default_val <- goflux_args[[arg_name]]
-    if (is.null(default_val)) {
+  for (i in seq_along(goflux_args)) {
+    arg_name <- names(goflux_args)[i]
+    # Safely deparse without extracting the value (which can be missing)
+    arg_str <- deparse(goflux_args[[i]])
+    
+    # Check if argument has no default (missing/empty)
+    if (arg_str == "" || arg_str == "NULL") {
       cat(sprintf("- `%s` (required)\n", arg_name))
-    } else if (is.character(default_val)) {
-      cat(sprintf("- `%s` = \"%s\"\n", arg_name, default_val))
+    } else if (nchar(arg_str) > 60) {
+      # Complex default, show truncated version
+      cat(sprintf("- `%s` = %s\n", arg_name, substring(arg_str, 1, 50)))
     } else {
-      cat(sprintf("- `%s` = %s\n", arg_name, deparse(default_val)))
+      cat(sprintf("- `%s` = %s\n", arg_name, arg_str))
     }
   }
   
