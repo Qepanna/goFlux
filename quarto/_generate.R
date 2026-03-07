@@ -682,6 +682,129 @@ saveRDS(all_metadata, file.path(output_dir, "function_metadata.RDS"))
 cat("Saved function metadata to function_metadata.RDS\n")
 
 # ==============================================================================
+# STEP 8: Extract and consolidate references from R source files
+# ==============================================================================
+
+cat("\n=== Extracting references from R source files ===\n")
+
+# Get the R source directory
+r_source_dir <- file.path(dirname(dirname(output_dir)), "R")
+
+if (!dir.exists(r_source_dir)) {
+  cat("Warning: R source directory not found at", r_source_dir, "\n")
+} else {
+  # Read all R files
+  r_files <- list.files(r_source_dir, pattern = "\\.R$", full.names = TRUE)
+  
+  all_references <- list()
+  
+  for (r_file in r_files) {
+    content <- readLines(r_file, warn = FALSE)
+    content_text <- paste(content, collapse = "\n")
+    
+    # Extract @references sections from roxygen comments
+    # Pattern: @references followed by text until next @ tag or end
+    ref_pattern <- "@references\\s+(.+?)(?=\\n\\s*@|$)"
+    matches <- gregexpr(ref_pattern, content_text, perl = TRUE)
+    
+    if (matches[[1]][1] != -1) {
+      refs_text <- regmatches(content_text, matches)[[1]]
+      
+      for (ref in refs_text) {
+        # Clean up the reference text
+        ref_clean <- gsub("@references\\s+", "", ref)
+        ref_clean <- trimws(ref_clean)
+        
+        # Associate with function name (extract from nearby @export)
+        func_match <- gregexpr("@export\\s+([\\w\\.]+)", content_text, perl = TRUE)
+        func_names <- c()
+        
+        if (func_match[[1]][1] != -1) {
+          func_names_raw <- regmatches(content_text, gregexpr("@export\\s+([\\w\\.]+)", content_text, perl = TRUE))[[1]]
+          func_names <- gsub("@export\\s+", "", func_names_raw)
+        }
+        
+        for (func in func_names) {
+          if (!func %in% names(all_references)) {
+            all_references[[func]] <- c()
+          }
+          all_references[[func]] <- c(all_references[[func]], ref_clean)
+        }
+      }
+    }
+  }
+  
+  cat("Extracted references for", length(all_references), "functions\n")
+  
+  # ==============================================================================
+  # STEP 9: Consolidate references and update metadata
+  # ==============================================================================
+  
+  cat("\n=== Consolidating references across sources ===\n")
+  
+  references_report <- list()
+  
+  for (func in names(all_references)) {
+    refs <- unique(all_references[[func]])  # Remove duplicates
+    
+    if (length(refs) > 0) {
+      # Check if these references already exist in the website
+      # (would need to scan existing .qmd files)
+      references_report[[func]] <- list(
+        source = "R_files",
+        count = length(refs),
+        references = refs
+      )
+      
+      cat("✓", func, "-", length(refs), "references found\n")
+    }
+  }
+  
+  # Save references report
+  writeLines(
+    jsonlite::toJSON(references_report, pretty = TRUE),
+    file.path(output_dir, "extracted_references.json")
+  )
+  
+  cat("Generated: extracted_references.json\n")
+  
+  # ==============================================================================
+  # STEP 10: Generate references section for website
+  # ==============================================================================
+  
+  cat("\n=== Generating consolidated references page ===\n")
+  
+  refs_page_lines <- c(
+    "# References",
+    "",
+    "This page consolidates all references mentioned in the goFlux package documentation.",
+    "",
+    "## References by Function",
+    ""
+  )
+  
+  for (func in sort(names(all_references))) {
+    refs <- unique(all_references[[func]])
+    if (length(refs) > 0) {
+      refs_page_lines <- c(
+        refs_page_lines,
+        paste0("### `", func, "`"),
+        ""
+      )
+      
+      for (ref in refs) {
+        refs_page_lines <- c(refs_page_lines, paste0("- ", ref))
+      }
+      
+      refs_page_lines <- c(refs_page_lines, "")
+    }
+  }
+  
+  writeLines(refs_page_lines, file.path(output_dir, "all_references.qmd"))
+  cat("Generated: all_references.qmd\n")
+}
+
+# ==============================================================================
 # COMPLETION
 # ==============================================================================
 

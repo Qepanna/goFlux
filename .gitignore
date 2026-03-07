@@ -7,7 +7,7 @@
 README.Rmd
 _GENERATION_GUIDE.md
 DOCUMENTATION.md
-plan-fixGoFluxDocumentationWebsiteAutomation.prompt.md
+./github/prompts/*
 
 # Quarto outputs
 quarto/_site/
