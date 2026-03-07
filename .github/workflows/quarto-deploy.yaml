@@ -61,10 +61,10 @@ jobs:
         working-directory: ./quarto
         run: Rscript _generate.R
 
-      - name: Validate code examples
+      - name: Validate code examples (strict on main, warn on PR)
         working-directory: ./quarto
         run: Rscript _examples.R
-        continue-on-error: true
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
 
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2

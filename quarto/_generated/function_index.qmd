@@ -1,0 +1,16 @@
+# Function Reference
+
+## Import Functions
+
+Functions to import raw data from gas analyzers:
+
+## Core Functions
+
+Functions for flux calculation and analysis:
+- [`flux2pdf()`](#flux2pdf) - Save plots to pdf
+- [`goFlux()`](#goflux) - goFlux: a user-friendly GHG fluxes calculation tool
+
+## Analysis & Measurement Functions
+
+Functions for measurement identification and analysis:
+- [`autoID()`](#autoid) - Automatically define measurements' window based on an auxiliary file

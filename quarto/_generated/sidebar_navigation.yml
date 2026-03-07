@@ -1,0 +1,51 @@
+# Dynamic Sidebar Navigation (Generated)
+# Add these sections to quarto/_quarto.yml under website.sidebar.contents
+# as replacement for hardcoded sections
+
+# ---
+# - section: "Instrument Imports"
+#   text: "Instrument Imports"
+#   contents:
+#     - file: _generated/ref_import.DX4015.qmd
+#     - file: _generated/ref_import.EGM5.qmd
+#     - file: _generated/ref_import.G2201i.qmd
+#     - file: _generated/ref_import.G2508.qmd
+#     - file: _generated/ref_import.G4301.qmd
+#     - file: _generated/ref_import.GAIA.qmd
+#     - file: _generated/ref_import.GasmetPD.qmd
+#     - file: _generated/ref_import.GT5000.qmd
+#     - file: _generated/ref_import.LI6400.qmd
+#     - file: _generated/ref_import.LI7810.qmd
+#     - file: _generated/ref_import.LI7820.qmd
+#     - file: _generated/ref_import.LI8100.qmd
+#     - file: _generated/ref_import.LI8200.qmd
+#     - file: _generated/ref_import.LI8250.qmd
+#     - file: _generated/ref_import.N2Oi2.qmd
+#     - file: _generated/ref_import.N2OM1.qmd
+#     - file: _generated/ref_import.skyline.qmd
+#     - file: _generated/ref_import.uCH4.qmd
+#     - file: _generated/ref_import.UGGA.qmd
+#     - file: _generated/ref_import.uN2O.qmd
+
+# ---
+# - section: "Core Functions"
+#   text: "Core Functions"
+#   contents:
+#     - file: _generated/ref_best.flux.qmd
+#     - file: _generated/ref_flux.plot.qmd
+#     - file: _generated/ref_flux2pdf.qmd
+#     - file: _generated/ref_goFlux.qmd
+
+# ---
+# - section: "Analysis Functions"
+#   text: "Analysis Functions"
+#   contents:
+#     - file: _generated/ref_autoID.qmd
+#     - file: _generated/ref_click.peak2.qmd
+#     - file: _generated/ref_iso.comp.qmd
+#     - file: _generated/ref_obs.win.qmd
+
+# ---
+
+# Note: Featured sections above are commented examples.
+# Uncomment and customize the sections you want to include in your sidebar.

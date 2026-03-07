@@ -1,5 +1,7 @@
 project:
   type: website
+  pre-render:
+    - _generate.R
   resources:
     - docs/example_auxfile.xlsx
     - scripts/**  # Only include actual downloadable assets, not the output dir

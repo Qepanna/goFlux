@@ -1,6 +1,9 @@
 #' Import function for Picarro G2508 GHG analyzer
 #'
-#' Imports single raw gas measurement files from the Picarro G2508 with the
+#' Imports single raw gas measurement files from the Picarro
+#'
+#' @category import
+#' @instrument Picarro|Picarro G2508|concentration G2508 with the
 #' extension .dat (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
 #' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},

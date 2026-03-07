@@ -17,7 +17,14 @@ suppressPackageStartupMessages({
 })
 
 # Create output directory for generated files
-output_dir <- file.path(dirname(rstudioapi::getActiveDocumentContext()$path), "_generated")
+# Try to determine context (RStudio vs. command line)
+output_dir <- tryCatch({
+  rstudioapi::getActiveDocumentContext()$path %>% dirname() %>% file.path("_generated")
+}, error = function(e) {
+  # Fallback for non-interactive/CI environment
+  file.path(getwd(), "_generated")
+})
+
 if (!dir.exists(output_dir)) {
   dir.create(output_dir, recursive = TRUE)
   cat("Created output directory:", output_dir, "\n")
@@ -38,11 +45,15 @@ cat("Found", length(exported_functions), "exported functions\n")
 # Get help database
 help_db <- tools::Rd_db("goFlux")
 
-# Function to parse individual .Rd file
-parse_rd_file <- function(rd_path) {
+# Function to parse individual .Rd file or parsed Rd object
+parse_rd_file <- function(rd_input) {
   tryCatch({
-    # Parse the Rd file
-    rd_parsed <- tools::parse_Rd(rd_path)
+    # Parse the Rd file if it's a character path, otherwise assume it's already parsed
+    if (is.character(rd_input)) {
+      rd_parsed <- tools::parse_Rd(rd_input)
+    } else {
+      rd_parsed <- rd_input
+    }
     
     # Extract components
     result <- list(
@@ -55,7 +66,9 @@ parse_rd_file <- function(rd_path) {
       value = NA,
       examples = NA,
       seealso = NA,
-      details_raw = ""
+      details_raw = "",
+      category = NA,
+      instrument_metadata = NA
     )
     
     # Process different sections
@@ -83,6 +96,13 @@ parse_rd_file <- function(rd_path) {
         result$examples <- paste(as.character(item), collapse = "\n")
       } else if (tag == "\\seealso") {
         result$seealso <- paste(as.character(item), collapse = " ")
+      } else if (tag == "\\category") {
+        # Extract function category (import, core, analysis, wrapper)
+        result$category <- trimws(as.character(item))
+      } else if (tag == "\\instrument") {
+        # Extract instrument metadata in format: manufacturer|name|type
+        instrument_str <- trimws(as.character(item))
+        result$instrument_metadata <- instrument_str
       }
     }
     
@@ -118,27 +138,129 @@ parse_arguments_section <- function(args_item) {
 }
 
 # ==============================================================================
-# STEP 2: Categorize functions
+# STEP 2: Categorize functions (with metadata-based extraction + fallbacks)
 # ==============================================================================
 
+# Fallback mapping for functions without @category tags
+fallback_categories <- list(
+  core = c("goFlux", "best.flux", "flux.plot", "flux2pdf", "HM.flux", "LM.flux", "k.max", "g.factor", "MDF", "flux.term"),
+  analysis = c("autoID", "obs.win", "click.peak2", "iso.comp", "crop.meas", "auto.deadband", "align"),
+  wrapper = c("import2RData")
+)
+
+# Fallback mapping for instrument metadata
+fallback_instruments <- list(
+  "import.DX4015" = list(manufacturer = "Gasmet", name = "Gasmet DX4015", type = "portable"),
+  "import.EGM5" = list(manufacturer = "PP-Systems", name = "PP-Systems EGM-5", type = "portable"),
+  "import.eosMX12" = list(manufacturer = "Aeris", name = "Aeris EOS MX12", type = "portable"),
+  "import.G2201i" = list(manufacturer = "Picarro", name = "Picarro G2201-i", type = "isotopic"),
+  "import.G2508" = list(manufacturer = "Picarro", name = "Picarro G2508", type = "concentration"),
+  "import.G4301" = list(manufacturer = "Picarro", name = "Picarro G4301", type = "mobile"),
+  "import.GAIA" = list(manufacturer = "GAIA2TECH", name = "GAIA2TECH ECOFlux", type = "chamber"),
+  "import.GasmetPD" = list(manufacturer = "Gasmet", name = "Gasmet PD (Custom)", type = "custom"),
+  "import.GT5000" = list(manufacturer = "Gasmet", name = "Gasmet GT5000", type = "portable"),
+  "import.HT8850" = list(manufacturer = "Healthy Photon", name = "Healthy Photon HT8850", type = "portable"),
+  "import.LI6400" = list(manufacturer = "LI-COR", name = "LI-COR LI-6400", type = "portable"),
+  "import.LI7810" = list(manufacturer = "LI-COR", name = "LI-COR LI-7810", type = "portable"),
+  "import.LI7820" = list(manufacturer = "LI-COR", name = "LI-COR LI-7820", type = "portable"),
+  "import.LI8100" = list(manufacturer = "LI-COR", name = "LI-COR LI-8100", type = "automated"),
+  "import.LI8150" = list(manufacturer = "LI-COR", name = "LI-COR LI-8150", type = "automated"),
+  "import.LI8200" = list(manufacturer = "LI-COR", name = "LI-COR LI-8200", type = "chamber"),
+  "import.LI8250" = list(manufacturer = "LI-COR", name = "LI-COR LI-8250", type = "multiplexer"),
+  "import.N2Oi2" = list(manufacturer = "Los Gatos", name = "Los Gatos N2Oi2", type = "isotopic"),
+  "import.N2OM1" = list(manufacturer = "Los Gatos", name = "Los Gatos N2OM1", type = "portable"),
+  "import.skyline" = list(manufacturer = "EarthBound Scientific", name = "Skyline2D", type = "chamber"),
+  "import.uCH4" = list(manufacturer = "Los Gatos", name = "Los Gatos uCH4", type = "portable"),
+  "import.UGGA" = list(manufacturer = "Los Gatos", name = "Los Gatos UGGA", type = "portable"),
+  "import.uN2O" = list(manufacturer = "Los Gatos", name = "Los Gatos uN2O", type = "portable")
+)
+
+# Function to get instrument metadata from extracted or fallback data
+get_instrument_metadata <- function(func_name, metadata) {
+  # If extracted from roxygen tags, parse the format: manufacturer|name|type
+  if (!is.na(metadata$instrument_metadata)) {
+    parts <- strsplit(metadata$instrument_metadata, "\\|", fixed = FALSE)[[1]]
+    if (length(parts) >= 3) {
+      return(list(
+        manufacturer = trimws(parts[1]),
+        name = trimws(parts[2]),
+        type = trimws(parts[3])
+      ))
+    }
+  }
+  # Fall back to hardcoded mapping
+  if (func_name %in% names(fallback_instruments)) {
+    return(fallback_instruments[[func_name]])
+  }
+  return(NULL)
+}
+
+# Function to get category from extracted or fallback data
+get_function_category <- function(func_name, metadata) {
+  # If extracted from roxygen tags
+  if (!is.na(metadata$category)) {
+    return(tolower(trimws(metadata$category)))
+  }
+  # Fall back to pattern-based detection
+  if (str_detect(func_name, "^import\\.")) return("import")
+  if (func_name %in% fallback_categories$core) return("core")
+  if (func_name %in% fallback_categories$analysis) return("analysis")
+  if (func_name %in% fallback_categories$wrapper) return("wrapper")
+  return("other")
+}
+
+# ==============================================================================
+# STEP 3: Extract metadata for all functions (BEFORE categorization)
+# ==============================================================================
+
+all_metadata <- list()
+
+# The help_db uses .Rd filenames as keys, which may differ from function names
+# We need to map function names to the correct help entries
+for (func_name in exported_functions) {
+  # Try to find the help entry for this function
+  rd_file <- NULL
+  
+  if (func_name %in% names(help_db)) {
+    rd_file <- help_db[[func_name]]
+  } else {
+    # Try to find by searching for the function name in the database
+    matching_keys <- grep(gsub("\\.", "_", func_name), names(help_db), value = TRUE)
+    if (length(matching_keys) > 0) {
+      rd_file <- help_db[[matching_keys[1]]]
+    }
+  }
+  
+  if (!is.null(rd_file)) {
+    metadata <- parse_rd_file(rd_file)
+    if (!is.null(metadata)) {
+      all_metadata[[func_name]] <- metadata
+      cat("✓", func_name, "\n")
+    }
+  }
+}
+
+cat("\nSuccessfully extracted metadata for", length(all_metadata), "functions\n")
+
 categorize_functions <- function(func_names) {
-  # Import functions: start with "import."
-  imports <- func_names[str_detect(func_names, "^import\\.")]
+  imports <- c()
+  core <- c()
+  analysis <- c()
+  wrapper <- c()
   
-  # Core flux calculation: goFlux, best.flux, HM.flux, LM.flux, flux.plot, flux2pdf
-  core <- func_names[func_names %in% c(
-    "goFlux", "best.flux", "flux.plot", "flux2pdf",
-    "HM.flux", "LM.flux", "k.max", "g.factor", "MDF", "flux.term"
-  )]
-  
-  # Measurement identification: autoID, obs.win, click.peak2
-  analysis <- func_names[func_names %in% c(
-    "autoID", "obs.win", "click.peak2", "iso.comp",
-    "crop.meas", "auto.deadband", "align"
-  )]
-  
-  # Data import wrapper
-  wrapper <- func_names[func_names == "import2RData"]
+  # Categorize based on extracted metadata
+  for (func_name in func_names) {
+    category <- if (func_name %in% names(all_metadata)) {
+      get_function_category(func_name, all_metadata[[func_name]])
+    } else {
+      get_function_category(func_name, list(category = NA))
+    }
+    
+    if (category == "import") imports <- c(imports, func_name)
+    else if (category == "core") core <- c(core, func_name)
+    else if (category == "analysis") analysis <- c(analysis, func_name)
+    else if (category == "wrapper") wrapper <- c(wrapper, func_name)
+  }
   
   return(list(
     imports = imports,
@@ -155,25 +277,6 @@ cat("  Import functions:", length(categories$imports), "\n")
 cat("  Core functions:", length(categories$core), "\n")
 cat("  Analysis functions:", length(categories$analysis), "\n")
 cat("  Wrapper functions:", length(categories$wrapper), "\n")
-
-# ==============================================================================
-# STEP 3: Extract metadata for all functions
-# ==============================================================================
-
-all_metadata <- list()
-
-for (func_name in exported_functions) {
-  if (func_name %in% names(help_db)) {
-    rd_file <- help_db[[func_name]]
-    metadata <- parse_rd_file(rd_file)
-    if (!is.null(metadata)) {
-      all_metadata[[func_name]] <- metadata
-      cat("✓", func_name, "\n")
-    }
-  }
-}
-
-cat("\nSuccessfully extracted metadata for", length(all_metadata), "functions\n")
 
 # ==============================================================================
 # STEP 4: Generate individual function reference pages
@@ -274,19 +377,51 @@ generate_function_reference <- function(metadata, func_category) {
   return(paste(lines, collapse = "\n"))
 }
 
-# Generate reference pages for import functions
-cat("\n=== Generating import function references ===\n")
+# Generate reference pages for ALL functions (import, core, analysis, wrapper)
+cat("\n=== Generating function reference pages ===\n")
 
 import_refs <- list()
-for (func in categories$imports) {
+
+# Helper to generate minimal reference if metadata unavailable
+generate_minimal_reference <- function(func_name) {
+  lines <- c()
+  lines <- c(lines, "---")
+  lines <- c(lines, paste0('title: "`', func_name, '`"'))
+  lines <- c(lines, paste0('code-block-bg: true'))
+  lines <- c(lines, "---")
+  lines <- c(lines, "")
+  lines <- c(lines, "See [All Functions](function_index.qmd) for complete documentation.")
+  lines <- c(lines, "")
+  return(paste(lines, collapse = "\n"))
+}
+
+# Generate pages for all categorized functions
+all_functions_to_document <- c(
+  categories$imports,
+  categories$core,
+  categories$analysis,
+  categories$wrapper
+)
+
+for (func in all_functions_to_document) {
+  filename <- file.path(output_dir, paste0("ref_", func, ".qmd"))
+  
+  # Use full metadata if available, otherwise generate minimal stub
   if (func %in% names(all_metadata)) {
-    filename <- file.path(output_dir, paste0("ref_", func, ".qmd"))
     content <- generate_function_reference(all_metadata[[func]], "import")
-    writeLines(content, filename)
-    cat("Generated:", filename, "\n")
+  } else {
+    content <- generate_minimal_reference(func)
+  }
+  
+  writeLines(content, filename)
+  cat("✓", func, "\n")
+  
+  if (func %in% categories$imports) {
     import_refs[[func]] <- all_metadata[[func]]
   }
 }
+
+cat("Generated", length(all_functions_to_document), "function reference pages\n")
 
 # ==============================================================================
 # STEP 5: Generate instrument comparison matrix
@@ -294,35 +429,7 @@ for (func in categories$imports) {
 
 cat("\n=== Generating instrument comparison matrix ===\n")
 
-# Extract instrument information from import function names and descriptions
-instruments <- list()
-import_mapping <- list(
-  "import.DX4015" = list(name = "Gasmet DX4015", manufacturer = "Gasmet", type = "portable"),
-  "import.EGM5" = list(name = "PP-Systems EGM-5", manufacturer = "PP-Systems", type = "portable"),
-  "import.eosMX12" = list(name = "Aeris EOS MX12", manufacturer = "Aeris", type = "portable"),
-  "import.G2201i" = list(name = "Picarro G2201-i", manufacturer = "Picarro", type = "isotopic"),
-  "import.G2508" = list(name = "Picarro G2508", manufacturer = "Picarro", type = "concentration"),
-  "import.G4301" = list(name = "Picarro G4301", manufacturer = "Picarro", type = "mobile"),
-  "import.GAIA" = list(name = "GAIA2TECH ECOFlux", manufacturer = "GAIA2TECH", type = "chamber"),
-  "import.GasmetPD" = list(name = "Gasmet PD (Custom)", manufacturer = "Gasmet", type = "custom"),
-  "import.GT5000" = list(name = "Gasmet GT5000", manufacturer = "Gasmet", type = "portable"),
-  "import.HT8850" = list(name = "Healthy Photon HT8850", manufacturer = "Healthy Photon", type = "portable"),
-  "import.LI6400" = list(name = "LI-COR LI-6400", manufacturer = "LI-COR", type = "portable"),
-  "import.LI7810" = list(name = "LI-COR LI-7810", manufacturer = "LI-COR", type = "portable"),
-  "import.LI7820" = list(name = "LI-COR LI-7820", manufacturer = "LI-COR", type = "portable"),
-  "import.LI8100" = list(name = "LI-COR LI-8100", manufacturer = "LI-COR", type = "automated"),
-  "import.LI8150" = list(name = "LI-COR LI-8150", manufacturer = "LI-COR", type = "automated"),
-  "import.LI8200" = list(name = "LI-COR LI-8200", manufacturer = "LI-COR", type = "chamber"),
-  "import.LI8250" = list(name = "LI-COR LI-8250", manufacturer = "LI-COR", type = "multiplexer"),
-  "import.N2Oi2" = list(name = "Los Gatos N2Oi2", manufacturer = "Los Gatos", type = "isotopic"),
-  "import.N2OM1" = list(name = "Los Gatos N2OM1", manufacturer = "Los Gatos", type = "portable"),
-  "import.skyline" = list(name = "Skyline2D", manufacturer = "EarthBound Scientific", type = "chamber"),
-  "import.uCH4" = list(name = "Los Gatos uCH4", manufacturer = "Los Gatos", type = "portable"),
-  "import.UGGA" = list(name = "Los Gatos UGGA", manufacturer = "Los Gatos", type = "portable"),
-  "import.uN2O" = list(name = "Los Gatos uN2O", manufacturer = "Los Gatos", type = "portable")
-)
-
-# Generate comparison matrix
+# Generate comparison matrix using extracted or fallback metadata
 comparison_lines <- c(
   "# Supported Instruments",
   "",
@@ -333,17 +440,21 @@ comparison_lines <- c(
 )
 
 for (func in sort(categories$imports)) {
-  if (func %in% names(import_mapping)) {
-    info <- import_mapping[[func]]
-    comparison_lines <- c(
-      comparison_lines,
-      paste0(
-        "| [`", func, "`](#", tolower(func), ") | ",
-        info$name, " | ",
-        info$manufacturer, " | ",
-        info$type, " | Single or batch |"
+  if (func %in% names(all_metadata)) {
+    metadata <- all_metadata[[func]]
+    info <- get_instrument_metadata(func, metadata)
+    
+    if (!is.null(info)) {
+      comparison_lines <- c(
+        comparison_lines,
+        paste0(
+          "| [`", func, "`](#", tolower(func), ") | ",
+          info$name, " | ",
+          info$manufacturer, " | ",
+          info$type, " | Single or batch |"
+        )
       )
-    )
+    }
   }
 }
 
@@ -421,6 +532,119 @@ for (func in sort(categories$analysis)) {
 
 writeLines(index_lines, file.path(output_dir, "function_index.qmd"))
 cat("Generated: function_index.qmd\n")
+
+# ==============================================================================
+# STEP 6b: Generate dynamic sidebar navigation
+# ==============================================================================
+
+cat("\n=== Generating sidebar navigation components ===\n")
+
+# Create navigation sections for each category
+nav_sections <- list(
+  imports = list(
+    text = "Instrument Imports",
+    functions = categories$imports
+  ),
+  core = list(
+    text = "Core Functions",
+    functions = categories$core
+  ),
+  analysis = list(
+    text = "Analysis Functions",
+    functions = categories$analysis
+  )
+)
+
+# Create a YAML snippet for sidebar that could be included
+nav_yaml_lines <- c(
+  "# Dynamic Sidebar Navigation (Generated)",
+  "# Add these sections to quarto/_quarto.yml under website.sidebar.contents",
+  "# as replacement for hardcoded sections",
+  ""
+)
+
+for (category_name in names(nav_sections)) {
+  section <- nav_sections[[category_name]]
+  nav_yaml_lines <- c(
+    nav_yaml_lines,
+    "# ---",
+    paste0("# - section: \"", section$text, "\""),
+    paste0("#   text: \"", section$text, "\""),
+    "#   contents:"
+  )
+  
+  for (func in sort(section$functions)) {
+    nav_yaml_lines <- c(
+      nav_yaml_lines,
+      paste0("#     - file: _generated/ref_", func, ".qmd")
+    )
+  }
+  nav_yaml_lines <- c(nav_yaml_lines, "")
+}
+
+nav_yaml_lines <- c(
+  nav_yaml_lines,
+  "# ---",
+  "",
+  "# Note: Featured sections above are commented examples.",
+  "# Uncomment and customize the sections you want to include in your sidebar."
+)
+
+writeLines(nav_yaml_lines, file.path(output_dir, "sidebar_navigation.yml"))
+cat("Generated: sidebar_navigation.yml (example navigation structure)\n")
+
+# ==============================================================================
+# STEP 6c: Auto-link manual pages to API documentation
+# ==============================================================================
+
+cat("\n=== Auto-linking manual pages to API docs ===\n")
+
+# Find all manual .qmd files (exclude _generated/)
+manual_qmd_files <- list.files(
+  dirname(output_dir),
+  pattern = "^[^_].+\\.qmd$",
+  full.names = FALSE
+)
+
+# Create reference map: function name -> reference file
+function_refs <- list()
+for (func in exported_functions) {
+  function_refs[[func]] <- paste0("[`", func, "()`](/_generated/ref_", func, ".qmd)")
+}
+
+cross_refs_report <- list()
+
+# For each manual page, find mentions of functions and create a reference file
+for (qmd_file in manual_qmd_files) {
+  qmd_path <- file.path(dirname(output_dir), qmd_file)
+  if (!file.exists(qmd_path)) next
+  
+  content <- readLines(qmd_path, warn = FALSE)
+  content_text <- paste(content, collapse = " ")
+  
+  # Find which functions are mentioned in this file
+  mentioned_functions <- c()
+  for (func in exported_functions) {
+    # Look for function name patterns (as code or in text)
+    # Match: `function_name` or `function_name()` or function_name in text
+    if (grepl(paste0("\\b", func, "\\b"), content_text)) {
+      mentioned_functions <- c(mentioned_functions, func)
+    }
+  }
+  
+  if (length(mentioned_functions) > 0) {
+    cross_refs_report[[qmd_file]] <- mentioned_functions
+    cat("✓", qmd_file, "mentions", length(mentioned_functions), "functions\n")
+  }
+}
+
+# Save cross-reference report for documentation
+cross_ref_json <- jsonlite::toJSON(cross_refs_report, pretty = TRUE)
+writeLines(cross_ref_json, file.path(output_dir, "cross_references.json"))
+cat("Generated: cross_references.json (auto-detected function mentions in manual pages)\n")
+
+cat("\nNote: Functions mentioned in manual pages are documented in cross_references.json\n")
+cat("Manual page authors can use this to add relevant API references.\n")
 
 # ==============================================================================
 # STEP 7: Save metadata for examples validation script

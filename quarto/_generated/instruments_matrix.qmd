@@ -1,0 +1,8 @@
+# Supported Instruments
+
+The goFlux package supports import functions for 22+ instruments from multiple manufacturers.
+
+| Function | Instrument | Manufacturer | Type | Import Method |
+|----------|-----------|--------------|------|----------------|
+
+See individual function references for detailed documentation on each instrument.
