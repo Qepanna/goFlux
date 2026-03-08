@@ -1,0 +1,13 @@
+#auxfile-btn {
+     font-size: xx-small;
+     padding: 0.2rem 0.3rem !important;
+   }
+
+#down-btn {
+ margin-right: 2px;
+ margin-left: 2px;
+}
+
+a:has(#auxfile-btn) {
+ text-decoration: none !important;
+}

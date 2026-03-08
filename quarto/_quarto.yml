@@ -1,0 +1,60 @@
+project:
+  type: website
+  pre-render:
+    - _generate.R
+  resources:
+    - docs/example_auxfile.xlsx
+    - scripts/**  # Only include actual downloadable assets, not the output dir
+
+format:
+  html:
+    theme: default
+    css: custom.scss
+    toc: true
+    toc-expand: 1
+    toc-depth: 4
+    link-external-icon: false
+    link-external-newwindow: true
+    link-external-filter: '^(?:http:|https:)\/\/(?:www\.)*(qepanna\.quarto\.pub)\/.*$'
+    bibliography: references.bib
+    csl: apa-no-initials.csl
+
+website:
+  title: "goFlux"
+  page-navigation: true
+  sidebar:
+    tools:
+      - icon: twitter
+        href: https://twitter.com/KarelleRheault
+        target: "_blank"
+      - icon: github
+        menu:
+          - text: Source code
+            url:  https://github.com/Qepanna/goFlux/tree/master/R
+          - text: Report a Bug
+            url:  https://github.com/Qepanna/goFlux/issues
+    logo: /images/goFlux.png
+    collapse-level: 3
+    style: "docked"
+    align: left
+    contents:
+      - file: index.qmd
+        text: "About"
+      - file: install.qmd
+        text: "Installation"
+      - file: import.qmd
+        text: "Import"
+      - file: manualID.qmd
+        text: "Measurement ID"
+      - file: goFlux.qmd
+        text: "goFlux"
+      - file: bestflux.qmd
+        text: "best.flux"
+      - file: flux2pdf.qmd
+        text: "Plots"
+      - file: other.qmd
+        text: "Other functions"
+      - file: example.qmd
+        text: "Examples"
+      - file: troubleshoot.qmd
+        text: "Troubleshoot"

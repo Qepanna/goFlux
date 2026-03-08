@@ -1,0 +1,90 @@
+---
+title: "Installation"
+editor: visual
+format:
+  html:
+    toc: false
+---
+
+## Installing R and RStudio
+
+To work with the `goFlux` package, you'll need to install R and RStudio. Both programs are free and easy to download. For an easy step by step, follow the procedure described [here](https://rstudio-education.github.io/hopr/starting.html#using-r).
+
+## Installing goFlux from GitHub {#sec-installgoflux}
+
+To install a package from GitHub, one can use the package `devtools` (or `remotes`) from the CRAN:
+
+```{r}
+#| eval: false
+if (!require("devtools", quietly = TRUE)) install.packages("devtools")
+```
+
+Then, install the `goFlux` package from GitHub. If it is not the first time you install the package, it must first be detached before being updated.
+
+```{r}
+#| eval: false
+try(detach("package:goFlux", unload = TRUE), silent = TRUE)
+devtools::install_github("Qepanna/goFlux")
+```
+
+::: callout-important
+The package is constantly being updated with new functions or de-bugging. To make sure that you are using the latest version, re-install the package every time you use it.
+:::
+
+::: callout-warning
+**If prompted, it is recommended to update any pre-installed packages.** The functioning of the package depends on many other packages (`AICcmodavg`, `data.table`, `dplyr`, `ggnewscale`, `ggplot2`, `ggstar`, `graphics`, `grDevices`, `grid`, `gridExtra`, `jsonlite`, `lifecycle`, `lubridate`, `minpack.lm`, `msm`, `pbapply`, `plyr`, `purrr`, `rjson`, `rlang`, `rlist`, `SimDesign`, `stats`, `stringr`, `tibble`, `tidyr`, `toOrdinal`, `utils`), which will be installed when installing `goFlux`.
+:::
+
+Once installed, load the package `goFlux`:
+
+```{r}
+#| eval: false
+library(goFlux)
+```
+
+## Verify installation {#sec-verify}
+
+You can verify that `goFlux` is properly installed and all dependencies are available:
+
+```{r}
+#| eval: false
+# Check if goFlux is installed and can be loaded
+if (requireNamespace("goFlux", quietly = TRUE)) {
+  cat("✓ goFlux is installed and available\n")
+  cat("✓ Version:", as.character(packageVersion("goFlux")), "\n")
+} else {
+  cat("✗ goFlux is not installed or cannot be loaded\n")
+}
+
+# Test that core functions are available
+core_functions <- c("goFlux", "best.flux", "import2RData", "autoID")
+for (func in core_functions) {
+  if (exists(func, mode = "function", where = asNamespace("goFlux"))) {
+    cat("✓", func, "function available\n")
+  } else {
+    cat("✗", func, "function not found\n")
+  }
+}
+```
+
+## Other required packages {#sec-packages}
+
+Other packages from the CRAN are required to run the examples on this website.
+
+```{r}
+#| eval: false
+# Install packages
+install.packages("dplyr")
+install.packages("purrr")
+install.packages("readxl")
+install.packages("openxlsx")
+```
+
+```{r}
+#| eval: false
+# Load packages
+library(dplyr)
+library(purrr)
+library(readxl)
+library(openxlsx)
+```
