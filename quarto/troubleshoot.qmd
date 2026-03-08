@@ -97,6 +97,8 @@ First, we must find in which position is this UniqueID located in the list of da
 
 ```{r}
 #| eval: false
+library(dplyr)
+
 # Create a data frame UniqueID.position that lists the position of each UniqueID
 # in the object ow.UGGA
 UniqueID.position <- cbind.data.frame(position = seq(1, length(ow.UGGA))) 

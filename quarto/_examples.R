@@ -8,6 +8,8 @@
 # Output: examples_validation_report.json with test results
 # ==============================================================================
 
+library(rlang)
+
 suppressPackageStartupMessages({
   library(goFlux)
   library(stringr)
