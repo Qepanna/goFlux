@@ -7,11 +7,18 @@ on:
       - 'quarto/**'
       - 'R/**'
       - 'man/**'
+      - 'inst/**'
+      - 'data/**'
       - '.github/workflows/quarto-deploy.yaml'
   pull_request:
     branches: [main, master]
     paths:
       - 'quarto/**'
+      - 'R/**'
+      - 'man/**'
+      - 'inst/**'
+      - 'data/**'
+      - '.github/workflows/quarto-deploy.yaml'
   workflow_dispatch:
 
 concurrency:
