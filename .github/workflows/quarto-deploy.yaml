@@ -61,7 +61,6 @@ jobs:
             any::ggplot2
             any::stringr
             any::jsonlite
-            any::downloadthis
             local::.
           needs: website
 

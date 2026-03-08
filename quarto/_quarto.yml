@@ -5,8 +5,6 @@ project:
   resources:
     - docs/example_auxfile.xlsx
     - scripts/**  # Only include actual downloadable assets, not the output dir
-  extensions:
-    - shafayetShafee/downloadthis
 
 format:
   html:
