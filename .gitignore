@@ -9,6 +9,9 @@ _GENERATION_GUIDE.md
 DOCUMENTATION.md
 .github/prompts/
 
+# Generated outputs
+_generated/
+
 # Quarto outputs
 quarto/_site/
 quarto/_freeze/
