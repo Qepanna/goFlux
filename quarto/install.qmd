@@ -56,7 +56,7 @@ if (requireNamespace("goFlux", quietly = TRUE)) {
 # Test that core functions are available
 core_functions <- c("goFlux", "best.flux", "import2RData", "autoID")
 for (func in core_functions) {
-  if (exists(func, mode = "function")) {
+  if (exists(func, mode = "function", where = asNamespace("goFlux"))) {
     cat("✓", func, "function available\n")
   } else {
     cat("✗", func, "function not found\n")
