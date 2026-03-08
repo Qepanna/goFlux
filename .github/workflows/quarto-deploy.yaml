@@ -57,12 +57,6 @@ jobs:
             local::.
           needs: website
 
-      - name: Generate API documentation
-        working-directory: ./quarto
-        run: |
-          Rscript _generate.R
-          echo "Generation completed"
-
       - name: Validate generation success
         working-directory: ./quarto
         run: |
