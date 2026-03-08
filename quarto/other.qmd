@@ -1,5 +1,8 @@
 ---
 title: "Other functions in the package goFlux"
+format: 
+  html: 
+    css: styles.css
 engine: knitr
 editor: visual
 ---

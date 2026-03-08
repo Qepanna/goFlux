@@ -1,5 +1,8 @@
 ---
 title: "Identify start and end of measurements"
+format: 
+  html: 
+    css: styles.css
 engine: knitr
 editor: visual
 ---
