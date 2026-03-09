@@ -2,6 +2,9 @@
 #' conditions
 #'
 #' Imports single raw gas measurement files from the Gasmet DX4015 gas analyzer
+#'
+#' @category import
+#' @instrument Gasmet|Gasmet DX4015|portable
 #' (CO, \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
 #' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},

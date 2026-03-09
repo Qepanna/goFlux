@@ -1,0 +1,164 @@
+---
+title: "`best.flux`"
+code-block-bg: true
+---
+
+
+ This automatic selection of the best flux estimate (linear,
+ list(list("LM.flux")) ; or non-linear, Hutchinson and Mosier
+ model,  list(list("HM.flux")) ) is based on objective criteria.
+
+
+## Description
+
+Automatic selection of best flux estimate
+
+## Usage
+
+```r
+
+
+best.flux(
+
+  flux.result,
+
+  criteria = c("MAE", "RMSE", "AICc", "SE", "g.factor", "kappa", "MDF", "nb.obs",
+
+    "intercept", "p-value"),
+
+  intercept.lim = NULL,
+
+  g.limit = 2,
+
+  p.val = 0.05,
+
+  k.ratio = 1,
+
+  warn.length = 60
+
+)
+
+```
+
+## Arguments
+
+**`list("flux.result")`**
+
+: list("data.frame; output from the function\n", list(list("goFlux")), ".")
+
+**`list("criteria")`**
+
+: list("character vector; criteria used to assess the goodness of fit\n", "of the LM or HM flux estimates. Must be at least one the\n", "following: \"MAE\", \"RMSE\", \"AICc\", \"SE\", \"g.factor\", \"kappa\",\n", "\"MDF\", \"nb.obs\", \"p-value\", or \"intercept\". The default is\n", "all of them.")
+
+**`list("intercept.lim")`**
+
+: list("numerical vector of length 2; inferior and superior\n", "limits of the intercept (initial concentration;\n", list(list("html"), list(list("C0")), list(list(list("C[0]"), list("ASCII")))), ").\n", "Must be the same units as ", list("gastype"), " in the\n", list(list("goFlux")), " function. If\n", list("intercept.lim = NULL"), ", the limits are calculated\n", "from the true values of\n", list(list("html"), list(list("C0")), list(list(list("C[0]"), list("ASCII")))), " and\n", 
+    list(list("html"), list(list("Ct")), list(list(list("C[t]"), list("ASCII")))), "\n", "for each measurement.")
+
+**`list("g.limit")`**
+
+: list("numerical value; maximum limit of the g-factor (ratio\n", "between ", list(list("HM.flux")), " and\n", list(list("LM.flux")), "). Recommended\n", "thresholds for the g-factor are 4 (flexible), 2 (medium), or\n", "1.25 (conservative). The default limit is ", list("g.limit = 2"), ".")
+
+**`list("p.val")`**
+
+: list("numerical value; the minimal limit to indicate a slope\n", "significantly larger than zero. The default threshold is\n", list("p-value"), " < 0.05.")
+
+**`list("k.ratio")`**
+
+: list("numerical value; maximum limit of the ratio between kappa and\n", "the kappa-max. Default is ", list("k.ratio = 1"), ".")
+
+**`list("warn.length")`**
+
+: list("numerical value; limit under which a measurement is flagged for\n", "being too short (", list("nb.obs < warn.length"), ").")
+
+## Value
+
+
+ A data.frame identical to the input  list("flux.result")  (output from
+          goFlux) with the additional columns  list("HM.diagnose") ,
+           list("LM.diagnose") ,  list("best.flux") ,  list("model")  and
+           list("quality.check") . For each criteria selected, an additional
+          column is also added to specify the limits used for those criteria
+          (e.g.  list("RMSE.lim") ,  list("p.val.lim") , etc.)
+
+
+## Details
+
+
+ In  list("criteria") , the indices of model fit "MAE", "RMSE" and "SE" all
+ have a threshold. For MAE and RMSE, the threshold is instrument precision
+ (1 list(list("\\sigma"), list("ASCII")) ). For SE, the threshold is the instrument accuracy
+ (1 list(list("\\sigma"), list("ASCII")) / list(list("\\sqrt{n}"), list("ASCII")) ). These indices also compare the two models
+ (linear, LM, and non-linear, HM). The selection of the best model based on
+ indices of model fit ("MAE", "RMSE", "AICc" and "SE") is based on a scoring
+ system. Both models start with a score of 0. For each criteria, whichever
+ model performs worst is given +1. After all selected criteria have been
+ evaluated, the model with the lowest score wins. In case of a tie, the
+ HM flux estimate is always chosen by default, as non-linearity is assumed.
+ The score is printed in the columns HM.score and LM.score.
+ 
+ The  list("g.limit")  indicates a threshold for the
+ list(list("g.factor")) , which is the ratio between a
+ non-linear flux estimate and a linear flux estimate. With the
+ list(list("best.flux"))  function, one can choose a limit at
+ which the HM model is deemed to overestimate
+ list(list("html"), list(list("f0")), list(list(list("f[0]"), list("ASCII")))) . Recommended thresholds
+ for the g-factor are 0")), list(list(list("C[0]"), list("ASCII")))) ) calculated for the
+ flux estimates ( list("HM.C0")  and  list("LM.C0") ) deviates from the true
+ ( list(list("html"), list(list("C0")), list(list(list("C[0]"), list("ASCII")))) ) by more or less than
+ 10% of the difference between
+ list(list("html"), list(list("C0")), list(list(list("C[0]"), list("ASCII"))))  and the final gas
+ concentration at the end of the measurement
+ ( list(list("html"), list(list("Ct")), list(list(list("C[t]"), list("ASCII")))) ), a warning is issued
+ in the columns  list("quality.check") ,  list("LM.diagnose")  or  list("HM.diagnose") 
+ to warn of an intercept out of bounds. Alternatively, one can provide
+ boundaries for the intercept, for example:  list("intercept.lim = c(380, 420)") 
+ for a true  list(list("html"), list(list("C0")), list(list(list("C[0]"), list("ASCII"))))  of 400 ppm.
+ 
+ The argument  list("p.val")  is only applicable to the linear flux. Under the
+ defined  list("p-value") , the slope of the linear flux estimate is deemed
+ non-significant, i. e., flux under the detection limit. The default threshold is
+ list("p.val = 0.05") . No best flux estimate is chosen based on  list("p-value") .
+ If  list("LM.p.val < p.val") , a warning is given in the columns
+ list("quality.check")  and  list("LM.diagnose")  to warn of an estimated flux
+ below the detection limit.
+ 
+ list("warn.length")  is the limit below which the chamber closure time is
+ flagged for being too short ( list("nb.obs < warn.length") ). Portable
+ greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore,
+ for the default setting of  list("warn.length = 60") , the chamber closure time
+ should be approximately one minute (60 seconds). If the number of
+ observations  is smaller than the threshold, a warning is issued in the
+ column  list("quality.check") .
+
+
+## Examples
+
+```r
+
+
+data(manID.UGGA)
+
+CO2_flux <- goFlux(manID.UGGA, "CO2dry_ppm")
+
+CO2_best <- best.flux(CO2_flux)
+
+
+
+```
+
+## See Also
+
+
+ Look up the functions  list(list("MDF")) ,
+           list(list("flux.term")) ,
+           list(list("g.factor")) ,
+           list(list("k.max")) ,
+           list(list("HM.flux"))  and
+           list(list("LM.flux")) 
+          of this package for more information about these parameters.
+ 
+ See also the function  list(list("goFlux")) 
+          for more information about usage.
+
+

@@ -1,0 +1,30 @@
+# Function Reference
+
+## Import Functions
+
+Functions to import raw data from gas analyzers:
+- [`import.G2201i()`](#import.g2201i) - Import function for the Picarro G2201-i Isotopic Analyzer
+- [`import.GasmetPD()`](#import.gasmetpd) - Import function for the GasmetPD multiplexer from the University of Padova
+- [`import.GT5000()`](#import.gt5000) - Import function for the Gasmet GT5000 Terra - Splashproof multigas FTIR
+ analyzer
+- [`import.LI8250()`](#import.li8250) - Import function for LI-COR Multiplexer (LI-8250)
+- [`import.N2Oi2()`](#import.n2oi2) - Import function for the Los Gatos Research GLA451-N2Oi2
+- [`import.skyline()`](#import.skyline) - Import function for the SkyLine2D system linked to one GHG analyzer
+
+## Core Functions
+
+Functions for flux calculation and analysis:
+- [`best.flux()`](#best.flux) - Automatic selection of best flux estimate
+- [`flux.plot()`](#flux.plot) - Plots for quality checking of GHG flux measurements
+- [`flux2pdf()`](#flux2pdf) - Save plots to pdf
+- [`goFlux()`](#goflux) - goFlux: a user-friendly GHG fluxes calculation tool
+
+## Analysis & Measurement Functions
+
+Functions for measurement identification and analysis:
+- [`autoID()`](#autoid) - Automatically define measurements' window based on an auxiliary file
+- [`click.peak2()`](#click.peak2) - Manual identification of start and end of gas measurements
+- [`iso.comp()`](#iso.comp) - Determine the isotopic composition of
+ list(list("html"), list(list("CO<sub>2</sub>")), list(list(list("CO[2]"), list("ASCII"))))  and
+ list(list("html"), list(list("N<sub>2</sub>O")), list(list(list("N[2]O"), list("ASCII"))))  measurements
+- [`obs.win()`](#obs.win) - Define measurements' window for manual identification

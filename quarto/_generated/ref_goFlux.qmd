@@ -1,0 +1,246 @@
+---
+title: "`goFlux`"
+code-block-bg: true
+---
+
+
+ A wrapper function to calculate GHG fluxes from static chamber measurements.
+ Calculates linear ( list(list("LM.flux")) ) and non-linear
+ fluxes (Hutchinson and Mosier model;  list(list("HM.flux")) ),
+ from a variety of greenhouse gasses (
+ list(list("html"), list(list("CO<sub>2</sub>")), list(list(list("CO[2]"), list("ASCII")))) ,
+ list(list("html"), list(list("CH<sub>4</sub>")), list(list(list("CH[4]"), list("ASCII")))) ,
+ list(list("html"), list(list("N<sub>2</sub>O")), list(list(list("N[2]O"), list("ASCII")))) ,
+ list(list("html"), list(list("N<sub>2</sub>O")), list(list(list("NO[2]"), list("ASCII")))) , NO,
+ list(list("html"), list(list("NH<sub>3</sub>")), list(list(list("NH[3]"), list("ASCII")))) , CO, and
+ list(list("html"), list(list("H<sub>2</sub>O")), list(list(list("H[2]O"), list("ASCII")))) ).
+
+
+## Description
+
+goFlux: a user-friendly GHG fluxes calculation tool
+
+## Usage
+
+```r
+
+
+goFlux(
+
+  dataframe,
+
+  gastype,
+
+  H2O_col = "H2O_ppm",
+
+  prec = NULL,
+
+  Area = NULL,
+
+  offset = NULL,
+
+  Vtot = NULL,
+
+  Vcham = NULL,
+
+  Pcham = NULL,
+
+  Tcham = NULL,
+
+  k.mult = 1,
+
+  warn.length = 60,
+
+  k.min = 0
+
+)
+
+```
+
+## Arguments
+
+**`list("dataframe")`**
+
+: list("a data.frame containing gas measurements (see ", list("gastype"), "\n", "below), water vapor measurements (see ", list("H2O_col"), " below)\n", "and the following columns: ", list("UniqueID"), ", ", list("Etime"), ",\n", list("Vtot"), ", ", list("Area"), ", ", list("Pcham"), ", ", list("Tcham"), " and\n", list("flag"), " (see the parameters ", list("Vtot"), ", ", list("Area"), ",\n", list("Pcham"), " and ", list("Tcham"), " below for more details).\n", list("chamID"), " may be used instead of ", 
+    list("UniqueID"), ".")
+
+**`list("gastype")`**
+
+: list("character string; specifies which column should be used for the\n", "flux calculations. Must be one of the following: \"CO2dry_ppm\",\n", "\"CH4dry_ppb\", \"COdry_ppb\", \"N2Odry_ppb\", \"NH3dry_ppb\", \"NO_ppb\",\n", "\"NO2_ppb\" or \"H2O_ppm\".")
+
+**`list("H2O_col")`**
+
+: list("character string; specifies which column should be used to\n", "subtract the effect of water vapor in the chamber space.\n", "Default is ", list("H2O_col = \"H2O_ppm\""), ".")
+
+**`list("prec")`**
+
+: list("numerical value; precision of the instruments. Units must be the\n", "same as ", list("gastype"), ". With the default ", list("prec = NULL"), ",\n", "instrument precision for each gas must be provided in\n", list("dataframe"), ".")
+
+**`list("Area")`**
+
+: list("numerical value; area of the soil surface inside the chamber\n", list(list("html"), list(list("(cm2)")), list(list(list("(cm^2)"), list("ASCII")))), ".\n", "Alternatively, provide the column ", list("Area"), " in ", list("dataframe"), "\n", "if ", list("Area"), " is different between samples.")
+
+**`list("offset")`**
+
+: list("(optional) numerical value; height between the soil surface and\n", "the chamber (cm). Alternatively, provide the column ", list("offset"), "\n", "in ", list("dataframe"), " if ", list("offset"), " is different between samples.\n", list("offset"), " is only used if ", list("Vtot"), " is missing.")
+
+**`list("Vtot")`**
+
+: list("numerical value; total volume inside the chamber, tubes, instruments,\n", "etc. (L). Alternatively, provide the column ", list("Vtot"), " in\n", list("dataframe"), " if ", list("Vtot"), " is different between samples. If\n", list("Vtot"), " is missing, the function will calculate it from\n", list("Area"), ", ", list("Vcham"), " and ", list("offset"), ".")
+
+**`list("Vcham")`**
+
+: list("(optional) numerical value; volume inside the chamber, tubes and\n", "instruments (L). Alternatively, provide the column ", list("Vcham"), "\n", "in ", list("dataframe"), " if ", list("Vcham"), " is different between samples.\n", list("Vhcam"), " is only used if ", list("Vtot"), " is missing.")
+
+**`list("Pcham")`**
+
+: list("numerical value; pressure inside the chamber (kPa).\n", "Alternatively, provide the column ", list("Pcham"), " in ", list("dataframe"), "\n", "if ", list("Pcham"), " is different between samples. If ", list("Pcham"), " is\n", "not provided, normal atmospheric pressure (101.325 kPa) is used.")
+
+**`list("Tcham")`**
+
+: list("numerical value; temperature inside the chamber (Celsius).\n", "Alternatively, provide the column ", list("Tcham"), " in ", list("dataframe"), "\n", "if ", list("Tcham"), " is different between samples. If ", list("Tcham"), " is\n", "not provided, 15°C is used as default.")
+
+**`list("k.mult")`**
+
+: list("numerical value; a multiplier for the allowed kappa-max.\n", "Default setting is no multiplier (", list("k.mult = 1"), ").\n", list("k.mult"), " cannot be negative and must be smaller or\n", "equal to 10.")
+
+**`list("warn.length")`**
+
+: list("numerical value; limit under which a measurement is\n", "flagged for being too short (", list("nb.obs < warn.length"), ").")
+
+**`list("k.min")`**
+
+: list("numerical value; a lower boundary value for kappa in the HM model.\n", "Default is ", list("k.min = 0"))
+
+## Value
+
+
+ Returns a data frame with 28 columns: a  list("UniqueID")  per
+ measurement, 11 columns for the linear model results (linear flux estimate
+ ( list(list("LM.flux")) ), initial gas concentration
+ ( list("LM.C0") ), final gas concentration ( list("LM.Ct") ), slope of linear
+ regression ( list("LM.slope") ), mean absolute error ( list("LM.MAE") ), root mean
+ square error ( list("LM.RMSE") ), Akaike's information criterion corrected for
+ small sample size ( list("LM.AICc") ), standard error ( list("LM.SE") ), relative
+ standard error ( list("LM.se.rel") ), coefficient of determination ( list("LM.r2") ),
+ and  list("p-value")  ( list("LM.p.val") )), 11 columns for the non-linear model
+ results (non-linear flux estimate ( list(list("HM.flux")) ),
+ initial gas concentration ( list("HM.C0") ), the assumed concentration of
+ constant gas source below the surface ( list("HM.Ci") ), slope at  list("t=0") 
+ ( list("HM.slope") ), mean absolute error ( list("HM.MAE") ), root mean square error
+ ( list("HM.RMSE") ), Akaike's information criterion corrected for small sample
+ size ( list("HM.AICc") ), standard error ( list("HM.SE") ), relative standard error
+ ( list("HM.se.rel") ), coefficient of determination ( list("HM.r2") ), and curvature
+ (kappa;  list("HM.k") ), as well as the minimal detectable flux
+ ( list(list("MDF")) ), the precision of the instrument
+ ( list("prec") ), the flux term ( list(list("flux.term")) ),
+ kappa-max ( list(list("k.max")) ), the g factor (g.fact;
+ list(list("g.factor")) ), the number of observations used
+ ( list("nb.obs") ) and the true initial gas concentration ( list("C0") ) and final
+ gas concentration ( list("Ct") ).
+
+
+## Details
+
+
+ Flux estimate units are
+ list(list("html"), list(list("µmol m-2s-1")), list(list(list("µmol m^{-2}s^{-1}"), list("ASCII")))) 
+ (if initial concentration is ppm, e.g. CO2dry_ppm) and
+ list(list("html"), list(list("nmol m-2s-1")), list(list(list("nmol m^{-2}s^{-1}"), list("ASCII")))) 
+ (if initial concentration is ppb, e.g. CH4dry_ppb).
+ 
+ The  list(list("goFlux"))  function calculates flux estimates
+ from the linear model (LM) and the Hutchinson and Mosier model (HM). The HM
+ model is a non-linear model, whose curvature is controlled by the parameter
+ kappa. A large kappa returns a strong curvature. A maximum threshold for this
+ parameter, kappa-max ( list(list("k.max")) ), can be calculated
+ from the linear flux estimate ( list(list("LM.flux")) ), the
+ minimal detectable flux ( list(list("MDF")) ) and the time of
+ chamber closure. This limit of kappa-max is included in the
+ list(list("goFlux"))  function, so that the non-linear flux
+ estimate cannot exceed this maximum curvature. Inversely, one can set a
+ minimal threshold for kappa: to allow for a log-like curvature, set
+ list("k.min")  below 0 (ex. -1).
+ 
+ All flux estimates, including the  list(list("MDF")) , are
+ obtained from the multiplication of the slope and the
+ list(list("flux.term")) , which is used to correct the
+ pressure inside the chamber (due to water vapor), as well as convert the
+ units to obtain a term in nmol or
+ list(list("html"), list(list("µmol m-2s-1")), list(list(list("µmol m^{-2}s^{-1}"), list("ASCII")))) .
+ 
+ The argument  list("Area")  is in  list(list("html"), list(list("(cm2)")), list(list(list("(cm^2)"), list("ASCII")))) ,
+ but the output units from  list(list("goFlux"))  are in
+ list(list("html"), list(list("(m2)")), list(list(list("(m^2)"), list("ASCII")))) . This is due to the
+ conversion from  list(list("html"), list(list("(cm2)")), list(list(list("(cm^2)"), list("ASCII")))) 
+ to  list(list("html"), list(list("(m2)")), list(list(list("(m^2)"), list("ASCII"))))  within the
+ function. This means that there is a factor of 10,000 to convert from
+ list(list("html"), list(list("(cm2)")), list(list(list("(cm^2)"), list("ASCII")))) 
+ to  list(list("html"), list(list("(m2)")), list(list(list("(m^2)"), list("ASCII")))) . This is important
+ to take into account if one would provide something else than an  list("Area") 
+ in  list(list("html"), list(list("(cm2)")), list(list(list("(cm^2)"), list("ASCII"))))  to the function.
+ For example, with incubated soil samples, one may provide an amount of soil
+ (kg) instead of an area in the column  list("Area") . To get the right units in
+ that case, multiply the kilograms of soil by 10,000 to remove the conversion
+ from  list(list("html"), list(list("(cm2)")), list(list(list("(cm^2)"), list("ASCII"))))  to
+ list(list("html"), list(list("(m2)")), list(list(list("(m^2)"), list("ASCII")))) .
+ 
+ In  list("gastype") , the gas species listed are the ones for which this package
+ has been adapted. Please write to the maintainer of this package for
+ adaptation of additional gases.
+ 
+ list("warn.length")  is the limit below which the chamber closure time is
+ flagged for being too short ( list("nb.obs < warn.length") ). Portable
+ greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore,
+ for the default setting of  list("warn.length = 60") , the chamber closure time
+ should be approximately one minute (60 seconds). If the number of
+ observations is smaller than the threshold, a warning is printed: e.g. "Low
+ number of observations: UniqueID X has 59 observations".
+
+
+## Examples
+
+```r
+
+
+data(manID.UGGA)
+
+CO2_flux <- goFlux(manID.UGGA, "CO2dry_ppm")
+
+CH4_flux <- goFlux(manID.UGGA, "CH4dry_ppb")
+
+H2O_flux <- goFlux(manID.UGGA, "H2O_ppm")
+
+
+
+```
+
+## See Also
+
+
+ Look up the functions  list(list("MDF")) ,
+           list(list("flux.term")) ,
+           list(list("g.factor")) ,
+           list(list("k.max")) ,
+           list(list("HM.flux"))  and
+           list(list("LM.flux"))  of this package for more
+          information about these parameters.
+ 
+ See also the import functions to find the
+          default instrument precision for each instrument:
+           list(list("import.DX4015")) ,
+           list(list("import.EGM5")) ,
+           list(list("import.G2508")) ,
+           list(list("import.G4301")) ,
+           list(list("import.GAIA")) ,
+           list(list("import.LI6400")) ,
+           list(list("import.LI7810")) ,
+           list(list("import.LI7820")) ,
+           list(list("import.LI8100")) ,
+           list(list("import.LI8200")) ,
+           list(list("import.N2OM1")) ,
+           list(list("import.uCH4")) ,
+           list(list("import.uN2O")) ,
+           list(list("import.UGGA")) 
+
+

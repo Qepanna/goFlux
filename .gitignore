@@ -1,7 +1,28 @@
-docs
+#docs
 .Rproj.user
 .Rhistory
 .RData
 .RDataTmp
 .Ruserdata
 README.Rmd
+_GENERATION_GUIDE.md
+DOCUMENTATION.md
+.github/prompts/
+
+# Generated outputs
+_generated/
+
+# Quarto outputs
+quarto/_site/
+quarto/_freeze/
+quarto/.quarto/
+quarto/_generated/
+quarto/*.html
+quarto/~*.qmd
+
+# R/Quarto caches
+.cache/
+*.Rmd.lock
+
+# Rendered outputs
+_site/
