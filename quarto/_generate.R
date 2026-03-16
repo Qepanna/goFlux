@@ -318,8 +318,6 @@ instruments_documented_in_qmd <- c(
   "import.EGM5",
   # Aeris Technologies
   "import.uCH4", "import.uN2O",
-  # Eosense
-  "import.eosMX12",
   # Healthy Photon
   "import.HT8850"
 )
