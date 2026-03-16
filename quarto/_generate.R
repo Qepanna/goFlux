@@ -2335,17 +2335,17 @@ extract_documented_functions_from_qmd <- function(qmd_path) {
   
   lines <- readLines(qmd_path, warn = FALSE)
   
-  # Look for function headers: ### `function_name` or ### function.name
-  # Also handles: ### `function_name` for description text
-  func_pattern <- "^###\\s+`?([a-zA-Z._][a-zA-Z0-9._]*)`?\\s*(?:for|$)"
-  
   documented <- c()
   for (line in lines) {
-    if (grepl(func_pattern, line, perl = TRUE)) {
-      # Extract function name from header
-      func_name <- gsub(func_pattern, "\\1", line, perl = TRUE)
-      if (func_name != "" && !grepl("^(Auto-|Additional|References)", func_name)) {
-        # Filter out false matches and section headers
+    # Look for ### `function_name` headers
+    if (grepl("^###\\s+`", line)) {
+      # Extract function name from backticks: ### `function_name` ...
+      func_name <- gsub("^###\\s+`([a-zA-Z._][a-zA-Z0-9._]*)`.*", "\\1", line)
+      
+      # Validate extraction succeeded (text changed) and it's not a false match
+      if (func_name != line &&  # Must have extracted something different from original
+          nchar(func_name) > 0 &&
+          !grepl("^(Details|Arguments|Usage|Value|Examples?|Tip|Note|Error|Warning|Results|See|References)", func_name)) {
         documented <- c(documented, func_name)
       }
     }
@@ -2551,7 +2551,7 @@ find_insertion_point_for_function <- function(func_name, category, qmd_lines) {
     }
     
     # Match function headers (### format)
-    if (grepl("^###\\s+`?([a-zA-Z._]", qmd_lines[i])) {
+    if (grepl("^###\\s+`?([a-zA-Z._][a-zA-Z0-9._]*)", qmd_lines[i])) {
       func_name_in_header <- gsub("^###\\s+`?([a-zA-Z._][a-zA-Z0-9._]*)", "\\1", qmd_lines[i])
       func_headers[[length(func_headers) + 1]] <- list(
         line = i,
@@ -2580,9 +2580,257 @@ find_insertion_point_for_function <- function(func_name, category, qmd_lines) {
 }
 
 # ==============================================================================
+# STEP 12: Generalized Multi-Section Auto-Sync Framework
+# ==============================================================================
+# Extends STEP 11 pattern to other .qmd files (goflux.qmd, bestflux.qmd, etc.)
+# Uses same snapshot-based change detection for consistent behavior across all sections
+
+# Configuration for all auto-managed .qmd documentation sections
+# Maps source .R files to their corresponding .qmd files for auto-documentation
+qmd_section_config <- list(
+  # goflux.qmd: Documents goFlux.R and its argument changes
+  goflux_section = list(
+    qmd_file = "goflux.qmd",
+    snapshot_file = "function_inventory_goflux_snapshot.json",
+    section_header_patterns = list(
+      arguments = "^###\\s+Arguments"  # goFlux function arguments
+    ),
+    categories = c("from_goFlux.R"),
+    description = "goFlux main function and argument documentation"
+  ),
+  
+  # bestflux.qmd: Documents best.flux.R and its argument changes
+  bestflux_section = list(
+    qmd_file = "bestflux.qmd",
+    snapshot_file = "function_inventory_bestflux_snapshot.json",
+    section_header_patterns = list(
+      best_selection = "^###\\s+`?best\\.flux`"
+    ),
+    categories = c("from_best.flux.R"),
+    description = "best.flux function and argument documentation"
+  ),
+  
+  # flux2pdf.qmd: Documents flux2pdf.R and its argument changes
+  flux2pdf_section = list(
+    qmd_file = "flux2pdf.qmd",
+    snapshot_file = "function_inventory_flux2pdf_snapshot.json",
+    section_header_patterns = list(
+      pdf_generation = "^###\\s+`?flux2pdf`"
+    ),
+    categories = c("from_flux2pdf.R"),
+    description = "flux2pdf function and argument documentation"
+  )
+)
+
+# Generic function to sync documentation for any .qmd section
+sync_function_documentation_in_section <- function(
+  config,
+  all_functions,
+  all_metadata,
+  categories_list,
+  output_dir
+) {
+  # output_dir is _generated, which is in quarto directory
+  # config$qmd_file is just the filename (e.g., "goflux.qmd")
+  qmd_path <- file.path(dirname(output_dir), config$qmd_file)
+  snapshot_path <- file.path(output_dir, config$snapshot_file)
+  
+  # Check if .qmd file exists
+  if (!file.exists(qmd_path)) {
+    if (Sys.getenv("GOFLUX_DEBUG") == "1") {
+      cat("[STEP 12] Skipping", config$qmd_file, "- file not found\n")
+    }
+    return(list(
+      updated = FALSE,
+      missing = c(),
+      signature_changed = c(),
+      metadata_changed = c()
+    ))
+  }
+  
+  # Extract documented functions from this .qmd
+  documented <- extract_documented_functions_from_qmd(qmd_path)
+  
+  # Build inventories for this section's categories
+  funcs_for_section <- c()
+  for (cat in config$categories) {
+    if (cat %in% names(categories_list)) {
+      funcs_for_section <- c(funcs_for_section, categories_list[[cat]])
+    }
+  }
+  
+  if (length(funcs_for_section) == 0) {
+    if (Sys.getenv("GOFLUX_DEBUG") == "1") {
+      cat("[STEP 12]", config$qmd_file, "- no functions found for categories:", 
+          paste(config$categories, collapse=", "), "\n")
+    }
+    return(list(
+      updated = FALSE,
+      missing = c(),
+      signature_changed = c(),
+      metadata_changed = c()
+    ))
+  }
+  
+  # Build inventory for these functions
+  section_inventory <- build_function_inventory_for_section(
+    funcs_for_section, 
+    config$categories[1],  # Use first category as primary
+    all_metadata
+  )
+  
+  # Load previous snapshot
+  previous_inventory <- load_previous_inventory(snapshot_path)
+  
+  # Classify changes
+  classifications <- classify_core_analysis_functions(
+    section_inventory,
+    previous_inventory %||% list(),
+    documented
+  )
+  
+  # Only process missing documentation
+  missing <- classifications$missing_doc
+  
+  # Generate and insert missing function sections
+  section_updated <- FALSE
+  if (length(missing) > 0) {
+    qmd_lines <- readLines(qmd_path, warn = FALSE)
+    sections_to_insert <- list()
+    
+    for (func_name in sort(missing)) {
+      generated_section <- generate_function_section_for_qmd(
+        func_name,
+        section_inventory[[func_name]],
+        all_metadata
+      )
+      
+      if (generated_section != "") {
+        # Find insertion point within appropriate section
+        section_category <- config$categories[1]
+        insertion_line <- find_insertion_point_for_function(
+          func_name, section_category, qmd_lines
+        )
+        
+        if (!is.null(insertion_line)) {
+          sections_to_insert[[func_name]] <- list(
+            content = generated_section,
+            insertion_line = insertion_line
+          )
+        }
+      }
+    }
+    
+    # Insert all sections in descending line order
+    if (length(sections_to_insert) > 0) {
+      # Sort by line number (descending)
+      line_order <- order(
+        sapply(sections_to_insert, function(x) x$insertion_line),
+        decreasing = TRUE
+      )
+      
+      for (idx in line_order) {
+        section <- sections_to_insert[[idx]]
+        insertion_point <- section$insertion_line
+        content_lines <- strsplit(section$content, "\n")[[1]]
+        
+        qmd_lines <- c(
+          qmd_lines[1:insertion_point],
+          content_lines,
+          if (insertion_point < length(qmd_lines)) 
+            qmd_lines[(insertion_point + 1):length(qmd_lines)] 
+          else c()
+        )
+      }
+      
+      # Write updated .qmd
+      writeLines(qmd_lines, qmd_path)
+      section_updated <- TRUE
+      
+      if (Sys.getenv("GOFLUX_DEBUG") == "1") {
+        cat("[STEP 12] Updated", config$qmd_file, "with", 
+            length(sections_to_insert), "new sections\n")
+      }
+    }
+  }
+  
+  # Save snapshot for next run
+  writeLines(
+    jsonlite::toJSON(
+      list(
+        generated_at = as.character(Sys.time()),
+        inventory = section_inventory
+      ),
+      pretty = TRUE,
+      auto_unbox = TRUE
+    ),
+    snapshot_path
+  )
+  
+  return(list(
+    updated = section_updated,
+    missing = missing,
+    signature_changed = classifications$signature_changed,
+    metadata_changed = classifications$metadata_changed,
+    documented_count = length(documented),
+    total_count = length(funcs_for_section)
+  ))
+}
+
+# Function categorization by source .R file
+# Maps functions to the .qmd files where their documentation is maintained
+extended_categories <- list(
+  # goFlux.R: Main flux calculation function
+  from_goFlux.R = c("goFlux"),
+  
+  # best.flux.R: Best flux selection function
+  from_best.flux.R = c("best.flux"),
+  
+  # flux2pdf.R: PDF generation function
+  from_flux2pdf.R = c("flux2pdf")
+  
+  # Note: Functions from other .R files documented in other.qmd are handled by STEP 11
+  # core/analysis/wrapper categories in STEP 11 capture remainder
+)
+
+# Run STEP 12: Process all configured sections
+if (Sys.getenv("GOFLUX_DEBUG") == "1") {
+  cat("\n=== Running STEP 12: Generalized Multi-Section Sync ===\n")
+}
+
+step12_results <- list()
+
+for (section_name in names(qmd_section_config)) {
+  config <- qmd_section_config[[section_name]]
+  
+  result <- sync_function_documentation_in_section(
+    config,
+    all_functions = exported_functions,
+    all_metadata = all_metadata,
+    categories_list = extended_categories,
+    output_dir = output_dir
+  )
+  
+  step12_results[[section_name]] <- c(
+    config = list(config),
+    result = list(result)
+  )
+}
+
+# Generate consolidated STEP 12 report
+step12_report <- list(
+  generated_at = as.character(Sys.time()),
+  sections_processed = length(qmd_section_config),
+  sections = step12_results
+)
+
+writeLines(
+  jsonlite::toJSON(step12_report, pretty = TRUE, auto_unbox = TRUE),
+  file.path(output_dir, "step12_sync_report.json")
+)
+
 # ==============================================================================
 # COMPLETION
-# ==============================================================================
 
 cat("\n✓ Documentation generation complete!\n")
 cat("Generated files in:", output_dir, "\n")

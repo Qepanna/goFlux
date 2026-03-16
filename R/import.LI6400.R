@@ -3,7 +3,7 @@
 #' Imports single raw gas measurement files from the LI-COR 6400
 #'
 #' @category import
-#' @instrumentlink LI-COR|LI-COR LI-6400|portable
+#'
 #' (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} GHG analyzer)
 #'
