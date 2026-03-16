@@ -22,7 +22,19 @@ output_dir <- tryCatch({
   rstudioapi::getActiveDocumentContext()$path %>% dirname() %>% file.path("_generated")
 }, error = function(e) {
   # Fallback for non-interactive/CI environment
-  file.path(getwd(), "_generated")
+  # Check if we're in the quarto directory or if we need to find it
+  if (dir.exists(file.path(getwd(), "quarto", "_generated"))) {
+    file.path(getwd(), "quarto", "_generated")
+  } else if (basename(getwd()) == "quarto") {
+    file.path(getwd(), "_generated")
+  } else {
+    # Try to find import.qmd to figure out where quarto directory is
+    if (file.exists(file.path(getwd(), "quarto", "import.qmd"))) {
+      file.path(getwd(), "quarto", "_generated")
+    } else {
+      file.path(getwd(), "_generated")
+    }
+  }
 })
 
 if (!dir.exists(output_dir)) {
@@ -2828,6 +2840,773 @@ writeLines(
   jsonlite::toJSON(step12_report, pretty = TRUE, auto_unbox = TRUE),
   file.path(output_dir, "step12_sync_report.json")
 )
+
+# ==============================================================================
+# STEP 13: Enhanced Import Documentation Sync (import.qmd)
+# ==============================================================================
+# Intelligently detect import.qmd structure, extract metadata from individual
+# import.*.R files and import2RData.R examples, generate comprehensive single-file
+# import documentation sections, and auto-populate manufacturer/instrument lists.
+
+cat("\n=== STEP 13: Enhanced Import Documentation Sync ===\n")
+
+# ============================================================================
+# PHASE 1: Infrastructure & Metadata Extraction
+# ============================================================================
+
+# Extract @instrumentlink tags from R source files
+# Format: Manufacturer|Code|Name|URL
+extract_instrument_links_from_sources <- function(r_source_dir) {
+  tags <- list()
+  
+  if (!dir.exists(r_source_dir)) return(tags)
+  
+  r_files <- list.files(r_source_dir, pattern = "^import\\..+\\.R$", full.names = TRUE)
+  
+  for (r_file in r_files) {
+    lines <- readLines(r_file, warn = FALSE)
+    # Look for @instrumentlink in comments
+    tag_lines <- grep("^#'\\s*@instrumentlink\\b", lines, value = TRUE)
+    
+    if (length(tag_lines) == 0) next
+    
+    # Extract the value after @instrumentlink
+    raw_value <- sub("^#'\\s*@instrumentlink\\s*", "", tag_lines[1])
+    func_name <- sub("\\.R$", "", basename(r_file))
+    
+    # Parse pipe-delimited format: Manufacturer|Code|Name|URL
+    parts <- trimws(unlist(strsplit(raw_value, "\\|", fixed = FALSE)))
+    
+    if (length(parts) >= 2) {
+      tags[[func_name]] <- list(
+        manufacturer = if (length(parts) >= 1) parts[1] else NA,
+        code = if (length(parts) >= 2) parts[2] else NA,
+        name = if (length(parts) >= 3) parts[3] else NA,
+        link = if (length(parts) >= 4) parts[4] else NA
+      )
+    }
+  }
+  
+  tags
+}
+
+# Extract import2RData examples from R source
+# Returns structured list of instrument -> example code
+extract_import2RData_examples <- function(r_source_dir) {
+  examples <- list()
+  
+  import2RData_file <- file.path(r_source_dir, "import2RData.R")
+  if (!file.exists(import2RData_file)) return(examples)
+  
+  lines <- readLines(import2RData_file, warn = FALSE)
+  examples_idx <- grep("^#'\\s*@examples", lines)
+  
+  if (length(examples_idx) == 0) return(examples)
+  
+  start_idx <- examples_idx[1]
+  end_idx <- length(lines)
+  
+  examples_text <- lines[(start_idx + 1):end_idx]
+  
+  # Split by instrument comment blocks: "# with the <instrument>"
+  instrument_blocks <- list()
+  current_block <- list(instrument = NA, comment = NA, code_lines = c())
+  
+  for (line in examples_text) {
+    if (grepl("^#'\\s*#\\s*with the", line)) {
+      # Found new instrument block
+      if (!is.na(current_block$instrument)) {
+        # Save previous block
+        instrument_blocks[[current_block$instrument]] <- current_block
+      }
+      
+      # Parse instrument name from comment
+      comment_text <- sub("^#'\\s*#\\s*", "", line)
+      current_block <- list(
+        instrument = NA,
+        comment = comment_text,
+        code_lines = c()
+      )
+      
+      # Extract instrument code from pattern "with the <Manufacturer> <Code>"
+      m <- regexec("with the (.+?)\\s+([A-Za-z0-9._-]+)\\s*$", comment_text)
+      if (m[[1]][1] > 0) {
+        matched <- regmatches(comment_text, m)[[1]]
+        if (length(matched) >= 3) {
+          current_block$instrument <- matched[3]  # The code
+        }
+      }
+    } else if (grepl("^#'\\s*[a-zA-Z]", line)) {
+      # Code line (roxygen comment)
+      code_line <- sub("^#'\\s?", "", line)
+      current_block$code_lines <- c(current_block$code_lines, code_line)
+    }
+  }
+  
+  # Save final block
+  if (!is.na(current_block$instrument)) {
+    instrument_blocks[[current_block$instrument]] <- current_block
+  }
+  
+  instrument_blocks
+}
+
+# Parse import.qmd structure to find sections, anchors, and insertion points
+parse_import_qmd_structure <- function(import_qmd_path) {
+  if (!file.exists(import_qmd_path)) {
+    return(list(
+      input_overview_anchor = NA,
+      import2RData_anchor = NA,
+      single_file_anchor = NA,
+      manufacturers = list(),
+      instruments = list(),
+      doc_lines = c()
+    ))
+  }
+  
+  lines <- readLines(import_qmd_path, warn = FALSE)
+  
+  structure <- list(
+    import2RData_anchor = NA,
+    single_file_anchor = NA,
+    manufacturers = list(),  # List of manufacturer names and their line ranges
+    instruments = list(),    # List of all instrument sections (code -> line info)
+    doc_lines = lines
+  )
+  
+  # Find key anchor sections
+  for (i in seq_along(lines)) {
+    line <- lines[i]
+    
+    # Find import2RData section
+    if (grepl("^#\\s+import2RData", line)) {
+      structure$import2RData_anchor <- i
+    }
+    
+    # Find "Single file import" section
+    if (grepl("^#\\s+Single file import", line)) {
+      structure$single_file_anchor <- i
+    }
+    
+    # Find manufacturer sections (## headers after single file import)
+    if (!is.na(structure$single_file_anchor) && i > structure$single_file_anchor) {
+      if (grepl("^##\\s+", line)) {
+        mfg_name <- gsub("^##\\s+([^{]+).*", "\\1", line)
+        if (is.null(structure$manufacturers[[mfg_name]])) {
+          structure$manufacturers[[mfg_name]] <- list(
+            line_start = i,
+            line_end = NA,
+            instruments = c()
+          )
+        }
+      }
+    }
+    
+    # Find individual instrument sections (### headers)
+    if (!is.na(structure$single_file_anchor) && i > structure$single_file_anchor) {
+      if (grepl("^###\\s+", line)) {
+        instr_name <- gsub("^###\\s+([^{]+).*", "\\1", line)
+        structure$instruments[[instr_name]] <- list(
+          line = i,
+          name = instr_name
+        )
+      }
+    }
+  }
+  
+  structure
+}
+
+# Classify instruments by documentation status
+classify_import_instruments <- function(import_funcs, import_qmd_structure, all_metadata) {
+  classifications <- list(
+    already_documented = c(),
+    missing_doc = c(),
+    missing_examples = c()
+  )
+  
+  documented_instruments <- names(import_qmd_structure$instruments)
+  
+  for (func_name in import_funcs) {
+    if (func_name %in% documented_instruments) {
+      classifications$already_documented <- c(classifications$already_documented, func_name)
+    } else {
+      classifications$missing_doc <- c(classifications$missing_doc, func_name)
+    }
+  }
+  
+  classifications
+}
+
+# ============================================================================
+# PHASE 2: Content Generation
+# ============================================================================
+
+# Compute hash of instrument metadata for change detection
+compute_instrument_metadata_hash <- function(metadata, instrument_info) {
+  hash_input <- paste(
+    metadata$title %||% "",
+    metadata$usage %||% "",
+    metadata$details %||% "",
+    metadata$examples %||% "",
+    paste(names(metadata$arguments), collapse = "|"),
+    instrument_info$manufacturer %||% "",
+    instrument_info$code %||% ""
+  )
+  
+  # Simple hash function
+  digest::digest(hash_input, algo = "md5")
+}
+
+# Generate single file import instrument section
+generate_single_import_section <- function(func_name, instrument_info, metadata_store, 
+                                          r_source_dir, import2RData_examples) {
+  
+  if (is.null(metadata_store[[func_name]])) {
+    return(NULL)
+  }
+  
+  metadata <- metadata_store[[func_name]]
+  mfg <- instrument_info$manufacturer %||% "Unknown"
+  code <- instrument_info$code %||% func_name
+  name <- instrument_info$name %||% code
+  link <- instrument_info$link %||% NA
+  
+  lines <- c()
+  
+  # Section header with ID anchor
+  anchor_id <- paste0("sec-single-", tolower(gsub("[^A-Za-z0-9]", "", code)))
+  lines <- c(lines, paste0("### ", name, " {#", anchor_id, "}"))
+  
+  # Create a content hash for change detection (using base R only)
+  # Include key metadata that would trigger updates
+  key_content <- paste0(name, "|", code, "|", mfg, "|", 
+                        metadata$usage, "|", metadata$details)
+  # Simple hash: sum of character codes
+  content_hash <- sprintf("%08x", sum(as.numeric(charToRaw(key_content))) %% 2^31)
+  
+  # Add hidden HTML comment with hash for idempotency detection
+  lines <- c(lines, paste0("<!-- generated-hash: ", content_hash, " -->"))
+  lines <- c(lines, "")
+  
+  # Short description paragraph
+  if (!is.na(metadata$title) && metadata$title != "") {
+    desc <- paste0("Import single raw gas measurement files from the ", metadata$title, 
+                   " with the function `", func_name, "`.")
+    lines <- c(lines, desc)
+    lines <- c(lines, "")
+  }
+  
+  # Usage section
+  lines <- c(lines, "#### Usage")
+  lines <- c(lines, "")
+  lines <- c(lines, "```{r}")
+  lines <- c(lines, "#| eval: false")
+  lines <- c(lines, "#| code-copy: false")
+  
+  if (!is.na(metadata$usage) && metadata$usage != "") {
+    usage_lines <- strsplit(metadata$usage, "\n")[[1]]
+    lines <- c(lines, usage_lines)
+  }
+  
+  lines <- c(lines, "```")
+  lines <- c(lines, "")
+  
+  # Arguments section
+  if (length(metadata$arguments) > 0) {
+    lines <- c(lines, "#### Arguments")
+    lines <- c(lines, "")
+    lines <- c(lines, "|  |  |")
+    lines <- c(lines, "|--------------------------|----------------------------------------------|")
+    
+    for (arg_name in names(metadata$arguments)) {
+      arg_desc <- metadata$arguments[[arg_name]]
+      if (is.null(arg_desc) || is.na(arg_desc)) arg_desc <- ""
+      
+      # Clean description - convert Rd markup and truncate if needed
+      arg_desc_clean <- convert_rd_latex_to_markdown(arg_desc)
+      arg_desc_clean <- gsub("\n", " ", arg_desc_clean)
+      if (nchar(arg_desc_clean) > 200) {
+        arg_desc_clean <- paste0(substr(arg_desc_clean, 1, 197), "...")
+      }
+      
+      lines <- c(lines, paste0("| `", arg_name, "` | ", arg_desc_clean, " |"))
+    }
+    
+    lines <- c(lines, "")
+  }
+  
+  # Details section
+  if (!is.na(metadata$details) && metadata$details != "") {
+    lines <- c(lines, "#### Details")
+    lines <- c(lines, "")
+    
+    details_md <- convert_rd_latex_to_markdown(metadata$details)
+    details_lines <- strsplit(details_md, "\n")[[1]]
+    lines <- c(lines, details_lines)
+    lines <- c(lines, "")
+  }
+  
+  # Example section
+  lines <- c(lines, "#### Example")
+  lines <- c(lines, "")
+  lines <- c(lines, "```{r}")
+  lines <- c(lines, "#| eval: false")
+  
+  # Try to find example file path
+  example_file_path <- NA
+  if (dir.exists(file.path(dirname(r_source_dir), "../inst/extdata"))) {
+    potential_paths <- c(
+      file.path("extdata", code, paste0(code, ".dat")),
+      file.path("extdata", code, paste0(code, ".txt")),
+      file.path("extdata", code, paste0(code, ".data"))
+    )
+    
+    for (path in potential_paths) {
+      full_path <- file.path(dirname(r_source_dir), "inst", path)
+      if (file.exists(full_path)) {
+        example_file_path <- path
+        break
+      }
+    }
+  }
+  
+  # Generate example code
+  lines <- c(lines, "# Retrieve file path from example file in the goFlux package")
+  lines <- c(lines, "# using the function system.file")
+  
+  if (!is.na(example_file_path)) {
+    lines <- c(lines, paste0('file.path <- system.file("', example_file_path, '", package = "goFlux")'))
+  } else {
+    # Fallback generic example
+    lines <- c(lines, paste0('file.path <- system.file("extdata", "', code, '/', code, 
+                             '.dat", package = "goFlux")'))
+  }
+  
+  lines <- c(lines, "")
+  lines <- c(lines, paste0("# Import in the environment"))
+  lines <- c(lines, paste0("imp.", code, " <- ", func_name, "(inputfile = file.path)"))
+  lines <- c(lines, "")
+  lines <- c(lines, "# Or save in a RData folder in the working directory")
+  lines <- c(lines, paste0(func_name, "(inputfile = file.path, save = TRUE)"))
+  
+  lines <- c(lines, "```")
+  lines <- c(lines, "")
+  
+  paste(lines, collapse = "\n")
+}
+
+# ============================================================================
+# PHASE 3: Integration & Insertion
+# ============================================================================
+
+# Find or create manufacturer section in import.qmd and insert instrument
+# Extract existing instrument section from import.qmd if it exists
+extract_existing_instrument_section <- function(lines, code) {
+  
+  # Find the ### header for this code
+  section_start <- NA
+  anchor_pattern <- paste0("sec-single-", tolower(gsub("[^A-Za-z0-9]", "", code)))
+  
+  for (i in seq_along(lines)) {
+    if (grepl(paste0("###\\s+.*\\{#", anchor_pattern, "\\}"), lines[i])) {
+      section_start <- i
+      break
+    }
+    # Fallback: match just the code in the header
+    if (grepl(paste0("###\\s+.*", code), lines[i], ignore.case = TRUE)) {
+      section_start <- i
+      break
+    }
+  }
+  
+  if (is.na(section_start)) return(NULL)
+  
+  # Find the end of this section (next ### or ## header)
+  section_end <- length(lines)
+  for (i in (section_start + 1):length(lines)) {
+    if (grepl("^###\\s+", lines[i]) || grepl("^##\\s+", lines[i])) {
+      section_end <- i - 1
+      break
+    }
+  }
+  
+  # Remove trailing blank lines
+  while (section_end > section_start && trimws(lines[section_end]) == "") {
+    section_end <- section_end - 1
+  }
+  
+  if (section_start <= section_end) {
+    list(
+      start = section_start,
+      end = section_end,
+      content = paste(lines[section_start:section_end], collapse = "\n"),
+      lines = lines[section_start:section_end]  # Also return raw lines for comparison
+    )
+  } else {
+    NULL
+  }
+}
+
+# Find or create manufacturer section and get its line range
+find_or_identify_manufacturer_section <- function(lines, mfg_name) {
+  
+  # Find "Single file import" section anchor
+  single_file_anchor <- NA
+  for (i in seq_along(lines)) {
+    if (grepl("^#\\s+Single file import", lines[i])) {
+      single_file_anchor <- i
+      break
+    }
+  }
+  
+  if (is.na(single_file_anchor)) return(NULL)
+  
+  # Search for manufacturer section WITHIN Single file import
+  mfg_start <- NA
+  mfg_slug <- tolower(gsub("[^A-Za-z0-9]", "", mfg_name))
+  
+  for (i in (single_file_anchor + 1):length(lines)) {
+    # Stop at next level 1 header (end of Single file import)
+    if (grepl("^#[^#]", lines[i])) break
+    
+    # Match manufacturer header
+    if (grepl(paste0("^##\\s+", gsub("\\.", "\\\\.", mfg_name), "\\s*($|\\{)"), lines[i])) {
+      mfg_start <- i
+      break
+    }
+  }
+  
+  if (!is.na(mfg_start)) {
+    # Find end of manufacturer section (next ## or #)
+    mfg_end <- length(lines)
+    for (i in (mfg_start + 1):length(lines)) {
+      if (grepl("^##\\s+|^#[^#]", lines[i])) {
+        mfg_end <- i - 1
+        break
+      }
+    }
+    
+    # Remove trailing blank lines
+    while (mfg_end > mfg_start && lines[mfg_end] == "") {
+      mfg_end <- mfg_end - 1
+    }
+    
+    return(list(
+      name = mfg_name,
+      exists = TRUE,
+      start = mfg_start,
+      end = mfg_end,
+      insert_after = mfg_end,
+      slug = mfg_slug
+    ))
+  } else {
+    # Manufacturer doesn't exist, find insertion point (end of Single file import)
+    insert_line <- length(lines)
+    for (i in (single_file_anchor + 1):length(lines)) {
+      if (grepl("^#[^#]", lines[i])) {
+        insert_line <- i - 1
+        break
+      }
+    }
+    
+    return(list(
+      name = mfg_name,
+      exists = FALSE,
+      create_at = insert_line,
+      slug = mfg_slug
+    ))
+  }
+}
+
+# Intelligently insert or update instrument section (safe & idempotent)
+insert_or_update_instrument_section <- function(qmd_path, func_name, code, mfg_name,
+                                               generated_section, all_metadata) {
+  
+  if (!file.exists(qmd_path)) return(list(status = "skip", reason = "file not found"))
+  
+  lines <- readLines(qmd_path, warn = FALSE)
+  
+  # Check if section already exists
+  existing_section <- extract_existing_instrument_section(lines, code)
+  
+  if (!is.null(existing_section)) {
+    # Extract the generated-hash from existing section
+    existing_lines <- strsplit(existing_section$content, "\n")[[1]]
+    existing_hash <- NA
+    for (line in existing_lines) {
+      if (grepl("<!-- generated-hash:", line)) {
+        existing_hash <- gsub(".*<!-- generated-hash:\\s*([a-f0-9]+)\\s*-->.*", "\\1", line)
+        break
+      }
+    }
+    
+    # Extract the generated-hash from newly generated section
+    generated_lines <- strsplit(generated_section, "\n")[[1]]
+    generated_hash <- NA
+    for (line in generated_lines) {
+      if (grepl("<!-- generated-hash:", line)) {
+        generated_hash <- gsub(".*<!-- generated-hash:\\s*([a-f0-9]+)\\s*-->.*", "\\1", line)
+        break
+      }
+    }
+    
+    # Compare hashes - if identical, no changes needed
+    if (!is.na(existing_hash) && !is.na(generated_hash) && existing_hash == generated_hash) {
+      return(list(status = "unchanged", reason = "content hash identical"))
+    }
+    
+    # Content differs - replace it with new version (stripped, plus blank line after)
+    strip_blanks <- function(text) {
+      lines <- strsplit(text, "\n")[[1]]
+      while (length(lines) > 0 && trimws(lines[length(lines)]) == "") {
+        lines <- lines[-length(lines)]
+      }
+      lines
+    }
+    
+    generated_stripped <- strip_blanks(generated_section)
+    
+    lines_updated <- c(
+      if (existing_section$start > 1) lines[1:(existing_section$start - 1)] else NULL,
+      generated_stripped,
+      "",
+      if (existing_section$end < length(lines)) lines[(existing_section$end + 1):length(lines)] else NULL
+    )
+    
+    writeLines(lines_updated, qmd_path)
+    return(list(status = "updated", reason = "content changed"))
+  } else {
+    # Section doesn't exist - add it
+    mfg_info <- find_or_identify_manufacturer_section(lines, mfg_name)
+    
+    if (is.null(mfg_info)) {
+      return(list(status = "skip", reason = "cannot find insertion point"))
+    }
+    
+    # Ensure generated section doesn't have trailing blanks (for consistency)
+    strip_blanks <- function(text) {
+      lines <- strsplit(text, "\n")[[1]]
+      while (length(lines) > 0 && trimws(lines[length(lines)]) == "") {
+        lines <- lines[-length(lines)]
+      }
+      lines
+    }
+    
+    generated_lines <- strip_blanks(generated_section)
+    
+    if (mfg_info$exists) {
+      # Manufacturer exists, insert after it
+      new_content <- c(
+        lines[1:mfg_info$insert_after],
+        "",
+        generated_lines,
+        "",
+        lines[(mfg_info$insert_after + 1):length(lines)]
+      )
+    } else {
+      # Create new manufacturer section
+      anchor_id <- paste0("sec-single-", mfg_info$slug)
+      new_mfg_header <- c(
+        "",
+        paste0("## ", mfg_name, " {#", anchor_id, "}"),
+        "",
+        generated_lines,
+        ""
+      )
+      
+      new_content <- c(
+        lines[1:mfg_info$create_at],
+        new_mfg_header,
+        lines[(mfg_info$create_at + 1):length(lines)]
+      )
+    }
+    
+    writeLines(new_content, qmd_path)
+    return(list(status = "inserted", reason = "new instrument section"))
+  }
+}
+
+# ============================================================================
+# PHASE 4: Validation (Developer Output)
+# ============================================================================
+
+validate_new_instruments_for_developers <- function(missing_doc_funcs, all_metadata, 
+                                                   r_source_dir, instrument_links) {
+  
+  if (Sys.getenv("GOFLUX_DEBUG") != "1") return(invisible(NULL))
+  
+  cat("\n", strrep("=", 70), "\n")
+  cat("DEVELOPER VALIDATION: Import Documentation Status\n")
+  cat(strrep("=", 70), "\n\n")
+  
+  issues <- list()
+  
+  for (func_name in missing_doc_funcs) {
+    cat("Checking:", func_name, "...\n")
+    
+    # Check import.*.R file exists
+    import_file <- file.path(r_source_dir, paste0(func_name, ".R"))
+    if (!file.exists(import_file)) {
+      cat("  ✗ R file not found:", import_file, "\n")
+      issues[[func_name]] <- c(issues[[func_name]], "R file not found")
+      next
+    } else {
+      cat("  ✓ R file found\n")
+    }
+    
+    # Check @instrumentlink tag
+    if (!func_name %in% names(instrument_links)) {
+      cat("  ✗ Missing @instrumentlink tag\n")
+      issues[[func_name]] <- c(issues[[func_name]], "Missing @instrumentlink tag")
+    } else {
+      cat("  ✓ @instrumentlink found:", 
+          instrument_links[[func_name]]$manufacturer, "|", 
+          instrument_links[[func_name]]$code, "\n")
+    }
+    
+    # Check metadata
+    if (!func_name %in% names(all_metadata)) {
+      cat("  ✗ Metadata not extracted\n")
+      issues[[func_name]] <- c(issues[[func_name]], "Metadata not extracted")
+    } else {
+      cat("  ✓ Metadata available\n")
+    }
+  }
+  
+  cat("\n", strrep("=", 70), "\n")
+  if (length(issues) == 0) {
+    cat("✓ All new instruments ready for documentation\n")
+  } else {
+    cat("⚠ Issues found:", length(issues), "instrument(s)\n")
+    for (func_name in names(issues)) {
+      cat("  -", func_name, ":", paste(issues[[func_name]], collapse="; "), "\n")
+    }
+  }
+  cat(strrep("=", 70), "\n\n")
+  
+  invisible(issues)
+}
+
+# ============================================================================
+# MAIN STEP 13 EXECUTION
+# ============================================================================
+
+r_source_dir <- file.path(dirname(dirname(output_dir)), "R")
+import_qmd_path <- file.path(dirname(output_dir), "import.qmd")
+
+if (file.exists(import_qmd_path) && dir.exists(r_source_dir)) {
+  
+  # Phase 1: Extract metadata
+  cat("Phase 1: Extracting metadata...\n")
+  
+  instrument_links <- extract_instrument_links_from_sources(r_source_dir)
+  import2RData_examples <- extract_import2RData_examples(r_source_dir)
+  qmd_structure <- parse_import_qmd_structure(import_qmd_path)
+  
+  import_funcs <- setdiff(categories$imports, c("import2RData", "import2file"))
+  classifications <- classify_import_instruments(import_funcs, qmd_structure, all_metadata)
+  
+  cat("  Found", length(instrument_links), "instruments with @instrumentlink tags\n")
+  cat("  Found", length(import2RData_examples), "import2RData examples\n")
+  cat("  Already documented:", length(classifications$already_documented), "instruments\n")
+  cat("  Missing documentation:", length(classifications$missing_doc), "instruments\n")
+  
+  # Phase 2 & 3: Generate and insert new sections
+  if (length(classifications$missing_doc) > 0) {
+    cat("\nPhase 2-3: Generating and inserting sections...\n")
+    
+    inserted_count <- 0
+    
+    for (func_name in sort(classifications$missing_doc)) {
+      
+      # Skip if no metadata available
+      if (!func_name %in% names(all_metadata)) {
+        if (Sys.getenv("GOFLUX_DEBUG") == "1") {
+          cat("  [SKIP]", func_name, "- no metadata\n")
+        }
+        next
+      }
+      
+      # Get or create instrument info
+      if (func_name %in% names(instrument_links)) {
+        instrument_info <- instrument_links[[func_name]]
+      } else {
+        # Try fallback mapping
+        instrument_info <- if (func_name %in% names(fallback_instruments)) {
+          fallback_instruments[[func_name]]
+        } else {
+          list(manufacturer = "Other", code = func_name, name = func_name, link = NA)
+        }
+      }
+      
+      # Generate section
+      section <- generate_single_import_section(
+        func_name, 
+        instrument_info, 
+        all_metadata,
+        r_source_dir,
+        import2RData_examples
+      )
+      
+      if (!is.null(section)) {
+        # Insert into qmd (safe, idempotent operation)
+        result <- insert_or_update_instrument_section(
+          import_qmd_path, 
+          func_name, 
+          instrument_info$code %||% func_name,
+          instrument_info$manufacturer %||% "Other",
+          section,
+          all_metadata
+        )
+        
+        if (result$status == "inserted") {
+          cat("  ✓", func_name, "inserted\n")
+          inserted_count <- inserted_count + 1
+        } else if (result$status == "updated") {
+          cat("  ⟳", func_name, "updated\n")
+          inserted_count <- inserted_count + 1
+        } else if (result$status == "unchanged") {
+          cat("  ✓", func_name, "unchanged\n")
+        }
+      }
+    }
+    
+    cat("Inserted", inserted_count, "new instrument sections\n")
+  }
+  
+  # Phase 4: Developer validation
+  validate_new_instruments_for_developers(
+    classifications$missing_doc,
+    all_metadata,
+    r_source_dir,
+    instrument_links
+  )
+  
+  # Generate report
+  step13_report <- list(
+    generated_at = as.character(Sys.time()),
+    import_qmd_updated = TRUE,
+    new_instruments_added = classifications$missing_doc,
+    already_documented = classifications$already_documented,
+    instruments_with_links = names(instrument_links),
+    validation_issues = if (length(classifications$missing_doc) > 0) {
+      names(validate_new_instruments_for_developers(
+        classifications$missing_doc, all_metadata, r_source_dir, instrument_links
+      ))
+    } else { c() }
+  )
+  
+  writeLines(
+    jsonlite::toJSON(step13_report, pretty = TRUE, auto_unbox = TRUE),
+    file.path(output_dir, "step13_import_sync_report.json")
+  )
+  
+  cat("✓ STEP 13 complete - Report saved to step13_import_sync_report.json\n")
+  
+} else {
+  cat("⚠ STEP 13 skipped - import.qmd or R directory not found\n")
+}
 
 # ==============================================================================
 # COMPLETION

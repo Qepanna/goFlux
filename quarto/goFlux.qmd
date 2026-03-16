@@ -35,6 +35,86 @@ Note that the total volume (Vtot) needed for the calculation of the $flux.term$,
 The good news is, we did the research for you! Find the internal volume of each instrument compatible with the goFlux R package in this Excel spreadsheet: [Download](quarto/docs/example_auxfile.xlsx)
 :::
 
+### `goFlux` for goFlux: a user-friendly GHG fluxes calculation tool
+
+goFlux: a user-friendly GHG fluxes calculation tool
+
+#### Usage
+
+```{r}
+#| eval: false
+#| code-copy: false
+
+
+goFlux(
+
+  dataframe,
+
+  gastype,
+
+  H2O_col = "H2O_ppm",
+
+  prec = NULL,
+
+  Area = NULL,
+
+  offset = NULL,
+
+  Vtot = NULL,
+
+  Vcham = NULL,
+
+  Pcham = NULL,
+
+  Tcham = NULL,
+
+  k.mult = 1,
+
+  warn.length = 60,
+
+  k.min = 0
+
+)
+```
+
+#### Arguments
+
+| Parameter | Description |
+|:----------|:---------------------------|
+| `dataframe` | a data.frame containing gas measurements (see gastype below), water vapor measurements (see H2O_col below) and the following columns: UniqueID , Etime , Vtot , Area , Pcham , Tc... |
+| `gastype` | character string; specifies which column should be used for the flux calculations. Must be one of the following: "CO2dry_ppm", "CH4dry_ppb", "COdry_ppb", "N2Odry_ppb", "NH3dry_p... |
+| `H2O_col` | character string; specifies which column should be used to subtract the effect of water vapor in the chamber space. Default is H2O_col = "H2O_ppm" . If water vapor was not measu... |
+| `prec` | numerical value; precision of the instruments. Units must be the same as gastype . With the default prec = NULL , instrument precision for each gas must be provided in dataframe . |
+| `Area` | numerical value; area of the soil surface inside the chamber html (cm<sup>2</sup>) (cm^2) ASCII . Alternatively, provide the column Area in dataframe if Area is different betwee... |
+| `offset` | (optional) numerical value; height between the soil surface and the chamber (cm). Alternatively, provide the column offset in dataframe if offset is different between samples. o... |
+| `Vtot` | numerical value; total volume inside the chamber, tubes, instruments, etc. (L). Alternatively, provide the column Vtot in dataframe if Vtot is different between samples. If Vtot... |
+| `Vcham` | (optional) numerical value; volume inside the chamber, tubes and instruments (L). Alternatively, provide the column Vcham in dataframe if Vcham is different between samples. Vch... |
+| `Pcham` | numerical value; pressure inside the chamber (kPa). Alternatively, provide the column Pcham in dataframe if Pcham is different between samples. If Pcham is not provided, normal ... |
+| `Tcham` | numerical value; temperature inside the chamber (°C). Alternatively, provide the column Tcham in dataframe if Tcham is different between samples. If Tcham is not provided, 15°C ... |
+| `k.mult` | numerical value; a multiplier for the allowed kappa-max. Default setting is no multiplier ( k.mult = 1 ). k.mult must be > 0 and =< 10. |
+| `warn.length` | numerical value; limit under which a measurement is flagged for being too short ( nb.obs < warn.length ). |
+| `k.min` | numerical value; a lower boundary value for kappa in the HM model. Default is k.min = 0 |
+
+#### Details
+
+Flux estimate units are , ), , ))) (if initial concentration is ppm, e.g. CO2dry_ppm) and , ), , ))) (if initial concentration is ppb, e.g. CH4dry_ppb). The ) function calculates flux estimates from the linear model (LM) and the Hutchinson and Mosier model (HM). The HM model is a non-linear model, whose curvature is controlled by the parameter kappa. A large kappa returns a strong curvature. A maximum threshold for this parameter, kappa-max ( ) ), can be calculated from the linear flux estimate ( ) ), the minimal detectable flux ( ) ) and the time of chamber closure. This limit of kappa-max is included in the ) function, so that the non-linear flux estimate cannot exceed this maximum curvature. Inversely, one can set a minimal threshold for kappa: to allow for a log-like curvature, set below 0 (ex. -1). Flux estimates and the ) are calculated from (in seconds). Make sure that chamber closure is indicated by and the first instance of per UniqueID. All flux estimates, including the ) , are obtained from the multiplication of the slope and the ) , which is used to correct for the dilution effect of water vapor and convert the flux units to obtain a term in nmol or , ), , ))) . The argument is in , ")), "), ))) , but the output units from ) are in , ")), "), ))) . This means that there is a factor of 10,000 to convert from , ), , ))) to , ), , ))) . This is important to take into account if one would provide something else than an in , ")), "), ))) to the function. For example, with incubated soil samples, one may provide an amount of soil (kg) instead of an area in the column . To get the right units in that case, multiply the kilograms of soil by 10,000 to remove the conversion from , ), , ))) to , ), , ))) . In , the gas species listed are the ones for which this package has been adapted. Please write to the maintainer of this package for adaptation of additional gases. is the limit below which the chamber closure time is flagged for being too short ( ). Portable greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore, for the default setting of , the chamber closure time should be approximately one minute (60 seconds). If the number of observations is smaller than the threshold, a warning is printed: e.g. "Low number of observations: UniqueID X has 59 observations".
+
+#### Example
+
+```{r}
+#| eval: false
+
+
+data(manID.UGGA)
+
+CO2_flux <- goFlux(manID.UGGA, "CO2dry_ppm")
+
+CH4_flux <- goFlux(manID.UGGA, "CH4dry_ppb")
+
+H2O_flux <- goFlux(manID.UGGA, "H2O_ppm")
+
+
+```
 ### Water vapor correction
 
 The "flux term" is a conversion factor used to convert the flux units. Furthermore, the `flux.term` contains a correction term to account for water vapor inside the chamber: $(1 - H_2O)$. This correction term is often overlooked, but is essential when estimating fluxes using dry mole fractions of gases, as described below.
