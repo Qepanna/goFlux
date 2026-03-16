@@ -1,7 +1,7 @@
 #' Import function for the eosMX 12-Channel Multiplexer
 #'
 #' Imports single raw data files from the Eosense 12-Channel Autochamber Multiplexer
-#' @instrument eosMX12|Portable Recirculating Multiplexer
+#' @instrument Eosense|eosMX12|Portable Recirculating Multiplexer|https://eosense.com/products/eosmx-recirculating-multiplexer/
 #' @param inputfile character string; the name of a file with the extension .log
 #' @param timezone character string; a time zone in which to import the data to
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is

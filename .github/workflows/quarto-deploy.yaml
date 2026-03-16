@@ -98,6 +98,10 @@ jobs:
         run: Rscript _examples.R
         continue-on-error: true
 
+      - name: Generate documentation from R package
+        working-directory: ./quarto
+        run: Rscript _generate.R
+
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
         with:

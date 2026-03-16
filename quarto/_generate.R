@@ -177,13 +177,22 @@ fallback_instruments <- list(
 
 # Function to get instrument metadata from extracted or fallback data
 get_instrument_metadata <- function(func_name, metadata) {
-  # If extracted from roxygen tags, parse the format: manufacturer|name
+  # If extracted from roxygen tags, parse the format: manufacturer|code|name|link
   if (!is.na(metadata$instrument_metadata)) {
     parts <- strsplit(metadata$instrument_metadata, "\\|", fixed = FALSE)[[1]]
-    if (length(parts) >= 2) {
+    if (length(parts) >= 4) {
       return(list(
         manufacturer = trimws(parts[1]),
-        name = trimws(parts[2])
+        code = trimws(parts[2]),
+        name = trimws(parts[3]),
+        link = trimws(parts[4])
+      ))
+    } else if (length(parts) >= 2) {
+      # Fallback for 2-part format (manufacturer|name)
+      return(list(
+        manufacturer = trimws(parts[1]),
+        name = trimws(parts[2]),
+        link = NA
       ))
     }
   }
