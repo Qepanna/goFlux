@@ -528,7 +528,8 @@ for (func in all_functions_to_document) {
   
   # Use full metadata if available, otherwise generate minimal stub
   if (func %in% names(all_metadata)) {
-    content <- generate_function_reference(all_metadata[[func]], "import")
+    func_category <- get_function_category(func, all_metadata[[func]])
+    content <- generate_function_reference(all_metadata[[func]], func_category)
   } else {
     content <- generate_minimal_reference(func)
   }
@@ -570,8 +571,7 @@ for (func in sort(categories$imports)) {
         paste0(
           "| [`", func, "`](#", tolower(func), ") | ",
           info$name, " | ",
-          info$manufacturer, " | ",
-          info$type, " | Single or batch |"
+          info$manufacturer, " | Single or batch |"
         )
       )
     }
