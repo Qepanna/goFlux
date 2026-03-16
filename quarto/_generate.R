@@ -150,41 +150,40 @@ fallback_categories <- list(
 
 # Fallback mapping for instrument metadata
 fallback_instruments <- list(
-  "import.DX4015" = list(manufacturer = "Gasmet", name = "Gasmet DX4015", type = "portable"),
-  "import.EGM5" = list(manufacturer = "PP-Systems", name = "PP-Systems EGM-5", type = "portable"),
-  "import.eosMX12" = list(manufacturer = "Eosense", name = "Eosense eosMX 12-Channel Multiplexer", type = "multiplexer"),
-  "import.G2201i" = list(manufacturer = "Picarro", name = "Picarro G2201-i", type = "isotopic"),
-  "import.G2508" = list(manufacturer = "Picarro", name = "Picarro G2508", type = "concentration"),
-  "import.G4301" = list(manufacturer = "Picarro", name = "Picarro G4301", type = "mobile"),
-  "import.GAIA" = list(manufacturer = "GAIA2TECH", name = "GAIA2TECH ECOFlux", type = "chamber"),
-  "import.GasmetPD" = list(manufacturer = "Gasmet", name = "Gasmet PD (Custom)", type = "custom"),
-  "import.GT5000" = list(manufacturer = "Gasmet", name = "Gasmet GT5000", type = "portable"),
-  "import.HT8850" = list(manufacturer = "Healthy Photon", name = "Healthy Photon HT8850", type = "portable"),
-  "import.LI6400" = list(manufacturer = "LI-COR", name = "LI-COR LI-6400", type = "portable"),
-  "import.LI7810" = list(manufacturer = "LI-COR", name = "LI-COR LI-7810", type = "portable"),
-  "import.LI7820" = list(manufacturer = "LI-COR", name = "LI-COR LI-7820", type = "portable"),
-  "import.LI8100" = list(manufacturer = "LI-COR", name = "LI-COR LI-8100", type = "automated"),
-  "import.LI8150" = list(manufacturer = "LI-COR", name = "LI-COR LI-8150", type = "automated"),
-  "import.LI8200" = list(manufacturer = "LI-COR", name = "LI-COR LI-8200", type = "chamber"),
-  "import.LI8250" = list(manufacturer = "LI-COR", name = "LI-COR LI-8250", type = "multiplexer"),
-  "import.N2Oi2" = list(manufacturer = "Los Gatos", name = "Los Gatos N2Oi2", type = "isotopic"),
-  "import.N2OM1" = list(manufacturer = "Los Gatos", name = "Los Gatos N2OM1", type = "portable"),
-  "import.skyline" = list(manufacturer = "EarthBound Scientific", name = "Skyline2D", type = "chamber"),
-  "import.uCH4" = list(manufacturer = "Los Gatos", name = "Los Gatos uCH4", type = "portable"),
-  "import.UGGA" = list(manufacturer = "Los Gatos", name = "Los Gatos UGGA", type = "portable"),
-  "import.uN2O" = list(manufacturer = "Los Gatos", name = "Los Gatos uN2O", type = "portable")
+  "import.DX4015" = list(manufacturer = "Gasmet", name = "Gasmet DX4015"),
+  "import.EGM5" = list(manufacturer = "PP-Systems", name = "PP-Systems EGM-5"),
+  "import.eosMX12" = list(manufacturer = "Eosense", name = "Portable Recirculating Multiplexer"),
+  "import.G2201i" = list(manufacturer = "Picarro", name = "Picarro G2201-i"),
+  "import.G2508" = list(manufacturer = "Picarro", name = "Picarro G2508"),
+  "import.G4301" = list(manufacturer = "Picarro", name = "Picarro G4301"),
+  "import.GAIA" = list(manufacturer = "GAIA2TECH", name = "GAIA2TECH ECOFlux"),
+  "import.GasmetPD" = list(manufacturer = "Gasmet", name = "Gasmet PD (Custom)"),
+  "import.GT5000" = list(manufacturer = "Gasmet", name = "Gasmet GT5000"),
+  "import.HT8850" = list(manufacturer = "Healthy Photon", name = "Healthy Photon HT8850"),
+  "import.LI6400" = list(manufacturer = "LI-COR", name = "LI-COR LI-6400"),
+  "import.LI7810" = list(manufacturer = "LI-COR", name = "LI-COR LI-7810"),
+  "import.LI7820" = list(manufacturer = "LI-COR", name = "LI-COR LI-7820"),
+  "import.LI8100" = list(manufacturer = "LI-COR", name = "LI-COR LI-8100"),
+  "import.LI8150" = list(manufacturer = "LI-COR", name = "LI-COR LI-8150"),
+  "import.LI8200" = list(manufacturer = "LI-COR", name = "LI-COR LI-8200"),
+  "import.LI8250" = list(manufacturer = "LI-COR", name = "LI-COR LI-8250"),
+  "import.N2Oi2" = list(manufacturer = "Los Gatos", name = "Los Gatos N2Oi2"),
+  "import.N2OM1" = list(manufacturer = "Los Gatos", name = "Los Gatos N2OM1"),
+  "import.skyline" = list(manufacturer = "EarthBound Scientific", name = "Skyline2D"),
+  "import.uCH4" = list(manufacturer = "Los Gatos", name = "Los Gatos uCH4"),
+  "import.UGGA" = list(manufacturer = "Los Gatos", name = "Los Gatos UGGA"),
+  "import.uN2O" = list(manufacturer = "Los Gatos", name = "Los Gatos uN2O")
 )
 
 # Function to get instrument metadata from extracted or fallback data
 get_instrument_metadata <- function(func_name, metadata) {
-  # If extracted from roxygen tags, parse the format: manufacturer|name|type
+  # If extracted from roxygen tags, parse the format: manufacturer|name
   if (!is.na(metadata$instrument_metadata)) {
     parts <- strsplit(metadata$instrument_metadata, "\\|", fixed = FALSE)[[1]]
-    if (length(parts) >= 3) {
+    if (length(parts) >= 2) {
       return(list(
         manufacturer = trimws(parts[1]),
-        name = trimws(parts[2]),
-        type = trimws(parts[3])
+        name = trimws(parts[2])
       ))
     }
   }
@@ -295,7 +294,94 @@ categorize_functions <- function(func_names) {
   ))
 }
 
+# ==============================================================================
+# STEP 3.5: Validate instrument metadata (for developers)
+# ==============================================================================
+
+# List of instruments already documented in quarto/import.qmd
+# These should NOT be validated/flagged as missing - they're ground truth
+instruments_documented_in_qmd <- c(
+  # LI-COR
+  "import.LI6400", "import.LI7810", "import.LI7820", 
+  "import.LI8100", "import.LI8150", "import.LI8200", "import.LI8250",
+  # Los Gatos Research (LGR)
+  "import.UGGA", "import.N2OM1", "import.N2Oi2",
+  # GAIA2TECH
+  "import.GAIA",
+  # EarthBound Scientific
+  "import.skyline",
+  # Gasmet
+  "import.DX4015", "import.GT5000", "import.GasmetPD",
+  # Picarro
+  "import.G2201i", "import.G2508", "import.G4301",
+  # PP-Systems
+  "import.EGM5",
+  # Aeris Technologies
+  "import.uCH4", "import.uN2O",
+  # Eosense
+  "import.eosMX12",
+  # Healthy Photon
+  "import.HT8850"
+)
+
+
+validate_instrument_metadata <- function(all_metadata, exported_functions) {
+  import_funcs <- grep("^import\\.", exported_functions, value = TRUE)
+  import_funcs <- setdiff(import_funcs, c("import2RData", "import2file"))
+  
+  # Only check instruments NOT already documented in import.qmd
+  undocumented_funcs <- setdiff(import_funcs, instruments_documented_in_qmd)
+  
+  missing_instruments <- c()
+  format_errors <- c()
+  
+  for (func_name in undocumented_funcs) {
+    if (func_name %in% names(all_metadata)) {
+      metadata <- all_metadata[[func_name]]
+      
+      if (is.na(metadata$instrument_metadata)) {
+        missing_instruments <- c(missing_instruments, func_name)
+      } else {
+        parts <- strsplit(metadata$instrument_metadata, "\\|")[[1]]
+        if (length(parts) != 2) {
+          format_errors <- c(format_errors, 
+            paste0(func_name, " (", length(parts), " parts, expected 2)"))
+        }
+      }
+    }
+  }
+  
+  # Print summary to console for developers
+  cat("\n", strrep("=", 60), "\n")
+  cat("DEVELOPER SUMMARY: Instrument Metadata Validation\n")
+  cat(strrep("=", 60), "\n")
+  cat("Status: Checking", length(undocumented_funcs), "instruments NOT yet in import.qmd\n")
+  cat("(", length(instruments_documented_in_qmd), "instruments already documented are skipped)\n\n")
+  
+  if (length(missing_instruments) == 0 && length(format_errors) == 0) {
+    if (length(undocumented_funcs) == 0) {
+      cat("✓ All documented instruments are ground truth in import.qmd\n")
+    } else {
+      cat("✓ All undocumented instruments have valid metadata\n")
+    }
+  } else {
+    if (length(missing_instruments) > 0) {
+      cat("\n⚠ Missing @instrument tags (needs ground truth link in import.qmd or @instrument tag):\n")
+      for (func in missing_instruments) cat("  -", func, "\n")
+    }
+    if (length(format_errors) > 0) {
+      cat("\n⚠ Invalid @instrument format (expected: Manufacturer|InstrumentName):\n")
+      for (err in format_errors) cat("  -", err, "\n")
+    }
+  }
+  cat(strrep("=", 60), "\n\n")
+}
+
+
 categories <- categorize_functions(exported_functions)
+
+# Validate instrument metadata
+validate_instrument_metadata(all_metadata, exported_functions)
 
 cat("Categorized functions:\n")
 cat("  Import functions:", length(categories$imports), "\n")
@@ -342,28 +428,33 @@ generate_function_reference <- function(metadata, func_category) {
   lines <- c(lines, "```")
   lines <- c(lines, "")
   
-  # Arguments
+  # Arguments (markdown table with 1/3 for name, 2/3 for description)
   if (length(metadata$arguments) > 0) {
     lines <- c(lines, "## Arguments")
     lines <- c(lines, "")
+    lines <- c(lines, "| Argument | Description |")
+    lines <- c(lines, "|:---------|:------------|")
     
     for (arg_name in names(metadata$arguments)) {
       arg_desc <- metadata$arguments[[arg_name]]
-      # Clean HTML entities
-      arg_desc <- gsub("<[^>]+>", "", arg_desc)  # Remove HTML tags
+      # Clean HTML entities and line breaks
+      arg_desc <- gsub("<[^>]+>", "", arg_desc)
       arg_desc <- gsub("&lt;", "<", arg_desc)
       arg_desc <- gsub("&gt;", ">", arg_desc)
       arg_desc <- gsub("&amp;", "&", arg_desc)
+      arg_desc <- gsub("\n", " ", arg_desc)  # Remove newlines for table
+      # Truncate very long descriptions
+      if (nchar(arg_desc) > 150) {
+        arg_desc <- paste0(substr(arg_desc, 1, 150), "...")
+      }
       
-      lines <- c(lines, paste0("**`", arg_name, "`**"))
-      lines <- c(lines, "")
-      lines <- c(lines, paste0(": ", arg_desc))
-      lines <- c(lines, "")
+      lines <- c(lines, paste0("| `", arg_name, "` | ", arg_desc, " |"))
     }
+    lines <- c(lines, "")
   }
   
-  # Value
-  if (!is.na(metadata$value)) {
+  # Value (skip for import functions)
+  if (!is.na(metadata$value) && func_category != "import") {
     lines <- c(lines, "## Value")
     lines <- c(lines, "")
     value_text <- gsub("<[^>]+>", "", metadata$value)
@@ -390,11 +481,17 @@ generate_function_reference <- function(metadata, func_category) {
     lines <- c(lines, "")
   }
   
-  # See Also
+  # See Also (external links open in new tab, internal links don't)
   if (!is.na(metadata$seealso)) {
     lines <- c(lines, "## See Also")
     lines <- c(lines, "")
     seealso_text <- gsub("<[^>]+>", "", metadata$seealso)
+    # Add target="_blank" to external links only
+    seealso_text <- gsub(
+      '(https?://[^\\s\\)\\]]+)',
+      '[\\1](\\1){target="_blank"}',
+      seealso_text
+    )
     lines <- c(lines, seealso_text)
     lines <- c(lines, "")
   }
