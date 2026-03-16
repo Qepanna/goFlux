@@ -782,8 +782,8 @@ generate_intelligent_import_section <- function(func_name, inventory_entry, meta
   if (length(metadata$arguments) > 0) {
     lines <- c(lines, "#### Arguments")
     lines <- c(lines, "")
-    lines <- c(lines, "|  |  |")
-    lines <- c(lines, "|---|---|")
+    lines <- c(lines, "| Parameter | Description |")
+    lines <- c(lines, "|:----------|:--------------------------|")
     
     for (arg_name in names(metadata$arguments)) {
       arg_desc <- metadata$arguments[[arg_name]]
@@ -823,9 +823,8 @@ generate_intelligent_import_section <- function(func_name, inventory_entry, meta
   paste(lines, collapse = "\n")
 }
 
-# Find the best insertion point in import.qmd for a function
+# Find the best insertion point in import.qmd for a function (ALPHABETICALLY INTELLIGENT)
 find_insertion_point_for_import <- function(func_name, manufacturer_groups, import_qmd_lines) {
-  # Try to find manufacturer group for this function
   import_qmd_text <- paste(import_qmd_lines, collapse = "\n")
   
   # Check if function is already in the file
@@ -833,35 +832,57 @@ find_insertion_point_for_import <- function(func_name, manufacturer_groups, impo
     return(NULL)  # Don't insert if already present
   }
   
-  # Try to match to a manufacturer group
-  for (mfg in names(manufacturer_groups)) {
-    if (length(manufacturer_groups[[mfg]]) > 0) {
-      # Look for section header for this manufacturer
-      mfg_header_pattern <- paste0("^#+\\s+", mfg)
-      for (i in seq_along(import_qmd_lines)) {
-        if (grepl(mfg_header_pattern, import_qmd_lines[i], perl = TRUE, ignore.case = TRUE)) {
-          # Found manufacturer section - insert after it
-          # Look for the next blank line or subsection after the manufacturer header
-          for (j in (i+1):length(import_qmd_lines)) {
-            if (grepl("^###+ ", import_qmd_lines[j]) && j > i) {
-              # Found next section, insert before it
-              return(j - 1)
-            }
-          }
-          # If no next section, insert at end of this section
-          for (j in (i+1):length(import_qmd_lines)) {
-            if (grepl("^## ", import_qmd_lines[j]) && j > i) {
-              return(j - 1)
-            }
-          }
-          return(length(import_qmd_lines))
-        }
+  # Extract all existing instrument section headers (### import.XXXX or ### Instrument Name)
+  # Look for level 3 headers that represent individual instruments
+  section_pattern <- "^###\\s+(.+)$"
+  section_indices <- grep(section_pattern, import_qmd_lines, perl = TRUE)
+  
+  if (length(section_indices) == 0) {
+    # No instrument sections found, append at end
+    return(NULL)
+  }
+  
+  # Extract section titles and build a sortable list
+  existing_sections <- list()
+  for (idx in section_indices) {
+    title <- gsub(section_pattern, "\\1", import_qmd_lines[idx], perl = TRUE)
+    # Normalize for sorting: extract function name if it's "import.XXXXX"
+    sort_key <- tolower(title)
+    existing_sections[[as.character(idx)]] <- list(
+      line_number = idx,
+      title = title,
+      sort_key = sort_key
+    )
+  }
+  
+  # Normalize func_name for comparison
+  func_sort_key <- tolower(func_name)
+  
+  # Find the alphabetically correct insertion point
+  insertion_point <- NULL
+  for (idx_str in names(existing_sections)) {
+    section <- existing_sections[[idx_str]]
+    # If func_name comes before this section alphabetically, insert before it
+    if (func_sort_key < section$sort_key) {
+      insertion_point <- section$line_number - 1
+      break
+    }
+  }
+  
+  # If not found (func_name comes after all existing sections alphabetically),
+  # insert after the last instrument section
+  if (is.null(insertion_point)) {
+    last_idx <- max(as.numeric(names(existing_sections)))
+    # Find the end of the last section (next level 2 header or end of file)
+    for (j in (last_idx + 1):length(import_qmd_lines)) {
+      if (grepl("^##\\s+", import_qmd_lines[j]) || j == length(import_qmd_lines)) {
+        insertion_point <- j - 1
+        break
       }
     }
   }
   
-  # No manufacturer match found - append at end before final section
-  NULL  # Signal to append at end
+  insertion_point
 }
 
 # ==============================================================================
@@ -1083,7 +1104,7 @@ delta_targets <- unique(c(
   classifications$metadata_changed
 ))
 
-# NEW: Intelligent insertion of generated import sections (if there are changes)
+# NEW: Intelligent insertion of generated import sections (ONLY for missing/new instruments)
 sync_updated <- FALSE
 if (length(delta_targets) > 0) {
   # Extract prose patterns and learn manufacturer groupings
@@ -1093,10 +1114,12 @@ if (length(delta_targets) > 0) {
   # Load current import.qmd lines
   qmd_lines <- readLines(import_qmd_path, warn = FALSE)
   
-  # Track sections to insert (collect all at once so we can insert in reverse order)
+  # Track sections to insert (only for NEWLY MISSING instruments, not updates to existing ones)
   sections_to_insert <- list()
   
-  for (func_name in sort(delta_targets)) {
+  # Only insert new/missing instruments, not ones with signature/metadata changes
+  # (those are already documented and should not be touched)
+  for (func_name in sort(classifications$missing_doc)) {
     generated_section <- generate_intelligent_import_section(
       func_name,
       current_inventory[[func_name]],
@@ -1119,22 +1142,50 @@ if (length(delta_targets) > 0) {
     }
   }
   
-  # Insert sections into qmd_lines (in reverse order to maintain line numbers)
-  insertion_points <- sort(unique(unlist(lapply(sections_to_insert, function(x) x$insertion_line))), decreasing = TRUE)
-  
+  # Insert sections into qmd_lines (in descending line number order to maintain accuracy)
+  # Group by insertion line and sort descending
+  insertions_by_line <- list()
   for (func_name in names(sections_to_insert)) {
     section_info <- sections_to_insert[[func_name]]
     insertion_line <- section_info$insertion_line
     
     if (is.null(insertion_line)) {
-      # Append at end before the last section/line
       insertion_line <- length(qmd_lines)
     }
     
-    # Insert blank line + section + blank line
-    section_lines <- strsplit(section_info$content, "\n")[[1]]
-    new_lines <- c("", section_lines, "")
+    line_key <- as.character(insertion_line)
+    if (is.null(insertions_by_line[[line_key]])) {
+      insertions_by_line[[line_key]] <- list()
+    }
+    insertions_by_line[[line_key]][[func_name]] <- section_info
+  }
+  
+  # Sort insertion points in descending order (insert from bottom to top)
+  insertion_lines_sorted <- sort(as.numeric(names(insertions_by_line)), decreasing = TRUE)
+  
+  # Insert all sections, working from bottom to top
+  for (insertion_line in insertion_lines_sorted) {
+    line_key <- as.character(insertion_line)
+    funcs_at_line <- names(insertions_by_line[[line_key]])
     
+    # Sort functions alphabetically at this insertion point (for consistent ordering)
+    funcs_at_line <- sort(funcs_at_line)
+    
+    # Build all content to insert at this line (in alphabetical order)
+    all_content_at_line <- c()
+    for (func_name in funcs_at_line) {
+      section_info <- insertions_by_line[[line_key]][[func_name]]
+      section_lines <- strsplit(section_info$content, "\n")[[1]]
+      
+      if (length(all_content_at_line) > 0) {
+        # Add blank line separator between sections at same insertion point
+        all_content_at_line <- c(all_content_at_line, "")
+      }
+      all_content_at_line <- c(all_content_at_line, section_lines)
+    }
+    
+    # Add padding and insert
+    new_lines <- c("", all_content_at_line, "")
     qmd_lines <- c(
       qmd_lines[1:insertion_line],
       new_lines,
@@ -1221,8 +1272,8 @@ generate_function_reference <- function(metadata, func_category) {
   if (length(metadata$arguments) > 0) {
     lines <- c(lines, "## Arguments")
     lines <- c(lines, "")
-    lines <- c(lines, "| Argument | Description |")
-    lines <- c(lines, "|:---------|:------------|")
+    lines <- c(lines, "| Parameter | Description |")
+    lines <- c(lines, "|:----------|:--------------------------|")
     
     for (arg_name in names(metadata$arguments)) {
       arg_desc <- metadata$arguments[[arg_name]]

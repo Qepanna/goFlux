@@ -35,8 +35,8 @@ iso.comp(
 
 #### Arguments
 
-|  |  |
-|----|----|
+| Parameter | Description |
+|:----------|:---------------------------|
 | `dataframe` | a data.frame containing measurements of isotopic fractions of CO~2~ or N~2~O and a `UniqueID` (or `chamID`) per measurements. |
 | `CO2dry_ppm`, `delta_13C` | character string; specifies which columns should be used for CO~2~ measurements, and the delta 13C, respectively. |
 | `N2Odry_ppb`, `delta_15N`, `delta_18O` | character string; specifies which columns should be used for N~2~O measurements, the delta 15N and the delta 18O, respectively. |
@@ -98,8 +98,8 @@ crop.meas(
 
 #### Arguments
 
-|  |  |
-|----|----|
+| Parameter | Description |
+|:----------|:---------------------------|
 | `dataframe` | data.frame containing gas measurements from import or ID functions (click.peak2 or manID). Must contain columns: `UniqueID`, `start.time`, `end.time`, and `Etime`. |
 | `auxfile` | data.frame with columns for per-measurement adjustments: `UniqueID`, `crop_start`, `crop_end`, `deadband`, and/or `max.obs.length`. |
 | `crop_start` | numerical; number of observations to remove from measurement start. Use "aux" to apply values from `auxfile` per UniqueID. Accepts negative values to include more data. Default is 0. |
@@ -179,8 +179,8 @@ auto.deadband(
 
 #### Arguments
 
-|  |  |
-|----|----|
+| Parameter | Description |
+|:----------|:---------------------------|
 | `dataframe` | data.frame; output from import or ID functions. Must contain columns: `UniqueID`, `POSIX.time`, `start.time` (or `cham.close`), and the specified `gastype` column. |
 | `gastype` | character string; specifies which gas column to use for detecting inflection point. Must be one of: "CO2dry_ppm", "CH4dry_ppb", "COdry_ppb", "N2Odry_ppb", "NH3dry_ppb", "NOdry_ppb", "NO2dry_ppb", or "H2O_ppm". |
 | `db.min` | numerical value (seconds); minimal deadband per measurement. Default is 0. Negative values are accepted. |

@@ -153,8 +153,8 @@ best.flux(
 
 ### Arguments
 
-|  |  |
-|------------------------------------|------------------------------------|
+| Parameter | Description |
+|:----------|:---------------------------|
 | `flux.result` | data.frame; output from the function `goFlux`. |
 | `criteria` | character vector; criteria used to assess the goodness of fit of the linear and non-linear flux estimates. Must be at least one the following: "MAE", "RMSE", "AICc", "SE", "g.factor", "kappa", "MDF", "nb.obs", "p-value", or "intercept". The default is all of them. |
 | `intercept.lim` | numerical vector of length 2; inferior and superior limits of the intercept (initial concentration; C~0~). Must be the same units as `gastype` in the `goFlux` function. If `intercept.lim = NULL`, the limits are calculated from the true values of C~0~ and C~t~ for each measurement. |
