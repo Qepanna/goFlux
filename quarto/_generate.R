@@ -113,6 +113,19 @@ parse_rd_file <- function(rd_input) {
   })
 }
 
+# Helper function to recursively flatten Rd objects to text
+flatten_rd_to_text <- function(obj) {
+  if (is.null(obj)) return("")
+  if (is.character(obj)) return(paste(obj, collapse = " "))
+  if (is.list(obj)) {
+    # Recursively flatten list elements
+    parts <- sapply(obj, flatten_rd_to_text)
+    return(paste(parts, collapse = " "))
+  }
+  # For other types, convert to string
+  return(as.character(obj))
+}
+
 # Helper function to parse arguments section
 parse_arguments_section <- function(args_item) {
   args_list <- list()
@@ -124,11 +137,22 @@ parse_arguments_section <- function(args_item) {
       
       if (tag == "\\item") {
         # Extract argument name and description
-        item_content <- as.character(item)
-        if (length(item_content) >= 2) {
-          arg_name <- trimws(item_content[1])
-          arg_desc <- trimws(paste(item_content[-1], collapse = " "))
-          args_list[[arg_name]] <- arg_desc
+        # Structure: \item is a list with 2 elements: name and description
+        if (is.list(item) && length(item) >= 2) {
+          # item[[1]] = name (can be char or list)
+          arg_name <- flatten_rd_to_text(item[[1]])
+          
+          # item[[2]] = description (can be char, list, or complex Rd structure)
+          arg_desc <- flatten_rd_to_text(item[[2]])
+          
+          if (arg_name != "" && arg_desc != "") {
+            # Clean up the description: remove extra whitespace, newlines
+            arg_desc <- gsub("\\n+", " ", arg_desc)  # Replace newlines with spaces
+            arg_desc <- gsub("\\s+", " ", arg_desc)   # Replace multiple spaces with single space
+            arg_desc <- trimws(arg_desc)
+            
+            args_list[[arg_name]] <- arg_desc
+          }
         }
       }
     }
@@ -581,6 +605,266 @@ cat("  Analysis functions:", length(categories$analysis), "\n")
 cat("  Wrapper functions:", length(categories$wrapper), "\n")
 
 # ==============================================================================
+# STEP 3.5+: Intelligent Import Documentation Generation (NEW)
+# ==============================================================================
+# These functions extract prose patterns from existing documentation and
+# generate new import sections that blend seamlessly with hand-authored content.
+
+# Convert Rd LaTeX markup to Markdown
+convert_rd_latex_to_markdown <- function(text) {
+  if (is.null(text) || is.na(text)) return("")
+  
+  # Handle list objects and complex structures
+  if (is.list(text)) {
+    text <- paste(as.character(text), collapse = " ")
+  }
+  
+  text <- as.character(text)
+  
+  # Remove R list() artifacts
+  text <- gsub('list\\([^)]*\\)', "", text)
+  text <- gsub('\\\\code\\{([^}]+)\\}', "`\\1`", text)
+  text <- gsub('\\\\emph\\{([^}]+)\\}', "*\\1*", text)
+  text <- gsub('\\\\strong\\{([^}]+)\\}', "**\\1**", text)
+  text <- gsub('\\\\href\\{([^}]+)\\}\\{([^}]+)\\}', "[\\2](\\1)", text)
+  text <- gsub('\\\\link\\[([^\\]]+)\\]\\{([^}]+)\\}', "[\\2](goFlux.qmd#\\1)", text)
+  text <- gsub('\\\\link\\{([^}]+)\\}', "[\\1](goFlux.qmd#\\1)", text)
+  text <- gsub('\\\\url\\{([^}]+)\\}', "[\\1](\\1)", text)
+  text <- gsub('\\\\ifelse\\{html\\}\\{\\\\out\\{([^}]+)\\}\\}\\{[^}]+\\}', "\\1", text)
+  text <- gsub('~', " ", text)
+  text <- gsub('\\\\n', "\n", text)
+  
+  # Clean up excessive whitespace
+  text <- gsub('\\s+', " ", text)
+  trimws(text)
+}
+
+# Clean argument description for table display
+clean_arg_description <- function(desc, max_length = 180) {
+  if (is.null(desc) || is.na(desc)) return("")
+  
+  # Convert to string and remove artifacts
+  desc <- as.character(desc)
+  desc <- convert_rd_latex_to_markdown(desc)
+  
+  # Remove line breaks for table
+  desc <- gsub("\n", " ", desc, fixed = TRUE)
+  
+  # Limit length
+  if (nchar(desc) > max_length) {
+    desc <- paste0(substr(desc, 1, max_length - 3), "...")
+  }
+  
+  desc
+}
+
+# Extract prose templates from existing imports in import.qmd
+extract_prose_templates <- function(import_qmd_path) {
+  if (!file.exists(import_qmd_path)) return(list())
+  
+  lines <- readLines(import_qmd_path, warn = FALSE)
+  text <- paste(lines, collapse = "\n")
+  
+  templates <- list(
+    has_arguments_table = grepl("^\\|.*\\|.*\\|\\s*$", paste(lines, collapse = "\n"), perl = TRUE),
+    has_details_section = grepl("#### Details|^#### Details", text, perl = TRUE, ignore.case = TRUE),
+    has_examples_section = grepl("#### Example|^#### Example", text, perl = TRUE, ignore.case = TRUE)
+  )
+  
+  # Extract example of existing Arguments table format
+  arg_table_pattern <- "^\\|\\s*`?[^|]+`?\\s*\\|\\s*[^|]+\\s*\\|"
+  if (grepl(arg_table_pattern, text, perl = TRUE)) {
+    templates$arguments_table_exists <- TRUE
+  }
+  
+  templates
+}
+
+# Learn manufacturer groups from import.qmd section headers
+learn_manufacturer_groups <- function(import_qmd_path) {
+  if (!file.exists(import_qmd_path)) {
+    return(list(
+      "LI-COR" = c(), "LGR" = c(), "GAIA" = c(), "Gasmet" = c(),
+      "Picarro" = c(), "PP-Systems" = c(), "Aeris" = c(),
+      "HealthyPhoton" = c(), "GasmetPD" = c()
+    ))
+  }
+  
+  lines <- readLines(import_qmd_path, warn = FALSE)
+  
+  groups <- list(
+    "LI-COR" = c(),
+    "LGR" = c(),
+    "GAIA" = c(),
+    "Gasmet" = c(),
+    "Picarro" = c(),
+    "PP-Systems" = c(),
+    "Aeris" = c(),
+    "HealthyPhoton" = c(),
+    "GasmetPD" = c()
+  )
+  
+  # Find section headers and extract import functions under each
+  for (i in seq_along(lines)) {
+    line <- lines[i]
+    
+    # Detect manufacturer section headers
+    if (grepl("^##+ ", line)) {
+      # Extract manufacturer name from header
+      header <- sub("^#+\\s+", "", line)
+      
+      # Find import functions mentioned in next N lines
+      for (j in (i+1):min(i+100, length(lines))) {
+        if (grepl("^##+ ", lines[j])) break  # Stop at next section
+        
+        # Extract import.FUNCNAME patterns
+        import_matches <- gregexpr("\\bimport\\.[A-Za-z0-9]+\\b", lines[j], perl = TRUE)
+        if (length(import_matches) > 0 && import_matches[[1]][1] > 0) {
+          funcs <- regmatches(lines[j], import_matches)[[1]]
+          
+          # Try to match manufacturer
+          for (mfg in names(groups)) {
+            if (grepl(mfg, header, ignore.case = TRUE) ||
+                grepl(mfg, paste(lines[i:(i+5)], collapse = " "), ignore.case = TRUE)) {
+              groups[[mfg]] <- c(groups[[mfg]], funcs)
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  # Remove duplicates
+  groups <- lapply(groups, unique)
+  groups
+}
+
+# Generate intelligent import section from Rd metadata
+generate_intelligent_import_section <- function(func_name, inventory_entry, metadata_store, prose_templates) {
+  metadata <- metadata_store[[func_name]]
+  if (is.null(metadata)) return("")
+  
+  lines <- c()
+  
+  # Section header
+  section_header <- if (!is.null(inventory_entry$instrument) && !is.null(inventory_entry$instrument$name)) {
+    inventory_entry$instrument$name
+  } else {
+    func_name
+  }
+  
+  lines <- c(lines, paste0("### ", section_header, " {#sec-single-", tolower(gsub("\\.", "", func_name)), "}"))
+  lines <- c(lines, "")
+  
+  # Title/Description paragraph (prose style)
+  if (!is.na(metadata$title) && metadata$title != "") {
+    lines <- c(lines, paste0("Import single raw gas measurement files from the ", metadata$title, " with the function `", func_name, "`."))
+    lines <- c(lines, "")
+  }
+  
+  # Usage section
+  lines <- c(lines, "#### Usage")
+  lines <- c(lines, "")
+  lines <- c(lines, "```{r}")
+  lines <- c(lines, "#| eval: false")
+  lines <- c(lines, "#| code-copy: false")
+  
+  if (!is.na(metadata$usage) && metadata$usage != "") {
+    # Format usage nicely
+    usage_lines <- strsplit(metadata$usage, "\n")[[1]]
+    lines <- c(lines, usage_lines)
+  }
+  
+  lines <- c(lines, "```")
+  lines <- c(lines, "")
+  
+  # Arguments section (as table)
+  if (length(metadata$arguments) > 0) {
+    lines <- c(lines, "#### Arguments")
+    lines <- c(lines, "")
+    lines <- c(lines, "|  |  |")
+    lines <- c(lines, "|---|---|")
+    
+    for (arg_name in names(metadata$arguments)) {
+      arg_desc <- metadata$arguments[[arg_name]]
+      arg_desc <- clean_arg_description(arg_desc)
+      
+      # Escape pipe characters for markdown table
+      arg_desc <- gsub("|", "\\|", arg_desc, fixed = TRUE)
+      
+      lines <- c(lines, paste0("| `", arg_name, "` | ", arg_desc, " |"))
+    }
+    lines <- c(lines, "")
+  }
+  
+  # Details section
+  if (!is.na(metadata$details) && metadata$details != "") {
+    lines <- c(lines, "#### Details")
+    lines <- c(lines, "")
+    details_md <- convert_rd_latex_to_markdown(metadata$details)
+    lines <- c(lines, details_md)
+    lines <- c(lines, "")
+  }
+  
+  # Examples section
+  if (!is.na(metadata$examples) && metadata$examples != "") {
+    lines <- c(lines, "#### Example")
+    lines <- c(lines, "")
+    lines <- c(lines, "```{r}")
+    lines <- c(lines, "#| eval: false")
+    
+    example_lines <- strsplit(metadata$examples, "\n")[[1]]
+    lines <- c(lines, example_lines)
+    
+    lines <- c(lines, "```")
+    lines <- c(lines, "")
+  }
+  
+  paste(lines, collapse = "\n")
+}
+
+# Find the best insertion point in import.qmd for a function
+find_insertion_point_for_import <- function(func_name, manufacturer_groups, import_qmd_lines) {
+  # Try to find manufacturer group for this function
+  import_qmd_text <- paste(import_qmd_lines, collapse = "\n")
+  
+  # Check if function is already in the file
+  if (grepl(func_name, import_qmd_text, fixed = TRUE)) {
+    return(NULL)  # Don't insert if already present
+  }
+  
+  # Try to match to a manufacturer group
+  for (mfg in names(manufacturer_groups)) {
+    if (length(manufacturer_groups[[mfg]]) > 0) {
+      # Look for section header for this manufacturer
+      mfg_header_pattern <- paste0("^#+\\s+", mfg)
+      for (i in seq_along(import_qmd_lines)) {
+        if (grepl(mfg_header_pattern, import_qmd_lines[i], perl = TRUE, ignore.case = TRUE)) {
+          # Found manufacturer section - insert after it
+          # Look for the next blank line or subsection after the manufacturer header
+          for (j in (i+1):length(import_qmd_lines)) {
+            if (grepl("^###+ ", import_qmd_lines[j]) && j > i) {
+              # Found next section, insert before it
+              return(j - 1)
+            }
+          }
+          # If no next section, insert at end of this section
+          for (j in (i+1):length(import_qmd_lines)) {
+            if (grepl("^## ", import_qmd_lines[j]) && j > i) {
+              return(j - 1)
+            }
+          }
+          return(length(import_qmd_lines))
+        }
+      }
+    }
+  }
+  
+  # No manufacturer match found - append at end before final section
+  NULL  # Signal to append at end
+}
+
+# ==============================================================================
 # STEP 3.6: Incremental import documentation sync (ground truth + auto-managed)
 # ============================================================================== 
 
@@ -799,17 +1083,70 @@ delta_targets <- unique(c(
   classifications$metadata_changed
 ))
 
+# NEW: Intelligent insertion of generated import sections (if there are changes)
+sync_updated <- FALSE
 if (length(delta_targets) > 0) {
-  delta_blocks <- c()
+  # Extract prose patterns and learn manufacturer groupings
+  prose_templates <- extract_prose_templates(import_qmd_path)
+  manufacturer_groups <- learn_manufacturer_groups(import_qmd_path)
+  
+  # Load current import.qmd lines
+  qmd_lines <- readLines(import_qmd_path, warn = FALSE)
+  
+  # Track sections to insert (collect all at once so we can insert in reverse order)
+  sections_to_insert <- list()
+  
   for (func_name in sort(delta_targets)) {
-    delta_blocks <- c(
-      delta_blocks,
-      generate_import_delta_block(func_name, current_inventory[[func_name]], all_metadata)
+    generated_section <- generate_intelligent_import_section(
+      func_name,
+      current_inventory[[func_name]],
+      all_metadata,
+      prose_templates
+    )
+    
+    if (generated_section != "") {
+      insertion_line <- find_insertion_point_for_import(
+        func_name,
+        manufacturer_groups,
+        qmd_lines
+      )
+      
+      sections_to_insert[[func_name]] <- list(
+        content = generated_section,
+        insertion_line = insertion_line,
+        func_name = func_name
+      )
+    }
+  }
+  
+  # Insert sections into qmd_lines (in reverse order to maintain line numbers)
+  insertion_points <- sort(unique(unlist(lapply(sections_to_insert, function(x) x$insertion_line))), decreasing = TRUE)
+  
+  for (func_name in names(sections_to_insert)) {
+    section_info <- sections_to_insert[[func_name]]
+    insertion_line <- section_info$insertion_line
+    
+    if (is.null(insertion_line)) {
+      # Append at end before the last section/line
+      insertion_line <- length(qmd_lines)
+    }
+    
+    # Insert blank line + section + blank line
+    section_lines <- strsplit(section_info$content, "\n")[[1]]
+    new_lines <- c("", section_lines, "")
+    
+    qmd_lines <- c(
+      qmd_lines[1:insertion_line],
+      new_lines,
+      qmd_lines[(insertion_line+1):length(qmd_lines)]
     )
   }
-  sync_updated <- update_automanaged_region(import_qmd_path, paste(delta_blocks, collapse = "\n\n---\n\n"))
-} else {
-  sync_updated <- update_automanaged_region(import_qmd_path, "No new or changed import functions detected in this build.")
+  
+  # Write updated import.qmd
+  writeLines(qmd_lines, import_qmd_path)
+  sync_updated <- TRUE
+  
+  cat("✓ Generated", length(sections_to_insert), "import section(s) and updated import.qmd\n")
 }
 
 sync_report <- list(

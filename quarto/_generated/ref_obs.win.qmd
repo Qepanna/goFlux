@@ -35,26 +35,13 @@ obs.win(
 
 ## Arguments
 
-**`list("inputfile")`**
-
-: list("data.frame; output from import or align functions.")
-
-**`list("auxfile")`**
-
-: list("data.frame; auxiliary data frame containing the columns\n", list("start.time"), " and ", list("UniqueID"), ". ", list("start.time"), " must\n", "contain a date and be in POSIXct format. The time zone must be\n", "the same as the POSIX.time in ", list("inputfile"), ". The default\n", "time zone for the import functions is \"UTC\". A data frame from\n", "the Smart Chamber (LI-8200) can be used as an auxiliary file.\n", "In that case, ", list("chamID"), " will be used instead of ", list("UniqueID"), 
-    ",\n", "if ", list("UniqueID"), " cannot be found.")
-
-**`list("gastype")`**
-
-: list("deprecated")
-
-**`list("obs.length")`**
-
-: list("numerical; chamber closure time (seconds). Default is NULL.\n", "If ", list("obs.length"), " is not provided, a column ", list("obs.length"), "\n", "should be contained in ", list("auxfile"), " or ", list("inputfile"), ".\n", "Alternatively, ", list("obs.length"), " will be calculated from\n", list("start.time"), " and ", list("cham.open"), " or ", list("end.time"), "\n", "if found in ", list("auxfile"), " or ", list("inputfile"), ".")
-
-**`list("shoulder")`**
-
-: list("numerical; time before and after measurement in observation\n", "window (seconds). Default is 120 seconds.")
+| Argument | Description |
+|:---------|:------------|
+| `inputfile` | data.frame; output from import or align functions. |
+| `auxfile` | data.frame; auxiliary data frame containing the columns start.time and UniqueID . start.time must contain a date and be in POSIXct format. The time zo... |
+| `gastype` | deprecated |
+| `obs.length` | numerical; chamber closure time (seconds). Default is NULL. If obs.length is not provided, a column obs.length should be contained in auxfile or input... |
+| `shoulder` | numerical; time before and after measurement in observation window (seconds). Default is 120 seconds. |
 
 ## Value
 

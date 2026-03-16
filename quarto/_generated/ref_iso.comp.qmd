@@ -43,21 +43,12 @@ iso.comp(
 
 ## Arguments
 
-**`list("dataframe")`**
-
-: list("a data.frame containing measurements of isotopic fractions of\n", list(list("html"), list(list("CO2")), list(list(list("CO[2]"), list("ASCII")))), " or\n", list(list("html"), list(list("N2O")), list(list(list("N[2]O"), list("ASCII")))), "\n", "and a ", list("UniqueID"), " (or ", list("chamID"), ") per measurements.")
-
-**`list("CO2dry_ppm, delta_13C")`**
-
-: list("character string; specifies which columns should be\n", "used for ", list(list("html"), list(list("CO2")), list(list(list("CO[2]"), list("ASCII")))), "\n", "measurements, and the delta 13C, respectively.")
-
-**`list("N2Odry_ppb, delta_15N, delta_18O")`**
-
-: list("character string; specifies which columns\n", "should be used for ", list(list("html"), list(list("N2O")), list(list(list("N[2]O"), list("ASCII")))), "\n", "measurements, the delta 15N and the delta 18O, respectively.")
-
-**`list("save.plots")`**
-
-: list("character string; a file path with the extension .pdf to\n", "save Keeling plots. By default plots are not saved.")
+| Argument | Description |
+|:---------|:------------|
+| `dataframe` | a data.frame containing measurements of isotopic fractions of html CO2 CO[2] ASCII or html N2O N[2]O ASCII and a UniqueID (or chamID ) per measurement... |
+| `CO2dry_ppm, delta_13C` | character string; specifies which columns should be used for html CO2 CO[2] ASCII measurements, and the delta 13C, respectively. |
+| `N2Odry_ppb, delta_15N, delta_18O` | character string; specifies which columns should be used for html N2O N[2]O ASCII measurements, the delta 15N and the delta 18O, respectively. |
+| `save.plots` | character string; a file path with the extension .pdf to save Keeling plots. By default plots are not saved. |
 
 ## Value
 

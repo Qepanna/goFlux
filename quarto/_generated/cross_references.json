@@ -1,12 +1,12 @@
 {
   "bestflux.qmd": ["best.flux", "goFlux"],
   "example.qmd": ["flux2pdf"],
-  "flux2pdf.qmd": ["best.flux", "flux.plot", "flux2pdf", "goFlux"],
+  "flux2pdf.qmd": ["best.flux", "crop.meas", "flux.plot", "flux2pdf", "goFlux"],
   "goFlux.qmd": ["goFlux"],
-  "import.qmd": ["goFlux", "import.DX4015", "import.EGM5", "import.G2201i", "import.G2508", "import.G4301", "import.GAIA", "import.GT5000", "import.GasmetPD", "import.LI6400", "import.LI7810", "import.LI7820", "import.LI8100", "import.LI8200", "import.LI8250", "import.N2OM1", "import.N2Oi2", "import.UGGA", "import.skyline", "import.uCH4", "import.uN2O", "import2RData"],
+  "import.qmd": ["autoID", "goFlux", "import.DX4015", "import.EGM5", "import.G2201i", "import.G2508", "import.G4301", "import.GAIA", "import.GT5000", "import.GasmetPD", "import.HT8850", "import.LI6400", "import.LI7810", "import.LI7820", "import.LI8100", "import.LI8150", "import.LI8200", "import.LI8250", "import.N2OM1", "import.N2Oi2", "import.UGGA", "import.eosMX12", "import.skyline", "import.uCH4", "import.uN2O", "import2RData"],
   "index.qmd": ["best.flux", "flux2pdf", "goFlux"],
-  "install.qmd": ["autoID", "best.flux", "goFlux", "import2RData"],
+  "install.qmd": ["goFlux"],
   "manualID.qmd": ["autoID", "click.peak2", "goFlux", "import.LI8200", "import.UGGA", "obs.win"],
-  "other.qmd": ["autoID", "best.flux", "flux.plot", "flux2pdf", "goFlux", "import2RData", "iso.comp", "obs.win"],
+  "other.qmd": ["auto.deadband", "click.peak2", "crop.meas", "goFlux", "iso.comp", "obs.win"],
   "troubleshoot.qmd": ["click.peak2", "goFlux", "obs.win"]
 }

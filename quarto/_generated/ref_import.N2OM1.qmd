@@ -3,5 +3,128 @@ title: "`import.N2OM1`"
 code-block-bg: true
 ---
 
-See [All Functions](function_index.qmd) for complete documentation.
+
+ Imports single raw gas measurement files from the N2OM1
+ (GLA151 series) from Los Gatos Research
+ ( list(list("html"), list(list("N<sub>2</sub>O")), list(list(list("N[2]O"), list("ASCII")))) ,
+ list(list("html"), list(list("CH<sub>4</sub>")), list(list(list("CH[4]"), list("ASCII"))))  and
+ list(list("html"), list(list("H<sub>2</sub>O")), list(list(list("H[2]O"), list("ASCII")))) ) with the extension .txt
+
+
+## Description
+
+Import function for the Los Gatos Research GHG analyzer N2OM1
+
+## Usage
+
+```r
+
+
+import.N2OM1(
+
+  inputfile,
+
+  date.format = "dmy",
+
+  timezone = "UTC",
+
+  save = FALSE,
+
+  keep_all = FALSE,
+
+  prec = c(0.5, 2, 50)
+
+)
+
+```
+
+## Arguments
+
+| Argument | Description |
+|:---------|:------------|
+| `inputfile` | character string; the name of a file with the extension .txt |
+| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "dmy", as it i... |
+| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time... |
+| `save` | logical; if save = TRUE , saves the file as an .RData file in a RData folder in the current working directory. If save = FALSE , returns the file in t... |
+| `keep_all` | logical; if keep_all = TRUE , keep all columns from the raw file. The default is keep_all = FALSE , and columns that are not necessary for gas flux ca... |
+| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "N2Odry_ppb", "CH4dry_ppb" and "H2O_ppm". The default is prec ... |
+
+## Details
+
+
+ In  list("date.format") , the date format refers to a date found in the raw data
+ file, not the date format in the file name. For the instrument N2OM1, the date
+ is found in the column "Time".
+ 
+ Note that this function was designed for the following units in the raw file:
+ list("\n", "  ", list(), " ppm for ", list(list("html"), list(list("N2O")), list(list(list("N[2]O"), list("ASCII")))), ",\n", "  ", list(list("html"), list(list("CH4")), list(list(list("CH[4]"), list("ASCII")))), " and\n", "  ", list(list("html"), list(list("H2O")), list(list(list("H[2]O"), list("ASCII")))), "\n", "  ", list(), " Torr for pressure\n", "  ", list(), " Celsius for temperature") 
+ If your LGR N2OM1 instrument uses different units, either convert
+ the units after import, change the settings on your instrument, or contact
+ the maintainer of this package for support.
+ 
+ The precision of the instrument is needed to restrict kappa-max
+ ( list(list("k.max")) ) in the non-linear flux calculation
+ ( list(list("HM.flux")) ). Kappa-max is inversely proportional to
+ instrument precision. If the precision of your instrument is unknown, it is
+ better to use a low value (e.g. 1 ppm for
+ list(list("html"), list(list("H2O")), list(list(list("H[2]O"), list("ASCII")))) , or 1 ppb for
+ list(list("html"), list(list("N2O")), list(list(list("N[2]O"), list("ASCII"))))  and
+ list(list("html"), list(list("CH4")), list(list(list("CH[4]"), list("ASCII")))) ) to allow for more
+ curvature, especially for water vapor fluxes, or very long measurements, that
+ are normally curved. The default values given for instrument precision are
+ the ones found  list(list("https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers/lgr-icos-qc-portable-gas-analyzers-gla151-series/lgr-icos-portable-analyzers-gla151-n2om1-919"), list("online")) 
+ for the latest model of this instrument available at the time of the
+ creation of this function (12-2023).
+
+
+## Examples
+
+```r
+
+
+# Load file from downloaded package
+
+file.path <- system.file("extdata", "N2OM1/N2OM1.txt", package = "goFlux")
+
+
+
+# Run function
+
+imp.N2OM1 <- import.N2OM1(inputfile = file.path)
+
+```
+
+## See Also
+
+
+ Use the wrapper function  list(list("import2RData")) 
+          to import multiple files from the same folder path using any instrument.
+ 
+ See also, import functions for other instruments:
+           list(list("import.DX4015")) ,
+           list(list("import.eosMX12")) ,
+           list(list("import.EGM5")) ,
+           list(list("import.G2201i")) ,
+           list(list("import.G2508")) ,
+           list(list("import.G4301")) ,
+           list(list("import.GAIA")) ,
+           list(list("import.GasmetPD")) ,
+           list(list("import.GT5000")) ,
+           list(list("import.HT8850")) ,
+           list(list("import.LI6400")) ,
+           list(list("import.LI7810")) ,
+           list(list("import.LI7820")) ,
+           list(list("import.LI8100")) ,
+           list(list("import.LI8150")) ,
+           list(list("import.LI8200")) ,
+           list(list("import.LI8250")) ,
+           list(list("import.N2Oi2")) ,
+           list(list("import.skyline")) ,
+           list(list("import.uCH4")) ,
+           list(list("import.uN2O")) ,
+           list(list("import.UGGA")) 
+ 
+ See  list(list("timezones"))  for a description of the underlying
+          timezone attribute.
+
 

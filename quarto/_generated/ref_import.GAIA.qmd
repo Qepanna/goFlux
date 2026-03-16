@@ -3,5 +3,232 @@ title: "`import.GAIA`"
 code-block-bg: true
 ---
 
-See [All Functions](function_index.qmd) for complete documentation.
+
+ Imports single raw gas measurement files from the automated chamber
+ ECOFlux (GAIA2TECH) linked with up to three greenhouse gas analyzers.
+ Default settings are set for two LI-COR instruments: LI-7810
+ ( list(list("html"), list(list("CO<sub>2</sub>")), list(list(list("CO[2]"), list("ASCII")))) ,
+ list(list("html"), list(list("CH<sub>4</sub>")), list(list(list("CH[4]"), list("ASCII"))))  and
+ list(list("html"), list(list("H<sub>2</sub>O")), list(list(list("H[2]O"), list("ASCII")))) ) and LI7820
+ ( list(list("html"), list(list("N<sub>2</sub>O")), list(list(list("N[2]O"), list("ASCII"))))  and
+ list(list("html"), list(list("H<sub>2</sub>O")), list(list(list("H[2]O"), list("ASCII")))) ), to match the
+ example data file provided with the package.
+
+
+## Description
+
+Import function for the automated chamber ECOFlux (GAIA2TECH) synced with
+ multiple chambers and instruments
+
+## Usage
+
+```r
+
+
+import.GAIA(
+
+  inputfile,
+
+  date.format = "ymd",
+
+  timezone = "UTC",
+
+  pivot = "long",
+
+  active = TRUE,
+
+  flag = c(7, 11),
+
+  background = FALSE,
+
+  save = FALSE,
+
+  CH.col = "COM5A0",
+
+  SWC.col = "1C08_Soil Moisture",
+
+  Tsoil.col = "1C07_Soil Temperature",
+
+  Tcham.col = "2C07_Chamber Temperature",
+
+  PAR.col = "3C07_Sunlight",
+
+  WTD.col = NULL,
+
+  Op.stat.col = "0C06_OperatingStatus",
+
+  inst1 = "XT2C00_Instrument",
+
+  inst2 = "XT3C00_Instrument",
+
+  inst3 = NULL,
+
+  gas1 = c("XT2C04_CH4", "XT2C05_CO2", "XT2C06_H2O"),
+
+  gas2 = c("XT3C04_N2O", "XT3C05_H2O"),
+
+  gas3 = NULL,
+
+  prec1 = c(0.6, 3.5, 45),
+
+  prec2 = c(0.4, 45),
+
+  prec3 = NULL,
+
+  dry1 = T,
+
+  dry2 = T,
+
+  dry3 = NULL,
+
+  manual = FALSE,
+
+  sep = "\t",
+
+  skip = 1
+
+)
+
+```
+
+## Arguments
+
+| Argument | Description |
+|:---------|:------------|
+| `inputfile` | character string; the name of a file with the extension .csv |
+| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it i... |
+| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time... |
+| `pivot` | character string; either "long" or "wide". If pivot = "long" , each column containing information about Tsoil , Tcham , SWC , PAR and operating status... |
+| `active` | logical; if active = TRUE , preserve data for active chambers only. |
+| `flag` | numeric vector; indicates the operating status that should be used for the flux calculation. Default is flag = c(7,11) , where 7 indicates "Chamber Id... |
+| `background` | logical; if background = FALSE , removes all data from activ.cham == "Background" . |
+| `save` | logical; if save = TRUE , saves the file as an .RData file in a RData folder in the current working directory. If save = FALSE , returns the file in t... |
+| `PAR.col, Tcham.col, Tsoil.col, SWC.col, WTD.col` | character vector; a vector of patterns to match all columns that fit the corresponding parameters. See details below for more information. |
+| `Op.stat.col, CH.col` | character string; a pattern to match columns that fit the corresponding parameters: see details below. |
+| `inst1, inst2, inst3` | character strings; a pattern to match the columns containing the name of each instrument. By default, inst1 = "XT2C00_Instrument" , inst2 = "XT3C00_In... |
+| `gas1, gas2, gas3` | character vectors; a pattern to match the columns containing each gas measurement. By default, gas1 = c("XT2C04_CH4", "XT2C05_CO2", "XT2C06_H2O") , ga... |
+| `prec1, prec2, prec3` | numerical vectors; the precision of the instrument for each gas mentioned in gas1 , gas2 and gas3 . By default, prec1 = c(0.6, 3.5, 45) , prec2 = c(0.... |
+| `dry1, dry2, dry3` | logical; are the gas measurements compensated for water vapor (dry fraction)? If dryX = TRUE (default), the gases are compensated for water vapor, and... |
+| `manual` | logical; indicates if measurements were made manually and there are no records of chamber identification, sequence, etc. If TRUE , the arguments Op.st... |
+| `sep` | character string defining the field separator character. Values on each line of the file are separated by this character. By default, sep = "\t" for t... |
+| `skip` | integer; the number of lines of the data file to skip before beginning to read data. By default, skip = 1 . |
+
+## Details
+
+
+ This function has been designed for the automated chamber ECOFlux (GAIA2TECH)
+ synced with up to 9 chambers and two GHG analyzers from LI-COR (LI-7810:
+ list(list("html"), list(list("CO2")), list(list(list("CO[2]"), list("ASCII")))) ,
+ list(list("html"), list(list("CH4")), list(list(list("CH[4]"), list("ASCII"))))  and
+ list(list("html"), list(list("H2O")), list(list(list("H[2]O"), list("ASCII"))))  / LI7820:
+ list(list("html"), list(list("N2O")), list(list(list("N[2]O"), list("ASCII"))))  and
+ list(list("html"), list(list("H2O")), list(list(list("H[2]O"), list("ASCII")))) ). If this function
+ could be useful for you, but does not meet your needs, please contact the
+ maintainer of this package for potential adaptations.
+ 
+ In  list("date.format") , the date format refers to a date found in the raw data
+ file, not the date format in the file name. For the automated chamber ECOFlux,
+ the date is found in the column "Titles:".
+ 
+ The arguments  list("PAR.col") ,  list("Tcham.col") ,  list("Tsoil.col") ,  list("SWC.col") ,
+ and  list("WTD.col")  correspond to different types of probes linked to the ECOFlux
+ chamber: PAR (sunlight), chamber temperature, soil temperature, soil water
+ content and water table depth, respectively. All columns containing the
+ patterns specified in these arguments will be selected and renamed with the
+ corresponding argument. For example, if  list("PAR = \"3C07_Sunlight\"") , all
+ columns containing the pattern "3C07_Sunlight" will be renamed with the pattern
+ "_PAR". Then, if  list("pivot = \"long\"") , all columns with the pattern "_PAR"
+ will be merged together. If  list("PAR = c(\"3C07_Sunlight1\", \"3C07_Sunlight2\")") ,
+ these patterns will be renamed to PAR1 and PAR2.
+ 
+ The argument  list("Op.stat.col") 
+ corresponds to the columns Operating Status of each chamber. The argument
+ list("CH.col")  indicates a character string preceding the chamber number for
+ each column of the raw data. For example, the column "COM5A010C06_OperatingStatus"
+ in the raw data file contains the Operating Status for the chamber 1 if
+ list("CH.col = \"COM5A0\"")  and  list("Op.stat.col = \"0C06_OperatingStatus\"") . If
+ these columns are absent from the raw data, set arguments to NULL.
+ 
+ Note that this function was designed for the following units in the raw file:
+ list("\n", "  ", list(), " kPa for atmospheric pressure\n", "  ", list(), " volumetric water content (%) for soil moisture\n", "  ", list(), " Celsius for air temperature\n", "  ", list(), " ", list(list("html"), list(list("µmol photons m-2s-1 for PAR")), list(list(list("µmol photons m^{-2}s^{-1} for PAR"), list("ASCII"))))) 
+ For each gas, the units are taken from the second row in the raw file (Units:).
+ If your instruments use different units, either convert the units after
+ import, change the settings on your instruments, or contact the maintainer of
+ this package for support.
+ 
+ Regarding the parameters  list("dryX") , in case of uncertainty, either contact
+ your technical support or assume that gases are compensated for water vapor,
+ which is normally the case.
+ 
+ As opposed to the other import functions, there is no option to "keep_all" with
+ this instrument. If you would like to import additional data using this
+ function, please contact the maintainer of this package for support.
+ 
+ The precision of the instrument is needed to restrict kappa-max
+ ( list(list("k.max")) ) in the non-linear flux calculation
+ ( list(list("HM.flux")) ). Kappa-max is inversely proportional to
+ instrument precision. If the precision of your instrument is unknown, it is
+ better to use a low value (e.g. 1 ppm for
+ list(list("html"), list(list("CO2")), list(list(list("CO[2]"), list("ASCII"))))  and
+ list(list("html"), list(list("H2O")), list(list(list("H[2]O"), list("ASCII")))) , or 1 ppb for
+ list(list("html"), list(list("CH4")), list(list(list("CH[4]"), list("ASCII"))))  and
+ list(list("html"), list(list("N2O")), list(list(list("N[2]O"), list("ASCII")))) ) to allow for more
+ curvature, especially for water vapor fluxes, or very long measurements, that
+ are normally curved. The default values given for instrument precision are
+ the ones found online for the latest models of the
+ list(list("https://www.licor.com/env/products/trace-gas/LI-7810"), list("LI-7810"))  and
+ list(list("https://www.licor.com/env/products/trace-gas/LI-7820"), list("LI-7820")) ,
+ available at the time of the creation of this function (11-2023).
+
+
+## Examples
+
+```r
+
+
+# Load file from downloaded package
+
+file.path <- system.file("extdata", "GAIA/GAIA.csv", package = "goFlux")
+
+
+
+# Run function
+
+imp.GAIA <- import.GAIA(inputfile = file.path)
+
+```
+
+## See Also
+
+
+ Use the wrapper function  list(list("import2RData")) 
+          to import multiple files from the same folder path using any instrument.
+ 
+ See also, import functions for other instruments:
+           list(list("import.DX4015")) ,
+           list(list("import.eosMX12")) ,
+           list(list("import.EGM5")) ,
+           list(list("import.G2201i")) ,
+           list(list("import.G2508")) ,
+           list(list("import.G4301")) ,
+           list(list("import.GasmetPD")) ,
+           list(list("import.GT5000")) ,
+           list(list("import.HT8850")) ,
+           list(list("import.LI6400")) ,
+           list(list("import.LI7810")) ,
+           list(list("import.LI7820")) ,
+           list(list("import.LI8100")) ,
+           list(list("import.LI8150")) ,
+           list(list("import.LI8200")) ,
+           list(list("import.LI8250")) ,
+           list(list("import.N2OM1")) ,
+           list(list("import.N2Oi2")) ,
+           list(list("import.skyline")) ,
+           list(list("import.uCH4")) ,
+           list(list("import.uN2O")) ,
+           list(list("import.UGGA")) 
+ 
+ See  list(list("timezones"))  for a description of the underlying
+          timezone attribute.
+
 

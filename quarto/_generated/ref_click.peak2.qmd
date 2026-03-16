@@ -49,49 +49,19 @@ click.peak2(
 
 ## Arguments
 
-**`list("ow.list")`**
-
-: list("list of data.frame; output from the function\n", list(list("obs.win")), ". Must contain the columns\n", list("gastype"), " (see below), ", list("POSIX.time"), " and ", list("UniqueID"), ".")
-
-**`list("gastype")`**
-
-: list("character string; specifies which gas should be displayed on\n", "the plot to manually select start time and end time of\n", "measurements. Must be one of the following: \"CO2dry_ppm\",\n", "\"COdry_ppb\", \"CH4dry_ppb\", \"N2Odry_ppb\", \"NO2dry_ppb\", \"NOdry_ppb\",\n", "\"NH3dry_ppb\" or \"H2O_ppm\". Default is \"CO2dry_ppm\".")
-
-**`list("sleep")`**
-
-: list("numerical value; delay before closing the resulting plot. Grants\n", "a delay between measurements to visually inspect the output\n", "before processing the next measurement. Sleep must be shorter\n", "than 10 seconds. If ", list("sleep = NULL"), ", the  plots will not close.")
-
-**`list("plot.lim")`**
-
-: list("numerical vector of length 2; sets the Y axis limits in the\n", "plots. Default values are set for a typical gas measurement\n", "of \"CO2dry_ppm\" from soils: ", list("plot.lim = c(380,1000)"), ".")
-
-**`list("seq")`**
-
-: list("a numerical sequence that indicates objects in a list. By default,\n", list("seq = NULL"), " and the function loops through all data frames\n", "in ", list("ow.list"), ".")
-
-**`list("warn.length")`**
-
-: list("numerical value; limit under which a measurement is flagged\n", "for being too short (", list("nb.obs < warn.length"), "). Default\n", "value is ", list("warn.length = 60"), ".")
-
-**`list("save.plots")`**
-
-: list("character string; a file path with the extension .pdf to\n", "save the plots produced with click.peak2. By default,\n", list("save.plot = NULL"), " and plots are not saved.")
-
-**`list("width")`**
-
-: list("numerical value; width of the pop-up window.")
-
-**`list("height")`**
-
-: list("numerical value; height of the pop-up window.")
-
-**`list("abline")`**
-
-: list("logical; if TRUE (default), blue vertical lines indicate\n", list("start.time"), " and ", list("end.time"), " on both plots.")
-
-**`list("abline_corr")`**
-
-: list("logical; if TRUE (default), red vertical lines indicate\n", list("start.time_corr"), " and ", list("end.time_corr"), " on validation plot.")
+| Argument | Description |
+|:---------|:------------|
+| `ow.list` | list of data.frame; output from the function obs.win . Must contain the columns gastype (see below), POSIX.time and UniqueID . |
+| `gastype` | character string; specifies which gas should be displayed on the plot to manually select start time and end time of measurements. Must be one of the f... |
+| `sleep` | numerical value; delay before closing the resulting plot. Grants a delay between measurements to visually inspect the output before processing the nex... |
+| `plot.lim` | numerical vector of length 2; sets the Y axis limits in the plots. Default values are set for a typical gas measurement of "CO2dry_ppm" from soils: pl... |
+| `seq` | a numerical sequence that indicates objects in a list. By default, seq = NULL and the function loops through all data frames in ow.list . |
+| `warn.length` | numerical value; limit under which a measurement is flagged for being too short ( nb.obs < warn.length ). Default value is warn.length = 60 . |
+| `save.plots` | character string; a file path with the extension .pdf to save the plots produced with click.peak2. By default, save.plot = NULL and plots are not save... |
+| `width` | numerical value; width of the pop-up window. |
+| `height` | numerical value; height of the pop-up window. |
+| `abline` | logical; if TRUE (default), blue vertical lines indicate start.time and end.time on both plots. |
+| `abline_corr` | logical; if TRUE (default), red vertical lines indicate start.time_corr and end.time_corr on validation plot. |
 
 ## Value
 

@@ -3,13 +3,41 @@
 ## Import Functions
 
 Functions to import raw data from gas analyzers:
+- [`import.DX4015()`](#import.dx4015) - Import function for the Gasmet DX4015 portable FTIR gas analyzer for humid
+ conditions
+- [`import.EGM5()`](#import.egm5) - Import function for the PP-Systems EGM-5 Portable
+ list(list("html"), list(list("CO<sub>2</sub>")), list(list(list("CO[2]"), list("ASCII"))))  Gas Analyzer
+- [`import.eosMX12()`](#import.eosmx12) - Import function for the eosMX 12-Channel Multiplexer
 - [`import.G2201i()`](#import.g2201i) - Import function for the Picarro G2201-i Isotopic Analyzer
+- [`import.G2508()`](#import.g2508) - Import function for Picarro G2508 GHG analyzer
+- [`import.G4301()`](#import.g4301) - Import function for the Picarro
+ list(list("html"), list(list("GasScouter<sup>TM</sup>")), list(list(list("GasScouter^{TM}"), list("ASCII")))) 
+ G4301 Mobile Gas Concentration Analyzer
+- [`import.GAIA()`](#import.gaia) - Import function for the automated chamber ECOFlux (GAIA2TECH) synced with
+ multiple chambers and instruments
 - [`import.GasmetPD()`](#import.gasmetpd) - Import function for the GasmetPD multiplexer from the University of Padova
 - [`import.GT5000()`](#import.gt5000) - Import function for the Gasmet GT5000 Terra - Splashproof multigas FTIR
  analyzer
+- [`import.HT8850()`](#import.ht8850) - Import function for the all-in-one GHG analyzer HT8850 from Healthy Photon
+- [`import.LI6400()`](#import.li6400) - Import function for LI-COR GHG analyzer LI-6400
+- [`import.LI7810()`](#import.li7810) - Import function for LI-COR GHG analyzer LI-7810
+- [`import.LI7820()`](#import.li7820) - Import function for LI-COR GHG analyzer LI-7820
+- [`import.LI8100()`](#import.li8100) - Import function for LI-COR GHG analyzer LI-8100
+- [`import.LI8150()`](#import.li8150) - Import function for LI-8100A connected to the LI-COR Multiplexer LI-8150
+- [`import.LI8200()`](#import.li8200) - Import function for LI-COR smart chamber (LI-8200)
 - [`import.LI8250()`](#import.li8250) - Import function for LI-COR Multiplexer (LI-8250)
 - [`import.N2Oi2()`](#import.n2oi2) - Import function for the Los Gatos Research GLA451-N2Oi2
+- [`import.N2OM1()`](#import.n2om1) - Import function for the Los Gatos Research GHG analyzer N2OM1
 - [`import.skyline()`](#import.skyline) - Import function for the SkyLine2D system linked to one GHG analyzer
+- [`import.uCH4()`](#import.uch4) - Import function for the MIRA Ultra
+ list(list("html"), list(list("CH<sub>4</sub>")), list(list(list("CH[4]"), list("ASCII")))) /
+ list(list("html"), list(list("C<sub>2</sub>H<sub>6</sub>")), list(list(list("C[2]H[6]"), list("ASCII"))))  analyzer
+ from Aeris Technologies
+- [`import.UGGA()`](#import.ugga) - Import function for the Los Gatos Research GHG analyzers UGGA and MGGA
+- [`import.uN2O()`](#import.un2o) - Import function for the MIRA Ultra
+ list(list("html"), list(list("N<sub>2</sub>O")), list(list(list("N[2]O"), list("ASCII")))) /
+ list(list("html"), list(list("CO<sub>2</sub>")), list(list(list("CO[2]"), list("ASCII"))))  analyzer
+ from Aeris Technologies
 
 ## Core Functions
 
@@ -22,8 +50,10 @@ Functions for flux calculation and analysis:
 ## Analysis & Measurement Functions
 
 Functions for measurement identification and analysis:
+- [`auto.deadband()`](#auto.deadband) - Automatic selection of deadband per measurement
 - [`autoID()`](#autoid) - Automatically define measurements' window based on an auxiliary file
 - [`click.peak2()`](#click.peak2) - Manual identification of start and end of gas measurements
+- [`crop.meas()`](#crop.meas) - Manual editing of observation window of flux measurements
 - [`iso.comp()`](#iso.comp) - Determine the isotopic composition of
  list(list("html"), list(list("CO<sub>2</sub>")), list(list(list("CO[2]"), list("ASCII"))))  and
  list(list("html"), list(list("N<sub>2</sub>O")), list(list(list("N[2]O"), list("ASCII"))))  measurements

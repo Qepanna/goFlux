@@ -6,9 +6,9 @@ code-block-bg: true
 
  Imports all raw gas measurement files contained in a folder.
  Adapted to multiple greenhouse gas analyzers and other instruments:
- list("\n", list(), " ", list("LI-COR"), ": LI-6400, LI-7810, LI-7820, LI-8100, LI-8200 (smart chamber),\n", "LI-8250 (Multiplexer)\n", list(), " ", list("Los Gatos Research (LGR)"), ": ultra-portable GGA (GLA132 series),\n", "micro ultra-portable GGA (GLA131 series),\n", "N2OM1 (GLA151 series), and the\n", list(list("html"), list(list("N<sub>2</sub>O")), list(list(list("N[2]O"), list("ASCII")))), "\n", "isotopic analyzer N2Oi2 (GLA451 series)\n", list(), " ", list("GAIA2TECH (DMR)"), ": automated chamber ECOFlux\n", 
-    list(), " ", list("Picarro"), ": G2201-i, G2508 and G4301\n", list(), " ", list("Gasmet"), ": DX4015 and GT5000\n", list(), " ", list("PP-Systems"), ": EGM-5\n", list(), " ", list("Aeris Technologies"), ": ", list(list("html"), list(list("N<sub>2</sub>O")), list(list(list("N[2]O"), list("ASCII")))), "/\n", list(list("html"), list(list("CO<sub>2</sub>")), list(list(list("CO[2]"), list("ASCII")))), "\n", "high accuracy analyzer and\n", list(list("html"), list(list("CH<sub>4</sub>")), list(list(
-        list("CH[4]"), list("ASCII")))), "/\n", list(list("html"), list(list("C<sub>2</sub>H<sub>6</sub>")), list(list(list("C[2]H[6]"), list("ASCII")))), "\n", "natural gas detection system\n", list(), " ", list("Earth Bound Scientific"), ": SkyLine2D system\n", list(), " ", list("GasmetPD"), ": Custom multiplexer from the University of Padova, Italy\n") 
+ list("\n", list(), " ", list("LI-COR"), ": LI-6400, LI-7810, LI-7820, LI-8100, LI-8150 (Multiplexer),\n", "LI-8200 (smart chamber), LI-8250 (Multiplexer)\n", list(), " ", list("Los Gatos Research (LGR)"), ": ultra-portable GGA (GLA132 series),\n", "micro ultra-portable GGA (GLA131 series),\n", "N2OM1 (GLA151 series), and the\n", list(list("html"), list(list("N<sub>2</sub>O")), list(list(list("N[2]O"), list("ASCII")))), "\n", "isotopic analyzer N2Oi2 (GLA451 series)\n", list(), " ", list("GAIA2TECH (DMR)"), 
+    ": automated chamber ECOFlux\n", list(), " ", list("Picarro"), ": G2201-i, G2508 and G4301\n", list(), " ", list("Gasmet"), ": DX4015 and GT5000\n", list(), " ", list("PP-Systems"), ": EGM-5\n", list(), " ", list("Aeris Technologies"), ": ", list(list("html"), list(list("N<sub>2</sub>O")), list(list(list("N[2]O"), list("ASCII")))), "/\n", list(list("html"), list(list("CO<sub>2</sub>")), list(list(list("CO[2]"), list("ASCII")))), "\n", "high accuracy analyzer and\n", list(list("html"), list(list(
+        "CH<sub>4</sub>")), list(list(list("CH[4]"), list("ASCII")))), "/\n", list(list("html"), list(list("C<sub>2</sub>H<sub>6</sub>")), list(list(list("C[2]H[6]"), list("ASCII")))), "\n", "natural gas detection system\n", list(), " ", list("EarthBound Scientific"), ": SkyLine2D system\n", list(), " ", list("Healthy Photon"), ": HT8850\n", list(), " ", list("Eosense"), ": eosMX 12-Channel Multiplexer\n", list(), " ", list("GasmetPD"), ": Custom multiplexer from the University of Padova, Italy\n") 
 
 
 ## Description
@@ -120,111 +120,34 @@ import2RData(
 
 ## Arguments
 
-**`list("path")`**
-
-: list("character string; a folder path containing all files to be imported.\n", "Ideally, to avoid any errors, the folder should only contain the\n", "files to be imported.")
-
-**`list("instrument")`**
-
-: list("character string; specifies which instrument was used to\n", "generate the files contained in the folder path. Choose one\n", "of the following: \"DX4015\", \"EGM5\", \"G2201i\", \"G2508\", \"G4301\",\n", "\"GAIA\", \"GasmetPD\", \"GT5000\", \"LI-6400\", \"LI-7810\", \"LI-7820\",\n", "\"LI-8100\", \"LI-8200\", \"LI-8250\", \"N2OM1\", \"N2Oi2\", \"skyline\",\n", "\"uCH4\", \"uN2O\", \"UGGA\". For more information about an\n", "instrument, see the section \"See Also\" below.")
-
-**`list("date.format")`**
-
-: list("character string; specifies the date format found in the\n", "raw data file. Choose one of the following: \"dmy\", \"ymd\",\n", "or \"mdy\".")
-
-**`list("timezone")`**
-
-: list("character string; a time zone in which to import the data to\n", "POSIXct format. Default is \"UTC\". Note about time zone: it is\n", "recommended to use the time zone \"UTC\" to avoid any issue\n", "related to summer time and winter time changes.")
-
-**`list("keep_all")`**
-
-: list("logical; if ", list("keep_all = TRUE"), ", keep all columns from the raw\n", "file. The default is ", list("keep_all = FALSE"), ", and columns that\n", "are not necessary for gas flux calculation are removed.")
-
-**`list("prec, prec1, prec2, prec3")`**
-
-: list("numerical vector; the precision of the instrument\n", "for each gas. Look at the examples below, or the help for each import\n", "function of each instrument, to know what values to use.")
-
-**`list("merge")`**
-
-: list("logical; if TRUE, merge all files as one data frame and return\n", "it in the Console, or load it in the Environment if assigned to\n", "an object.")
-
-**`list("proc.data.field")`**
-
-: list("numeric value; select the process data field used with\n", "the EGM-5. See ", list(list("import.EGM5")), " for\n", "more details.")
-
-**`list("pivot")`**
-
-: list("character string; either \"long\" or \"wide\". If ", list("pivot = \"long\""), ",\n", "each column containing information about ", list("Tsoil"), ",\n", list("Tcham"), ", ", list("SWC"), ", ", list("PAR"), " and operating status\n", "(", list("Op.stat"), ") will be saved in a single column per parameter.\n", "If ", list("pivot = \"wide\""), ", the default display of one column per\n", "chamber per parameter will be used.\n", "Used with ", list("instrument = \"GAIA\""), " only.")
-
-**`list("active")`**
-
-: list("logical; if ", list("active = TRUE"), ", preserve data for active\n", "chambers only. Used with ", list("instrument = \"GAIA\""), " only.")
-
-**`list("flag")`**
-
-: list("numeric vector; indicates the operating status that should be used\n", "for the flux calculation. Default is ", list("flag = c(7,11)"), ", where\n", "7 indicates \"Chamber Idle Closed Clear\" and 11 indicates \"Chamber\n", "Idle Closed Dark\". Used with ", list("instrument = \"GAIA\""), " only.")
-
-**`list("background")`**
-
-: list("logical; if ", list("background = FALSE"), ", removes all data from\n", "opened chambers. See ", list(list("import.GAIA")), " for\n", "more details.")
-
-**`list("deadband")`**
-
-: list("numerical; define a deadband at the start of measurements\n", "(seconds). Used with ", list("instrument = \"skyline\""), " only.")
-
-**`list("shoulder")`**
-
-: list("numerical; include background data points before and after the\n", "measurement (seconds). Used with ", list("instrument = \"skyline\""), " only.")
-
-**`list("CH.clo.col, Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, WTD.col, CH.col")`**
-
-: list("character vector; a pattern to match the columns that fit the corresponding\n", "parameter. See ", list(list("import.GAIA")), ", ", list(list("import.LI8250")), ",\n", "or ", list(list("import.skyline")), " for more details.")
-
-**`list("sensor1, sensor2")`**
-
-: list("character strings; a pattern to match the columns\n", "containing the name of each sensor. By default,\n", list("sensor1 = \"Analog Sensor1\""), ", ", list("sensor2 = \"Analog Sensor2\""), ",\n", "to match the example data file provided with the package. Set to NULL\n", "to ignore these columns. Used with ", list("instrument = \"skyline\""), " only.")
-
-**`list("inst, inst1, inst2, inst3")`**
-
-: list("character strings; a pattern to match the columns\n", "containing the name of each instrument. See\n", list(list("import.GAIA")), ", ", list(list("import.LI8250")), "\n", "or ", list("instrument = \"skyline\""), " for more details.")
-
-**`list("gas, gas1, gas2, gas3")`**
-
-: list("character vectors; a pattern to match the columns\n", "containing each gas measurement. See ", list(list("import.GAIA")), ",\n", list(list("import.LI8250")), ", ", list(list("import.GasmetPD")), "\n", "or ", list(list("import.skyline")), " for more details.")
-
-**`list("dry, dry1, dry2, dry3")`**
-
-: list("logical; are the gas measurements compensated for water\n", "vapor (dry fraction)? If ", list("dryX = TRUE"), " (default), the gases are\n", "compensated for water vapor, and will be named accordingly. See\n", list(list("import.GAIA")), ", ", list(list("import.LI8250")), "\n", "or ", list(list("import.skyline")), " for more details.")
-
-**`list("manual")`**
-
-: list("logical; indicates if measurements were made manually and there\n", "are no records of chamber identification, sequence, etc. If\n", list("TRUE"), ", the arguments ", list("Op.stat.col"), ", ", list("CH.col"), ",\n", list("active"), ", ", list("background"), ", ", list("flag"), ", and ", list("pivot"), "\n", "are ignored. Used with ", list("instrument = \"GAIA\""), " only.")
-
-**`list("sep")`**
-
-: list("character string defining the field separator character. Values on\n", "each line of the file are separated by this character. By default,\n", list("sep = \"\\t\""), " for tabulation. Used with\n", list("instrument = \"GAIA\""), " only.")
-
-**`list("skip")`**
-
-: list("integer; the number of lines of the data file to skip before\n", "beginning to read data. By default, ", list("skip = 1"), ". Used with\n", list("instrument = \"GAIA\""), " only.")
-
-**`list("CH4")`**
-
-: list("character string; which column should be used for\n", list(list("html"), list(list("CH4")), list(list(list("CH[4]"), list("ASCII")))), " concentration.\n", "By default, ", list("CH4 = \"HP_12CH4_dry\""), ". Used with\n", list("instrument = \"G2201i\""), " only.")
-
-**`list("CO2")`**
-
-: list("character string; which column should be used for\n", list(list("html"), list(list("CO2")), list(list(list("CO[2]"), list("ASCII")))), " concentration.\n", "By default, ", list("CO2 = \"12CO2_dry\""), ".Used with\n", list("instrument = \"G2201i\""), " only.")
-
-**`list("sum")`**
-
-: list("logical; if ", list("sum = TRUE"), " (default), the arguments ", list("CH4"), " and\n", list("CO2"), " are ignored and, instead, both fractions (carbon isotope\n", "12 and 13) of each gas, are summed after correction for water vapor,\n", "to obtain the total gas concentration. See the argument ", list("range"), "\n", "for the selection between the HP or the HR measurement of\n", list(list("html"), list(list("CH4")), list(list(list("CH[4]"), list("ASCII")))), " concentration.\n", 
-    "Used with ", list("instrument = \"G2201i\""), " only.")
-
-**`list("range")`**
-
-: list("numerical value; at which threshold should the function select\n", "between high precision (HP) and high resolution (HR) of\n", list(list("html"), list(list("CH4")), list(list(list("CH[4]"), list("ASCII")))), "\n", "concentration? The default is ", list("range = 10"), ". If the methane\n", "concentration recorded in the column ", list("HP_12CH4_dry"), " is above\n", "10 ppm, the concentration from the columns ", list("HR_12CH4_dry"), "\n", "and ", list("HR_13CH4"), " are used for the sum instead of HP.\n", 
-    "Used with ", list("instrument = \"G2201i\""), " only.")
+| Argument | Description |
+|:---------|:------------|
+| `path` | character string; a folder path containing all files to be imported. Ideally, to avoid any errors, the folder should only contain the files to be impo... |
+| `instrument` | character string; specifies which instrument was used to generate the files contained in the folder path. Choose one of the following: "DX4015", "eosM... |
+| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". |
+| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time... |
+| `keep_all` | logical; if keep_all = TRUE , keep all columns from the raw file. The default is keep_all = FALSE , and columns that are not necessary for gas flux ca... |
+| `prec, prec1, prec2, prec3` | numerical vector; the precision of the instrument for each gas. Look at the examples below, or the help for each import function of each instrument, t... |
+| `merge` | logical; if TRUE, merge all files as one data frame and return it in the Console, or load it in the Environment if assigned to an object. |
+| `proc.data.field` | numeric value; select the process data field used with the EGM-5. See import.EGM5 for more details. |
+| `pivot` | character string; either "long" or "wide". If pivot = "long" , each column containing information about Tsoil , Tcham , SWC , PAR and operating status... |
+| `active` | logical; if active = TRUE , preserve data for active chambers only. Used with instrument = "GAIA" only. |
+| `flag` | numeric vector; indicates the operating status that should be used for the flux calculation. Default is flag = c(7,11) , where 7 indicates "Chamber Id... |
+| `background` | logical; if background = FALSE , removes all data from opened chambers. Used with instrument = "GAIA" only. |
+| `deadband` | numerical; define a deadband at the start of measurements (seconds). Used with instrument = "skyline" only. |
+| `shoulder` | numerical; include background data points before and after the measurement (seconds). Used with instrument = "skyline" only. |
+| `CH.clo.col, Op.stat.col, PAR.col, Tcham.col, Tsoil.col, SWC.col, WTD.col, CH.col` | character vector; a pattern to match the columns that fit the corresponding parameter. See import.GAIA , import.LI8250 , or import.skyline for more de... |
+| `sensor1, sensor2` | character strings; a pattern to match the columns containing the name of each sensor. By default, sensor1 = "Analog Sensor1" , sensor2 = "Analog Senso... |
+| `inst, inst1, inst2, inst3` | character strings; a pattern to match the columns containing the name of each instrument. See import.GAIA , import.LI8250 or import.skyline for more d... |
+| `gas, gas1, gas2, gas3` | character vectors; a pattern to match the columns containing each gas measurement. See import.GAIA , import.LI8250 , import.GasmetPD or import.skyline... |
+| `dry, dry1, dry2, dry3` | logical; are the gas measurements compensated for water vapor (dry fraction)? If dryX = TRUE (default), the gases are compensated for water vapor, and... |
+| `manual` | logical; indicates if measurements were made manually and there are no records of chamber identification, sequence, etc. If TRUE , the arguments Op.st... |
+| `sep` | character string defining the field separator character. Values on each line of the file are separated by this character. By default, sep = "\t" for t... |
+| `skip` | integer; the number of lines of the data file to skip before beginning to read data. By default, skip = 1 . Used with instrument = "GAIA" only. |
+| `CH4` | character string; which column should be used for html CH4 CH[4] ASCII concentration. By default, CH4 = "HP_12CH4_dry" . Used with instrument = "G2201... |
+| `CO2` | character string; which column should be used for html CO2 CO[2] ASCII concentration. By default, CO2 = "12CO2_dry" .Used with instrument = "G2201i" o... |
+| `sum` | logical; if sum = TRUE (default), the arguments CH4 and CO2 are ignored and, instead, both fractions (carbon isotope 12 and 13) of each gas, are summe... |
+| `range` | numerical value; at which threshold should the function select between high precision (HP) and high resolution (HR) of html CH4 CH[4] ASCII concentrat... |
 
 ## Value
 
@@ -239,8 +162,8 @@ import2RData(
  In  list("date.format") , the date format refers to a date found in the raw data
  file, not the date format in the file name. For most instruments, the date is
  one of the columns in the raw data file:
- list("\n", list(), " DX4015: column Date\n", list(), " EGM5: column Date\n", list(), " G2201i: column DATE\n", list(), " G2508: column DATE\n", list(), " G4301: column DATE\n", list(), " GAIA: column Titles:\n", list(), " GasmetPD: column Date\n", list(), " GT5000: column Date\n", list(), " LI-6400: (see comment below)\n", list(), " LI-7810: column DATE\n", list(), " LI-7820: column DATE\n", list(), " LI-8100: column Date\n", list(), " LI-8200: (see comment below)\n", list(), " N2OM1: column Time\n", 
-    list(), " N2Oi2: column Time\n", list(), " SkyLine: column Titles:\n", list(), " uCH4: column Time Stamp\n", list(), " uN2O: column Time Stamp\n", list(), " UGGA: column Time\n") 
+ list("\n", list(), " DX4015: column Date\n", list(), " EGM5: column Date\n", list(), " G2201i: column DATE\n", list(), " G2508: column DATE\n", list(), " G4301: column DATE\n", list(), " GAIA: column Titles:\n", list(), " GasmetPD: column Date\n", list(), " GT5000: column Date\n", list(), " HT8850: column time\n", list(), " LI-6400: (see comment below)\n", list(), " LI-7810: column DATE\n", list(), " LI-7820: column DATE\n", list(), " LI-8100: column Date\n", list(), " LI-8150: column Date\n", list(), 
+    " LI-8200: (see comment below)\n", list(), " N2OM1: column Time\n", list(), " N2Oi2: column Time\n", list(), " SkyLine: column Titles:\n", list(), " uCH4: column Time Stamp\n", list(), " uN2O: column Time Stamp\n", list(), " UGGA: column Time\n") 
  For the instrument LI-6400, the date is found in one of the first lines in
  a format containing abbreviations, for example "Thr Aug 6 2020", which would
  be the date format "mdy". For the instrument LI-8200, the date is found under
@@ -480,6 +403,16 @@ import2RData(path = file.path, instrument = "LI-8100",
 
 
 
+# with the LI-COR LI-8150 Multiplexer and LI-8100A gas analyzer
+
+file.path <- system.file("extdata/LI8150", package = "goFlux")
+
+import2RData(path = file.path, instrument = "LI-8150",
+
+             date.format = "ymd", prec = c(1, 10))
+
+
+
 # with the LI-COR smart chamber (LI-8200)
 
 # with this instrument, "keep_all" and "prec" are not valid arguments.
@@ -502,7 +435,7 @@ import2RData(path = file.path, instrument = "LI-8250", date.format = "ymd",
 
 
 
-# with the SkyLine2D system (Earth Bound Scientific)
+# with the SkyLine2D system (EarthBound Scientific)
 
 # with this instrument, "keep_all" is not a valid argument.
 
@@ -550,6 +483,24 @@ import2RData(path = file.path, instrument = "uN2O",
 
 
 
+# with the Healthy Photon HT8850 all-in-one GHG analyzer
+
+file.path <- system.file("extdata/HT8850", package = "goFlux")
+
+import2RData(path = file.path, instrument = "HT8850",
+
+             date.format = "ymd", prec = c(0.5, 3, 0.5, 10))
+
+
+
+# with the Eosense eosMX 12-Channel Multiplexer
+
+file.path <- system.file("extdata/eosMX12", package = "goFlux")
+
+import2RData(path = file.path, instrument = "eosMX12")
+
+
+
 ```
 
 ## See Also
@@ -560,6 +511,7 @@ import2RData(path = file.path, instrument = "uN2O",
  
  Import functions for individual instruments:
  list(list("import.DX4015")) ,
+ list(list("import.eosMX12")) ,
  list(list("import.EGM5")) ,
  list(list("import.G2201i")) ,
  list(list("import.G2508")) ,
@@ -567,10 +519,12 @@ import2RData(path = file.path, instrument = "uN2O",
  list(list("import.GAIA")) ,
  list(list("import.GasmetPD")) ,
  list(list("import.GT5000")) ,
+ list(list("import.HT8850")) ,
  list(list("import.LI6400")) ,
  list(list("import.LI7810")) ,
  list(list("import.LI7820")) ,
  list(list("import.LI8100")) ,
+ list(list("import.LI8150")) ,
  list(list("import.LI8200")) ,
  list(list("import.LI8250")) ,
  list(list("import.N2OM1")) ,

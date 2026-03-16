@@ -3,5 +3,114 @@ title: "`import.LI8200`"
 code-block-bg: true
 ---
 
-See [All Functions](function_index.qmd) for complete documentation.
+
+ Imports single raw data files from the LI-COR smart chamber (LI-8200)
+
+
+## Description
+
+Import function for LI-COR smart chamber (LI-8200)
+
+## Usage
+
+```r
+
+
+import.LI8200(inputfile, date.format = "ymd", timezone = "UTC", save = FALSE)
+
+```
+
+## Arguments
+
+| Argument | Description |
+|:---------|:------------|
+| `inputfile` | character string; the name of a file with the extension .json |
+| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it i... |
+| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time... |
+| `save` | logical; if save = TRUE , saves the file as an .RData file in a RData folder in the current working directory. If save = FALSE , returns the file in t... |
+
+## Details
+
+
+ In  list("date.format") , the date format refers to a date found in the raw data
+ file, not the date format in the file name. For the instrument LI-8200, the
+ date is found under one of the measurements, next to '"Date":'.
+ 
+ Note that this function was designed for the following units in the raw file:
+ list("\n", "  ", list(), " seconds for DeadBand\n", "  ", list(), " cm for Offset (collar height)\n", "  ", list(), " ", list(list("html"), list(list("(cm2)")), list(list(list("(cm^2)"), list("ASCII")))), " for Area\n", "  ", list(), " ", list(list("html"), list(list("(cm3)")), list(list(list("(cm^3)"), list("ASCII")))), " for volumes\n", "  ", list(), " mmol/mol for ", list(list("html"), list(list("H2O")), list(list(list("H[2]O"), list("ASCII")))), "\n", "  ", list(), 
+    " kPa for pressure\n", "  ", list(), " Celsius for temperature") 
+ If your Smart Chamber uses different units, either convert the units after
+ import, change the settings on your instrument, or contact the maintainer of
+ this package for support.
+ 
+ Important note about the total volume: it is calculated from the addition
+ of the Area x Offset and the Chamber Volume. If a chamber volume is specified
+ ("ChamVolume" in the raw file), that value is used, otherwise, the default
+ value is 4244.1 list(list("html"), list(list("(cm3)")), list(list(list("(cm^3)"), list("ASCII")))) .
+ For more precise results, remember to add the volume inside your GHG analyzer
+ (IRGA volume; e.g., 6.4  list(list("html"), list(list("(cm3)")), list(list(list("(cm^3)"), list("ASCII")))) 
+ for the LI-7810 and the LI-7820), plus the volume inside the tubing connecting
+ your instruments. For more details about volume estimation, download the
+ example auxiliary file from
+ list(list("https://qepanna.quarto.pub/goflux/example.html#create-an-auxiliary-file"), list("the goFlux webpage")) .
+ 
+ In addition, soil temperature and moisture are read with a HydraProbe
+ connected to the Smart Chamber. If you are using a different setup, please
+ contact the maintainer of this package for support.
+ 
+ As opposed to the other import functions, there is no option to "keep_all"
+ with the Smart Chamber. If you would like to import additional data using
+ this function, please contact the maintainer of this package for support.
+
+
+## Examples
+
+```r
+
+
+# Load file from downloaded package
+
+file.path <- system.file("extdata", "LI8200/LI8200.json", package = "goFlux")
+
+
+
+# Run function
+
+imp.LI8200 <- import.LI8200(inputfile = file.path)
+
+```
+
+## See Also
+
+
+ Use the wrapper function  list(list("import2RData")) 
+          to import multiple files from the same folder path using any instrument.
+ 
+ See also, import functions for other instruments:
+           list(list("import.DX4015")) ,
+           list(list("import.eosMX12")) ,
+           list(list("import.EGM5")) ,
+           list(list("import.G2201i")) ,
+           list(list("import.G2508")) ,
+           list(list("import.G4301")) ,
+           list(list("import.GAIA")) ,
+           list(list("import.GasmetPD")) ,
+           list(list("import.GT5000")) ,
+           list(list("import.HT8850")) ,
+           list(list("import.LI6400")) ,
+           list(list("import.LI7810")) ,
+           list(list("import.LI7820")) ,
+           list(list("import.LI8100")) ,
+           list(list("import.LI8150")) ,
+           list(list("import.LI8250")) ,
+           list(list("import.N2OM1")) ,
+           list(list("import.N2Oi2")) ,
+           list(list("import.skyline")) ,
+           list(list("import.uCH4")) ,
+           list(list("import.uN2O")) ,
+           list(list("import.UGGA")) 
+ 
+ See  list(list("timezones"))  for a description of the underlying
+          timezone attribute.
+
 

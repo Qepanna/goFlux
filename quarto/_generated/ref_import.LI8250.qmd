@@ -44,9 +44,9 @@ import.LI8250(
 
   dry2 = T,
 
-  SWC.col,
+  SWC.col = NULL,
 
-  Tsoil.col
+  Tsoil.col = NULL
 
 )
 
@@ -54,51 +54,18 @@ import.LI8250(
 
 ## Arguments
 
-**`list("inputfile")`**
-
-: list("character string; the name of a file with the extension .82z")
-
-**`list("date.format")`**
-
-: list("character string; specifies the date format found in the\n", "raw data file. Choose one of the following: \"dmy\", \"ymd\",\n", "or \"mdy\". Default is \"ymd\", as it is the date format from\n", "the example data file provided.")
-
-**`list("timezone")`**
-
-: list("character string; a time zone in which to import the data to\n", "POSIXct format. Default is \"UTC\". Note about time zone: it is\n", "recommended to use the time zone \"UTC\" to avoid any issue\n", "related to summer time and winter time changes.")
-
-**`list("save")`**
-
-: list("logical; if ", list("save = TRUE"), ", saves the file as an .RData file\n", "in a RData folder in the current working directory. If\n", list("save = FALSE"), ", returns the file in the Console, or load in\n", "the Environment if assigned to an object.")
-
-**`list("keep_all")`**
-
-: list("logical; if ", list("keep_all = TRUE"), ", keep all columns from the\n", "raw file. The default is ", list("keep_all = FALSE"), ", and columns\n", "that are not necessary for gas flux calculation are removed.")
-
-**`list("inst1, inst2")`**
-
-: list("character strings; a pattern to match the columns\n", "containing the name of each instrument. For example, with a LI-COR\n", "LI-7810, ", list("inst1 = \"LI-7810\""), " and ", list("inst2 = NULL"), ", which\n", "matches the example data file provided with the package.")
-
-**`list("gas1, gas2")`**
-
-: list("character vectors; a pattern to match the columns\n", "containing each gas measurement. For example, with a LI-COR LI-7810\n", list("gas1 = c(\"CO2_DRY\", \"CH4_DRY\", \"H2O\")"), " and ", list("gas2 = NULL"), ",\n", "which matches the example data file provided with the package.")
-
-**`list("prec1, prec2")`**
-
-: list("numerical vectors; the precision of the instrument\n", "for each gas mentioned in ", list("gas1"), " and ", list("gas2"), ". For example,\n", "with a LI-COR LI-7810, ", list("prec1 = c(3.5, 0.6, 45)"), " and\n", list("prec2 = NULL"), ", which matches the example data file provided with\n", "the package. Note that the order in the arguments ", list("precX"), " must\n", "match the order of the arguments in ", list("gasX"), ".")
-
-**`list("dry1, dry2")`**
-
-: list("logical; are the gas measurements compensated for water\n", "vapor (dry fraction)? If ", list("dryX = TRUE"), " (default), the gases are\n", "compensated for water vapor, and will be named accordingly. For\n", "example, the column \"CO2_DRY\" will become \"CO2dry_ppm\".")
-
-**`list("Tsoil.col, SWC.col")`**
-
-: list("character string; a pattern to match the columns\n", "that fit the corresponding parameter.")
-
-## Value
-
-
- A data frame containing raw data from the LI-COR Multiplexer LI-8250.
-
+| Argument | Description |
+|:---------|:------------|
+| `inputfile` | character string; the name of a file with the extension .82z |
+| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it i... |
+| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time... |
+| `save` | logical; if save = TRUE , saves the file as an .RData file in a RData folder in the current working directory. If save = FALSE , returns the file in t... |
+| `keep_all` | logical; if keep_all = TRUE , keep all columns from the raw file. The default is keep_all = FALSE , and columns that are not necessary for gas flux ca... |
+| `inst1, inst2` | character strings; a pattern to match the columns containing the name of each instrument. For example, with a LI-COR LI-7810, inst1 = "LI-7810" and in... |
+| `gas1, gas2` | character vectors; a pattern to match the columns containing each gas measurement. For example, with a LI-COR LI-7810 gas1 = c("CO2_DRY", "CH4_DRY", "... |
+| `prec1, prec2` | numerical vectors; the precision of the instrument for each gas mentioned in gas1 and gas2 . For example, with a LI-COR LI-7810, prec1 = c(3.5, 0.6, 4... |
+| `dry1, dry2` | logical; are the gas measurements compensated for water vapor (dry fraction)? If dryX = TRUE (default), the gases are compensated for water vapor, and... |
+| `Tsoil.col, SWC.col` | character string; a pattern to match the columns that fit the corresponding parameter. |
 
 ## Details
 
@@ -174,6 +141,7 @@ imp.LI8250 <- import.LI8250(inputfile = file.path, inst1 = "LI-7810",
  
  See also, import functions for other instruments:
            list(list("import.DX4015")) ,
+           list(list("import.eosMX12")) ,
            list(list("import.EGM5")) ,
            list(list("import.G2201i")) ,
            list(list("import.G2508")) ,
@@ -181,12 +149,16 @@ imp.LI8250 <- import.LI8250(inputfile = file.path, inst1 = "LI-7810",
            list(list("import.GAIA")) ,
            list(list("import.GasmetPD")) ,
            list(list("import.GT5000")) ,
+           list(list("import.HT8850")) ,
            list(list("import.LI6400")) ,
            list(list("import.LI7810")) ,
            list(list("import.LI7820")) ,
            list(list("import.LI8100")) ,
+           list(list("import.LI8150")) ,
            list(list("import.LI8200")) ,
            list(list("import.N2OM1")) ,
+           list(list("import.N2Oi2")) ,
+           list(list("import.skyline")) ,
            list(list("import.uCH4")) ,
            list(list("import.uN2O")) ,
            list(list("import.UGGA")) 

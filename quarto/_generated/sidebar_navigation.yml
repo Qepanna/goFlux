@@ -8,16 +8,19 @@
 #   contents:
 #     - file: _generated/ref_import.DX4015.qmd
 #     - file: _generated/ref_import.EGM5.qmd
+#     - file: _generated/ref_import.eosMX12.qmd
 #     - file: _generated/ref_import.G2201i.qmd
 #     - file: _generated/ref_import.G2508.qmd
 #     - file: _generated/ref_import.G4301.qmd
 #     - file: _generated/ref_import.GAIA.qmd
 #     - file: _generated/ref_import.GasmetPD.qmd
 #     - file: _generated/ref_import.GT5000.qmd
+#     - file: _generated/ref_import.HT8850.qmd
 #     - file: _generated/ref_import.LI6400.qmd
 #     - file: _generated/ref_import.LI7810.qmd
 #     - file: _generated/ref_import.LI7820.qmd
 #     - file: _generated/ref_import.LI8100.qmd
+#     - file: _generated/ref_import.LI8150.qmd
 #     - file: _generated/ref_import.LI8200.qmd
 #     - file: _generated/ref_import.LI8250.qmd
 #     - file: _generated/ref_import.N2Oi2.qmd
@@ -40,8 +43,10 @@
 # - section: "Analysis Functions"
 #   text: "Analysis Functions"
 #   contents:
+#     - file: _generated/ref_auto.deadband.qmd
 #     - file: _generated/ref_autoID.qmd
 #     - file: _generated/ref_click.peak2.qmd
+#     - file: _generated/ref_crop.meas.qmd
 #     - file: _generated/ref_iso.comp.qmd
 #     - file: _generated/ref_obs.win.qmd
 

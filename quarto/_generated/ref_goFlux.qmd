@@ -7,11 +7,11 @@ code-block-bg: true
  A wrapper function to calculate GHG fluxes from static chamber measurements.
  Calculates linear ( list(list("LM.flux")) ) and non-linear
  fluxes (Hutchinson and Mosier model;  list(list("HM.flux")) ),
- from a variety of greenhouse gasses (
+ from a variety of greenhouse gases (
  list(list("html"), list(list("CO<sub>2</sub>")), list(list(list("CO[2]"), list("ASCII")))) ,
  list(list("html"), list(list("CH<sub>4</sub>")), list(list(list("CH[4]"), list("ASCII")))) ,
  list(list("html"), list(list("N<sub>2</sub>O")), list(list(list("N[2]O"), list("ASCII")))) ,
- list(list("html"), list(list("N<sub>2</sub>O")), list(list(list("NO[2]"), list("ASCII")))) , NO,
+ list(list("html"), list(list("NO<sub>2</sub>")), list(list(list("NO[2]"), list("ASCII")))) , NO,
  list(list("html"), list(list("NH<sub>3</sub>")), list(list(list("NH[3]"), list("ASCII")))) , CO, and
  list(list("html"), list(list("H<sub>2</sub>O")), list(list(list("H[2]O"), list("ASCII")))) ).
 
@@ -59,63 +59,26 @@ goFlux(
 
 ## Arguments
 
-**`list("dataframe")`**
-
-: list("a data.frame containing gas measurements (see ", list("gastype"), "\n", "below), water vapor measurements (see ", list("H2O_col"), " below)\n", "and the following columns: ", list("UniqueID"), ", ", list("Etime"), ",\n", list("Vtot"), ", ", list("Area"), ", ", list("Pcham"), ", ", list("Tcham"), " and\n", list("flag"), " (see the parameters ", list("Vtot"), ", ", list("Area"), ",\n", list("Pcham"), " and ", list("Tcham"), " below for more details).\n", list("chamID"), " may be used instead of ", 
-    list("UniqueID"), ".")
-
-**`list("gastype")`**
-
-: list("character string; specifies which column should be used for the\n", "flux calculations. Must be one of the following: \"CO2dry_ppm\",\n", "\"CH4dry_ppb\", \"COdry_ppb\", \"N2Odry_ppb\", \"NH3dry_ppb\", \"NO_ppb\",\n", "\"NO2_ppb\" or \"H2O_ppm\".")
-
-**`list("H2O_col")`**
-
-: list("character string; specifies which column should be used to\n", "subtract the effect of water vapor in the chamber space.\n", "Default is ", list("H2O_col = \"H2O_ppm\""), ".")
-
-**`list("prec")`**
-
-: list("numerical value; precision of the instruments. Units must be the\n", "same as ", list("gastype"), ". With the default ", list("prec = NULL"), ",\n", "instrument precision for each gas must be provided in\n", list("dataframe"), ".")
-
-**`list("Area")`**
-
-: list("numerical value; area of the soil surface inside the chamber\n", list(list("html"), list(list("(cm2)")), list(list(list("(cm^2)"), list("ASCII")))), ".\n", "Alternatively, provide the column ", list("Area"), " in ", list("dataframe"), "\n", "if ", list("Area"), " is different between samples.")
-
-**`list("offset")`**
-
-: list("(optional) numerical value; height between the soil surface and\n", "the chamber (cm). Alternatively, provide the column ", list("offset"), "\n", "in ", list("dataframe"), " if ", list("offset"), " is different between samples.\n", list("offset"), " is only used if ", list("Vtot"), " is missing.")
-
-**`list("Vtot")`**
-
-: list("numerical value; total volume inside the chamber, tubes, instruments,\n", "etc. (L). Alternatively, provide the column ", list("Vtot"), " in\n", list("dataframe"), " if ", list("Vtot"), " is different between samples. If\n", list("Vtot"), " is missing, the function will calculate it from\n", list("Area"), ", ", list("Vcham"), " and ", list("offset"), ".")
-
-**`list("Vcham")`**
-
-: list("(optional) numerical value; volume inside the chamber, tubes and\n", "instruments (L). Alternatively, provide the column ", list("Vcham"), "\n", "in ", list("dataframe"), " if ", list("Vcham"), " is different between samples.\n", list("Vhcam"), " is only used if ", list("Vtot"), " is missing.")
-
-**`list("Pcham")`**
-
-: list("numerical value; pressure inside the chamber (kPa).\n", "Alternatively, provide the column ", list("Pcham"), " in ", list("dataframe"), "\n", "if ", list("Pcham"), " is different between samples. If ", list("Pcham"), " is\n", "not provided, normal atmospheric pressure (101.325 kPa) is used.")
-
-**`list("Tcham")`**
-
-: list("numerical value; temperature inside the chamber (Celsius).\n", "Alternatively, provide the column ", list("Tcham"), " in ", list("dataframe"), "\n", "if ", list("Tcham"), " is different between samples. If ", list("Tcham"), " is\n", "not provided, 15°C is used as default.")
-
-**`list("k.mult")`**
-
-: list("numerical value; a multiplier for the allowed kappa-max.\n", "Default setting is no multiplier (", list("k.mult = 1"), ").\n", list("k.mult"), " cannot be negative and must be smaller or\n", "equal to 10.")
-
-**`list("warn.length")`**
-
-: list("numerical value; limit under which a measurement is\n", "flagged for being too short (", list("nb.obs < warn.length"), ").")
-
-**`list("k.min")`**
-
-: list("numerical value; a lower boundary value for kappa in the HM model.\n", "Default is ", list("k.min = 0"))
+| Argument | Description |
+|:---------|:------------|
+| `dataframe` | a data.frame containing gas measurements (see gastype below), water vapor measurements (see H2O_col below) and the following columns: UniqueID , Etime... |
+| `gastype` | character string; specifies which column should be used for the flux calculations. Must be one of the following: "CO2dry_ppm", "CH4dry_ppb", "COdry_pp... |
+| `H2O_col` | character string; specifies which column should be used to subtract the effect of water vapor in the chamber space. Default is H2O_col = "H2O_ppm" . I... |
+| `prec` | numerical value; precision of the instruments. Units must be the same as gastype . With the default prec = NULL , instrument precision for each gas mu... |
+| `Area` | numerical value; area of the soil surface inside the chamber html (cm2) (cm^2) ASCII . Alternatively, provide the column Area in dataframe if Area is ... |
+| `offset` | (optional) numerical value; height between the soil surface and the chamber (cm). Alternatively, provide the column offset in dataframe if offset is d... |
+| `Vtot` | numerical value; total volume inside the chamber, tubes, instruments, etc. (L). Alternatively, provide the column Vtot in dataframe if Vtot is differe... |
+| `Vcham` | (optional) numerical value; volume inside the chamber, tubes and instruments (L). Alternatively, provide the column Vcham in dataframe if Vcham is dif... |
+| `Pcham` | numerical value; pressure inside the chamber (kPa). Alternatively, provide the column Pcham in dataframe if Pcham is different between samples. If Pch... |
+| `Tcham` | numerical value; temperature inside the chamber (°C). Alternatively, provide the column Tcham in dataframe if Tcham is different between samples. If T... |
+| `k.mult` | numerical value; a multiplier for the allowed kappa-max. Default setting is no multiplier ( k.mult = 1 ). k.mult must be > 0 and =< 10. |
+| `warn.length` | numerical value; limit under which a measurement is flagged for being too short ( nb.obs < warn.length ). |
+| `k.min` | numerical value; a lower boundary value for kappa in the HM model. Default is k.min = 0 |
 
 ## Value
 
 
- Returns a data frame with 28 columns: a  list("UniqueID")  per
+ Returns a data frame with 32 columns: a  list("UniqueID")  per
  measurement, 11 columns for the linear model results (linear flux estimate
  ( list(list("LM.flux")) ), initial gas concentration
  ( list("LM.C0") ), final gas concentration ( list("LM.Ct") ), slope of linear
@@ -131,13 +94,13 @@ goFlux(
  ( list("HM.RMSE") ), Akaike's information criterion corrected for small sample
  size ( list("HM.AICc") ), standard error ( list("HM.SE") ), relative standard error
  ( list("HM.se.rel") ), coefficient of determination ( list("HM.r2") ), and curvature
- (kappa;  list("HM.k") ), as well as the minimal detectable flux
+ (kappa;  list("HM.k") )), as well as the minimal detectable flux
  ( list(list("MDF")) ), the precision of the instrument
  ( list("prec") ), the flux term ( list(list("flux.term")) ),
- kappa-max ( list(list("k.max")) ), the g factor (g.fact;
- list(list("g.factor")) ), the number of observations used
- ( list("nb.obs") ) and the true initial gas concentration ( list("C0") ) and final
- gas concentration ( list("Ct") ).
+ kappa-max ( list(list("k.max")) ) and its multiplier ( list("k.mult") ),
+ the g-factor (g.fact;  list(list("g.factor")) ), the number of
+ observations used ( list("nb.obs") ) and the true initial gas concentration
+ ( list("C0") ) and final gas concentration ( list("Ct") ).
 
 
 ## Details
@@ -162,28 +125,29 @@ goFlux(
  minimal threshold for kappa: to allow for a log-like curvature, set
  list("k.min")  below 0 (ex. -1).
  
- All flux estimates, including the  list(list("MDF")) , are
- obtained from the multiplication of the slope and the
- list(list("flux.term")) , which is used to correct the
- pressure inside the chamber (due to water vapor), as well as convert the
- units to obtain a term in nmol or
+ Flux estimates and the  list(list("MDF"))  are calculated from
+ list("Etime")  (in seconds). Make sure that chamber closure is indicated by
+ list("Etime == 0")  and the first instance of  list("flag == 1")  per UniqueID.
+ 
+ All flux estimates, including the  list(list("MDF")) , are obtained
+ from the multiplication of the slope and the  list(list("flux.term")) ,
+ which is used to correct for the dilution effect of water vapor and convert
+ the flux units to obtain a term in nmol or
  list(list("html"), list(list("µmol m-2s-1")), list(list(list("µmol m^{-2}s^{-1}"), list("ASCII")))) .
  
  The argument  list("Area")  is in  list(list("html"), list(list("(cm2)")), list(list(list("(cm^2)"), list("ASCII")))) ,
  but the output units from  list(list("goFlux"))  are in
- list(list("html"), list(list("(m2)")), list(list(list("(m^2)"), list("ASCII")))) . This is due to the
- conversion from  list(list("html"), list(list("(cm2)")), list(list(list("(cm^2)"), list("ASCII")))) 
- to  list(list("html"), list(list("(m2)")), list(list(list("(m^2)"), list("ASCII"))))  within the
- function. This means that there is a factor of 10,000 to convert from
- list(list("html"), list(list("(cm2)")), list(list(list("(cm^2)"), list("ASCII")))) 
- to  list(list("html"), list(list("(m2)")), list(list(list("(m^2)"), list("ASCII")))) . This is important
+ list(list("html"), list(list("(m2)")), list(list(list("(m^2)"), list("ASCII")))) . This means that
+ there is a factor of 10,000 to convert from
+ list(list("html"), list(list("cm2")), list(list(list("cm^2"), list("ASCII")))) 
+ to  list(list("html"), list(list("m2")), list(list(list("m^2"), list("ASCII")))) . This is important
  to take into account if one would provide something else than an  list("Area") 
  in  list(list("html"), list(list("(cm2)")), list(list(list("(cm^2)"), list("ASCII"))))  to the function.
  For example, with incubated soil samples, one may provide an amount of soil
  (kg) instead of an area in the column  list("Area") . To get the right units in
  that case, multiply the kilograms of soil by 10,000 to remove the conversion
- from  list(list("html"), list(list("(cm2)")), list(list(list("(cm^2)"), list("ASCII"))))  to
- list(list("html"), list(list("(m2)")), list(list(list("(m^2)"), list("ASCII")))) .
+ from  list(list("html"), list(list("cm2")), list(list(list("cm^2"), list("ASCII"))))  to
+ list(list("html"), list(list("m2")), list(list(list("m^2"), list("ASCII")))) .
  
  In  list("gastype") , the gas species listed are the ones for which this package
  has been adapted. Please write to the maintainer of this package for
@@ -225,22 +189,5 @@ H2O_flux <- goFlux(manID.UGGA, "H2O_ppm")
            list(list("HM.flux"))  and
            list(list("LM.flux"))  of this package for more
           information about these parameters.
- 
- See also the import functions to find the
-          default instrument precision for each instrument:
-           list(list("import.DX4015")) ,
-           list(list("import.EGM5")) ,
-           list(list("import.G2508")) ,
-           list(list("import.G4301")) ,
-           list(list("import.GAIA")) ,
-           list(list("import.LI6400")) ,
-           list(list("import.LI7810")) ,
-           list(list("import.LI7820")) ,
-           list(list("import.LI8100")) ,
-           list(list("import.LI8200")) ,
-           list(list("import.N2OM1")) ,
-           list(list("import.uCH4")) ,
-           list(list("import.uN2O")) ,
-           list(list("import.UGGA")) 
 
 

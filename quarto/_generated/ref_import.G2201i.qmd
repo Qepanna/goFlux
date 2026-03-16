@@ -46,51 +46,18 @@ import.G2201i(
 
 ## Arguments
 
-**`list("inputfile")`**
-
-: list("character string; the name of a file with the extension .dat")
-
-**`list("date.format")`**
-
-: list("character string; specifies the date format found in the\n", "raw data file. Choose one of the following: \"dmy\", \"ymd\",\n", "or \"mdy\". Default is \"ymd\", as it is the date format from\n", "the example data file provided.")
-
-**`list("timezone")`**
-
-: list("character string; a time zone in which to import the data to\n", "POSIXct format. Default is \"UTC\". Note about time zone: it is\n", "recommended to use the time zone \"UTC\" to avoid any issue\n", "related to summer time and winter time changes.")
-
-**`list("save")`**
-
-: list("logical; if ", list("save = TRUE"), ", saves the file as an .RData file\n", "in a RData folder in the current working directory. If\n", list("save = FALSE"), ", returns the file in the Console, or load in\n", "the Environment if assigned to an object.")
-
-**`list("keep_all")`**
-
-: list("logical; if ", list("keep_all = TRUE"), ", keep all columns from the raw\n", "file. The default is ", list("keep_all = FALSE"), ", and columns that\n", "are not necessary for gas flux calculation are removed.")
-
-**`list("prec")`**
-
-: list("numerical vector; the precision of the instrument for each gas,\n", "in the following order: \"CO2dry_ppm\", \"CH4dry_ppb\" and \"H2O_ppm\".\n", "The default is ", list("prec = c(0.2, 50, 100)"), ".")
-
-**`list("CH4")`**
-
-: list("character string; which column should be used for\n", list(list("html"), list(list("CH4")), list(list(list("CH[4]"), list("ASCII")))), " concentration.\n", "By default, ", list("CH4 = \"HP_12CH4_dry\""), ".")
-
-**`list("CO2")`**
-
-: list("character string; which column should be used for\n", list(list("html"), list(list("CO2")), list(list(list("CO[2]"), list("ASCII")))), " concentration.\n", "By default, ", list("CO2 = \"12CO2_dry\""), ".")
-
-**`list("sum")`**
-
-: list("logical; if ", list("sum = TRUE"), " (default), the arguments ", list("CH4"), " and\n", list("CO2"), " are ignored and, instead, both fractions (carbon isotope\n", "12 and 13) of each gas, are summed after correction for water vapor,\n", "to obtain the total gas concentration. See the argument ", list("range"), "\n", "for the selection between the HP or the HR measurement of\n", list(list("html"), list(list("CH4")), list(list(list("CH[4]"), list("ASCII")))), " concentration.")
-
-**`list("range")`**
-
-: list("numerical value; at which threshold should the function select\n", "between high precision (HP) and high resolution (HR) of\n", list(list("html"), list(list("CH4")), list(list(list("CH[4]"), list("ASCII")))), "\n", "concentration? The default is ", list("range = 10"), ". If the methane\n", "concentration recorded in the column ", list("HP_12CH4_dry"), " is above\n", "10 ppm, the concentration from the columns ", list("HR_12CH4_dry"), "\n", "and ", list("HR_13CH4"), " are used for the sum instead of HP.")
-
-## Value
-
-
- A data frame containing raw data from Picarro G2201-i isotopic analyzer.
-
+| Argument | Description |
+|:---------|:------------|
+| `inputfile` | character string; the name of a file with the extension .dat |
+| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it i... |
+| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time... |
+| `save` | logical; if save = TRUE , saves the file as an .RData file in a RData folder in the current working directory. If save = FALSE , returns the file in t... |
+| `keep_all` | logical; if keep_all = TRUE , keep all columns from the raw file. The default is keep_all = FALSE , and columns that are not necessary for gas flux ca... |
+| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", "CH4dry_ppb" and "H2O_ppm". The default is prec ... |
+| `CH4` | character string; which column should be used for html CH4 CH[4] ASCII concentration. By default, CH4 = "HP_12CH4_dry" . |
+| `CO2` | character string; which column should be used for html CO2 CO[2] ASCII concentration. By default, CO2 = "12CO2_dry" . |
+| `sum` | logical; if sum = TRUE (default), the arguments CH4 and CO2 are ignored and, instead, both fractions (carbon isotope 12 and 13) of each gas, are summe... |
+| `range` | numerical value; at which threshold should the function select between high precision (HP) and high resolution (HR) of html CH4 CH[4] ASCII concentrat... |
 
 ## Details
 
@@ -156,20 +123,24 @@ imp.G2201i <- import.G2201i(inputfile = file.path)
  
  See also, import functions for other instruments:
            list(list("import.DX4015")) ,
+           list(list("import.eosMX12")) ,
            list(list("import.EGM5")) ,
            list(list("import.G2508")) ,
            list(list("import.G4301")) ,
            list(list("import.GAIA")) ,
            list(list("import.GasmetPD")) ,
            list(list("import.GT5000")) ,
+           list(list("import.HT8850")) ,
            list(list("import.LI6400")) ,
            list(list("import.LI7810")) ,
            list(list("import.LI7820")) ,
            list(list("import.LI8100")) ,
+           list(list("import.LI8150")) ,
            list(list("import.LI8200")) ,
            list(list("import.LI8250")) ,
            list(list("import.N2OM1")) ,
            list(list("import.N2Oi2")) ,
+           list(list("import.skyline")) ,
            list(list("import.uCH4")) ,
            list(list("import.uN2O")) ,
            list(list("import.UGGA")) 

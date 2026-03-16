@@ -42,34 +42,15 @@ best.flux(
 
 ## Arguments
 
-**`list("flux.result")`**
-
-: list("data.frame; output from the function\n", list(list("goFlux")), ".")
-
-**`list("criteria")`**
-
-: list("character vector; criteria used to assess the goodness of fit\n", "of the LM or HM flux estimates. Must be at least one the\n", "following: \"MAE\", \"RMSE\", \"AICc\", \"SE\", \"g.factor\", \"kappa\",\n", "\"MDF\", \"nb.obs\", \"p-value\", or \"intercept\". The default is\n", "all of them.")
-
-**`list("intercept.lim")`**
-
-: list("numerical vector of length 2; inferior and superior\n", "limits of the intercept (initial concentration;\n", list(list("html"), list(list("C0")), list(list(list("C[0]"), list("ASCII")))), ").\n", "Must be the same units as ", list("gastype"), " in the\n", list(list("goFlux")), " function. If\n", list("intercept.lim = NULL"), ", the limits are calculated\n", "from the true values of\n", list(list("html"), list(list("C0")), list(list(list("C[0]"), list("ASCII")))), " and\n", 
-    list(list("html"), list(list("Ct")), list(list(list("C[t]"), list("ASCII")))), "\n", "for each measurement.")
-
-**`list("g.limit")`**
-
-: list("numerical value; maximum limit of the g-factor (ratio\n", "between ", list(list("HM.flux")), " and\n", list(list("LM.flux")), "). Recommended\n", "thresholds for the g-factor are 4 (flexible), 2 (medium), or\n", "1.25 (conservative). The default limit is ", list("g.limit = 2"), ".")
-
-**`list("p.val")`**
-
-: list("numerical value; the minimal limit to indicate a slope\n", "significantly larger than zero. The default threshold is\n", list("p-value"), " < 0.05.")
-
-**`list("k.ratio")`**
-
-: list("numerical value; maximum limit of the ratio between kappa and\n", "the kappa-max. Default is ", list("k.ratio = 1"), ".")
-
-**`list("warn.length")`**
-
-: list("numerical value; limit under which a measurement is flagged for\n", "being too short (", list("nb.obs < warn.length"), ").")
+| Argument | Description |
+|:---------|:------------|
+| `flux.result` | data.frame; output from the function goFlux . |
+| `criteria` | character vector; criteria used to assess the goodness of fit of the LM or HM flux estimates. Must be at least one the following: "MAE", "RMSE", "AICc... |
+| `intercept.lim` | numerical vector of length 2; inferior and superior limits of the intercept (initial concentration; html C0 C[0] ASCII ). Must be the same units as ga... |
+| `g.limit` | numerical value; maximum limit of the g-factor (ratio between HM.flux and LM.flux ). Recommended thresholds for the g-factor are 4 (flexible), 2 (medi... |
+| `p.val` | numerical value; the minimal limit to indicate a slope significantly larger than zero. The default threshold is p-value < 0.05. |
+| `k.ratio` | numerical value; maximum limit of the ratio between kappa and the kappa-max. Default is k.ratio = 1 . |
+| `warn.length` | numerical value; limit under which a measurement is flagged for being too short ( nb.obs < warn.length ). |
 
 ## Value
 

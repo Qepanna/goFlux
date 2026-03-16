@@ -42,7 +42,9 @@ flux.plot(
 
   p.val.disp = "round",
 
-  side = "left"
+  side = "left",
+
+  conversion.factor = 1
 
 )
 
@@ -50,54 +52,21 @@ flux.plot(
 
 ## Arguments
 
-**`list("flux.results")`**
-
-: list("a data.frame; output from the function\n", list(list("best.flux")))
-
-**`list("dataframe")`**
-
-: list("a data.frame containing gas measurements (see ", list("gastype"), "\n", "below) and the following columns: ", list("UniqueID"), ", ", list("Etime"), "\n", "and ", list("flag"), " (same ", list("dataframe"), " as used with the function\n", list(list("goFlux")), "). ", list("chamID"), " may be used\n", "instead of ", list("UniqueID"), ".")
-
-**`list("gastype")`**
-
-: list("character string; specifies which column was used for the\n", "flux calculations. Must be one of the following: \"CO2dry_ppm\",\n", "\"COdry_ppb\", \"CH4dry_ppb\", \"N2Odry_ppb\", \"NO2dry_ppb\", \"NOdry_ppb\",\n", "\"NH3dry_ppb\" or \"H2O_ppm\".")
-
-**`list("shoulder")`**
-
-: list("numerical value; time before and after measurement in observation\n", "window (seconds). Default is 30 seconds.")
-
-**`list("plot.legend")`**
-
-: list("character vector; specifies which parameters should be\n", "displayed in a legend above each plot. \"flux\" is always\n", "displayed. A maximum of 6 parameters can be displayed in the\n", "legend (including \"flux\"). Chose up to five extra parameters\n", "from the following: \"MAE\", \"RMSE\", \"AICc\", \"SErel\", \"SE\",\n", "\"r2\", \"LM.p.val\", \"HM.k\", \"k.max\", \"k.ratio\" and \"g.factor\".\n", "Default is ", list("plot.legend = c(\"MAE\", \"AICc\", \"k.ratio\", \"g.factor\")"), ".")
-
-**`list("plot.display")`**
-
-: list("character vector; specifies which parameters should be\n", "displayed on the plot. Choose from the following: \"C0\",\n", "\"Ci\", \"cham.close\", \"cham.open\", \"crop\", \"MDF\", \"nb.obs\",\n", "\"flux.term\" and \"prec\". Default is\n", list("plot.display = c(\"MDF\", \"prec\")"), ".")
-
-**`list("quality.check")`**
-
-: list("logical; if ", list("quality.check = TRUE"), ", the column\n", list("quality.check"), " (output from the function\n", list(list("best.flux")), ") is displayed\n", "below the plot.")
-
-**`list("flux.unit")`**
-
-: list("character string; flux units to be displayed on the plots.\n", "By default, the units are\n", list(list("html"), list(list("µmol m-2s-1")), list(list(list("µmol m^{-2}s^{-1}"), list("ASCII")))), "\n", "(if initial concentration is ppm, e.g. CO2dry_ppm) and\n", list(list("html"), list(list("nmol m-2s-1")), list(list(list("nmol m^{-2}s^{-1}"), list("ASCII")))), "\n", "(if initial concentration is ppb, e.g. CH4dry_ppb).\n", list(), " ", list(), "\n", 
-    "For example, one may want to use\n", list(list("html"), list(list("nmol kg-1h-1")), list(list(list("µmol kg^{-1}h^{-1}"), list("ASCII")))), "\n", "for incubated soil samples. In such a case, write\n", list("flux.unit = \"nmol~kg^-1*h^-1\""), ".")
-
-**`list("flux.term.unit")`**
-
-: list("character string; units for the flux term to be displayed\n", "on the plots. By default, the units are\n", list(list("html"), list(list("mol m-2")), list(list(list("mol m^{-2}"), list("ASCII")))), ":\n", list("flux.term.unit = \"mol~m^-2\""))
-
-**`list("best.model")`**
-
-: list("logical; if ", list("best.model = TRUE"), ", display a star sign\n", "next to the best model selected by the function\n", list(list("best.flux")), ".")
-
-**`list("p.val.disp")`**
-
-: list("character string; indicates how the ", list("p-value"), " should\n", "be displayed in the legend above the plot. Choose one of\n", "the following: \"star\", \"round\", \"value\".")
-
-**`list("side")`**
-
-: list("character string; choose a side to display\n", list(list("html"), list(list("C0")), list(list(list("mol C[0]"), list("ASCII")))), " and\n", list(list("html"), list(list("Ci")), list(list(list("mol C[i]"), list("ASCII")))), " values.\n", "By default, they are displayed on the left side of the plot.")
+| Argument | Description |
+|:---------|:------------|
+| `flux.results` | a data.frame; output from the function best.flux |
+| `dataframe` | a data.frame containing gas measurements (see gastype below) and the following columns: UniqueID , Etime and flag (same dataframe as used with the fun... |
+| `gastype` | character string; specifies which column was used for the flux calculations. Must be one of the following: "CO2dry_ppm", "COdry_ppb", "CH4dry_ppb", "N... |
+| `shoulder` | numerical value; time before and after measurement in observation window (seconds). Default is 30 seconds. |
+| `plot.legend` | character vector; specifies which parameters should be displayed in a legend above each plot. "flux" is always displayed. A maximum of 6 parameters ca... |
+| `plot.display` | character vector; specifies which parameters should be displayed on the plot. Choose from the following: "C0", "Ci", "cham.close", "cham.open", "crop"... |
+| `quality.check` | logical; if quality.check = TRUE , the column quality.check (output from the function best.flux ) is displayed below the plot. |
+| `flux.unit` | character string; flux units to be displayed on the plots. By default, the units are html µmol m-2s-1 µmol m^{-2}s^{-1} ASCII (if initial concentratio... |
+| `flux.term.unit` | character string; units for the flux term to be displayed on the plots. By default, the units are html mol m-2 mol m^{-2} ASCII : flux.term.unit = "mo... |
+| `best.model` | logical; if best.model = TRUE , display a star sign next to the best model selected by the function best.flux . |
+| `p.val.disp` | character string; indicates how the p-value should be displayed in the legend above the plot. Choose one of the following: "star", "round", "value". |
+| `side` | character string; choose a side to display html C0 mol C[0] ASCII and html Ci mol C[i] ASCII values. By default, they are displayed on the left side o... |
+| `conversion.factor` | numerical value; factor to multiply flux values by for unit conversion. Default is 1 (no conversion). For example, use 3600 to convert from per-second... |
 
 ## Value
 
