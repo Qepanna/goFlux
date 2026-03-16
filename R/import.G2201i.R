@@ -4,6 +4,7 @@
 #' extension .dat (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} isotopic analyzer)
 #'
+#' @instrument Picarro|Picarro G2201-i Isotopic Analyzer
 #' @param inputfile character string; the name of a file with the extension .dat
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",

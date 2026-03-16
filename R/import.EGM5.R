@@ -5,6 +5,7 @@
 #' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} Gas Analyzer, with
 #' the extension .TXT
 #'
+#' @instrument Systems|PP-Systems EGM-5 Portable
 #' @param inputfile character string; the name of a file with the extension .TXT
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
