@@ -108,7 +108,7 @@ parse_rd_file <- function(rd_input) {
     
     return(result)
   }, error = function(e) {
-    cat("Error parsing", rd_path, ":", e$message, "\n")
+    cat("Error parsing Rd content:", e$message, "\n")
     return(NULL)
   })
 }
@@ -175,31 +175,187 @@ fallback_instruments <- list(
   "import.uN2O" = list(manufacturer = "Los Gatos", name = "Los Gatos uN2O")
 )
 
-# Function to get instrument metadata from extracted or fallback data
-get_instrument_metadata <- function(func_name, metadata) {
-  # If extracted from roxygen tags, parse the format: manufacturer|code|name|link
-  if (!is.na(metadata$instrument_metadata)) {
-    parts <- strsplit(metadata$instrument_metadata, "\\|", fixed = FALSE)[[1]]
-    if (length(parts) >= 4) {
-      return(list(
-        manufacturer = trimws(parts[1]),
-        code = trimws(parts[2]),
-        name = trimws(parts[3]),
-        link = trimws(parts[4])
-      ))
-    } else if (length(parts) >= 2) {
-      # Fallback for 2-part format (manufacturer|name)
-      return(list(
-        manufacturer = trimws(parts[1]),
-        name = trimws(parts[2]),
-        link = NA
-      ))
+`%||%` <- function(x, y) if (is.null(x) || length(x) == 0 || (is.character(x) && identical(trimws(x), ""))) y else x
+
+is_url_token <- function(token) {
+  grepl("(https?://|www\\.)", trimws(token), ignore.case = TRUE)
+}
+
+extract_first_url <- function(text) {
+  if (is.null(text) || is.na(text)) return(NA_character_)
+  match <- regexpr("(https?://[^\\s|]+|www\\.[^\\s|]+)", text, perl = TRUE, ignore.case = TRUE)
+  if (match[1] == -1) return(NA_character_)
+  regmatches(text, match)[1]
+}
+
+extract_instrument_keyvalues <- function(tokens) {
+  key_map <- list(
+    manufacturer = c("manufacturer", "mfg", "brand", "company", "maker"),
+    code = c("code", "model", "instrument", "id", "short", "shortname"),
+    name = c("name", "instrument_name", "title", "device", "instrumentname"),
+    link = c("url", "link", "website", "web", "site")
+  )
+
+  parsed <- list()
+
+  for (token in tokens) {
+    token_clean <- trimws(token)
+    if (!grepl("[:=]", token_clean)) next
+
+    match <- regexec("^([^:=]+?)\\s*[:=]\\s*(.+)$", token_clean, perl = TRUE)
+    matched <- regmatches(token_clean, match)[[1]]
+    if (length(matched) < 3) next
+
+    key <- tolower(trimws(matched[2]))
+    value <- trimws(matched[3])
+    if (value == "") next
+
+    for (target_key in names(key_map)) {
+      if (key %in% key_map[[target_key]]) {
+        parsed[[target_key]] <- value
+      }
     }
   }
+
+  parsed
+}
+
+normalize_instrument_info <- function(instrument_info) {
+  if (is.null(instrument_info)) return(NULL)
+
+  manufacturer <- instrument_info$manufacturer %||% NA
+  code <- instrument_info$code %||% NA
+  name <- instrument_info$name %||% NA
+  link <- instrument_info$link %||% NA
+
+  if (!is.na(link) && !is_url_token(link)) {
+    if (grepl("https?://", link, ignore.case = TRUE)) {
+      link <- sub("^.*?(https?://.*)$", "\\1", link)
+    } else {
+      link <- NA
+    }
+  }
+
+  if (is.na(name) && !is.na(code)) name <- code
+
+  if (is.na(manufacturer) && is.na(name) && is.na(link) && is.na(code)) {
+    return(NULL)
+  }
+
+  list(
+    manufacturer = manufacturer,
+    code = code,
+    name = name,
+    link = link
+  )
+}
+
+parse_instrument_metadata <- function(raw_instrument) {
+  if (is.null(raw_instrument) || is.na(raw_instrument)) return(NULL)
+
+  raw_clean <- trimws(raw_instrument)
+  if (raw_clean == "") return(NULL)
+
+  tokens <- trimws(unlist(strsplit(raw_clean, "\\|", fixed = FALSE)))
+  tokens <- tokens[tokens != ""]
+  if (length(tokens) == 0) return(NULL)
+
+  keyvalues <- extract_instrument_keyvalues(tokens)
+
+  token_urls <- sapply(tokens, extract_first_url)
+  has_url <- !is.na(token_urls)
+  url_tokens <- token_urls[has_url]
+  non_url_tokens <- tokens[!has_url]
+
+  manufacturer <- keyvalues$manufacturer %||% NA
+  code <- keyvalues$code %||% NA
+  name <- keyvalues$name %||% NA
+  link <- keyvalues$link %||% (if (length(url_tokens) > 0) url_tokens[1] else NA)
+
+  # Flexible positional fallback if key-value tags are absent or partial.
+  if (length(keyvalues) == 0) {
+    if (is.na(manufacturer) && length(non_url_tokens) >= 1) {
+      manufacturer <- non_url_tokens[1]
+    }
+
+    if (is.na(name)) {
+      if (length(non_url_tokens) == 2) {
+        name <- non_url_tokens[2]
+      } else if (length(non_url_tokens) == 3) {
+        name <- non_url_tokens[2]
+      } else if (length(non_url_tokens) >= 4) {
+        name <- non_url_tokens[3]
+      }
+    }
+
+    if (is.na(code)) {
+      if (length(non_url_tokens) == 3) {
+        code <- non_url_tokens[3]
+      } else if (length(non_url_tokens) >= 4) {
+        code <- non_url_tokens[2]
+      }
+    }
+  } else {
+    if (is.na(manufacturer) && length(non_url_tokens) >= 1) {
+      manufacturer <- non_url_tokens[1]
+    }
+    if (is.na(name) && length(non_url_tokens) >= 2) {
+      name <- non_url_tokens[length(non_url_tokens)]
+    }
+    if (is.na(code) && length(non_url_tokens) >= 3) {
+      code <- non_url_tokens[2]
+    }
+  }
+
+  normalize_instrument_info(list(
+    manufacturer = manufacturer,
+    code = code,
+    name = name,
+    link = link
+  ))
+}
+
+extract_instrument_tags_from_sources <- function(r_source_dir) {
+  tags <- list()
+
+  if (!dir.exists(r_source_dir)) return(tags)
+
+  r_files <- list.files(r_source_dir, pattern = "^import\\..+\\.R$", full.names = TRUE)
+
+  for (r_file in r_files) {
+    lines <- readLines(r_file, warn = FALSE)
+    tag_line <- grep("^#'\\s*@instrument\\b", lines, value = TRUE)
+    if (length(tag_line) == 0) next
+
+    raw_value <- sub("^#'\\s*@instrument\\s*", "", tag_line[1])
+    func_name <- sub("\\.R$", "", basename(r_file))
+
+    tags[[func_name]] <- trimws(raw_value)
+  }
+
+  tags
+}
+
+# Function to get instrument metadata from extracted or fallback data
+get_instrument_metadata <- function(func_name, metadata) {
+  # 1) Priority: source-level @instrument extraction from R/import.*.R
+  if (exists("source_instrument_metadata") && func_name %in% names(source_instrument_metadata)) {
+    source_info <- normalize_instrument_info(source_instrument_metadata[[func_name]])
+    if (!is.null(source_info)) return(source_info)
+  }
+
+  # 2) Parsed metadata string (when available)
+  if (!is.null(metadata) && !is.null(metadata$instrument_metadata) && !is.na(metadata$instrument_metadata)) {
+    parsed_info <- parse_instrument_metadata(metadata$instrument_metadata)
+    if (!is.null(parsed_info)) return(parsed_info)
+  }
+
   # Fall back to hardcoded mapping
   if (func_name %in% names(fallback_instruments)) {
-    return(fallback_instruments[[func_name]])
+    fallback_info <- fallback_instruments[[func_name]]
+    return(normalize_instrument_info(fallback_info))
   }
+
   return(NULL)
 }
 
@@ -275,6 +431,35 @@ for (func_name in exported_functions) {
 
 cat("\nSuccessfully extracted metadata for", length(all_metadata), "functions\n")
 
+# Extract @instrument tags directly from R source (priority over fallback mappings)
+r_source_dir <- file.path(dirname(dirname(output_dir)), "R")
+source_instrument_tags <- extract_instrument_tags_from_sources(r_source_dir)
+source_instrument_metadata <- lapply(source_instrument_tags, parse_instrument_metadata)
+
+# Merge raw source tags into metadata store when available
+for (func_name in names(source_instrument_tags)) {
+  raw_tag <- source_instrument_tags[[func_name]]
+
+  if (!func_name %in% names(all_metadata)) {
+    all_metadata[[func_name]] <- list(
+      name = func_name,
+      title = NA,
+      description = NA,
+      usage = NA,
+      arguments = list(),
+      details = NA,
+      value = NA,
+      examples = NA,
+      seealso = NA,
+      details_raw = "",
+      category = NA,
+      instrument_metadata = if (raw_tag == "") NA else raw_tag
+    )
+  } else if (is.na(all_metadata[[func_name]]$instrument_metadata) || trimws(all_metadata[[func_name]]$instrument_metadata) == "") {
+    all_metadata[[func_name]]$instrument_metadata <- if (raw_tag == "") NA else raw_tag
+  }
+}
+
 categorize_functions <- function(func_names) {
   imports <- c()
   core <- c()
@@ -343,18 +528,17 @@ validate_instrument_metadata <- function(all_metadata, exported_functions) {
   format_errors <- c()
   
   for (func_name in undocumented_funcs) {
-    if (func_name %in% names(all_metadata)) {
-      metadata <- all_metadata[[func_name]]
-      
-      if (is.na(metadata$instrument_metadata)) {
-        missing_instruments <- c(missing_instruments, func_name)
-      } else {
-        parts <- strsplit(metadata$instrument_metadata, "\\|")[[1]]
-        if (length(parts) != 2) {
-          format_errors <- c(format_errors, 
-            paste0(func_name, " (", length(parts), " parts, expected 2)"))
-        }
-      }
+    metadata <- if (func_name %in% names(all_metadata)) all_metadata[[func_name]] else list(instrument_metadata = NA)
+    instrument_info <- get_instrument_metadata(func_name, metadata)
+
+    if (is.null(instrument_info)) {
+      missing_instruments <- c(missing_instruments, func_name)
+      next
+    }
+
+    if ((is.null(instrument_info$manufacturer) || is.na(instrument_info$manufacturer) || trimws(instrument_info$manufacturer) == "") &&
+        (is.null(instrument_info$name) || is.na(instrument_info$name) || trimws(instrument_info$name) == "")) {
+      format_errors <- c(format_errors, paste0(func_name, " (unable to infer manufacturer/name)"))
     }
   }
   
@@ -377,7 +561,7 @@ validate_instrument_metadata <- function(all_metadata, exported_functions) {
       for (func in missing_instruments) cat("  -", func, "\n")
     }
     if (length(format_errors) > 0) {
-      cat("\n⚠ Invalid @instrument format (expected: Manufacturer|InstrumentName):\n")
+      cat("\n⚠ Invalid @instrument format (unable to infer required fields):\n")
       for (err in format_errors) cat("  -", err, "\n")
     }
   }
@@ -395,6 +579,267 @@ cat("  Import functions:", length(categories$imports), "\n")
 cat("  Core functions:", length(categories$core), "\n")
 cat("  Analysis functions:", length(categories$analysis), "\n")
 cat("  Wrapper functions:", length(categories$wrapper), "\n")
+
+# ==============================================================================
+# STEP 3.6: Incremental import documentation sync (ground truth + auto-managed)
+# ============================================================================== 
+
+cat("\n=== Building incremental import sync report ===\n")
+
+extract_documented_import_functions <- function(import_qmd_path) {
+  if (!file.exists(import_qmd_path)) return(character(0))
+  lines <- readLines(import_qmd_path, warn = FALSE)
+  text <- paste(lines, collapse = "\n")
+  matches <- gregexpr("\\bimport\\.[A-Za-z0-9]+\\b", text, perl = TRUE)
+  documented <- regmatches(text, matches)[[1]]
+  unique(documented)
+}
+
+build_import_inventory <- function(import_funcs, metadata_store) {
+  inventory <- list()
+
+  for (func_name in sort(import_funcs)) {
+    metadata <- if (func_name %in% names(metadata_store)) metadata_store[[func_name]] else NULL
+
+    args <- if (!is.null(metadata) && length(metadata$arguments) > 0) names(metadata$arguments) else character(0)
+    usage <- if (!is.null(metadata) && !is.na(metadata$usage)) metadata$usage else ""
+    title <- if (!is.null(metadata) && !is.na(metadata$title)) metadata$title else ""
+
+    instrument <- if (!is.null(metadata)) {
+      get_instrument_metadata(func_name, metadata)
+    } else {
+      get_instrument_metadata(func_name, list(instrument_metadata = NA))
+    }
+
+    instrument_key <- if (!is.null(instrument)) {
+      paste(
+        c(
+          if (!is.null(instrument$manufacturer)) instrument$manufacturer else "",
+          if (!is.null(instrument$code)) instrument$code else "",
+          if (!is.null(instrument$name)) instrument$name else "",
+          if (!is.null(instrument$link)) instrument$link else ""
+        ),
+        collapse = "|"
+      )
+    } else {
+      ""
+    }
+
+    inventory[[func_name]] <- list(
+      function_name = func_name,
+      args = args,
+      usage = usage,
+      title = title,
+      has_metadata = !is.null(metadata),
+      instrument = instrument,
+      signature_key = paste(args, collapse = ","),
+      metadata_key = paste(c(title, instrument_key), collapse = "||")
+    )
+  }
+
+  inventory
+}
+
+load_previous_inventory <- function(snapshot_path) {
+  if (!file.exists(snapshot_path)) return(list())
+
+  previous_raw <- tryCatch(
+    jsonlite::fromJSON(snapshot_path, simplifyVector = FALSE),
+    error = function(e) list()
+  )
+
+  if (is.null(previous_raw) || length(previous_raw) == 0) return(list())
+
+  # Backward-compatible shape handling
+  if (!is.null(previous_raw$inventory) && is.list(previous_raw$inventory)) {
+    return(previous_raw$inventory)
+  }
+
+  if (is.list(previous_raw) && !is.null(names(previous_raw))) {
+    return(previous_raw)
+  }
+
+  list()
+}
+
+classify_import_functions <- function(current_inventory, previous_inventory, documented_funcs) {
+  classifications <- list(
+    already_documented_no_change = c(),
+    missing_doc = c(),
+    signature_changed = c(),
+    metadata_changed = c(),
+    metadata_incomplete = c()
+  )
+
+  for (func_name in names(current_inventory)) {
+    current <- current_inventory[[func_name]]
+    previous <- previous_inventory[[func_name]]
+    is_documented <- func_name %in% documented_funcs
+
+    if (!is_documented) {
+      classifications$missing_doc <- c(classifications$missing_doc, func_name)
+      if (is.null(current$instrument) || identical(current$metadata_key, "||")) {
+        classifications$metadata_incomplete <- c(classifications$metadata_incomplete, func_name)
+      }
+      next
+    }
+
+    if (!is.null(previous)) {
+      previous_sig <- if (!is.null(previous$signature_key)) previous$signature_key else ""
+      previous_meta <- if (!is.null(previous$metadata_key)) previous$metadata_key else ""
+
+      if (!identical(current$signature_key, previous_sig)) {
+        classifications$signature_changed <- c(classifications$signature_changed, func_name)
+      } else if (!identical(current$metadata_key, previous_meta)) {
+        classifications$metadata_changed <- c(classifications$metadata_changed, func_name)
+      } else {
+        classifications$already_documented_no_change <- c(classifications$already_documented_no_change, func_name)
+      }
+    } else {
+      classifications$already_documented_no_change <- c(classifications$already_documented_no_change, func_name)
+    }
+  }
+
+  classifications
+}
+
+generate_import_delta_block <- function(func_name, inventory_entry, metadata_store) {
+  metadata <- metadata_store[[func_name]]
+
+  lines <- c(
+    paste0("### ", func_name),
+    "",
+    if (!is.null(inventory_entry$instrument) && !is.null(inventory_entry$instrument$name)) {
+      paste0("- Instrument: **", inventory_entry$instrument$name, "**")
+    } else {
+      "- Instrument: **Not specified in metadata**"
+    },
+    paste0("- Reference function: `", func_name, "()`"),
+    ""
+  )
+
+  if (!is.null(metadata) && !is.na(metadata$title) && metadata$title != "") {
+    lines <- c(lines, paste0("- Summary: ", metadata$title), "")
+  }
+
+  if (!is.null(metadata) && !is.na(metadata$usage) && metadata$usage != "") {
+    lines <- c(lines, "#### Usage", "", "```r", metadata$usage, "```", "")
+  }
+
+  if (!is.null(metadata) && length(metadata$arguments) > 0) {
+    lines <- c(lines, "#### Arguments detected", "")
+    for (arg_name in names(metadata$arguments)) {
+      lines <- c(lines, paste0("- `", arg_name, "`"))
+    }
+    lines <- c(lines, "")
+  }
+
+  paste(lines, collapse = "\n")
+}
+
+update_automanaged_region <- function(import_qmd_path, region_content) {
+  start_marker <- "<!-- AUTOGEN:IMPORT-DELTA:START -->"
+  end_marker <- "<!-- AUTOGEN:IMPORT-DELTA:END -->"
+
+  if (!file.exists(import_qmd_path)) return(FALSE)
+
+  lines <- readLines(import_qmd_path, warn = FALSE)
+  start_idx <- which(trimws(lines) == start_marker)
+  end_idx <- which(trimws(lines) == end_marker)
+
+  if (length(start_idx) == 1 && length(end_idx) == 1 && end_idx > start_idx) {
+    replacement <- c(
+      start_marker,
+      "",
+      "## Auto-detected import updates",
+      "",
+      "This section is managed automatically from `import.*` functions in the package source.",
+      "",
+      unlist(strsplit(region_content, "\\n", fixed = FALSE)),
+      "",
+      end_marker
+    )
+
+    new_lines <- c(lines[1:(start_idx - 1)], replacement, lines[(end_idx + 1):length(lines)])
+    writeLines(new_lines, import_qmd_path)
+    return(TRUE)
+  }
+
+  # Fallback: append managed region if markers are missing
+  fallback <- c(
+    "",
+    start_marker,
+    "",
+    "## Auto-detected import updates",
+    "",
+    "This section is managed automatically from `import.*` functions in the package source.",
+    "",
+    unlist(strsplit(region_content, "\\n", fixed = FALSE)),
+    "",
+    end_marker,
+    ""
+  )
+
+  writeLines(c(lines, fallback), import_qmd_path)
+  TRUE
+}
+
+import_qmd_path <- file.path(dirname(output_dir), "import.qmd")
+import_funcs <- setdiff(categories$imports, "import2RData")
+documented_import_funcs <- extract_documented_import_functions(import_qmd_path)
+
+current_inventory <- build_import_inventory(import_funcs, all_metadata)
+snapshot_path <- file.path(output_dir, "import_inventory_snapshot.json")
+previous_inventory <- load_previous_inventory(snapshot_path)
+classifications <- classify_import_functions(current_inventory, previous_inventory, documented_import_funcs)
+
+delta_targets <- unique(c(
+  classifications$missing_doc,
+  classifications$signature_changed,
+  classifications$metadata_changed
+))
+
+if (length(delta_targets) > 0) {
+  delta_blocks <- c()
+  for (func_name in sort(delta_targets)) {
+    delta_blocks <- c(
+      delta_blocks,
+      generate_import_delta_block(func_name, current_inventory[[func_name]], all_metadata)
+    )
+  }
+  sync_updated <- update_automanaged_region(import_qmd_path, paste(delta_blocks, collapse = "\n\n---\n\n"))
+} else {
+  sync_updated <- update_automanaged_region(import_qmd_path, "No new or changed import functions detected in this build.")
+}
+
+sync_report <- list(
+  generated_at = as.character(Sys.time()),
+  import_function_count = length(import_funcs),
+  documented_import_function_count = length(intersect(import_funcs, documented_import_funcs)),
+  classifications = classifications,
+  unresolved_missing_import_docs = length(intersect(classifications$missing_doc, classifications$metadata_incomplete)),
+  delta_targets = sort(delta_targets)
+)
+
+writeLines(
+  jsonlite::toJSON(sync_report, pretty = TRUE, auto_unbox = TRUE),
+  file.path(output_dir, "import_sync_report.json")
+)
+
+writeLines(
+  jsonlite::toJSON(
+    list(generated_at = as.character(Sys.time()), inventory = current_inventory),
+    pretty = TRUE,
+    auto_unbox = TRUE
+  ),
+  snapshot_path
+)
+
+cat("Import sync report generated: import_sync_report.json\n")
+cat("Missing docs:", length(classifications$missing_doc), "| Signature changed:",
+    length(classifications$signature_changed), "| Metadata changed:",
+    length(classifications$metadata_changed), "\n")
+cat("Import page auto-managed region updated:", sync_updated, "\n")
 
 # ==============================================================================
 # STEP 4: Generate individual function reference pages

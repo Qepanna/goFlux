@@ -204,38 +204,3 @@ save(CO2_best, file = "CO2_result.RData")
 write.xlsx(CO2_best, file = "CO2_result.xlsx")
 ```
 
-## Function Documentation Validation {#sec-validate-bestflux}
-
-This section automatically validates that the documentation above matches the actual `best.flux` function:
-
-```{r}
-#| eval: true
-#| echo: false
-
-if (requireNamespace("goFlux", quietly = TRUE)) {
-  bestflux_args <- formals(goFlux::best.flux)
-  
-  cat("📋 **Current best.flux Function Arguments:**\n\n")
-  for (i in seq_along(bestflux_args)) {
-    arg_name <- names(bestflux_args)[i]
-    # Safely deparse and collapse in case result is multi-line
-    arg_str <- paste(deparse(bestflux_args[[i]]), collapse = " ")
-    
-    # Check if argument has no default (missing/empty)
-    if (arg_str == "" || arg_str == "NULL") {
-      cat(sprintf("- `%s` (required)\n", arg_name))
-    } else if (nchar(arg_str) > 60) {
-      # Complex default, show truncated version
-      cat(sprintf("- `%s` = %s\n", arg_name, substring(arg_str, 1, 50)))
-    } else {
-      cat(sprintf("- `%s` = %s\n", arg_name, arg_str))
-    }
-  }
-  
-  cat(sprintf("\n**Total: %d arguments**\n", length(bestflux_args)))
-  cat("\n✅ This documentation is automatically synchronized with the R package.")
-  
-} else {
-  cat("❌ goFlux package not available for validation")
-}
-```

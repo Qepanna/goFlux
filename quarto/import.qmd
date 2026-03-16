@@ -1952,3 +1952,13 @@ imp.GasmetPD <- import.GasmetPD(inputfile = file.path, prec = c(1.6, 13, 2, 23, 
 # Or save in a RData folder in the working directory
 import.GasmetPD(inputfile = file.path, prec = c(1.6, 13, 2, 23, 33), save = TRUE)
 ```
+
+<!-- AUTOGEN:IMPORT-DELTA:START -->
+
+## Auto-detected import updates
+
+This section is managed automatically from `import.*` functions in the package source.
+
+No new or changed import functions detected in this build.
+
+<!-- AUTOGEN:IMPORT-DELTA:END -->

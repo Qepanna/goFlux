@@ -226,38 +226,3 @@ crop_UGGA <- crop.meas(manID.UGGA, auto_db, deadband = "aux")
 
 Johannesson, C. F., Nordén, J., Lange, H., Silvennoinen, H., & Larsen, K. S. (2024). Optimizing the closure period for improved accuracy of chamber-based greenhouse gas flux estimates. *Agricultural and Forest Meteorology*, 359, 110289.
 
-## Function Documentation Validation {#sec-validate-other}
-
-This section automatically validates that all utility functions are properly documented:
-
-```{r}
-#| eval: true
-#| echo: false
-
-if (requireNamespace("goFlux", quietly = TRUE)) {
-  # Get all exported functions
-  all_exports <- getNamespaceExports("goFlux")
-  
-  # Functions covered in other sections
-  main_functions <- c("goFlux", "best.flux", "flux.plot", "flux2pdf", "HM.flux", "LM.flux", 
-                     "import2RData", "autoID", "obs.win", paste0("import.", c("DX4015", "EGM5", 
-                     "G2201i", "G2508", "G4301", "GAIA", "GT5000", "HT8850", "LI6400", 
-                     "LI7810", "LI7820", "LI8100", "LI8150", "LI8200", "LI8250", "N2OM1", 
-                     "N2Oi2", "skyline", "uCH4", "UGGA", "uN2O", "eosMX12", "GasmetPD")))
-  
-  # Find utility/other functions
-  other_functions <- setdiff(all_exports, main_functions)
-  
-  cat("🔧 **Available Utility Functions in goFlux Package:**\n\n")
-  
-  for (func in sort(other_functions)) {
-    cat(sprintf("- `%s`\n", func))
-  }
-  
-  cat(sprintf("\n**Total: %d utility functions available**\n", length(other_functions)))
-  cat("\n✅ This list is automatically updated with the R package.")
-  
-} else {
-  cat("❌ goFlux package not available for validation")
-}
-```

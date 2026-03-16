@@ -96,11 +96,6 @@ jobs:
       - name: Validate examples
         working-directory: ./quarto
         run: Rscript _examples.R
-        continue-on-error: true
-
-      - name: Generate documentation from R package
-        working-directory: ./quarto
-        run: Rscript _generate.R
 
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
@@ -110,6 +105,28 @@ jobs:
       - name: Render Quarto project
         working-directory: ./quarto
         run: quarto render
+
+      - name: Validate import sync report
+        working-directory: ./quarto
+        run: |
+          if [ ! -f "_generated/import_sync_report.json" ]; then
+            echo "✗ Missing _generated/import_sync_report.json"
+            exit 1
+          fi
+
+          Rscript -e "
+          report <- jsonlite::fromJSON('_generated/import_sync_report.json')
+          cat('Import functions:', report$import_function_count, '\n')
+          cat('Documented import functions:', report$documented_import_function_count, '\n')
+          cat('Unresolved missing import docs:', report$unresolved_missing_import_docs, '\n')
+
+          if (!is.null(report$unresolved_missing_import_docs) && report$unresolved_missing_import_docs > 0) {
+            cat('✗ Build blocked: unresolved missing import docs found\n')
+            quit(status = 1)
+          }
+
+          cat('✓ Import sync report validated\n')
+          "
 
       - name: Validate site generation
         working-directory: ./quarto

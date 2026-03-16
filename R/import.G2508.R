@@ -10,7 +10,7 @@
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} gas concentrations.
 #'
 #' @category import
-#' @instrument Picarro|Picarro G2508|G2508
+#' 
 #'
 #' @param inputfile character string; the name of a file with the extension .dat
 #' @param date.format character string; specifies the date format found in the
