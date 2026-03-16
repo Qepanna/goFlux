@@ -40,7 +40,8 @@ namespace_content <- readLines(namespace_file)
 exports <- grep("^export\\(", namespace_content, value = TRUE)
 exported_functions <- gsub("^export\\(|\\)$", "", exports)
 
-cat("Found", length(exported_functions), "exported functions\n")
+# Developer debug (uncomment to see export extraction)
+# cat("Found", length(exported_functions), "exported functions\n")
 
 # Get help database
 help_db <- tools::Rd_db("goFlux")
@@ -99,7 +100,7 @@ parse_rd_file <- function(rd_input) {
       } else if (tag == "\\category") {
         # Extract function category (import, core, analysis, wrapper)
         result$category <- trimws(as.character(item))
-      } else if (tag == "\\instrument") {
+      } else if (tag == "\\instrumentlink") {
         # Extract instrument metadata in format: manufacturer|name|type
         instrument_str <- trimws(as.character(item))
         result$instrument_metadata <- instrument_str
@@ -348,10 +349,10 @@ extract_instrument_tags_from_sources <- function(r_source_dir) {
 
   for (r_file in r_files) {
     lines <- readLines(r_file, warn = FALSE)
-    tag_line <- grep("^#'\\s*@instrument\\b", lines, value = TRUE)
+    tag_line <- grep("^#'\\s*@instrumentlink\\b", lines, value = TRUE)
     if (length(tag_line) == 0) next
 
-    raw_value <- sub("^#'\\s*@instrument\\s*", "", tag_line[1])
+    raw_value <- sub("^#'\\s*@instrumentlink\\s*", "", tag_line[1])
     func_name <- sub("\\.R$", "", basename(r_file))
 
     tags[[func_name]] <- trimws(raw_value)
@@ -362,7 +363,7 @@ extract_instrument_tags_from_sources <- function(r_source_dir) {
 
 # Function to get instrument metadata from extracted or fallback data
 get_instrument_metadata <- function(func_name, metadata) {
-  # 1) Priority: source-level @instrument extraction from R/import.*.R
+  # 1) Priority: source-level @instrumentlink extraction from R/import.*.R
   if (exists("source_instrument_metadata") && func_name %in% names(source_instrument_metadata)) {
     source_info <- normalize_instrument_info(source_instrument_metadata[[func_name]])
     if (!is.null(source_info)) return(source_info)
@@ -453,9 +454,10 @@ for (func_name in exported_functions) {
   }
 }
 
-cat("\nSuccessfully extracted metadata for", length(all_metadata), "functions\n")
+# Developer debug: Successfully extracted metadata
+# cat("\nSuccessfully extracted metadata for", length(all_metadata), "functions\n")
 
-# Extract @instrument tags directly from R source (priority over fallback mappings)
+# Extract @instrumentlink tags directly from R source (priority over fallback mappings)
 r_source_dir <- file.path(dirname(dirname(output_dir)), "R")
 source_instrument_tags <- extract_instrument_tags_from_sources(r_source_dir)
 source_instrument_metadata <- lapply(source_instrument_tags, parse_instrument_metadata)
@@ -581,11 +583,11 @@ validate_instrument_metadata <- function(all_metadata, exported_functions) {
     }
   } else {
     if (length(missing_instruments) > 0) {
-      cat("\n⚠ Missing @instrument tags (needs ground truth link in import.qmd or @instrument tag):\n")
+      cat("\n⚠ Missing @instrumentlink tags (needs ground truth link in import.qmd or @instrumentlink tag):\n")
       for (func in missing_instruments) cat("  -", func, "\n")
     }
     if (length(format_errors) > 0) {
-      cat("\n⚠ Invalid @instrument format (unable to infer required fields):\n")
+      cat("\n⚠ Invalid @instrumentlink format (unable to infer required fields):\n")
       for (err in format_errors) cat("  -", err, "\n")
     }
   }
@@ -595,14 +597,15 @@ validate_instrument_metadata <- function(all_metadata, exported_functions) {
 
 categories <- categorize_functions(exported_functions)
 
-# Validate instrument metadata
-validate_instrument_metadata(all_metadata, exported_functions)
-
-cat("Categorized functions:\n")
-cat("  Import functions:", length(categories$imports), "\n")
-cat("  Core functions:", length(categories$core), "\n")
-cat("  Analysis functions:", length(categories$analysis), "\n")
-cat("  Wrapper functions:", length(categories$wrapper), "\n")
+# Validate instrument metadata (developer feedback only)
+if (Sys.getenv("GOFLUX_DEBUG") == "1") {
+  validate_instrument_metadata(all_metadata, exported_functions)
+  cat("Categorized functions:\n")
+  cat("  Import functions:", length(categories$imports), "\n")
+  cat("  Core functions:", length(categories$core), "\n")
+  cat("  Analysis functions:", length(categories$analysis), "\n")
+  cat("  Wrapper functions:", length(categories$wrapper), "\n")
+}
 
 # ==============================================================================
 # STEP 3.5+: Intelligent Import Documentation Generation (NEW)
@@ -739,10 +742,101 @@ learn_manufacturer_groups <- function(import_qmd_path) {
   groups
 }
 
-# Generate intelligent import section from Rd metadata
-generate_intelligent_import_section <- function(func_name, inventory_entry, metadata_store, prose_templates) {
+# Extract structure template from an existing documented instrument section in import.qmd
+extract_instrument_section_template <- function(import_qmd_path, reference_instrument) {
+  if (!file.exists(import_qmd_path)) {
+    return(list(
+      has_usage = TRUE,
+      has_arguments = TRUE,
+      has_details = TRUE,
+      has_examples = TRUE,
+      subsection_order = c("usage", "arguments", "details", "examples"),
+      table_format = "standard"
+    ))
+  }
+  
+  lines <- readLines(import_qmd_path, warn = FALSE)
+  text <- paste(lines, collapse = "\n")
+  
+  # Find the reference instrument section (e.g., "### LI-6400" or "### LI-8200 (Smart Chamber)")
+  # Look for a ### header that contains the reference instrument name
+  section_pattern <- paste0("^###\\s+.*", reference_instrument, ".*$")
+  section_indices <- grep(section_pattern, lines, perl = TRUE, ignore.case = TRUE)
+  
+  template <- list(
+    has_usage = FALSE,
+    has_arguments = FALSE,
+    has_details = FALSE,
+    has_examples = FALSE,
+    subsection_order = c(),
+    table_format = "standard"
+  )
+  
+  if (length(section_indices) == 0) {
+    # Reference instrument not found, return defaults
+    return(template)
+  }
+  
+  # Get the section range (from this header to the next ### header or end of file)
+  start_idx <- section_indices[1]
+  end_idx <- length(lines)
+  
+  next_section <- grep("^###\\s+", lines[(start_idx + 1):length(lines)], perl = TRUE)
+  if (length(next_section) > 0) {
+    end_idx <- start_idx + next_section[1]
+  }
+  
+  section_lines <- lines[start_idx:end_idx]
+  section_text <- paste(section_lines, collapse = "\n")
+  
+  # Detect subsections in order of appearance
+  subsection_order <- c()
+  for (line in section_lines) {
+    if (grepl("^####\\s+Usage", line, ignore.case = TRUE)) {
+      template$has_usage <- TRUE
+      subsection_order <- c(subsection_order, "usage")
+    } else if (grepl("^####\\s+Arguments", line, ignore.case = TRUE)) {
+      template$has_arguments <- TRUE
+      subsection_order <- c(subsection_order, "arguments")
+    } else if (grepl("^####\\s+Details", line, ignore.case = TRUE)) {
+      template$has_details <- TRUE
+      subsection_order <- c(subsection_order, "details")
+    } else if (grepl("^####\\s+Example", line, ignore.case = TRUE)) {
+      template$has_examples <- TRUE
+      subsection_order <- c(subsection_order, "examples")
+    }
+  }
+  
+  # Remove duplicates while preserving order
+  template$subsection_order <- subsection_order[!duplicated(subsection_order)]
+  
+  # Detect table format (check for blank columns or specific separator patterns)
+  arg_table_pattern <- "^\\|\\s*\\|\\s*\\|"
+  if (grepl(arg_table_pattern, section_text, perl = TRUE)) {
+    template$table_format <- "blank_headers"
+  } else {
+    template$table_format <- "standard"
+  }
+  
+  template
+}
+
+# Generate intelligent import section from Rd metadata using template
+generate_intelligent_import_section <- function(func_name, inventory_entry, metadata_store, prose_templates, template = NULL) {
   metadata <- metadata_store[[func_name]]
   if (is.null(metadata)) return("")
+  
+  # Use default template if none provided
+  if (is.null(template)) {
+    template <- list(
+      has_usage = TRUE,
+      has_arguments = TRUE,
+      has_details = TRUE,
+      has_examples = TRUE,
+      subsection_order = c("usage", "arguments", "details", "examples"),
+      table_format = "standard"
+    )
+  }
   
   lines <- c()
   
@@ -762,62 +856,76 @@ generate_intelligent_import_section <- function(func_name, inventory_entry, meta
     lines <- c(lines, "")
   }
   
-  # Usage section
-  lines <- c(lines, "#### Usage")
-  lines <- c(lines, "")
-  lines <- c(lines, "```{r}")
-  lines <- c(lines, "#| eval: false")
-  lines <- c(lines, "#| code-copy: false")
-  
-  if (!is.na(metadata$usage) && metadata$usage != "") {
-    # Format usage nicely
-    usage_lines <- strsplit(metadata$usage, "\n")[[1]]
-    lines <- c(lines, usage_lines)
-  }
-  
-  lines <- c(lines, "```")
-  lines <- c(lines, "")
-  
-  # Arguments section (as table)
-  if (length(metadata$arguments) > 0) {
-    lines <- c(lines, "#### Arguments")
-    lines <- c(lines, "")
-    lines <- c(lines, "| Parameter | Description |")
-    lines <- c(lines, "|:----------|:--------------------------|")
-    
-    for (arg_name in names(metadata$arguments)) {
-      arg_desc <- metadata$arguments[[arg_name]]
-      arg_desc <- clean_arg_description(arg_desc)
+  # Build sections in template order
+  for (section_type in template$subsection_order) {
+    if (section_type == "usage") {
+      lines <- c(lines, "#### Usage")
+      lines <- c(lines, "")
+      lines <- c(lines, "```{r}")
+      lines <- c(lines, "#| eval: false")
+      lines <- c(lines, "#| code-copy: false")
       
-      # Escape pipe characters for markdown table
-      arg_desc <- gsub("|", "\\|", arg_desc, fixed = TRUE)
+      if (!is.na(metadata$usage) && metadata$usage != "") {
+        # Format usage nicely
+        usage_lines <- strsplit(metadata$usage, "\n")[[1]]
+        lines <- c(lines, usage_lines)
+      }
       
-      lines <- c(lines, paste0("| `", arg_name, "` | ", arg_desc, " |"))
+      lines <- c(lines, "```")
+      lines <- c(lines, "")
+      
+    } else if (section_type == "arguments") {
+      # Arguments section (as table)
+      if (length(metadata$arguments) > 0) {
+        lines <- c(lines, "#### Arguments")
+        lines <- c(lines, "")
+        
+        # Use table format from template
+        if (template$table_format == "blank_headers") {
+          lines <- c(lines, "|  |  |")
+          lines <- c(lines, "|--------------------------|----------------------------------------------|")
+        } else {
+          lines <- c(lines, "| Parameter | Description |")
+          lines <- c(lines, "|:----------|:--------------------------|")
+        }
+        
+        for (arg_name in names(metadata$arguments)) {
+          arg_desc <- metadata$arguments[[arg_name]]
+          arg_desc <- clean_arg_description(arg_desc)
+          
+          # Escape pipe characters for markdown table
+          arg_desc <- gsub("|", "\\|", arg_desc, fixed = TRUE)
+          
+          lines <- c(lines, paste0("| `", arg_name, "` | ", arg_desc, " |"))
+        }
+        lines <- c(lines, "")
+      }
+      
+    } else if (section_type == "details") {
+      # Details section
+      if (!is.na(metadata$details) && metadata$details != "") {
+        lines <- c(lines, "#### Details")
+        lines <- c(lines, "")
+        details_md <- convert_rd_latex_to_markdown(metadata$details)
+        lines <- c(lines, details_md)
+        lines <- c(lines, "")
+      }
+      
+    } else if (section_type == "examples") {
+      # Examples section
+      if (!is.na(metadata$examples) && metadata$examples != "") {
+        lines <- c(lines, "#### Example")
+        lines <- c(lines, "")
+        lines <- c(lines, "```{r}")
+        lines <- c(lines, "#| eval: false")
+        
+        example_lines <- strsplit(metadata$examples, "\n")[[1]]
+        lines <- c(lines, example_lines)
+        
+        lines <- c(lines, "```")
+        lines <- c(lines, "")
+      }
     }
-    lines <- c(lines, "")
-  }
-  
-  # Details section
-  if (!is.na(metadata$details) && metadata$details != "") {
-    lines <- c(lines, "#### Details")
-    lines <- c(lines, "")
-    details_md <- convert_rd_latex_to_markdown(metadata$details)
-    lines <- c(lines, details_md)
-    lines <- c(lines, "")
-  }
-  
-  # Examples section
-  if (!is.na(metadata$examples) && metadata$examples != "") {
-    lines <- c(lines, "#### Example")
-    lines <- c(lines, "")
-    lines <- c(lines, "```{r}")
-    lines <- c(lines, "#| eval: false")
-    
-    example_lines <- strsplit(metadata$examples, "\n")[[1]]
-    lines <- c(lines, example_lines)
-    
-    lines <- c(lines, "```")
-    lines <- c(lines, "")
   }
   
   paste(lines, collapse = "\n")
@@ -1114,6 +1222,11 @@ if (length(delta_targets) > 0) {
   # Load current import.qmd lines
   qmd_lines <- readLines(import_qmd_path, warn = FALSE)
   
+  # Extract a template from a reference documented instrument
+  # Use a well-documented instrument as the template for new ones
+  reference_instrument <- "LI-6400"  # Use LI-6400 as the reference template
+  instrument_template <- extract_instrument_section_template(import_qmd_path, reference_instrument)
+  
   # Track sections to insert (only for NEWLY MISSING instruments, not updates to existing ones)
   sections_to_insert <- list()
   
@@ -1124,7 +1237,8 @@ if (length(delta_targets) > 0) {
       func_name,
       current_inventory[[func_name]],
       all_metadata,
-      prose_templates
+      prose_templates,
+      template = instrument_template
     )
     
     if (generated_section != "") {
@@ -1228,6 +1342,474 @@ cat("Missing docs:", length(classifications$missing_doc), "| Signature changed:"
     length(classifications$signature_changed), "| Metadata changed:",
     length(classifications$metadata_changed), "\n")
 cat("Import page auto-managed region updated:", sync_updated, "\n")
+
+# ==============================================================================
+# STEP 11: Incremental core/analysis function documentation sync
+# ==============================================================================
+# Automatically detect and sync new core/analysis/wrapper functions in other.qmd
+# Uses same snapshot-based change detection as imports
+
+# Extract documented functions from other.qmd
+extract_documented_functions_from_qmd <- function(qmd_path) {
+  if (!file.exists(qmd_path)) return(c())
+  
+  lines <- readLines(qmd_path, warn = FALSE)
+  
+  # Match level 3 headers containing function names
+  # Patterns: ### `function_name` for description, or ### function_name for description
+  documented <- c()
+  
+  for (line in lines) {
+    # Match ### followed by function name (with or without backticks)
+    if (grepl("^###\\s+", line, perl = TRUE)) {
+      # Extract function name using capture groups
+      
+      # First try: backtick-enclosed function name ### `func_name`
+      match <- regexpr("^###\\s+`([a-zA-Z][a-zA-Z0-9._]*)`", line, perl = TRUE)
+      if (match[1] > 0) {
+        func_name <- sub("^###\\s+`([a-zA-Z][a-zA-Z0-9._]*)`.*$", "\\1", line, perl = TRUE)
+        documented <- c(documented, func_name)
+        next
+      }
+      
+      # Second try: function name without backticks 
+      match <- regexpr("^###\\s+([a-zA-Z][a-zA-Z0-9._]*)\\b", line, perl = TRUE)
+      if (match[1] > 0) {
+        func_name <- sub("^###\\s+([a-zA-Z][a-zA-Z0-9._]*)\\b.*$", "\\1", line, perl = TRUE)
+        if (!grepl("^(the|and|or|for|with|in|on|at)$", func_name, ignore.case = TRUE)) {
+          documented <- c(documented, func_name)
+        }
+      }
+    }
+  }
+  
+  # Debug: show what we're returning
+  if (Sys.getenv("GOFLUX_DEBUG") == "1") {
+    cat("[DEBUG extract_documented_functions_from_qmd] Found", length(documented), "functions:\n")
+    for (f in documented) {
+      cat("  - '", f, "' (", nchar(f), " chars)\n", sep="")
+    }
+  }
+  
+  return(unique(documented))
+}
+
+# Build inventory of core/analysis/wrapper functions
+build_function_inventory_for_section <- function(func_names, category, metadata_store) {
+  inventory <- list()
+  
+  for (func_name in func_names) {
+    if (!func_name %in% names(metadata_store)) {
+      next
+    }
+    
+    metadata <- metadata_store[[func_name]]
+    
+    # Create signature key from arguments (order-independent)
+    arg_names <- sort(names(metadata$arguments))
+    signature_key <- paste(arg_names, collapse = "|")
+    
+    # Create metadata key from title/description
+    metadata_key <- paste(
+      trimws(metadata$title %||% ""),
+      trimws(metadata$description %||% ""),
+      collapse = "|"
+    )
+    
+    inventory[[func_name]] <- list(
+      name = func_name,
+      category = category,
+      title = metadata$title %||% NA,
+      description = metadata$description %||% NA,
+      usage = metadata$usage %||% NA,
+      arguments = metadata$arguments %||% list(),
+      details = metadata$details %||% NA,
+      examples = metadata$examples %||% NA,
+      signature_key = signature_key,
+      metadata_key = metadata_key
+    )
+  }
+  
+  return(inventory)
+}
+
+# Classify core/analysis functions based on change detection
+classify_core_analysis_functions <- function(current_inventory, previous_inventory, documented_funcs) {
+  classifications <- list(
+    already_documented_no_change = c(),
+    missing_doc = c(),
+    signature_changed = c(),
+    metadata_changed = c(),
+    metadata_incomplete = c()
+  )
+  
+  if (length(previous_inventory) == 0) {
+    # First time: all functions not documented are missing
+    for (func_name in names(current_inventory)) {
+      if (func_name %in% documented_funcs) {
+        classifications$already_documented_no_change <- c(
+          classifications$already_documented_no_change, func_name
+        )
+      } else {
+        classifications$missing_doc <- c(classifications$missing_doc, func_name)
+      }
+    }
+  } else {
+    # Subsequent runs: compare snapshots
+    for (func_name in names(current_inventory)) {
+      if (func_name %in% documented_funcs) {
+        # Already documented: check for changes
+        if (func_name %in% names(previous_inventory)) {
+          prev_entry <- previous_inventory[[func_name]]
+          curr_entry <- current_inventory[[func_name]]
+          
+          if (curr_entry$signature_key != prev_entry$signature_key) {
+            # Arguments changed (added/removed/reordered)
+            classifications$signature_changed <- c(
+              classifications$signature_changed, func_name
+            )
+          } else if (curr_entry$metadata_key != prev_entry$metadata_key) {
+            # Title/description changed
+            classifications$metadata_changed <- c(
+              classifications$metadata_changed, func_name
+            )
+          } else {
+            # No changes
+            classifications$already_documented_no_change <- c(
+              classifications$already_documented_no_change, func_name
+            )
+          }
+        } else {
+          # Previously unknown but now documented
+          classifications$already_documented_no_change <- c(
+            classifications$already_documented_no_change, func_name
+          )
+        }
+      } else {
+        # Not documented yet
+        classifications$missing_doc <- c(classifications$missing_doc, func_name)
+      }
+    }
+  }
+  
+  return(classifications)
+}
+
+# Generate function documentation section for other.qmd
+generate_function_section_for_qmd <- function(func_name, inventory_entry, metadata_store) {
+  metadata <- metadata_store[[func_name]]
+  if (is.null(metadata)) return("")
+  
+  lines <- c()
+  
+  # Section header
+  lines <- c(lines, paste0("### `", func_name, "`"))
+  lines <- c(lines, "")
+  
+  # Brief description
+  if (!is.na(metadata$title) && metadata$title != "") {
+    lines <- c(lines, metadata$title)
+    lines <- c(lines, "")
+  }
+  
+  # Usage section
+  lines <- c(lines, "#### Usage")
+  lines <- c(lines, "")
+  lines <- c(lines, "```{r}")
+  lines <- c(lines, "#| eval: false")
+  lines <- c(lines, "#| code-copy: false")
+  
+  if (!is.na(metadata$usage) && metadata$usage != "") {
+    usage_lines <- strsplit(metadata$usage, "\n")[[1]]
+    lines <- c(lines, usage_lines)
+  }
+  
+  lines <- c(lines, "```")
+  lines <- c(lines, "")
+  
+  # Arguments section
+  if (length(metadata$arguments) > 0) {
+    lines <- c(lines, "#### Arguments")
+    lines <- c(lines, "")
+    lines <- c(lines, "| Parameter | Description |")
+    lines <- c(lines, "|:----------|:--------------------------|")
+    
+    for (arg_name in names(metadata$arguments)) {
+      arg_desc <- metadata$arguments[[arg_name]]
+      arg_desc <- clean_arg_description(arg_desc)
+      arg_desc <- gsub("|", "\\|", arg_desc, fixed = TRUE)
+      lines <- c(lines, paste0("| `", arg_name, "` | ", arg_desc, " |"))
+    }
+    lines <- c(lines, "")
+  }
+  
+  # Details section
+  if (!is.na(metadata$details) && metadata$details != "") {
+    lines <- c(lines, "#### Details")
+    lines <- c(lines, "")
+    details_md <- convert_rd_latex_to_markdown(metadata$details)
+    lines <- c(lines, details_md)
+    lines <- c(lines, "")
+  }
+  
+  # Examples section
+  if (!is.na(metadata$examples) && metadata$examples != "") {
+    lines <- c(lines, "#### Example")
+    lines <- c(lines, "")
+    lines <- c(lines, "```{r}")
+    lines <- c(lines, "#| eval: false")
+    
+    example_lines <- strsplit(metadata$examples, "\n")[[1]]
+    lines <- c(lines, example_lines)
+    
+    lines <- c(lines, "```")
+    lines <- c(lines, "")
+  }
+  
+  paste(lines, collapse = "\n")
+}
+
+# Find insertion point for a function within its section (alphabetically)
+find_insertion_point_for_function <- function(func_name, category, qmd_lines) {
+  # Find the section header for this category
+  section_pattern <- switch(category,
+    core = "^##\\s+Core",
+    analysis = "^##\\s+Analysis",
+    wrapper = "^##\\s+Wrapper",
+    "^##\\s+Other"
+  )
+  
+  section_indices <- grep(section_pattern, qmd_lines, perl = TRUE, ignore.case = TRUE)
+  if (length(section_indices) == 0) {
+    return(NULL)  # Section not found
+  }
+  
+  section_start <- section_indices[1]
+  
+  # Find the end of this section (next level 2 header or end of file)
+  section_end <- length(qmd_lines)
+  next_sections <- grep("^##\\s+", qmd_lines[(section_start + 1):length(qmd_lines)], perl = TRUE)
+  if (length(next_sections) > 0) {
+    section_end <- section_start + next_sections[1] - 1
+  }
+  
+  # Extract all level 3 headers (function headers) in this section
+  section_lines <- qmd_lines[section_start:section_end]
+  func_headers <- grep("^###\\s+", section_lines, perl = TRUE)
+  
+  if (length(func_headers) == 0) {
+    # No functions in section yet, insert after section header
+    return(section_start)
+  }
+  
+  # Extract function names and their positions
+  existing_funcs <- list()
+  for (idx in func_headers) {
+    header <- section_lines[idx]
+    # Extract function name from header (between backticks or after ###)
+    func_match <- gregexpr("`?([a-zA-Z][a-zA-Z0-9._]*)`?", header)
+    if (func_match[[1]][1] > 0) {
+      matches <- regmatches(header, func_match)[[1]]
+      if (length(matches) > 0) {
+        extracted_name <- sub("`", "", matches[1])
+        existing_funcs[[length(existing_funcs) + 1]] <- list(
+          name = extracted_name,
+          line = section_start + idx - 1
+        )
+      }
+    }
+  }
+  
+  # Find alphabetical position
+  func_sort_key <- tolower(func_name)
+  insertion_point <- section_end
+  
+  for (existing in existing_funcs) {
+    existing_sort_key <- tolower(existing$name)
+    if (func_sort_key < existing_sort_key) {
+      insertion_point <- existing$line - 1
+      break
+    }
+  }
+  
+  return(insertion_point)
+}
+
+# Main STEP 11 sync logic
+other_qmd_path <- file.path(dirname(output_dir), "other.qmd")
+other_snapshot_path <- file.path(output_dir, "function_inventory_other_snapshot.json")
+
+# Extract documented functions currently in other.qmd
+documented_core_analysis <- extract_documented_functions_from_qmd(other_qmd_path)
+
+# Build inventories for each function category
+core_funcs <- categories$core
+analysis_funcs <- categories$analysis
+wrapper_funcs <- categories$wrapper
+
+core_inventory <- build_function_inventory_for_section(core_funcs, "core", all_metadata)
+analysis_inventory <- build_function_inventory_for_section(analysis_funcs, "analysis", all_metadata)
+wrapper_inventory <- build_function_inventory_for_section(wrapper_funcs, "wrapper", all_metadata)
+
+# Load previous snapshot if it exists
+previous_other_inventory <- load_previous_inventory(other_snapshot_path)
+
+# Classify functions based on change detection
+core_classifications <- classify_core_analysis_functions(
+  core_inventory, previous_other_inventory$core %||% list(), documented_core_analysis
+)
+analysis_classifications <- classify_core_analysis_functions(
+  analysis_inventory, previous_other_inventory$analysis %||% list(), documented_core_analysis
+)
+wrapper_classifications <- classify_core_analysis_functions(
+  wrapper_inventory, previous_other_inventory$wrapper %||% list(), documented_core_analysis
+)
+
+# Only auto-insert missing documentation (never touch existing)
+missing_core <- core_classifications$missing_doc
+missing_analysis <- analysis_classifications$missing_doc
+missing_wrapper <- wrapper_classifications$missing_doc
+
+other_sync_updated <- FALSE
+
+# Process core/analysis/wrapper functions only if new ones need documentation
+if (length(missing_core) > 0 || length(missing_analysis) > 0 || length(missing_wrapper) > 0) {
+  if (file.exists(other_qmd_path)) {
+    other_lines <- readLines(other_qmd_path, warn = FALSE)
+    sections_to_insert <- list()
+    
+    # Generate sections for missing core functions
+    for (func_name in sort(missing_core)) {
+      generated_section <- generate_function_section_for_qmd(
+        func_name, core_inventory[[func_name]], all_metadata
+      )
+      
+      if (generated_section != "") {
+        insertion_line <- find_insertion_point_for_function(func_name, "core", other_lines)
+        
+        if (!is.null(insertion_line)) {
+          sections_to_insert[[func_name]] <- list(
+            content = generated_section,
+            insertion_line = insertion_line,
+            func_name = func_name
+          )
+        }
+      }
+    }
+    
+    # Generate sections for missing analysis functions
+    for (func_name in sort(missing_analysis)) {
+      generated_section <- generate_function_section_for_qmd(
+        func_name, analysis_inventory[[func_name]], all_metadata
+      )
+      
+      if (generated_section != "") {
+        insertion_line <- find_insertion_point_for_function(func_name, "analysis", other_lines)
+        
+        if (!is.null(insertion_line)) {
+          sections_to_insert[[func_name]] <- list(
+            content = generated_section,
+            insertion_line = insertion_line,
+            func_name = func_name
+          )
+        }
+      }
+    }
+    
+    # Generate sections for missing wrapper functions
+    for (func_name in sort(missing_wrapper)) {
+      generated_section <- generate_function_section_for_qmd(
+        func_name, wrapper_inventory[[func_name]], all_metadata
+      )
+      
+      if (generated_section != "") {
+        insertion_line <- find_insertion_point_for_function(func_name, "wrapper", other_lines)
+        
+        if (!is.null(insertion_line)) {
+          sections_to_insert[[func_name]] <- list(
+            content = generated_section,
+            insertion_line = insertion_line,
+            func_name = func_name
+          )
+        }
+      }
+    }
+    
+    # Insert sections in descending line order to maintain accuracy
+    if (length(sections_to_insert) > 0) {
+      # Sort by insertion line (descending)
+      line_order <- order(
+        sapply(sections_to_insert, function(x) x$insertion_line),
+        decreasing = TRUE
+      )
+      
+      for (idx in line_order) {
+        section <- sections_to_insert[[idx]]
+        insertion_point <- section$insertion_line
+        
+        # Split content into lines and insert
+        content_lines <- strsplit(section$content, "\n")[[1]]
+        other_lines <- c(
+          other_lines[1:insertion_point],
+          content_lines,
+          if (insertion_point < length(other_lines)) other_lines[(insertion_point + 1):length(other_lines)] else c()
+        )
+      }
+      
+      # Write updated other.qmd
+      writeLines(other_lines, other_qmd_path)
+      other_sync_updated <- TRUE
+      
+      if (Sys.getenv("GOFLUX_DEBUG") == "1") {
+        cat("Updated other.qmd with", length(sections_to_insert), "new function sections\n")
+      }
+    }
+  }
+}
+
+# Generate and save report for signature/metadata changes (for developer review)
+function_sync_report <- list(
+  generated_at = as.character(Sys.time()),
+  core = list(
+    documented = length(intersect(core_funcs, documented_core_analysis)),
+    missing_doc = missing_core,
+    signature_changed = core_classifications$signature_changed,
+    metadata_changed = core_classifications$metadata_changed
+  ),
+  analysis = list(
+    documented = length(intersect(analysis_funcs, documented_core_analysis)),
+    missing_doc = missing_analysis,
+    signature_changed = analysis_classifications$signature_changed,
+    metadata_changed = analysis_classifications$metadata_changed
+  ),
+  wrapper = list(
+    documented = length(intersect(wrapper_funcs, documented_core_analysis)),
+    missing_doc = missing_wrapper,
+    signature_changed = wrapper_classifications$signature_changed,
+    metadata_changed = wrapper_classifications$metadata_changed
+  ),
+  other_qmd_updated = other_sync_updated
+)
+
+# Save current inventory snapshot for next run
+writeLines(
+  jsonlite::toJSON(
+    list(
+      generated_at = as.character(Sys.time()),
+      core = core_inventory,
+      analysis = analysis_inventory,
+      wrapper = wrapper_inventory
+    ),
+    pretty = TRUE,
+    auto_unbox = TRUE
+  ),
+  other_snapshot_path
+)
+
+writeLines(
+  jsonlite::toJSON(function_sync_report, pretty = TRUE, auto_unbox = TRUE),
+  file.path(output_dir, "function_sync_report.json")
+)
 
 # ==============================================================================
 # STEP 4: Generate individual function reference pages
@@ -1741,6 +2323,263 @@ if (!dir.exists(r_source_dir)) {
   cat("Generated: all_references.qmd\n")
 }
 
+# ==============================================================================
+# STEP 11: Auto-sync core and analysis functions to other.qmd
+# ==============================================================================
+
+cat("\n=== Syncing core/analysis functions to other.qmd ===\n")
+
+extract_documented_functions_from_qmd <- function(qmd_path) {
+  # Extract functions documented in a .qmd file by parsing section headers
+  if (!file.exists(qmd_path)) return(character(0))
+  
+  lines <- readLines(qmd_path, warn = FALSE)
+  
+  # Look for function headers: ### `function_name` or ### function.name
+  # Also handles: ### `function_name` for description text
+  func_pattern <- "^###\\s+`?([a-zA-Z._][a-zA-Z0-9._]*)`?\\s*(?:for|$)"
+  
+  documented <- c()
+  for (line in lines) {
+    if (grepl(func_pattern, line, perl = TRUE)) {
+      # Extract function name from header
+      func_name <- gsub(func_pattern, "\\1", line, perl = TRUE)
+      if (func_name != "" && !grepl("^(Auto-|Additional|References)", func_name)) {
+        # Filter out false matches and section headers
+        documented <- c(documented, func_name)
+      }
+    }
+  }
+  
+  unique(documented)
+}
+
+build_function_inventory_for_section <- function(func_names, category, metadata_store) {
+  # Build inventory for core/analysis functions
+  inventory <- list()
+  
+  for (func_name in sort(func_names)) {
+    metadata <- if (func_name %in% names(metadata_store)) metadata_store[[func_name]] else NULL
+    
+    args <- if (!is.null(metadata) && length(metadata$arguments) > 0) {
+      names(metadata$arguments)
+    } else {
+      character(0)
+    }
+    
+    usage <- if (!is.null(metadata) && !is.na(metadata$usage)) metadata$usage else ""
+    title <- if (!is.null(metadata) && !is.na(metadata$title)) metadata$title else ""
+    
+    inventory[[func_name]] <- list(
+      function_name = func_name,
+      category = category,
+      args = args,
+      usage = usage,
+      title = title,
+      has_metadata = !is.null(metadata),
+      signature_key = paste(args, collapse = ","),
+      metadata_key = title
+    )
+  }
+  
+  inventory
+}
+
+classify_core_analysis_functions <- function(current_inventory, previous_inventory, documented_funcs) {
+  # Similar to import classification
+  classifications <- list(
+    already_documented_no_change = c(),
+    missing_doc = c(),
+    signature_changed = c(),
+    metadata_changed = c(),
+    metadata_incomplete = c()
+  )
+  
+  for (func_name in names(current_inventory)) {
+    current <- current_inventory[[func_name]]
+    previous <- previous_inventory[[func_name]]
+    is_documented <- func_name %in% documented_funcs
+    
+    if (!is_documented) {
+      classifications$missing_doc <- c(classifications$missing_doc, func_name)
+      if (is.null(current) || identical(current$metadata_key, "")) {
+        classifications$metadata_incomplete <- c(classifications$metadata_incomplete, func_name)
+      }
+      next
+    }
+    
+    if (!is.null(previous)) {
+      previous_sig <- if (!is.null(previous$signature_key)) previous$signature_key else ""
+      previous_meta <- if (!is.null(previous$metadata_key)) previous$metadata_key else ""
+      
+      if (!identical(current$signature_key, previous_sig)) {
+        classifications$signature_changed <- c(classifications$signature_changed, func_name)
+      } else if (!identical(current$metadata_key, previous_meta)) {
+        classifications$metadata_changed <- c(classifications$metadata_changed, func_name)
+      } else {
+        classifications$already_documented_no_change <- c(classifications$already_documented_no_change, func_name)
+      }
+    } else {
+      classifications$already_documented_no_change <- c(classifications$already_documented_no_change, func_name)
+    }
+  }
+  
+  classifications
+}
+
+generate_function_section_for_qmd <- function(func_name, inventory_entry, metadata_store) {
+  # Generate a section for a function to be inserted into other.qmd
+  metadata <- metadata_store[[func_name]]
+  if (is.null(metadata)) return("")
+  
+  lines <- c()
+  
+  # Section header (matching other.qmd style)
+  backtick_name <- paste0("`", func_name, "`")
+  header_text <- if (!is.na(metadata$title) && metadata$title != "") {
+    paste0(backtick_name, " for ", tolower(substr(metadata$title, 1, 1)), substr(metadata$title, 2, nchar(metadata$title)))
+  } else {
+    backtick_name
+  }
+  
+  lines <- c(lines, paste0("### ", header_text))
+  lines <- c(lines, "")
+  
+  # Short description from title
+  if (!is.na(metadata$title) && metadata$title != "") {
+    lines <- c(lines, metadata$title)
+    lines <- c(lines, "")
+  }
+  
+  # Usage section
+  lines <- c(lines, "#### Usage")
+  lines <- c(lines, "")
+  lines <- c(lines, "```{r}")
+  lines <- c(lines, "#| eval: false")
+  lines <- c(lines, "#| code-copy: false")
+  
+  if (!is.na(metadata$usage) && metadata$usage != "") {
+    usage_lines <- strsplit(metadata$usage, "\n")[[1]]
+    lines <- c(lines, usage_lines)
+  } else {
+    lines <- c(lines, paste0(func_name, "("))
+    lines <- c(lines, "  # arguments here")
+    lines <- c(lines, ")")
+  }
+  
+  lines <- c(lines, "```")
+  lines <- c(lines, "")
+  
+  # Arguments section
+  if (length(metadata$arguments) > 0) {
+    lines <- c(lines, "#### Arguments")
+    lines <- c(lines, "")
+    lines <- c(lines, "| Parameter | Description |")
+    lines <- c(lines, "|:----------|:---------------------------|")
+    
+    for (arg_name in names(metadata$arguments)) {
+      arg_desc <- metadata$arguments[[arg_name]]
+      arg_desc <- clean_arg_description(arg_desc)
+      arg_desc <- gsub("|", "\\|", arg_desc, fixed = TRUE)
+      
+      lines <- c(lines, paste0("| `", arg_name, "` | ", arg_desc, " |"))
+    }
+    lines <- c(lines, "")
+  }
+  
+  # Details section
+  if (!is.na(metadata$details) && metadata$details != "") {
+    lines <- c(lines, "#### Details")
+    lines <- c(lines, "")
+    details_md <- convert_rd_latex_to_markdown(metadata$details)
+    lines <- c(lines, details_md)
+    lines <- c(lines, "")
+  }
+  
+  # Examples section
+  if (!is.na(metadata$examples) && metadata$examples != "") {
+    lines <- c(lines, "#### Example")
+    lines <- c(lines, "")
+    lines <- c(lines, "```{r}")
+    lines <- c(lines, "#| eval: false")
+    
+    example_lines <- strsplit(metadata$examples, "\n")[[1]]
+    lines <- c(lines, example_lines)
+    
+    lines <- c(lines, "```")
+    lines <- c(lines, "")
+  }
+  
+  paste(lines, collapse = "\n")
+}
+
+find_insertion_point_for_function <- function(func_name, category, qmd_lines) {
+  # Find alphabetical insertion point for a function in a section
+  
+  # Look for section header matching the category
+  section_patterns <- list(
+    core = "^##\\s+Core",
+    analysis = "^##\\s+Analysis",
+    wrapper = "^##\\s+Wrapper"
+  )
+  
+  section_pattern <- if (!is.null(section_patterns[[category]])) {
+    section_patterns[[category]]
+  } else {
+    "^##\\s"  # Any level 2 header
+  }
+  
+  # Find the section start
+  section_start <- NA
+  for (i in seq_along(qmd_lines)) {
+    if (grepl(section_pattern, qmd_lines[i], perl = TRUE)) {
+      section_start <- i
+      break
+    }
+  }
+  
+  if (is.na(section_start)) {
+    return(NULL)  # Section not found, append at end
+  }
+  
+  # Extract all function headers (###) after section start
+  func_headers <- c()
+  for (i in (section_start + 1):length(qmd_lines)) {
+    # Stop at next level 2 header
+    if (i > section_start + 1 && grepl("^##\\s", qmd_lines[i])) {
+      break
+    }
+    
+    # Match function headers (### format)
+    if (grepl("^###\\s+`?([a-zA-Z._]", qmd_lines[i])) {
+      func_name_in_header <- gsub("^###\\s+`?([a-zA-Z._][a-zA-Z0-9._]*)", "\\1", qmd_lines[i])
+      func_headers[[length(func_headers) + 1]] <- list(
+        line = i,
+        name = func_name_in_header
+      )
+    }
+  }
+  
+  # Find alphabetically correct position
+  func_sort_key <- tolower(func_name)
+  
+  for (header in func_headers) {
+    if (tolower(header$name) > func_sort_key) {
+      # Insert before this header
+      return(header$line - 1)
+    }
+  }
+  
+  # func_name comes after all existing ones, insert after last header
+  if (length(func_headers) > 0) {
+    return(func_headers[[length(func_headers)]]$line)
+  }
+  
+  # No headers found, insert after section start
+  return(section_start + 1)
+}
+
+# ==============================================================================
 # ==============================================================================
 # COMPLETION
 # ==============================================================================

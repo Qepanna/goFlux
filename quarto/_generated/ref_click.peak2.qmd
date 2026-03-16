@@ -49,8 +49,8 @@ click.peak2(
 
 ## Arguments
 
-| Argument | Description |
-|:---------|:------------|
+| Parameter | Description |
+|:----------|:--------------------------|
 | `ow.list` | list of data.frame; output from the function obs.win . Must contain the columns gastype (see below), POSIX.time and UniqueID . |
 | `gastype` | character string; specifies which gas should be displayed on the plot to manually select start time and end time of measurements. Must be one of the f... |
 | `sleep` | numerical value; delay before closing the resulting plot. Grants a delay between measurements to visually inspect the output before processing the nex... |

@@ -35,8 +35,8 @@ obs.win(
 
 ## Arguments
 
-| Argument | Description |
-|:---------|:------------|
+| Parameter | Description |
+|:----------|:--------------------------|
 | `inputfile` | data.frame; output from import or align functions. |
 | `auxfile` | data.frame; auxiliary data frame containing the columns start.time and UniqueID . start.time must contain a date and be in POSIXct format. The time zo... |
 | `gastype` | deprecated |

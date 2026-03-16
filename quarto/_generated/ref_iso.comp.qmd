@@ -43,8 +43,8 @@ iso.comp(
 
 ## Arguments
 
-| Argument | Description |
-|:---------|:------------|
+| Parameter | Description |
+|:----------|:--------------------------|
 | `dataframe` | a data.frame containing measurements of isotopic fractions of html CO2 CO[2] ASCII or html N2O N[2]O ASCII and a UniqueID (or chamID ) per measurement... |
 | `CO2dry_ppm, delta_13C` | character string; specifies which columns should be used for html CO2 CO[2] ASCII measurements, and the delta 13C, respectively. |
 | `N2Odry_ppb, delta_15N, delta_18O` | character string; specifies which columns should be used for html N2O N[2]O ASCII measurements, the delta 15N and the delta 18O, respectively. |

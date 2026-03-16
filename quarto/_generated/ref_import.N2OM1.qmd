@@ -40,8 +40,8 @@ import.N2OM1(
 
 ## Arguments
 
-| Argument | Description |
-|:---------|:------------|
+| Parameter | Description |
+|:----------|:--------------------------|
 | `inputfile` | character string; the name of a file with the extension .txt |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "dmy", as it i... |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time... |

@@ -42,8 +42,8 @@ best.flux(
 
 ## Arguments
 
-| Argument | Description |
-|:---------|:------------|
+| Parameter | Description |
+|:----------|:--------------------------|
 | `flux.result` | data.frame; output from the function goFlux . |
 | `criteria` | character vector; criteria used to assess the goodness of fit of the LM or HM flux estimates. Must be at least one the following: "MAE", "RMSE", "AICc... |
 | `intercept.lim` | numerical vector of length 2; inferior and superior limits of the intercept (initial concentration; html C0 C[0] ASCII ). Must be the same units as ga... |

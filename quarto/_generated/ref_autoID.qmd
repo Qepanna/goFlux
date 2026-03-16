@@ -40,8 +40,8 @@ autoID(
 
 ## Arguments
 
-| Argument | Description |
-|:---------|:------------|
+| Parameter | Description |
+|:----------|:--------------------------|
 | `inputfile` | data.frame; output from import or align functions. |
 | `auxfile` | data.frame; auxiliary data frame containing the columns start.time and UniqueID . start.time must contain a date and be in POSIXct format. The time zo... |
 | `obs.length` | numerical; chamber closure time (seconds). Default is NULL. If obs.length is not provided, a column obs.length should be contained in auxfile or input... |
