@@ -22,6 +22,7 @@ Collate:
     'HM.flux.R'
     'LM.flux.R'
     'MDF.R'
+    'auto.deadband.R'
     'autoID.R'
     'best.flux.R'
     'click.peak2.R'
