@@ -3249,45 +3249,50 @@ generate_single_import_section <- function(func_name, instrument_info, metadata_
 
 # Find or create manufacturer section in import.qmd and insert instrument
 # Extract existing instrument section from import.qmd if it exists
+# IMPROVED: Uses flexible pattern matching to find sections regardless of anchor format
 extract_existing_instrument_section <- function(lines, code) {
   
-  # Find the ### header for this code
-  # Try multiple patterns to find existing sections (they may have different anchor formats)
+  # Normalize code for flexible matching
+  # e.g., "LI6400" should match "LI-6400", "LI-COR LI-6400", etc.
+  code_variants <- c(
+    code,
+    gsub("([A-Z])([0-9])", "\\1-\\2", code),
+    if (grepl("[0-9]+", code)) gsub("[^0-9]", "", code) else NA_character_
+  )
+  code_variants <- code_variants[!is.na(code_variants)]
+  
   section_start <- NA
   
-  # Pattern 1: Our generated format: sec-single-<code>
-  anchor_pattern <- paste0("sec-single-", tolower(gsub("[^A-Za-z0-9]", "", code)))
+  # Search for ### headers containing the code name (case-insensitive)
   for (i in seq_along(lines)) {
-    if (grepl(paste0("###\\s+.*\\{#", anchor_pattern, "\\}"), lines[i])) {
-      section_start <- i
-      break
-    }
-  }
-  
-  # Pattern 2: If not found, look for ### header containing the code name
-  # This catches existing sections with different anchor formats
-  if (is.na(section_start)) {
-    code_words <- c(code, tolower(code))
-    for (i in seq_along(lines)) {
-      if (grepl("^###\\s+", lines[i])) {
-        # Check if code appears in this header
-        for (word in code_words) {
-          if (grepl(word, lines[i], ignore.case = TRUE)) {
-            section_start <- i
-            break
-          }
-        }
-        if (!is.na(section_start)) break
+    line <- lines[i]
+    if (!grepl("^###\\s+", line, perl = TRUE)) next
+    
+    # Extract header text (remove anchor ID)
+    header_text <- trimws(gsub("^###\\s+(.*)$", "\\1", line, perl = TRUE))
+    header_text <- gsub("\\s*\\{#[^}]*\\}.*$", "", header_text)
+    header_text <- trimws(header_text)
+    
+    # Check if header contains any variant of the code
+    for (variant in code_variants) {
+      # Case-insensitive, ignore special characters
+      if (grepl(gsub("[^A-Za-z0-9]", "", variant), 
+                 gsub("[^A-Za-z0-9]", "", header_text), 
+                 ignore.case = TRUE, perl = TRUE)) {
+        section_start <- i
+        break
       }
     }
+    
+    if (!is.na(section_start)) break
   }
   
   if (is.na(section_start)) return(NULL)
   
-  # Find the end of this section (next ### or ## header)
+  # Find section end (next ### or ## header)
   section_end <- length(lines)
   for (i in (section_start + 1):length(lines)) {
-    if (grepl("^###\\s+", lines[i]) || grepl("^##\\s+", lines[i])) {
+    if (grepl("^##\\s+|^###\\s+", lines[i], perl = TRUE)) {
       section_end <- i - 1
       break
     }
@@ -3299,17 +3304,11 @@ extract_existing_instrument_section <- function(lines, code) {
   }
   
   if (section_start <= section_end) {
-    list(
-      start = section_start,
-      end = section_end,
-      content = paste(lines[section_start:section_end], collapse = "\n"),
-      lines = lines[section_start:section_end]
-    )
+    list(start = section_start, end = section_end, lines = lines[section_start:section_end])
   } else {
     NULL
   }
 }
-
 # Find or create manufacturer section and get its line range
 find_or_identify_manufacturer_section <- function(lines, mfg_name) {
   
