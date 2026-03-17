@@ -3393,7 +3393,7 @@ insert_or_update_instrument_section <- function(qmd_path, func_name, code, mfg_n
   
   if (!is.null(existing_section)) {
     # Extract the generated-hash from existing section
-    existing_lines <- strsplit(existing_section$content, "\n")[[1]]
+    existing_lines <- existing_section$lines
     existing_hash <- NA
     for (line in existing_lines) {
       if (grepl("<!-- generated-hash:", line)) {
