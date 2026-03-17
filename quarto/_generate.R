@@ -654,6 +654,8 @@ convert_rd_latex_to_markdown <- function(text) {
   trimws(text)
 }
 
+
+
 # Clean argument description for table display
 clean_arg_description <- function(desc, max_length = 180) {
   if (is.null(desc) || is.na(desc)) return("")
@@ -940,7 +942,7 @@ generate_intelligent_import_section <- function(func_name, inventory_entry, meta
     }
   }
   
-  paste(lines, collapse = "\n")
+  format_markdown_links(paste(lines, collapse = "\n"))
 }
 
 # Find the best insertion point in import.qmd for a function (ALPHABETICALLY INTELLIGENT)
@@ -1159,7 +1161,7 @@ generate_import_delta_block <- function(func_name, inventory_entry, metadata_sto
     lines <- c(lines, "")
   }
 
-  paste(lines, collapse = "\n")
+  format_markdown_links(paste(lines, collapse = "\n"))
 }
 
 update_automanaged_region <- function(import_qmd_path, region_content) {
@@ -1578,7 +1580,7 @@ generate_function_section_for_qmd <- function(func_name, inventory_entry, metada
     lines <- c(lines, "")
   }
   
-  paste(lines, collapse = "\n")
+  format_markdown_links(paste(lines, collapse = "\n"))
 }
 
 # Find insertion point for a function within its section (alphabetically)
@@ -1920,17 +1922,12 @@ generate_function_reference <- function(metadata, func_category) {
     lines <- c(lines, "## See Also")
     lines <- c(lines, "")
     seealso_text <- gsub("<[^>]+>", "", metadata$seealso)
-    # Add target="_blank" to external links only
-    seealso_text <- gsub(
-      '(https?://[^\\s\\)\\]]+)',
-      '[\\1](\\1){target="_blank"}',
-      seealso_text
-    )
+    seealso_text <- format_markdown_links(seealso_text)
     lines <- c(lines, seealso_text)
     lines <- c(lines, "")
   }
   
-  return(paste(lines, collapse = "\n"))
+  return(format_markdown_links(paste(lines, collapse = "\n")))
 }
 
 # Generate reference pages for ALL functions (import, core, analysis, wrapper)
@@ -1946,9 +1943,10 @@ generate_minimal_reference <- function(func_name) {
   lines <- c(lines, paste0('code-block-bg: true'))
   lines <- c(lines, "---")
   lines <- c(lines, "")
-  lines <- c(lines, "See [All Functions](function_index.qmd) for complete documentation.")
+  lines := c(lines, "See [All Functions](function_index.qmd) for complete documentation.")
   lines <- c(lines, "")
-  return(paste(lines, collapse = "\n"))
+  return(format_markdown_links(paste(lines, collapse = "\n")))
+}
 }
 
 # Generate pages for all categorized functions
@@ -2522,7 +2520,7 @@ generate_function_section_for_qmd <- function(func_name, inventory_entry, metada
     lines <- c(lines, "")
   }
   
-  paste(lines, collapse = "\n")
+  format_markdown_links(paste(lines, collapse = "\n"))
 }
 
 find_insertion_point_for_function <- function(func_name, category, qmd_lines) {
@@ -3193,7 +3191,7 @@ generate_single_import_section <- function(func_name, instrument_info, metadata_
   lines <- c(lines, "```")
   lines <- c(lines, "")
   
-  paste(lines, collapse = "\n")
+  format_markdown_links(paste(lines, collapse = "\n"))
 }
 
 # ============================================================================
