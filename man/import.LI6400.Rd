@@ -2,7 +2,8 @@
 % Please edit documentation in R/import.LI6400.R
 \name{import.LI6400}
 \alias{import.LI6400}
-\title{Import function for LI-COR GHG analyzer LI-6400}
+\title{Import function for the LI-COR 6400 Portable Photosynthesis System with a
+Soil \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} Flux Chamber}
 \usage{
 import.LI6400(
   inputfile,
@@ -40,12 +41,12 @@ in the following order: "CO2dry_ppm" and "H2O_ppm". The default
 is \code{prec = c(0.15, 20)}.}
 }
 \value{
-A data frame containing raw data from LI-COR GHG analyzer LI-6400.
+A data frame containing raw data from the LI-COR 6400.
 }
 \description{
 Imports single raw gas measurement files from the LI-COR 6400
 (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
-\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} GHG analyzer)
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 }
 \details{
 In \code{date.format}, the date format refers to a date found in the raw data

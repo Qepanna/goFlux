@@ -2,7 +2,9 @@
 % Please edit documentation in R/import.LI8150.R
 \name{import.LI8150}
 \alias{import.LI8150}
-\title{Import function for LI-8100A connected to the LI-COR Multiplexer LI-8150}
+\title{Import function for the LI-COR 8100A Automated Soil
+\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} Flux System connected
+to the LI-COR Multiplexer LI-8150}
 \usage{
 import.LI8150(
   inputfile,

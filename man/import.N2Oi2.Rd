@@ -2,7 +2,7 @@
 % Please edit documentation in R/import.N2Oi2.R
 \name{import.N2Oi2}
 \alias{import.N2Oi2}
-\title{Import function for the Los Gatos Research GLA451-N2Oi2}
+\title{Import function for the Los Gatos Research (ABB) GLA451-N2Oi2 Gas Analyzer}
 \usage{
 import.N2Oi2(
   inputfile,
@@ -40,15 +40,14 @@ in the following order: "N2Odry_ppb" and "H2O_ppm".
 The default is \code{prec = c(0.05, 50)}.}
 }
 \value{
-A data frame containing raw data from the LGR GHG analyzer
-         N2Oi2 (GLA451 series).
+A data frame containing raw data from the Los Gatos Research (ABB) Isotopic
+\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} Analyzer (GLA451-N2Oi2)
 }
 \description{
-Imports single raw gas measurement files from the Isotopic
-\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} analyzer
-(GLA451 series) from Los Gatos Research
-(\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and site-specific
-isotopic ratios of N and O) with the extension .txt
+Imports single raw gas measurement files from the Los Gatos Research (ABB)
+Isotopic \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} Analyzer
+(GLA451 series) (\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}
+and site-specific isotopic ratios of N and O)
 }
 \details{
 In \code{date.format}, the date format refers to a date found in the raw data

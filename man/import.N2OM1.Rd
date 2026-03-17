@@ -2,7 +2,7 @@
 % Please edit documentation in R/import.N2OM1.R
 \name{import.N2OM1}
 \alias{import.N2OM1}
-\title{Import function for the Los Gatos Research GHG analyzer N2OM1}
+\title{Import function for the Los Gatos Research (ABB) GLA151-N2OM1 Gas Analyzer}
 \usage{
 import.N2OM1(
   inputfile,
@@ -40,15 +40,17 @@ in the following order: "N2Odry_ppb", "CH4dry_ppb" and "H2O_ppm".
 The default is \code{prec = c(0.5, 2, 50)}.}
 }
 \value{
-A data frame containing raw data from the LGR GHG analyzer
-         N2OM1 (GLA151 series).
+A data frame containing raw data from the Los Gatos Research (ABB)
+QC Portable \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} /
+\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} Analyzer (GLA151-N2OM1)
 }
 \description{
-Imports single raw gas measurement files from the N2OM1
-(GLA151 series) from Los Gatos Research
-(\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
-\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
-\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}) with the extension .txt
+Imports single raw gas measurement files from the Los Gatos Research (ABB)
+QC Portable \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} /
+\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} Analyzer (GLA151-N2OM1)
+(\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
+\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 }
 \details{
 In \code{date.format}, the date format refers to a date found in the raw data

@@ -2,7 +2,7 @@
 % Please edit documentation in R/import.UGGA.R
 \name{import.UGGA}
 \alias{import.UGGA}
-\title{Import function for the Los Gatos Research GHG analyzers UGGA and MGGA}
+\title{Import function for the Los Gatos Research (ABB) Portable Gas Analyzers}
 \usage{
 import.UGGA(
   inputfile,
@@ -43,15 +43,15 @@ ultra-portable GGA (GLA131 series), use
 \code{prec = c(0.35, 0.9, 200)}.}
 }
 \value{
-A data frame containing raw data from LGR ultra-portable GHG
-analyzers (GLA132-UGGA and GLA131-MGGA).
+A data frame containing raw data from the Los Gatos Research (ABB)
+Ultra- and Micro-portable Gas Analyzers (GLA131 & GLA132)
 }
 \description{
-Imports single raw gas measurement files from the ultra-portable GHG analyzers
-(GLA132-UGGA and GLA131-MGGA) from Los Gatos Research
+Imports single raw gas measurement files from the ultra-portable and micro-portable
+Gas Analyzers (GLA131-MGGA and GLA132-UGGA) from Los Gatos Research
 (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
-\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}) with the extension .txt
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 }
 \details{
 In \code{date.format}, the date format refers to a date found in the raw data

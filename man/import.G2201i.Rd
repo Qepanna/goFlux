@@ -67,12 +67,12 @@ concentration recorded in the column \code{HP_12CH4_dry} is above
 and \code{HR_13CH4} are used for the sum instead of HP.}
 }
 \value{
-A data frame containing raw data from Picarro G2201-i isotopic analyzer.
+A data frame containing raw data from Picarro G2201-*i* Isotopic Analyzer.
 }
 \description{
-Imports single raw gas measurement files from the Picarro G2201-i with the
-extension .dat (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
-\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} isotopic analyzer)
+Imports single raw gas measurement files from the Picarro G2201-i Isotopic
+Analyzer (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
+\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}})
 }
 \details{
 In \code{date.format}, the date format refers to a date found in the raw data
