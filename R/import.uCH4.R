@@ -1,6 +1,6 @@
 #' Import function for the MIRA Ultra
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}/
-#' \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}} analyzer
+#' \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}} Analyzer
 #' from Aeris Technologies
 #'
 #' Imports single raw gas measurement files from the MIRA Ultra
@@ -9,8 +9,9 @@
 #' Natural Gas Leak Detection System (with GPS) from Aeris Technologies
 #' (\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
 #' \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}} and
-#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}) with the extension .txt
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 #'
+#' @instrumentlink Aeris Technologies|uCH4|MIRA Ultra CH~4~ / C~2~H~6~ Analyzer|https://aerissensors.com/products/mira-ultra/
 #' @param inputfile character string; the name of a file with the extension .txt
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
@@ -34,8 +35,8 @@
 #'
 #' @returns A data frame containing raw data from the MIRA Ultra
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}/
-#' \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}} analyzer
-#' from Aeris Technologies
+#' \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}} Analyzer
+#' from Aeris Technologies.
 #'
 #' @include goFlux-package.R
 #'

@@ -1,7 +1,8 @@
-#' Import function for LI-COR Multiplexer (LI-8250)
+#' Import function for the LI-COR Multiplexer (LI-8250)
 #'
 #' Imports single raw data files from the LI-COR Multiplexer (LI-8250)
 #'
+#' @instrumentlink LI-COR|LI8250|Multiplexer (LI-8250)|https://www.licor.com/products/soil-flux/LI-8250
 #' @param inputfile character string; the name of a file with the extension .82z
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
@@ -39,7 +40,7 @@
 #' @param Tsoil.col,SWC.col character string; a pattern to match the columns
 #'        that fit the corresponding parameter.
 #'
-#' @returns A data frame containing raw data from the LI-COR Multiplexer LI-8250.
+#' @returns A data frame containing raw data from the LI-COR Multiplexer (LI-8250).
 #'
 #' @details
 #' Files with the format .82z are zip archives that include all measurements

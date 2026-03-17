@@ -2,7 +2,7 @@
 % Please edit documentation in R/import.HT8850.R
 \name{import.HT8850}
 \alias{import.HT8850}
-\title{Import function for the all-in-one GHG analyzer HT8850 from Healthy Photon}
+\title{Import function for the HT8850 All-in-one Portable GHG Analyzer from Healthy Photon}
 \usage{
 import.HT8850(
   inputfile,
@@ -35,16 +35,16 @@ in the following order: "CO2dry_ppm", "CH4dry_ppb", "N2O_ppb" and
 "H2O_ppm". The default is \code{prec = c(0.5, 3, 0.5, 10)}.}
 }
 \value{
-A data frame containing raw data from the all-in-one GHG analyzer
-HT8850 from Healthy Photon.
+A data frame containing raw data from the HT8850 All-in-one Portable
+GHG Analyzer from Healthy Photon.
 }
 \description{
-Imports single raw gas measurement files from the all-in-one GHG analyzer
-HT8850 from Healthy Photon
+Imports single raw gas measurement files from the HT8850 All-in-one Portable
+GHG Analyzer from Healthy Photon
 (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
 \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
-\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}) with the extension .txt
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 }
 \details{
 In \code{date.format}, the date format refers to a date found in the raw data

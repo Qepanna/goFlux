@@ -9,6 +9,7 @@
 #' \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}} and
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 #'
+#' @instrumentlink Custom made|GasmetPD|Multiplexer from the University of Padova (GasmetPD)
 #' @param inputfile character string; the name of a file with the extension .txt
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",

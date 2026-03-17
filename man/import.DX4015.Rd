@@ -2,8 +2,8 @@
 % Please edit documentation in R/import.DX4015.R
 \name{import.DX4015}
 \alias{import.DX4015}
-\title{Import function for the Gasmet DX4015 portable FTIR gas analyzer for humid
-conditions}
+\title{Import function for the Gasmet DX4015 Portable FTIR Gas Analyzer For Humid
+Conditions}
 \usage{
 import.DX4015(
   inputfile,
@@ -42,7 +42,8 @@ in the following order: "CO2dry_ppm", "COdry_ppb", "CH4dry_ppb",
 \code{prec = c(1.6, 23, 13, 2, 23, 33)}.}
 }
 \value{
-A data frame containing raw data from the Gasmet DX4015 gas analyzer.
+A data frame containing raw data from the Gasmet DX4015 Portable
+FTIR Gas Analyzer For Humid Conditions.
 }
 \description{
 Imports single raw gas measurement files from the Gasmet DX4015 gas analyzer
@@ -51,7 +52,6 @@ Imports single raw gas measurement files from the Gasmet DX4015 gas analyzer
 \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
 \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}} and
 \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
-with the extension .TXT
 }
 \details{
 In \code{date.format}, the date format refers to a date found in the raw data

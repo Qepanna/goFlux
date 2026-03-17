@@ -1,9 +1,11 @@
-#' Import function for LI-COR GHG analyzer LI-8100
+#' Import function for the LI-COR 8100 Automated Soil
+#' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} Flux System
 #'
-#' Imports single raw gas measurement files from the LI-COR 8100
+#' Imports single raw gas measurement files from the LI-8100
 #' (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
-#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} GHG analyzer)
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 #'
+#' @instrumentlink LI-COR|LI8100|8100 Automated Soil CO~2~ Flux System|https://www.licor.com/support/LI-8100/home.html
 #' @param inputfile character string; the name of a file with the extension .81x
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
@@ -24,7 +26,8 @@
 #'             in the following order: "CO2dry_ppm" and "H2O_ppm". The default
 #'             is \code{prec = c(1, 10)}.
 #'
-#' @returns A data frame containing raw data from LI-COR GHG analyzer LI-8100.
+#' @returns A data frame containing raw data from the LI-COR 8100 Automated Soil
+#' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} Flux System.
 #'
 #' @details
 #' In \code{date.format}, the date format refers to a date found in the raw data

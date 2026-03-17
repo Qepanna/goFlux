@@ -1,5 +1,5 @@
-#' Import function for the Gasmet DX4015 portable FTIR gas analyzer for humid
-#' conditions
+#' Import function for the Gasmet DX4015 Portable FTIR Gas Analyzer For Humid
+#' Conditions
 #'
 #' Imports single raw gas measurement files from the Gasmet DX4015 gas analyzer
 #' (CO, \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
@@ -7,8 +7,8 @@
 #' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
 #' \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}} and
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
-#' with the extension .TXT
 #'
+#' @instrumentlink Gasmet|DX4015|DX4015 Portable FTIR Gas Analyzer For Humid Conditions|https://www.gasmet.com/products/category/portable-gas-analyzers/dx4015/
 #' @param inputfile character string; the name of a file with the extension .TXT
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
@@ -30,7 +30,8 @@
 #'             "N2Odry_ppb", "NH3dry_ppb" and "H2O_ppm". The default is
 #'             \code{prec = c(1.6, 23, 13, 2, 23, 33)}.
 #'
-#' @returns A data frame containing raw data from the Gasmet DX4015 gas analyzer.
+#' @returns A data frame containing raw data from the Gasmet DX4015 Portable
+#' FTIR Gas Analyzer For Humid Conditions.
 #'
 #' @include goFlux-package.R
 #'

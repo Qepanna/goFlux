@@ -2,9 +2,9 @@
 #' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} Gas Analyzer
 #'
 #' Imports single raw gas measurement files from the PP-Systems EGM-5 Portable
-#' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} Gas Analyzer, with
-#' the extension .TXT
+#' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} Gas Analyzer
 #'
+#' @instrumentlink PP-Systems|EGM5|EGM-5 portable CO~2~ Gas Analyzer|https://ppsystems.com/egm-5/
 #' @param inputfile character string; the name of a file with the extension .TXT
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",

@@ -1,11 +1,13 @@
-#' Import function for the Los Gatos Research GHG analyzer N2OM1
+#' Import function for the Los Gatos Research (ABB) GLA151-N2OM1 Gas Analyzer
 #'
-#' Imports single raw gas measurement files from the N2OM1
-#' (GLA151 series) from Los Gatos Research
-#' (\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
-#' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
-#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}) with the extension .txt
+#' Imports single raw gas measurement files from the Los Gatos Research (ABB)
+#' QC Portable \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} /
+#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} Analyzer (GLA151-N2OM1)
+#' (\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
+#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 #'
+#' @instrumentlink Los Gatos Research (ABB)|N2OM1|QC Portable CH~4~/N~2~O Analyzer (GLA151-N2OM1)|https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers/lgr-icos-qc-portable-gas-analyzers-gla151-series
 #' @param inputfile character string; the name of a file with the extension .txt
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
@@ -26,8 +28,9 @@
 #'             in the following order: "N2Odry_ppb", "CH4dry_ppb" and "H2O_ppm".
 #'             The default is \code{prec = c(0.5, 2, 50)}.
 #'
-#' @returns A data frame containing raw data from the LGR GHG analyzer
-#'          N2OM1 (GLA151 series).
+#' @returns A data frame containing raw data from the Los Gatos Research (ABB)
+#' QC Portable \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} /
+#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} Analyzer (GLA151-N2OM1)
 #'
 #' @include goFlux-package.R
 #'

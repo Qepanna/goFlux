@@ -4,7 +4,7 @@
 \alias{import.uCH4}
 \title{Import function for the MIRA Ultra
 \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}/
-\ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}} analyzer
+\ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}} Analyzer
 from Aeris Technologies}
 \usage{
 import.uCH4(
@@ -46,8 +46,8 @@ water vapor is currently unknown, and a default of 1 ppm is used.}
 \value{
 A data frame containing raw data from the MIRA Ultra
 \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}/
-\ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}} analyzer
-from Aeris Technologies
+\ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}} Analyzer
+from Aeris Technologies.
 }
 \description{
 Imports single raw gas measurement files from the MIRA Ultra
@@ -56,7 +56,7 @@ Imports single raw gas measurement files from the MIRA Ultra
 Natural Gas Leak Detection System (with GPS) from Aeris Technologies
 (\ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
 \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}} and
-\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}) with the extension .txt
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 }
 \details{
 In \code{date.format}, the date format refers to a date found in the raw data

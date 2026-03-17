@@ -42,16 +42,16 @@ in the following order: "CO2dry_ppm", "COdry_ppb", "CH4dry_ppb",
 \code{prec = c(1.6, 23, 13, 2, 23, 33)}.}
 }
 \value{
-A data frame containing raw data from the Gasmet GT5000 gas analyzer.
+A data frame containing raw data from the Gasmet GT5000 Terra -
+Splashproof Multigas FTIR Analyzer.
 }
 \description{
-Imports single raw gas measurement files from the Gasmet GT5000 gas analyzer
+Imports single raw gas measurement files from the Gasmet GT5000 Terra
 (CO, \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
 \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
 \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}} and
 \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
-with the extension .TXT
 }
 \details{
 In \code{date.format}, the date format refers to a date found in the raw data

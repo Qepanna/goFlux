@@ -2,7 +2,8 @@
 % Please edit documentation in R/import.LI8100.R
 \name{import.LI8100}
 \alias{import.LI8100}
-\title{Import function for LI-COR GHG analyzer LI-8100}
+\title{Import function for the LI-COR 8100 Automated Soil
+\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} Flux System}
 \usage{
 import.LI8100(
   inputfile,
@@ -40,12 +41,13 @@ in the following order: "CO2dry_ppm" and "H2O_ppm". The default
 is \code{prec = c(1, 10)}.}
 }
 \value{
-A data frame containing raw data from LI-COR GHG analyzer LI-8100.
+A data frame containing raw data from the LI-COR 8100 Automated Soil
+\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} Flux System.
 }
 \description{
-Imports single raw gas measurement files from the LI-COR 8100
+Imports single raw gas measurement files from the LI-8100
 (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
-\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} GHG analyzer)
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 }
 \details{
 In \code{date.format}, the date format refers to a date found in the raw data

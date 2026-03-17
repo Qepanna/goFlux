@@ -54,8 +54,7 @@ A data frame containing raw data from the PP-Systems EGM-5 Portable
 }
 \description{
 Imports single raw gas measurement files from the PP-Systems EGM-5 Portable
-\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} Gas Analyzer, with
-the extension .TXT
+\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} Gas Analyzer
 }
 \details{
 In \code{date.format}, the date format refers to a date found in the raw data

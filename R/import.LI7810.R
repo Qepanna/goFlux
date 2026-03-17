@@ -1,10 +1,11 @@
-#' Import function for LI-COR GHG analyzer LI-7810
+#' Import function for the LI-COR 7810 Trace Gas Analyzer
 #'
-#' Imports single raw gas measurement files from the LI-COR 7810
+#' Imports single raw gas measurement files from the LI-7810
 #' (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
-#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} GHG analyzer)
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 #'
+#' @instrumentlink LI-COR|LI7810|7810 Trace Gas Analyzer|https://www.licor.com/products/trace-gas/LI-7810
 #' @param inputfile character string; the name of a file with the extension
 #'                  .data or .txt
 #' @param date.format character string; specifies the date format found in the
@@ -26,7 +27,7 @@
 #'             in the following order: "CO2dry_ppm", "CH4dry_ppb" and "H2O_ppm".
 #'             The default is \code{prec = c(3.5, 0.6, 45)}.
 #'
-#' @returns A data frame containing raw data from LI-COR GHG analyzer LI-7810.
+#' @returns A data frame containing raw data from the LI-COR 7810 Trace Gas Analyzer.
 #'
 #' @details
 #' In \code{date.format}, the date format refers to a date found in the raw data
@@ -40,7 +41,7 @@
 #'   \item ppb for \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}
 #'   \item kPa for pressure
 #'   \item Celsius for temperature}
-#' If your LI-COR LI-7810 uses different units, either convert the units after
+#' If your LI-7810 uses different units, either convert the units after
 #' import, change the settings on your instrument, or contact the maintainer of
 #' this package for support.
 #'
@@ -54,7 +55,7 @@
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}) to allow for more
 #' curvature, especially for water vapor fluxes, or very long measurements, that
 #' are normally curved. The default values given for instrument precision are
-#' the ones found \href{https://www.licor.com/env/products/trace-gas/LI-7810}{online}
+#' the ones found \href{https://www.licor.com/products/trace-gas/LI-7810}{online}
 #' for the latest model of this instrument available at the time of the
 #' creation of this function (11-2023).
 #'

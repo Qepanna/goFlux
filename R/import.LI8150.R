@@ -1,10 +1,13 @@
-#' Import function for LI-8100A connected to the LI-COR Multiplexer LI-8150
+#' Import function for the LI-COR 8100A Automated Soil
+#' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} Flux System connected
+#' to the LI-COR Multiplexer LI-8150
 #'
 #' Imports single raw data files from the LI-COR Multiplexer (LI-8150) connected
 #' with up to 16 chambers and the LI-8100A gas analyzer
 #' (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 #'
+#' @instrumentlink LI-COR|LI8150|Automated Soil CO~2~ Flux System (LI-8100A + LI-8150)|https://www.licor.com/products/soil-flux/LI-8100a
 #' @param inputfile character string; the name of a file with the extension .81x
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",

@@ -1,12 +1,13 @@
-#' Import function for Picarro G2508 GHG analyzer
+#' Import function for the Picarro G2508 Gas Concentration Analyzer
 #'
-#' Imports single raw gas measurement files from the Picarro G2508 with the
-#' extension .dat (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+#' Imports single raw gas measurement files from the Picarro G2508
+#' (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 #' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
 #' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
 #' \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}, and
-#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} GHG analyzer)
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 #'
+#' @instrumentlink Picarro|G2508|G2508 Gas Concentration Analyzer|https://www.picarro.com/environmental/products/g2508_gas_concentration_analyzer
 #' @param inputfile character string; the name of a file with the extension .dat
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
@@ -28,7 +29,8 @@
 #'             "NH3dry_ppb" and "H2O_ppm". The default is
 #'             \code{prec = c(0.24, 0.3, 5, 0.16, 500)}.
 #'
-#' @returns A data frame containing raw data from Picarro G2508 GHG analyzer.
+#' @returns A data frame containing raw data from the Picarro G2508 Gas
+#' Concentration Analyzer.
 #'
 #' @details
 #' In \code{date.format}, the date format refers to a date found in the raw data
