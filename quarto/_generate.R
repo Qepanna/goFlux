@@ -2963,83 +2963,54 @@ extract_import2RData_examples <- function(r_source_dir) {
 }
 
 # Parse import.qmd structure to find sections, anchors, and insertion points
-parse_import_qmd_structure <- function(import_qmd_path) {
+# Build list of documented instruments from anchor patterns in QMD
+# Extracts last alphanumeric segment from anchors like {#sec-single-LICOR-LI6400}
+# Returns: named vector mapping function names to instrument codes
+#  e.g., c(import.LI6400="LI6400", import.UGGA="UGGA", ...)
+build_documented_instruments_from_anchors <- function(import_qmd_path) {
   if (!file.exists(import_qmd_path)) {
-    return(list(
-      input_overview_anchor = NA,
-      import2RData_anchor = NA,
-      single_file_anchor = NA,
-      manufacturers = list(),
-      instruments = list(),
-      doc_lines = c()
-    ))
+    return(c())
   }
   
   lines <- readLines(import_qmd_path, warn = FALSE)
   
-  structure <- list(
-    import2RData_anchor = NA,
-    single_file_anchor = NA,
-    manufacturers = list(),  # List of manufacturer names and their line ranges
-    instruments = list(),    # List of all instrument sections (code -> line info)
-    doc_lines = lines
-  )
+  # Find all ### headers with {#sec-single-...} anchors
+  # Pattern matches: ### Anything {#sec-single-something}
+  matches <- grep("^###.*\\{#sec-single-", lines, perl = TRUE)
   
-  # Find key anchor sections
-  for (i in seq_along(lines)) {
-    line <- lines[i]
-    
-    # Find import2RData section
-    if (grepl("^#\\s+import2RData", line)) {
-      structure$import2RData_anchor <- i
-    }
-    
-    # Find "Single file import" section
-    if (grepl("^#\\s+Single file import", line)) {
-      structure$single_file_anchor <- i
-    }
-    
-    # Find manufacturer sections (## headers after single file import)
-    if (!is.na(structure$single_file_anchor) && i > structure$single_file_anchor) {
-      if (grepl("^##\\s+", line)) {
-        mfg_name <- gsub("^##\\s+([^{]+).*", "\\1", line)
-        if (is.null(structure$manufacturers[[mfg_name]])) {
-          structure$manufacturers[[mfg_name]] <- list(
-            line_start = i,
-            line_end = NA,
-            instruments = c()
-          )
-        }
-      }
-    }
-    
-    # Find individual instrument sections (### headers)
-    if (!is.na(structure$single_file_anchor) && i > structure$single_file_anchor) {
-      if (grepl("^###\\s+", line)) {
-        instr_name <- gsub("^###\\s+([^{]+).*", "\\1", line)
-        structure$instruments[[instr_name]] <- list(
-          line = i,
-          name = instr_name
-        )
-      }
-    }
+  if (length(matches) == 0) {
+    return(c())
   }
   
-  structure
+  # Step 1: Extract full anchor content (between {#sec-single- and })
+  # Pattern: {#sec-single-LICOR-LI6400} → "LICOR-LI6400"
+  #         {#sec-single-skyline} → "skyline"
+  anchor_contents <- gsub("^.*\\{#sec-single-([^}]+)\\}.*$", "\\1", lines[matches], perl = TRUE)
+  
+  # Step 2: Extract last segment (after final hyphen, or whole string if no hyphen)
+  # "LICOR-LI6400" → "LI6400", "skyline" → "skyline"
+  codes <- sub("^.*-", "", anchor_contents)
+  
+  # Convert codes to function names: LI6400 → import.LI6400
+  func_names <- paste0("import.", codes)
+  
+  # Return as named vector for membership testing: c(import.LI6400="LI6400", ...)
+  setNames(codes, func_names)
 }
 
 # Classify instruments by documentation status
-classify_import_instruments <- function(import_funcs, import_qmd_structure, all_metadata) {
+classify_import_instruments <- function(import_funcs, documented_instruments_vec, all_metadata) {
   classifications <- list(
     already_documented = c(),
     missing_doc = c(),
     missing_examples = c()
   )
   
-  documented_instruments <- names(import_qmd_structure$instruments)
+  # documented_instruments_vec is now a named character vector where names are function names
+  documented_funcs <- names(documented_instruments_vec)
   
   for (func_name in import_funcs) {
-    if (func_name %in% documented_instruments) {
+    if (func_name %in% documented_funcs) {
       classifications$already_documented <- c(classifications$already_documented, func_name)
     } else {
       classifications$missing_doc <- c(classifications$missing_doc, func_name)
@@ -3508,10 +3479,10 @@ if (file.exists(import_qmd_path) && dir.exists(r_source_dir)) {
   
   instrument_links <- extract_instrument_links_from_sources(r_source_dir)
   import2RData_examples <- extract_import2RData_examples(r_source_dir)
-  qmd_structure <- parse_import_qmd_structure(import_qmd_path)
+  documented_instruments <- build_documented_instruments_from_anchors(import_qmd_path)
   
   import_funcs <- setdiff(categories$imports, c("import2RData", "import2file"))
-  classifications <- classify_import_instruments(import_funcs, qmd_structure, all_metadata)
+  classifications <- classify_import_instruments(import_funcs, documented_instruments, all_metadata)
   
   cat("  Found", length(instrument_links), "instruments with @instrumentlink tags\n")
   cat("  Found", length(import2RData_examples), "import2RData examples\n")
