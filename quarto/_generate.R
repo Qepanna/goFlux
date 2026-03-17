@@ -3205,18 +3205,33 @@ generate_single_import_section <- function(func_name, instrument_info, metadata_
 extract_existing_instrument_section <- function(lines, code) {
   
   # Find the ### header for this code
+  # Try multiple patterns to find existing sections (they may have different anchor formats)
   section_start <- NA
-  anchor_pattern <- paste0("sec-single-", tolower(gsub("[^A-Za-z0-9]", "", code)))
   
+  # Pattern 1: Our generated format: sec-single-<code>
+  anchor_pattern <- paste0("sec-single-", tolower(gsub("[^A-Za-z0-9]", "", code)))
   for (i in seq_along(lines)) {
     if (grepl(paste0("###\\s+.*\\{#", anchor_pattern, "\\}"), lines[i])) {
       section_start <- i
       break
     }
-    # Fallback: match just the code in the header
-    if (grepl(paste0("###\\s+.*", code), lines[i], ignore.case = TRUE)) {
-      section_start <- i
-      break
+  }
+  
+  # Pattern 2: If not found, look for ### header containing the code name
+  # This catches existing sections with different anchor formats
+  if (is.na(section_start)) {
+    code_words <- c(code, tolower(code))
+    for (i in seq_along(lines)) {
+      if (grepl("^###\\s+", lines[i])) {
+        # Check if code appears in this header
+        for (word in code_words) {
+          if (grepl(word, lines[i], ignore.case = TRUE)) {
+            section_start <- i
+            break
+          }
+        }
+        if (!is.na(section_start)) break
+      }
     }
   }
   
@@ -3241,7 +3256,7 @@ extract_existing_instrument_section <- function(lines, code) {
       start = section_start,
       end = section_end,
       content = paste(lines[section_start:section_end], collapse = "\n"),
-      lines = lines[section_start:section_end]  # Also return raw lines for comparison
+      lines = lines[section_start:section_end]
     )
   } else {
     NULL
