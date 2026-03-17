@@ -3122,7 +3122,9 @@ generate_single_import_section <- function(func_name, instrument_info, metadata_
   lines <- c()
   
   # Section header with ID anchor
-  anchor_id <- paste0("sec-single-", tolower(gsub("[^A-Za-z0-9]", "", code)))
+  # Extract just the instrument part from full function name for anchor
+  instrument_part <- gsub("^import\\.", "", func_name)
+  anchor_id <- paste0("sec-single-", tolower(gsub("[^A-Za-z0-9]", "", instrument_part)))
   lines <- c(lines, paste0("### ", name, " {#", anchor_id, "}"))
   
   # Create a content hash for change detection (using base R only)
@@ -3249,46 +3251,23 @@ generate_single_import_section <- function(func_name, instrument_info, metadata_
 
 # Find or create manufacturer section in import.qmd and insert instrument
 # Extract existing instrument section from import.qmd if it exists
-# IMPROVED: Uses flexible pattern matching to find sections regardless of anchor format
+# Strategy: Use anchor ID matching which is robust and unambiguous
 extract_existing_instrument_section <- function(lines, code) {
   
-  # Normalize code for flexible matching
-  # e.g., "LI6400" should match "LI-6400", "LI-COR LI-6400", etc.
-  # Extract instrument part from function name (e.g., "UGGA" from "import.UGGA")
+  # Extract instrument code from function name: "import.UGGA" -> "UGGA"
   instrument_code <- gsub("^import\\.", "", code)
-
-  code_variants <- c(
-    code,                                                    # Full: "import.UGGA"
-    instrument_code,                                         # Short: "UGGA"
-    gsub("([A-Z])([0-9])", "\\1-\\2", instrument_code),    # With dashes: "LI-6400"
-    if (grepl("[0-9]+", code)) gsub("[^0-9]", "", code) else NA_character_  # Digits only: "6400"
-  )
-  code_variants <- code_variants[!is.na(code_variants)]
   
+  # Generate expected anchor ID: {#sec-single-ugga}
+  # This matches the anchor generated in generate_single_import_section()
+  anchor_pattern <- paste0("{#sec-single-", tolower(gsub("[^A-Za-z0-9]", "", instrument_code)), "}")
+  
+  # Find the line with this anchor (case-insensitive)
   section_start <- NA
-  
-  # Search for ### headers containing the code name (case-insensitive)
   for (i in seq_along(lines)) {
-    line <- lines[i]
-    if (!grepl("^###\\s+", line, perl = TRUE)) next
-    
-    # Extract header text (remove anchor ID)
-    header_text <- trimws(gsub("^###\\s+(.*)$", "\\1", line, perl = TRUE))
-    header_text <- gsub("\\s*\\{#[^}]*\\}.*$", "", header_text)
-    header_text <- trimws(header_text)
-    
-    # Check if header contains any variant of the code
-    for (variant in code_variants) {
-      # Case-insensitive, ignore special characters
-      if (grepl(gsub("[^A-Za-z0-9]", "", variant), 
-                 gsub("[^A-Za-z0-9]", "", header_text), 
-                 ignore.case = TRUE, perl = TRUE)) {
-        section_start <- i
-        break
-      }
+    if (grepl(anchor_pattern, lines[i], ignore.case = TRUE)) {
+      section_start <- i
+      break
     }
-    
-    if (!is.na(section_start)) break
   }
   
   if (is.na(section_start)) return(NULL)
