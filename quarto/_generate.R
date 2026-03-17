@@ -1122,7 +1122,11 @@ load_previous_inventory <- function(snapshot_path) {
 
   previous_raw <- tryCatch(
     jsonlite::fromJSON(snapshot_path, simplifyVector = FALSE),
-    error = function(e) list()
+    error = function(e) {
+      cat("⚠ Warning: Failed to load snapshot", snapshot_path, "\n")
+      cat("  Error:", e$message, "\n")
+      list()
+    }
   )
 
   if (is.null(previous_raw) || length(previous_raw) == 0) return(list())
@@ -1387,12 +1391,25 @@ sync_report <- list(
   delta_targets = sort(delta_targets)
 )
 
-writeLines(
+# Safe write function with error handling
+safe_writeLines <- function(content, filepath) {
+  tryCatch({
+    writeLines(content, filepath)
+    cat("✓ Written:", filepath, "\n")
+    TRUE
+  }, error = function(e) {
+    cat("✗ FATAL: Failed to write", filepath, "\n")
+    cat("  Error:", e$message, "\n")
+    quit(status = 1)
+  })
+}
+
+safe_writeLines(
   jsonlite::toJSON(sync_report, pretty = TRUE, auto_unbox = TRUE),
   file.path(output_dir, "import_sync_report.json")
 )
 
-writeLines(
+safe_writeLines(
   jsonlite::toJSON(
     list(generated_at = as.character(Sys.time()), inventory = current_inventory),
     pretty = TRUE,
@@ -1856,7 +1873,7 @@ function_sync_report <- list(
 )
 
 # Save current inventory snapshot for next run
-writeLines(
+safe_writeLines(
   jsonlite::toJSON(
     list(
       generated_at = as.character(Sys.time()),
@@ -1870,7 +1887,7 @@ writeLines(
   other_snapshot_path
 )
 
-writeLines(
+safe_writeLines(
   jsonlite::toJSON(function_sync_report, pretty = TRUE, auto_unbox = TRUE),
   file.path(output_dir, "function_sync_report.json")
 )
@@ -2243,7 +2260,7 @@ for (qmd_file in manual_qmd_files) {
 
 # Save cross-reference report for documentation
 cross_ref_json <- jsonlite::toJSON(cross_refs_report, pretty = TRUE)
-writeLines(cross_ref_json, file.path(output_dir, "cross_references.json"))
+safe_writeLines(cross_ref_json, file.path(output_dir, "cross_references.json"))
 cat("Generated: cross_references.json (auto-detected function mentions in manual pages)\n")
 
 cat("\nNote: Functions mentioned in manual pages are documented in cross_references.json\n")
@@ -2388,61 +2405,8 @@ if (!dir.exists(r_source_dir)) {
 
 cat("\n=== Syncing core/analysis functions to other.qmd ===\n")
 
-extract_documented_functions_from_qmd <- function(qmd_path) {
-  # Extract functions documented in a .qmd file by parsing section headers
-  if (!file.exists(qmd_path)) return(character(0))
-  
-  lines <- readLines(qmd_path, warn = FALSE)
-  
-  documented <- c()
-  for (line in lines) {
-    # Look for ### `function_name` headers
-    if (grepl("^###\\s+`", line)) {
-      # Extract function name from backticks: ### `function_name` ...
-      func_name <- gsub("^###\\s+`([a-zA-Z._][a-zA-Z0-9._]*)`.*", "\\1", line)
-      
-      # Validate extraction succeeded (text changed) and it's not a false match
-      if (func_name != line &&  # Must have extracted something different from original
-          nchar(func_name) > 0 &&
-          !grepl("^(Details|Arguments|Usage|Value|Examples?|Tip|Note|Error|Warning|Results|See|References)", func_name)) {
-        documented <- c(documented, func_name)
-      }
-    }
-  }
-  
-  unique(documented)
-}
-
-build_function_inventory_for_section <- function(func_names, category, metadata_store) {
-  # Build inventory for core/analysis functions
-  inventory <- list()
-  
-  for (func_name in sort(func_names)) {
-    metadata <- if (func_name %in% names(metadata_store)) metadata_store[[func_name]] else NULL
-    
-    args <- if (!is.null(metadata) && length(metadata$arguments) > 0) {
-      names(metadata$arguments)
-    } else {
-      character(0)
-    }
-    
-    usage <- if (!is.null(metadata) && !is.na(metadata$usage)) metadata$usage else ""
-    title <- if (!is.null(metadata) && !is.na(metadata$title)) metadata$title else ""
-    
-    inventory[[func_name]] <- list(
-      function_name = func_name,
-      category = category,
-      args = args,
-      usage = usage,
-      title = title,
-      has_metadata = !is.null(metadata),
-      signature_key = paste(args, collapse = ","),
-      metadata_key = title
-    )
-  }
-  
-  inventory
-}
+# Note: extract_documented_functions_from_qmd and build_function_inventory_for_section
+# are defined earlier in STEP 11. Using those definitions to avoid duplication.
 
 classify_core_analysis_functions <- function(current_inventory, previous_inventory, documented_funcs) {
   # Similar to import classification
@@ -2883,7 +2847,7 @@ step12_report <- list(
   sections = step12_results
 )
 
-writeLines(
+safe_writeLines(
   jsonlite::toJSON(step12_report, pretty = TRUE, auto_unbox = TRUE),
   file.path(output_dir, "step12_sync_report.json")
 )
@@ -3252,19 +3216,21 @@ generate_single_import_section <- function(func_name, instrument_info, metadata_
 # Find or create manufacturer section in import.qmd and insert instrument
 # Extract existing instrument section from import.qmd if it exists
 # Strategy: Use anchor ID matching which is robust and unambiguous
+# Extract existing instrument section from import.qmd if it exists
+# Uses anchor-based detection for robust matching
 extract_existing_instrument_section <- function(lines, code) {
   
-  # Extract instrument code from function name: "import.UGGA" -> "UGGA"
+  # Extract instrument code from function name: "import.UGGA" → "UGGA"
   instrument_code <- gsub("^import\\.", "", code)
   
-  # Generate expected anchor ID: {#sec-single-ugga}
-  # This matches the anchor generated in generate_single_import_section()
-  anchor_pattern <- paste0("{#sec-single-", tolower(gsub("[^A-Za-z0-9]", "", instrument_code)), "}")
+  # Look for section anchor: {#sec-single-UGGA}
+  # Use fixed = TRUE to avoid regex interpretation of curly braces
+  anchor_pattern <- paste0("{#sec-single-", tolower(instrument_code), "}")
   
-  # Find the line with this anchor (case-insensitive)
+  # Find the line with this anchor
   section_start <- NA
   for (i in seq_along(lines)) {
-    if (grepl(anchor_pattern, lines[i], ignore.case = TRUE)) {
+    if (grepl(anchor_pattern, lines[i], fixed = TRUE)) {
       section_start <- i
       break
     }
@@ -3275,22 +3241,18 @@ extract_existing_instrument_section <- function(lines, code) {
   # Find section end (next ### or ## header)
   section_end <- length(lines)
   for (i in (section_start + 1):length(lines)) {
-    if (grepl("^##\\s+|^###\\s+", lines[i], perl = TRUE)) {
+    if (grepl("^##\\s+|^###\\s+", lines[i])) {
       section_end <- i - 1
       break
     }
   }
   
-  # Remove trailing blank lines
+  # Trim trailing blanks
   while (section_end > section_start && trimws(lines[section_end]) == "") {
     section_end <- section_end - 1
   }
   
-  if (section_start <= section_end) {
-    list(start = section_start, end = section_end, lines = lines[section_start:section_end])
-  } else {
-    NULL
-  }
+  list(start = section_start, end = section_end, lines = lines[section_start:section_end])
 }
 # Find or create manufacturer section and get its line range
 find_or_identify_manufacturer_section <- function(lines, mfg_name) {
@@ -3641,7 +3603,7 @@ if (file.exists(import_qmd_path) && dir.exists(r_source_dir)) {
     } else { c() }
   )
   
-  writeLines(
+  safe_writeLines(
     jsonlite::toJSON(step13_report, pretty = TRUE, auto_unbox = TRUE),
     file.path(output_dir, "step13_import_sync_report.json")
   )
