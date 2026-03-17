@@ -43,6 +43,39 @@ if (!dir.exists(output_dir)) {
 }
 
 # ==============================================================================
+# HELPER FUNCTIONS: Text normalization and safe regex operations
+# ==============================================================================
+
+# Normalize special characters that cause regex and parsing failures
+normalize_text_for_processing <- function(text_lines) {
+  # Convert smart quotes to straight quotes
+  text_lines <- gsub("[\u2018\u2019]", "'", text_lines)  # Smart single quotes
+  text_lines <- gsub("[\u201C\u201D]", '"', text_lines)  # Smart double quotes
+  
+  # Convert dashes to standard hyphens
+  text_lines <- gsub("[\u2013\u2014]", "-", text_lines)  # En-dash and em-dash
+  
+  # Ensure valid UTF-8 encoding
+  text_lines <- iconv(text_lines, from = "UTF-8", to = "UTF-8", sub = "")
+  
+  return(text_lines)
+}
+
+# Safe grepl wrapper with error handling
+safe_grepl <- function(pattern, x, fixed = FALSE, ignore.case = FALSE, perl = FALSE) {
+  tryCatch({
+    grepl(pattern, x, fixed = fixed, ignore.case = ignore.case, perl = perl)
+  }, error = function(e) {
+    # If regex fails, log it and return FALSE (no match)
+    if (getOption("goflux.debug", FALSE)) {
+      cat("REGEX ERROR on pattern:", pattern, "\n")
+      cat("  Reason:", e$message, "\n")
+    }
+    return(rep(FALSE, length(x)))
+  })
+}
+
+# ==============================================================================
 # STEP 1: Extract function metadata from installed package
 # ==============================================================================
 
@@ -3195,13 +3228,16 @@ extract_existing_instrument_section <- function(lines, code) {
   instrument_code <- gsub("^import\\.", "", code)
   
   # Look for section anchor: {#sec-single-UGGA}
-  # Use fixed = TRUE to avoid regex interpretation of curly braces
+  # Use fixed = TRUE to treat anchor_pattern as literal text, not regex
+  # This prevents regex interpretation of curly braces
   anchor_pattern <- paste0("{#sec-single-", tolower(instrument_code), "}")
   
   # Find the line with this anchor
   section_start <- NA
   for (i in seq_along(lines)) {
-    if (grepl(anchor_pattern, lines[i], fixed = TRUE)) {
+    # FIXED: Use fixed=TRUE to treat anchor_pattern as literal text
+    # This prevents regex interpretation of curly braces
+    if (safe_grepl(anchor_pattern, lines[i], fixed = TRUE)) {
       section_start <- i
       break
     }
@@ -3212,7 +3248,8 @@ extract_existing_instrument_section <- function(lines, code) {
   # Find section end (next ### or ## header)
   section_end <- length(lines)
   for (i in (section_start + 1):length(lines)) {
-    if (grepl("^##\\s+|^###\\s+", lines[i])) {
+    # Safe regex for markdown headers
+    if (safe_grepl("^##\\s+|^###\\s+", lines[i])) {
       section_end <- i - 1
       break
     }
@@ -3231,7 +3268,7 @@ find_or_identify_manufacturer_section <- function(lines, mfg_name) {
   # Find "Single file import" section anchor
   single_file_anchor <- NA
   for (i in seq_along(lines)) {
-    if (grepl("^#\\s+Single file import", lines[i])) {
+    if (safe_grepl("^#\\s+Single file import", lines[i])) {
       single_file_anchor <- i
       break
     }
@@ -3245,10 +3282,12 @@ find_or_identify_manufacturer_section <- function(lines, mfg_name) {
   
   for (i in (single_file_anchor + 1):length(lines)) {
     # Stop at next level 1 header (end of Single file import)
-    if (grepl("^#[^#]", lines[i])) break
+    if (safe_grepl("^#[^#]", lines[i])) break
     
-    # Match manufacturer header
-    if (grepl(paste0("^##\\s+", gsub("\\.", "\\\\.", mfg_name), "\\s*($|\\{)"), lines[i])) {
+    # Match manufacturer header - FIXED: Use fixed=TRUE instead of problematic regex
+    # This avoids all regex escaping issues with special characters
+    mfg_header <- paste0("## ", mfg_name)
+    if (safe_grepl(mfg_header, lines[i], fixed = TRUE)) {
       mfg_start <- i
       break
     }
@@ -3258,7 +3297,7 @@ find_or_identify_manufacturer_section <- function(lines, mfg_name) {
     # Find end of manufacturer section (next ## or #)
     mfg_end <- length(lines)
     for (i in (mfg_start + 1):length(lines)) {
-      if (grepl("^##\\s+|^#[^#]", lines[i])) {
+      if (safe_grepl("^##\\s+|^#[^#]", lines[i])) {
         mfg_end <- i - 1
         break
       }
@@ -3281,7 +3320,7 @@ find_or_identify_manufacturer_section <- function(lines, mfg_name) {
     # Manufacturer doesn't exist, find insertion point (end of Single file import)
     insert_line <- length(lines)
     for (i in (single_file_anchor + 1):length(lines)) {
-      if (grepl("^#[^#]", lines[i])) {
+      if (safe_grepl("^#[^#]", lines[i])) {
         insert_line <- i - 1
         break
       }
@@ -3302,7 +3341,9 @@ insert_or_update_instrument_section <- function(qmd_path, func_name, code, mfg_n
   
   if (!file.exists(qmd_path)) return(list(status = "skip", reason = "file not found"))
   
+  # Read lines and normalize special characters
   lines <- readLines(qmd_path, warn = FALSE)
+  lines <- normalize_text_for_processing(lines)
   
   # Check if section already exists
   existing_section <- extract_existing_instrument_section(lines, code)
@@ -3312,7 +3353,7 @@ insert_or_update_instrument_section <- function(qmd_path, func_name, code, mfg_n
     existing_lines <- existing_section$lines
     existing_hash <- NA
     for (line in existing_lines) {
-      if (grepl("<!-- generated-hash:", line)) {
+      if (safe_grepl("<!-- generated-hash:", line, fixed = TRUE)) {
         existing_hash <- gsub(".*<!-- generated-hash:\\s*([a-f0-9]+)\\s*-->.*", "\\1", line)
         break
       }
@@ -3322,7 +3363,7 @@ insert_or_update_instrument_section <- function(qmd_path, func_name, code, mfg_n
     generated_lines <- strsplit(generated_section, "\n")[[1]]
     generated_hash <- NA
     for (line in generated_lines) {
-      if (grepl("<!-- generated-hash:", line)) {
+      if (safe_grepl("<!-- generated-hash:", line, fixed = TRUE)) {
         generated_hash <- gsub(".*<!-- generated-hash:\\s*([a-f0-9]+)\\s*-->.*", "\\1", line)
         break
       }
@@ -3355,7 +3396,12 @@ insert_or_update_instrument_section <- function(qmd_path, func_name, code, mfg_n
     return(list(status = "updated", reason = "content changed"))
   } else {
     # Section doesn't exist - add it
-    mfg_info <- find_or_identify_manufacturer_section(lines, mfg_name)
+    mfg_info <- tryCatch({
+      find_or_identify_manufacturer_section(lines, mfg_name)
+    }, error = function(e) {
+      warning(sprintf("Error finding manufacturer section for %s: %s", mfg_name, e$message))
+      return(NULL)
+    })
     
     if (is.null(mfg_info)) {
       return(list(status = "skip", reason = "cannot find insertion point"))
@@ -3381,6 +3427,9 @@ insert_or_update_instrument_section <- function(qmd_path, func_name, code, mfg_n
         "",
         lines[(mfg_info$insert_after + 1):length(lines)]
       )
+      
+      writeLines(new_content, qmd_path)
+      return(list(status = "inserted", reason = "added to existing manufacturer"))
     } else {
       # Create new manufacturer section
       anchor_id <- paste0("sec-single-", mfg_info$slug)
@@ -3397,10 +3446,10 @@ insert_or_update_instrument_section <- function(qmd_path, func_name, code, mfg_n
         new_mfg_header,
         lines[(mfg_info$create_at + 1):length(lines)]
       )
+      
+      writeLines(new_content, qmd_path)
+      return(list(status = "inserted", reason = "new instrument section"))
     }
-    
-    writeLines(new_content, qmd_path)
-    return(list(status = "inserted", reason = "new instrument section"))
   }
 }
 
