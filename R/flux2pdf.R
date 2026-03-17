@@ -112,16 +112,18 @@ flux2pdf <- function(plot.list, outfile = NULL,
   if (!is.numeric(height) || length(height) != 1 || !is.finite(height) ||
       height <= 0) stop("'height' must be a single positive number")
 
+  # Assign NULL to variables without binding ####
+  . <- NULL
+
   # FUNCTION STARTS ####
-  uids <- vapply(plot.list, function(x) x$plot_env$UniqueID, character(1))
-  group_plot.list <- list.group(plot.list, uids)
+  group_plot.list <- rlist::list.group(plot.list, .$plot_env$UniqueID)
 
   pbapply::pboptions(char = "=")
   outplot <- pbapply::pblapply(group_plot.list, function(p) {
 
     title <- grid::textGrob(paste("Unique ID:", p[[1]]$plot_env$UniqueID),
-                            gp = gpar(fontsize = 16))
-    footnote <- textGrob(
+                            gp = grid::gpar(fontsize = 16))
+    footnote <- grid::textGrob(
       paste("page", which(
         names(group_plot.list) == p[[1]]$plot_env$UniqueID), "of",
         length(group_plot.list)),
@@ -147,7 +149,7 @@ flux2pdf <- function(plot.list, outfile = NULL,
   on.exit(options(max.print = max.print), add = TRUE)
   options(max.print = 10000)
 
-  quiet(print(outplot))
+  SimDesign::quiet(print(outplot))
 
   # Return outfile if not provided
   if (auto_outfile) {
