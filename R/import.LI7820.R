@@ -1,9 +1,10 @@
-#' Import function for LI-COR GHG analyzer LI-7820
+#' Import function for the LI-COR 7820 Trace Gas Analyzer
 #'
-#' Imports single raw gas measurement files from the LI-COR 7820
+#' Imports single raw gas measurement files from the LI-7820
 #' (\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
-#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} GHG analyzer)
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 #'
+#' @instrumentlink LI-COR|LI7820|7820 Trace Gas Analyzer|https://www.licor.com/products/trace-gas/LI-7820
 #' @param inputfile character string; the name of a file with the extension
 #'                  .data or .txt
 #' @param date.format character string; specifies the date format found in the
@@ -25,7 +26,7 @@
 #'             in the following order: "N2Odry_ppb" and "H2O_ppm".
 #'             The default is \code{prec = c(0.4, 45)}.
 #'
-#' @returns A data frame containing raw data from LI-COR GHG analyzer LI-7820.
+#' @returns A data frame containing raw data from the LI-COR 7820 Trace Gas Analyzer.
 #'
 #' @details
 #' In \code{date.format}, the date format refers to a date found in the raw data
@@ -51,7 +52,7 @@
 #' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}) to allow for more
 #' curvature, especially for water vapor fluxes, or very long measurements, that
 #' are normally curved. The default values given for instrument precision are
-#' the ones found \href{https://www.licor.com/env/products/trace-gas/LI-7820}{online}
+#' the ones found \href{https://www.licor.com/products/trace-gas/LI-7820}{online}
 #' for the latest model of this instrument available at the time of the
 #' creation of this function (11-2023).
 #'

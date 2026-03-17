@@ -1,11 +1,11 @@
-#' Import function for the Los Gatos Research GLA451-N2Oi2
+#' Import function for the Los Gatos Research (ABB) GLA451-N2Oi2 Gas Analyzer
 #'
-#' Imports single raw gas measurement files from the Isotopic
-#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} analyzer
-#' (GLA451 series) from Los Gatos Research
-#' (\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and site-specific
-#' isotopic ratios of N and O) with the extension .txt
+#' Imports single raw gas measurement files from the Los Gatos Research (ABB)
+#' Isotopic \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} Analyzer
+#' (GLA451 series) (\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}
+#' and site-specific isotopic ratios of N and O)
 #'
+#' @instrumentlink Los Gatos Research (ABB)|N2Oi2|Isotopic N~2~O Analyzer (GLA451-N2Oi2)|https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/oa-icos-enhanced-performance-benchtop-analyzers/lgr-icos-ultrahigh-performance-qc-benchtop-analyzers-gla451-series
 #' @param inputfile character string; the name of a file with the extension .txt
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
@@ -26,8 +26,8 @@
 #'             in the following order: "N2Odry_ppb" and "H2O_ppm".
 #'             The default is \code{prec = c(0.05, 50)}.
 #'
-#' @returns A data frame containing raw data from the LGR GHG analyzer
-#'          N2Oi2 (GLA451 series).
+#' @returns A data frame containing raw data from the Los Gatos Research (ABB) Isotopic
+#' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} Analyzer (GLA451-N2Oi2)
 #'
 #' @include goFlux-package.R
 #'

@@ -1,6 +1,6 @@
 #' Import function for the MIRA Ultra
 #' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}/
-#' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} analyzer
+#' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} Analyzer
 #' from Aeris Technologies
 #'
 #' Imports single raw gas measurement files from the MIRA Ultra
@@ -9,8 +9,9 @@
 #' Accuracy Analyzer (with GPS) from Aeris Technologies
 #' (\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
 #' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
-#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}) with the extension .txt
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 #'
+#' @instrumentlink Aeris Technologies|uN2O|MIRA Ultra N~2~O / CO~2~ Analyzer|https://aerissensors.com/products/mira-ultra/
 #' @param inputfile character string; the name of a file with the extension .txt
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
@@ -33,8 +34,8 @@
 #'
 #' @returns A data frame containing raw data from the MIRA Ultra
 #' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}}/
-#' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} analyzer
-#' from Aeris Technologies
+#' \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} Analyzer
+#' from Aeris Technologies.
 #'
 #' @include goFlux-package.R
 #'

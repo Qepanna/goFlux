@@ -1,7 +1,8 @@
-#' Import function for LI-COR smart chamber (LI-8200)
+#' Import function for the LI-COR Smart Chamber (LI-8200)
 #'
-#' Imports single raw data files from the LI-COR smart chamber (LI-8200)
+#' Imports single raw data files from the LI-COR Smart Chamber (LI-8200)
 #'
+#' @instrumentlink LI-COR|LI8200|Smart Chamber (LI-8200)|https://www.licor.com/products/soil-flux/survey
 #' @param inputfile character string; the name of a file with the extension .json
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
@@ -16,7 +17,7 @@
 #'             \code{save = FALSE}, returns the file in the Console, or load in
 #'             the Environment if assigned to an object.
 #'
-#' @returns A data frame containing raw data from the LI-COR Smart Chamber LI-8200.
+#' @returns A data frame containing raw data from the LI-COR Smart Chamber (LI-8200).
 #'
 #' @details
 #' In \code{date.format}, the date format refers to a date found in the raw data

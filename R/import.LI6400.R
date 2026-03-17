@@ -1,12 +1,11 @@
-#' Import function for LI-COR GHG analyzer LI-6400
+#' Import function for the LI-COR 6400 Portable Photosynthesis System with a
+#' Soil \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} Flux Chamber
 #'
 #' Imports single raw gas measurement files from the LI-COR 6400
-#'
-#' @category import
-#'
 #' (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
-#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} GHG analyzer)
+#' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 #'
+#' @instrumentlink LI-COR|LI6400|6400/XT Portable Photosynthesis System with Soil CO~2~ Flux Chamber|https://www.licor.com/support/LI-6400/topics/soil-chamber-measurements.html
 #' @param inputfile character string; the name of a file with the extension .txt
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
@@ -27,7 +26,7 @@
 #'             in the following order: "CO2dry_ppm" and "H2O_ppm". The default
 #'             is \code{prec = c(0.15, 20)}.
 #'
-#' @returns A data frame containing raw data from LI-COR GHG analyzer LI-6400.
+#' @returns A data frame containing raw data from the LI-COR 6400.
 #'
 #' @details
 #' In \code{date.format}, the date format refers to a date found in the raw data

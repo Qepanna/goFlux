@@ -1,10 +1,10 @@
 #' Import function for the Picarro G2201-i Isotopic Analyzer
 #'
-#' Imports single raw gas measurement files from the Picarro G2201-i with the
-#' extension .dat (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
-#' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} isotopic analyzer)
+#' Imports single raw gas measurement files from the Picarro G2201-i Isotopic
+#' Analyzer (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}} and
+#' \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}})
 #'
-#' 
+#' @instrumentlink Picarro|G2201i|G2201-*i* Isotopic Analyzer|https://www.picarro.com/environmental/products/g2201i_isotopic_analyzer
 #' @param inputfile character string; the name of a file with the extension .dat
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
@@ -44,7 +44,7 @@
 #'              10 ppm, the concentration from the columns \code{HR_12CH4_dry}
 #'              and \code{HR_13CH4} are used for the sum instead of HP.
 #'
-#' @returns A data frame containing raw data from Picarro G2201-i isotopic analyzer.
+#' @returns A data frame containing raw data from Picarro G2201-*i* Isotopic Analyzer.
 #'
 #' @details
 #' In \code{date.format}, the date format refers to a date found in the raw data
