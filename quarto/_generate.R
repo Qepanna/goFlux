@@ -656,6 +656,56 @@ convert_rd_latex_to_markdown <- function(text) {
 
 
 
+# Format markdown links: external URLs get {target="_blank"}, internal URLs don't
+format_markdown_links <- function(text) {
+  if (is.null(text) || is.na(text) || text == "") return(text)
+  
+  # Helper to detect external URLs
+  is_external_url <- function(url) {
+    grepl("^https?://|^www\\.", url, perl = TRUE)
+  }
+  
+  # Pattern to match [text](url)
+  pattern <- '\\[([^\\]]+)\\]\\(([^)]+)\\)'
+  
+  # Find all matches
+  matches <- gregexpr(pattern, text, perl = TRUE)[[1]]
+  
+  if (matches[1] == -1) return(text)  # No matches found
+  
+  # Process matches in reverse order (to maintain positions)
+  match_lengths <- attr(matches, "match.length")
+  match_data <- regmatches(text, gregexpr(pattern, text, perl = TRUE))[[1]]
+  
+  result <- text
+  for (i in rev(seq_along(match_data))) {
+    match_text <- match_data[i]
+    
+    # Extract [text] and (url)
+    parts <- regmatches(match_text, regexec(pattern, match_text, perl = TRUE))[[1]]
+    if (length(parts) == 3) {
+      link_text <- parts[2]
+      url <- parts[3]
+      
+      # Add target="_blank" only for external URLs
+      if (is_external_url(url)) {
+        replacement <- paste0("[", link_text, "](", url, '){target="_blank"}')
+      } else {
+        replacement <- paste0("[", link_text, "](", url, ")")
+      }
+      
+      # Replace this match in result
+      match_pos <- gregexpr(pattern, result, perl = TRUE)[[1]][i]
+      if (match_pos > 0) {
+        match_len <- attr(gregexpr(pattern, result, perl = TRUE)[[1]], "match.length")[i]
+        substr(result, match_pos, match_pos + match_len - 1) <- replacement
+      }
+    }
+  }
+  
+  result
+}
+
 # Clean argument description for table display
 clean_arg_description <- function(desc, max_length = 180) {
   if (is.null(desc) || is.na(desc)) return("")
@@ -1943,10 +1993,9 @@ generate_minimal_reference <- function(func_name) {
   lines <- c(lines, paste0('code-block-bg: true'))
   lines <- c(lines, "---")
   lines <- c(lines, "")
-  lines := c(lines, "See [All Functions](function_index.qmd) for complete documentation.")
+  lines <- c(lines, "See [All Functions](function_index.qmd) for complete documentation.")
   lines <- c(lines, "")
   return(format_markdown_links(paste(lines, collapse = "\n")))
-}
 }
 
 # Generate pages for all categorized functions
