@@ -3254,10 +3254,14 @@ extract_existing_instrument_section <- function(lines, code) {
   
   # Normalize code for flexible matching
   # e.g., "LI6400" should match "LI-6400", "LI-COR LI-6400", etc.
+  # Extract instrument part from function name (e.g., "UGGA" from "import.UGGA")
+  instrument_code <- gsub("^import\\.", "", code)
+
   code_variants <- c(
-    code,
-    gsub("([A-Z])([0-9])", "\\1-\\2", code),
-    if (grepl("[0-9]+", code)) gsub("[^0-9]", "", code) else NA_character_
+    code,                                                    # Full: "import.UGGA"
+    instrument_code,                                         # Short: "UGGA"
+    gsub("([A-Z])([0-9])", "\\1-\\2", instrument_code),    # With dashes: "LI-6400"
+    if (grepl("[0-9]+", code)) gsub("[^0-9]", "", code) else NA_character_  # Digits only: "6400"
   )
   code_variants <- code_variants[!is.na(code_variants)]
   
