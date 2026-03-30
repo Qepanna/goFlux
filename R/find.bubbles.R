@@ -136,6 +136,14 @@ find.bubbles <- function(df,
                          min_magnitude = 5, #ppb
                          min_snr = NULL) {
 
+  method <- match.arg(method)
+
+  time0 <- df$Etime[1]
+  time <- as.numeric(df$Etime - time0)
+  conc <- df[[bubble_source]]
+
+
+
   # --------------------------------------------
   # Input validation
   # --------------------------------------------
@@ -143,8 +151,8 @@ find.bubbles <- function(df,
   if (length(time) != length(conc)) {
     stop("time and conc must have equal length")
   }
-  if (length(time) < 3) {
-    stop("At least 3 observations required")
+  if (length(time) < 30) {
+    stop("At least 30 observations required")
   }
   if (window.size < 3) {
     stop("window.size must be at least 3")
@@ -152,16 +160,6 @@ find.bubbles <- function(df,
   if (var.quantile <= 0 || var.quantile >= 1) {
     stop("var.quantile must be in (0, 1)")
   }
-
-  # --------------------------------------------
-  # Function starts here
-  # --------------------------------------------
-
-  method <- match.arg(method)
-
-  time0 <- df$Etime[1]
-  time <- as.numeric(df$Etime - time0)
-  conc <- df[[bubble_source]]
 
 
   # --- sort and remove duplicates
