@@ -572,10 +572,16 @@ goAquaFlux <- function(dataframe,
     }
 
     # First flagged time must be chamber closure (Etime == 0)
-    if (is.na(data_split[[f]]$Etime[1]) || data_split[[f]]$Etime[1] != 0) {
-      stop("Invalid Etime origin: for each UniqueID, the first row with ",
-           "flag == 1 must have Etime == 0. Problem detected for UniqueID: ",
+    if (is.na(data_split[[f]]$Etime[1])) {
+      stop("Invalid Etime origin: the first row with ",
+           "flag == 1 is NA. Problem detected for UniqueID: ",
            data_split[[f]]$UniqueID[1], ".", call. = FALSE)}
+    if(data_split[[f]]$Etime[1] != 0){
+      warning("Etime origin is not 0 but ",data_split[[f]]$Etime[1],". Resetting origin")
+      # making sure Etime starts at 0
+      Etimestart = min(data_split[[f]]$Etime)
+      data_split[[f]]$Etime <- data_split[[f]]$Etime - Etimestart
+    }
 
     # Ensure values are available and unique per UniqueID for Vtot and Area
     if (all(is.na(data_split[[f]]$Vtot))) {
@@ -636,9 +642,6 @@ goAquaFlux <- function(dataframe,
   for (f in seq_along(data_split)){
 
     df <- data_split[[f]]
-    # making sure Etime starts at 0
-    Etimestart = min(df$Etime)
-    df$Etime <- df$Etime - Etimestart
 
     # Extract auxiliary variables
     UniqueID <- data_split[[f]]$UniqueID[1]
@@ -715,8 +718,6 @@ goAquaFlux <- function(dataframe,
     # ----------------------------
     # 4. Diffusive flux (restricted by CH4 bubbling if available)
     # ----------------------------
-
-    print(bubbles)
 
     diffusive_flux <- goAquaFlux.diffusive(
       df = df,
