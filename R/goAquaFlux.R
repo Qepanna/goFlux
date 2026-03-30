@@ -648,7 +648,6 @@ goAquaFlux <- function(dataframe,
     prec_f <- data_split[[f]]$prec_f[1]
 
 
-
     # ----------------------------
     # 1. Check if ebullition needs to be computed
     # ----------------------------

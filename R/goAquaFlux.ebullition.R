@@ -93,6 +93,7 @@
 #' @include goFlux-package.R
 #'
 #' @keywords internal
+#'
 goAquaFlux.ebullition <- function(df,
                                   gastype,
                                   bubbles,
