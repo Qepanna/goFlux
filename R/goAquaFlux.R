@@ -111,6 +111,19 @@
 #' which evaluates multiple regression models and selects the best model
 #' according to user-defined criteria.
 #'
+#' @include goFlux-package.R
+#' @include flux.term.R
+#' @include MDF.R
+#' @include LM.flux.R
+#' @include HM.flux.R
+#' @include g.factor.R
+#' @include k.max.R
+#' @include find.bubbles.R
+#' @include goFlux.R
+#' @include goAquaFlux.ebullition.R
+#' @include goAquaFlux.diffusion.R
+#' @include goAquaFlux.total.R
+#'
 #' @seealso
 #' \code{\link{find.bubbles}},
 #' \code{\link{goAquaFlux.ebullition}},
@@ -159,6 +172,7 @@ goAquaFlux <- function(dataframe,
 
   is_scalar_num <- function(x) {
     is.numeric(x) && length(x) == 1L && !is.na(x) && is.finite(x)}
+
   has_col <- function(nm) {nm %in% names(dataframe)}
 
 
@@ -610,11 +624,6 @@ goAquaFlux <- function(dataframe,
   # ---------- FLUX CALCULATION
   # -------------------------------------------------
 
-  # check if ebullition needs to be computed
-  compute_ebullition <- !is.null(bubble_gas) && gastype == bubble_gas
-  if (gastype != bubble_gas) {
-    message("Ebullition not computed because gastype != bubble_gas.")
-  }
 
   # Create an empty list to store results
   flux.res.ls <- list()
@@ -627,6 +636,9 @@ goAquaFlux <- function(dataframe,
   for (f in seq_along(data_split)){
 
     df <- data_split[[f]]
+    # making sure Etime starts at 0
+    Etimestart = min(df$Etime)
+    df$Etime <- df$Etime - Etimestart
 
     # Extract auxiliary variables
     UniqueID <- data_split[[f]]$UniqueID[1]
@@ -636,29 +648,27 @@ goAquaFlux <- function(dataframe,
     prec_f <- data_split[[f]]$prec_f[1]
 
 
+
     # ----------------------------
-    # 1. Determine which gas to use for bubble detection
+    # 1. Check if ebullition needs to be computed
     # ----------------------------
 
-    bubble_source <- NA
-
-    if (gastype == bubble_gas) {
-
-      # CH4 flux calculation
-      bubble_source <- gastype
-
-    } else if (bubble_gas %in% names(df)) {
-
-      # Non-CH4 flux but bubble_gas (e.g. CH4) available for bubble detection
-      bubble_source <- bubble_gas
+    if(use_bubble_detection){
+      if(bubble_gas %in% names(df)){
+        compute_ebullition <- TRUE
+      } else {
+        compute_ebullition <- FALSE
+        warning(paste0("Cannot compute ebullition because ",bubble_gas, " doesn't appear in provided dataframe"))
+      }
+    } else {
+      compute_ebullition <- FALSE
     }
-
 
     # ----------------------------
     # 2. Detect bubbles if possible
     # ----------------------------
 
-    if (use_bubble_detection && compute_ebullition && bubble_gas %in% names(df)) {
+    if (compute_ebullition && bubble_gas %in% names(df)) {
 
       bubbles <- find.bubbles(
         df = df,
@@ -672,13 +682,12 @@ goAquaFlux <- function(dataframe,
 
     }
 
-
     # ----------------------------
     # 5. Ebullition flux
     # ----------------------------
 
     # we compute ebullition only if possible and if gastype = bubble_gas
-    if (compute_ebullition) {
+    if (bubble_gas == gastype) {
 
       ebullition_flux <- goAquaFlux.ebullition(
         df = df,
@@ -708,6 +717,8 @@ goAquaFlux <- function(dataframe,
     # 4. Diffusive flux (restricted by CH4 bubbling if available)
     # ----------------------------
 
+    print(bubbles)
+
     diffusive_flux <- goAquaFlux.diffusive(
       df = df,
       gastype = gastype,
@@ -722,7 +733,7 @@ goAquaFlux <- function(dataframe,
     # ----------------------------
     # we compute total flux only if ebullition was computed. If not, total = diffusion
 
-    if (compute_ebullition) {
+    if (bubble_gas == gastype) {
 
       total_flux <- goAquaFlux.total(
         ebullition_flux = ebullition_flux,
