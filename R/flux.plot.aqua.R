@@ -177,19 +177,19 @@ flux.plot.aqua <- function(flux.results, dataframe, gastype, shoulder = 30,
       }
     }
 
-    # Plot ebullition events
-    if (!is.null(plot.display) && any(grepl("\\<ebullition.events\\>", plot.display))) {
-      if (!is.na(first_bubble)) {
-        display_elements$ebullition_marker <- annotate(
-          "vline", xintercept = first_bubble,
-          linetype = "dashed", color = "red", size = 0.8
-        )
-        display_elements$ebullition_label <- annotate(
-          "text", x = first_bubble, y = ymax+0.1*ydiff, label = "Diffusive window",
-          vjust = -0.5, color = "blue", size = 3
-        )
-      }
-    }
+    # # Plot ebullition events
+    # if (!is.null(plot.display) && any(grepl("\\<ebullition.events\\>", plot.display))) {
+    #   if (!is.na(first_bubble)) {
+    #     display_elements$ebullition_marker <- annotate(
+    #       "vline", xintercept = first_bubble,
+    #       linetype = "dashed", color = "red", size = 0.8
+    #     )
+    #     display_elements$ebullition_label <- annotate(
+    #       "text", x = first_bubble, y = ymax+0.1*ydiff, label = "Diffusive window",
+    #       vjust = -0.5, color = "blue", size = 3
+    #     )
+    #   }
+    # }
 
 
     # Prepare component labels and flux values separately
@@ -219,47 +219,102 @@ flux.plot.aqua <- function(flux.results, dataframe, gastype, shoulder = 30,
       y = ymin-ydiff*0.15
     )
 
-    # Build plot
+    # ---- Base plot ----
     plot <- ggplot(df_all, aes(x = Etime)) +
-      geom_point(aes(y = .data[[gastype]], color = as.factor(flag))) +
+      geom_point(aes(y = .data[[gastype]], color = as.factor(flag)))
 
-      # Display elements
-      display_elements +
+    # ---- Optional layers ----
 
-      # Component labels (left column)
+    # Diffusive window (rectangle)
+    if (!is.null(plot.display) && "diffusive.window" %in% plot.display && !is.na(first_bubble)) {
+
+      rect_df <- data.frame(
+        xmin = 0,
+        xmax = first_bubble,
+        ymin = -Inf,
+        ymax = Inf
+      )
+
+      plot <- plot +
+        geom_rect(
+          data = rect_df,
+          aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+          fill = "blue",
+          alpha = 0.2,
+          inherit.aes = FALSE
+        )
+
+    }
+
+    # Ebullition event (vertical line + label)
+    if (!is.null(plot.display) && "ebullition.events" %in% plot.display && !is.na(first_bubble)) {
+      plot <- plot +
+        geom_vline(
+          xintercept = first_bubble,
+          linetype = "dashed",
+          color = "red",
+          linewidth = 0.8
+        )
+      # label
+      plot <- plot +
+        annotate(
+          "text",
+          x = first_bubble+60,
+          y = ymax + 0.1 * ydiff,
+          label = "Ebullition event",
+          color = "red",
+          size = 3,
+          vjust = -0.5
+        )
+
+    }
+
+    # ---- Text annotations ----
+
+    # Component labels (left column)
+    plot <- plot +
       geom_text(
-        data = component_labels, parse = FALSE, size = 3.5,
+        data = component_labels,
         aes(x = x, y = y, label = label, color = color),
-        hjust = 1
-      ) +
+        hjust = 1,
+        size = 3.5,
+        inherit.aes = FALSE
+      )
 
-      # Flux values (right column)
+    # Flux values (right column)
+    plot <- plot +
       geom_text(
-        data = flux_values, parse = FALSE, size = 3.5,
+        data = flux_values,
         aes(x = x, y = y, label = label, color = color),
-        hjust = 0
-      ) +
+        hjust = 0,
+        size = 3.5,
+        inherit.aes = FALSE
+      )
 
-      # Flux unit label
+    # Flux unit label
+    plot <- plot +
       geom_text(
-        data = flux_unit_label, parse = FALSE, size = 2.8,
+        data = flux_unit_label,
         aes(x = x, y = y, label = label),
-        color = "black", hjust = 1, style = "italic"
-      ) +
+        color = "black",
+        hjust = 1,
+        size = 2.8,
+        fontface = "italic",
+        inherit.aes = FALSE
+      )
 
-      # Single color scale that covers all elements
+    # ---- Scales & styling ----
+    plot <- plot +
       scale_color_manual(
         values = c(
-          "darkgrey" = "darkgrey",
+          "0" = "darkgrey",
+          "1" = "black",
           "black" = "black",
-          "pink" = "pink",
           "blue" = "blue",
           "red" = "red"
         ),
         guide = "none"
       ) +
-
-      # Styling
       xlab("Time (sec)") +
       ylab_plot +
       scale_x_continuous(
@@ -268,15 +323,13 @@ flux.plot.aqua <- function(flux.results, dataframe, gastype, shoulder = 30,
       ) +
       coord_cartesian(
         xlim = c(xmin + xdiff * 0.05, xmax - xdiff * 0.05),
-        ylim = c(ymin - ydiff * 0.15, yend + ydiff * 0.15)
+        ylim = c(ymin - ydiff * 0.15, ymax + ydiff * 0.15)
       ) +
       theme_bw() +
       theme(
         axis.title.x = element_text(size = 10, face = "bold"),
         axis.title.y = element_text(size = 10, face = "bold")
       )
-
-
 
     return(plot)
   })
