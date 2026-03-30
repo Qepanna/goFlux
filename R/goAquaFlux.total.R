@@ -65,7 +65,7 @@
 #' \code{\link{goAquaFlux.ebullition}},
 #' \code{\link{find.bubbles}}
 #'
-#' @export
+#' @internal
 #'
 goAquaFlux.total <- function(ebullition_flux,
                              diffusive_flux,
