@@ -74,7 +74,6 @@
 #' \code{\link{goAquaFlux.ebullition}},
 #' \code{\link{goAquaFlux.total}}
 #'
-#' @include goFlux-package.R
 #'
 #' @keywords internal
 #'
@@ -117,7 +116,7 @@ goAquaFlux.diffusive <- function(df,
   if(!is.na(first_bubble_time)){df_diff$obs.length <- first_bubble_time}
   # autoIDed <- autoID(inputfile = df_diff, auxfile = auxfile, shoulder = 0)
 
-  aquaFlux.diff <- goFlux(df_diff, gastype, H2O_col = "H2O_mol") # here a doubt if using H2O_col = "H2O_mol" is correct
+  aquaFlux.diff <- goFlux(dataframe = df_diff, gastype = gastype, H2O_col = "H2O_mol") # here a doubt if using H2O_col = "H2O_mol" is correct
 
   best.flux.diff <- best.flux(aquaFlux.diff, criteria = criteria)
   best.flux.diff$SE_best_model <- ifelse(best.flux.diff$model =="LM", best.flux.diff$LM.SE, best.flux.diff$HM.SE)
