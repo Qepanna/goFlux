@@ -193,12 +193,12 @@ flux.plot.aqua <- function(flux.results, dataframe, gastype, shoulder = 30,
 
 
     # Prepare component labels and flux values separately
-    delta <- 0.03
+    delta <- 0.04
     component_labels <- data.frame(
       label = c("Total", "Diffusive", "Ebullitive","Component"),
       color = c("black", "blue", "red","black"),
-      x = xmin + xdiff * 0.7,
-      y = seq(from=ymin + ydiff * delta, by = ydiff * delta, length.out = 4)
+      x = xmin + xdiff * 0.8,
+      y = seq(from=ymin-ydiff*0.1, by = ydiff * delta, length.out = 4)
     )
 
     flux_values <- data.frame(
@@ -208,15 +208,15 @@ flux.plot.aqua <- function(flux.results, dataframe, gastype, shoulder = 30,
         paste0(round(flux_ebull, flux.dec), " ± ", round(SE_ebull, flux.dec))
       ),
       color = c("black", "blue", "red"),
-      x = xmin + xdiff * 0.72,
-      y = seq(from=ymin + ydiff * delta, by = ydiff * delta, length.out = 3)
+      x = xmin + xdiff * 0.82,
+      y = seq(from=ymin-ydiff*0.1, by = ydiff * delta, length.out = 3)
     )
 
     flux_unit_label <- data.frame(
       label = paste0("Flux units: ", flux.unit),
       color = "black",
       x = xmin + xdiff * 0.8,
-      y = ymin-ydiff*0.1
+      y = ymin-ydiff*0.15
     )
 
     # Build plot
