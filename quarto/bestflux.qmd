@@ -1,6 +1,5 @@
 ---
 title: "Automatic selection of the best flux estimate"
-format: html
 bibliography: references.bib
 csl: apa-no-initials.csl
 editor: visual

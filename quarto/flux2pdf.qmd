@@ -1,6 +1,6 @@
 ---
 title: "Visual inspection"
-format: html
+engine: knitr
 editor: visual
 ---
 

@@ -1,8 +1,5 @@
 ---
 title: "Flux calculation"
-format: 
-  html: 
-    css: styles.css
 engine: knitr
 bibliography: references.bib
 csl: apa-no-initials.csl
