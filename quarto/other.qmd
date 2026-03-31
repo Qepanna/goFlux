@@ -15,37 +15,389 @@ Extracts the y-intercept of the regression between the isotope ratios (13C, 15N 
 
 #### Usage
 
-::: callout-note
-Code chunks under **Usage** sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.
-:::
-
 ```{r}
 #| eval: false
 #| code-copy: false
-iso.comp(
-  dataframe,
-  CO2dry_ppm = "CO2dry_ppm",
-  delta_13C = "Delta_Raw_iCO2",
-  N2Odry_ppb = "N2Odry_ppb",
-  delta_15N = "d15N",
-  delta_18O = "d18O",
-  save.plots
-)
+iso.comp(dataframe, CO2dry_ppm, delta_13C, N2Odry_ppb, delta_15N, delta_18O, save.plots)
 ```
 
 #### Arguments
 
-|  |  |
-|----|----|
-| `dataframe` | a data.frame containing measurements of isotopic fractions of CO~2~ or N~2~O and a `UniqueID` (or `chamID`) per measurements. |
-| `CO2dry_ppm`, `delta_13C` | character string; specifies which columns should be used for CO~2~ measurements, and the delta 13C, respectively. |
-| `N2Odry_ppb`, `delta_15N`, `delta_18O` | character string; specifies which columns should be used for N~2~O measurements, the delta 15N and the delta 18O, respectively. |
+| Parameter | Description |
+|:----------|:---------------------------|
+| `dataframe` | a data.frame containing measurements of isotopic fractions of \\ifelse{html}{\\out{CO<sub>2</sub>}}{\\eqn{CO\[2\]}{ASCII}} or \\ifelse{html}{\\out{N<sub>2</sub>O}}{\\eqn{N\[2\]O}{ASCII}} and a \\code{UniqueID} (or \\code{chamID}) per measurements. |
+| `CO2dry\_ppm,delta\_13C` | character string; specifies which columns should be used for \\ifelse{html}{\\out{CO<sub>2</sub>}}{\\eqn{CO\[2\]}{ASCII}} measurements, and the delta 13C, respectively. |
+| `N2Odry\_ppb,delta\_15N,delta\_18O` | character string; specifies which columns should be used for \\ifelse{html}{\\out{N<sub>2</sub>O}}{\\eqn{N\[2\]O}{ASCII}} measurements, the delta 15N and the delta 18O, respectively. |
 | `save.plots` | character string; a file path with the extension .pdf to save Keeling plots. By default plots are not saved. |
 
 #### Example
 
 ```{r}
 #| eval: false
+
 data(manID.G2201i)
 my.iso.comp <- iso.comp(manID.G2201i)
 ```
+
+### `auto.deadband` {#sec-auto-deadband}
+
+#### Usage
+
+```{r}
+#| eval: false
+#| code-copy: false
+auto.deadband(dataframe, gastype, db.min, db.max, obs.win, mov.win, min.r2)
+```
+
+#### Arguments
+
+| Parameter | Description |
+|:----------|:---------------------------|
+| `dataframe` | data.frame; output from import or ID functions. |
+| `gastype` | character string; specifies which gas column should be used to detect inflection point. Must be one of the following: "CO2dry\_ppm", "CH4dry\_ppb", "COdry\_ppb", "N2Odry\_ppb", "NH3dry\_ppb", "NOdry\_ppb", "NO2dry\_ppb" or "H2O\_ppm". |
+| `db.min` | numerical value (seconds); minimal deadband per measurement. |
+| `db.max` | numerical value (seconds); maximal deadband per measurement. |
+| `obs.win` | numerical value (seconds); maximal observation window to include in the linear models. If possible, keept at least 30 seconds between \\code{db.max} and \\code{obs.win} for more accurate results. |
+| `mov.win` | numerical value (seconds); time increment between \\code{obs.win}, from chamber closure to \\code{db.max}. |
+| `min.r2` | numerical value; minimum increase in \\ifelse{html}{\\out{R<sup>2</sup>}}{\\eqn{R^{2}}{ASCII}} required to accept dropping more data points. |
+
+#### Example
+
+```{r}
+#| eval: false
+
+data("manID.UGGA")
+auto_db <- auto.deadband(manID.UGGA, "CO2dry_ppm")
+crop_UGGA <- crop.meas(manID.UGGA, auto_db, deadband = "aux")
+```
+
+
+### `autoID` {#sec-autoid}
+
+#### Usage
+
+```{r}
+#| eval: false
+#| code-copy: false
+autoID(inputfile, auxfile, obs.length, deadband, crop.end, shoulder, drop)
+```
+
+#### Arguments
+
+| Parameter | Description |
+|:----------|:---------------------------|
+| `inputfile` | data.frame; output from import or align functions. |
+| `auxfile` | data.frame; auxiliary data frame containing the columns \\code{start.time} and \\code{UniqueID}. \\code{start.time} must contain a date and be in POSIXct format. The time zone must be the same as the POSIX.time in \\code{inputfile}. The default time zone for the import functions is "UTC". A data frame from the Smart Chamber (LI-8200) can be used as an auxiliary file. In that case, \\code{chamID} will be used instead of \\code{UniqueID}, if \\code{UniqueID} cannot be found. |
+| `obs.length` | numerical; chamber closure time (seconds). Default is NULL. If \\code{obs.length} is not provided, a column \\code{obs.length} should be contained in \\code{auxfile} or \\code{inputfile}. Alternatively, \\code{obs.length} will be calculated from \\code{start.time} and \\code{cham.open} or \\code{end.time} if found in \\code{auxfile} or \\code{inputfile}. |
+| `deadband` | numerical; time (seconds) at the start of the measurement, after chamber closure, to be removed from the time stamps used to estimate the flux. |
+| `crop.end` | numerical; time (seconds) at the end of the measurement, before chamber opening, to be removed from the time stamps used to estimate the flux. |
+| `shoulder` | numerical; time before and after measurement in observation window (seconds). Default is 60 seconds. If the time between two measurements is smaller than \\code{shoulder}, the time stamps are duplicated. |
+| `drop` | logical; if \\code{drop = TRUE} (default), time stamps without an assigned \\code{UniqueID} are removed from the final data frame. |
+
+#### Example
+
+```{r}
+#| eval: false
+
+# How to use in different situations:
+library(dplyr)
+
+## with a LGR instrument and an auxiliary file (.txt)
+aux.path <- system.file("extdata", "aux_UGGA/aux_UGGA.txt", package = "goFlux")
+auxfile <- read.delim(aux.path) %>%
+  mutate(start.time = as.POSIXct(start.time, tz = "UTC"))
+data(imp.UGGA)
+autoID.UGGA <- autoID(inputfile = imp.UGGA, auxfile = auxfile, obs.length = 180)
+
+## with a LI-COR instrument and the Smart Chamber as auxiliary file
+data(imp.LI8200)
+data(imp.LI7820)
+autoID.LI7820 <- autoID(inputfile = imp.LI7820, deadband = 20, auxfile = imp.LI8200)
+```
+
+
+### `click.peak2` {#sec-click-peak2}
+
+#### Usage
+
+```{r}
+#| eval: false
+#| code-copy: false
+click.peak2(ow.list, gastype, sleep, plot.lim, seq, warn.length, save.plots, width, height, abline, abline_corr)
+```
+
+#### Arguments
+
+| Parameter | Description |
+|:----------|:---------------------------|
+| `ow.list` | list of data.frame; output from the function \\code{\\link\[goFlux\]{obs.win}}. Must contain the columns \\code{gastype} (see below), \\code{POSIX.time} and \\code{UniqueID}. |
+| `gastype` | character string; specifies which gas should be displayed on the plot to manually select start time and end time of measurements. Must be one of the following: "CO2dry\_ppm", "COdry\_ppb", "CH4dry\_ppb", "N2Odry\_ppb", "NO2dry\_ppb", "NOdry\_ppb", "NH3dry\_ppb" or "H2O\_ppm". Default is "CO2dry\_ppm". |
+| `sleep` | numerical value; delay before closing the resulting plot. Grants a delay between measurements to visually inspect the output before processing the next measurement. Sleep must be shorter than 10 seconds. If \\code{sleep = NULL}, the plots will not close. |
+| `plot.lim` | numerical vector of length 2; sets the Y axis limits in the plots. Default values are set for a typical gas measurement of "CO2dry\_ppm" from soils: \\code{plot.lim = c(380,1000)}. |
+| `seq` | a numerical sequence that indicates objects in a list. By default, \\code{seq = NULL} and the function loops through all data frames in \\code{ow.list}. |
+| `warn.length` | numerical value; limit under which a measurement is flagged for being too short (\\code{nb.obs < warn.length}). Default value is \\code{warn.length = 60}. |
+| `save.plots` | character string; a file path with the extension .pdf to save the plots produced with click.peak2. By default, \\code{save.plot = NULL} and plots are not saved. |
+| `width` | numerical value; width of the pop-up window. |
+| `height` | numerical value; height of the pop-up window. |
+| `abline` | logical; if TRUE (default), blue vertical lines indicate \\code{start.time} and \\code{end.time} on both plots. |
+| `abline\_corr` | logical; if TRUE (default), red vertical lines indicate \\code{start.time\_corr} and \\code{end.time\_corr} on validation plot. |
+
+#### Example
+
+```{r}
+#| eval: false
+
+# IMPORTANT! This function makes use of the function graphics::identify()
+# which is only supported on screen devices such as X11, windows and quartz.
+# It is therefore essential to verify that your system options are compatible
+# with this function before running it, to avoid errors. Here is an example
+# of how to modify your system options for graphics device:
+\dontrun{
+default.device <- getOption("device") # save default option
+options(device = "X11") # change system option to device = "X11"
+options(device = default.device) # revert back to default option }
+
+# There are multiple ways to use this function. Here are some examples:
+
+library(dplyr)
+\donttest{
+## with a LGR instrument and an auxiliary file (.txt),
+## and plots saved as pdf
+aux.path <- system.file("extdata", "aux_UGGA/aux_UGGA.txt", package = "goFlux")
+auxfile <- read.delim(aux.path) %>%
+  mutate(start.time = as.POSIXct(start.time, tz = "UTC"))
+data(imp.UGGA)
+ow.UGGA <- obs.win(inputfile = imp.UGGA, auxfile = auxfile,
+                   obs.length = 180, shoulder = 60)
+save.to <- paste(tempdir(), "manID.UGGA.pdf", sep = "/")
+manID.UGGA <- click.peak2(ow.UGGA, save.plots = save.to)
+# In this example, plots are saved in a temporary directory using
+# the function tempdir(). To save files in your working directory
+# instead, use the function getwd().
+
+
+## with a LI-COR instrument, the Smart Chamber as auxiliary file
+## and only the first data frame selected
+data(imp.LI8200)
+data(imp.LI7820)
+ow.LI7820 <- obs.win(inputfile = imp.LI7820, auxfile = imp.LI8200, shoulder = 60)
+manID.LI7820 <- click.peak2(ow.LI7820, gastype = "N2Odry_ppb",
+                            plot.lim = c(250,500), seq = 1)
+
+
+## with the LI-6400, no auxiliary file
+## and seq through the first 3 data frames
+data(imp.LI6400)
+ow.LI6400 <- obs.win(inputfile = imp.LI6400, shoulder = 0)
+manID.LI6400 <- click.peak2(ow.LI6400, seq = seq(1,3)) }
+```
+
+
+### `crop.meas` {#sec-crop-meas}
+
+#### Usage
+
+```{r}
+#| eval: false
+#| code-copy: false
+crop.meas(dataframe, auxfile, crop_start, crop_end, deadband, max.obs.length, cham.close, cham.open)
+```
+
+#### Arguments
+
+| Parameter | Description |
+|:----------|:---------------------------|
+| `dataframe` | a dataframe containing gas measurements, output from import or ID functions (click.peak2 or manID). Must contain the columns \\code{UniqueID}, \\code{start.time}, \\code{end.time} and \\code{Etime}. |
+| `auxfile` | data.frame; auxiliary data frame containing the columns \\code{UniqueID}, \\code{crop\_start}, \\code{crop\_end}, \\code{deadband} and/or \\code{max.obs.length}. |
+| `crop\_start` | numerical; number of observations to remove at the start of the measurement. To provide a unique value per UniqueID, the column \\code{crop\_start} must be present in the auxfile and the argument must be set to \\code{crop\_start = "aux"}. |
+| `crop\_end` | numerical; number of observations to remove at the end of the measurement. To provide a unique value per UniqueID, the column \\code{crop\_end} must be present in the auxfile and the argument must be set to \\code{crop\_end = "aux"}. |
+| `deadband` | numerical; define a deadband at the start of measurements (seconds). To provide a unique value per UniqueID, the column \\code{deadband} must be present in the auxfile and the argument must be set to \\code{deadband = "aux"}. |
+| `max.obs.length` | numerical; maximum length of measurement (seconds) to keep after \\code{cham.close}. To provide a unique value per UniqueID, the column \\code{max.obs.length} must be present in the auxfile and the argument must be set to \\code{max.obs.length = "aux"}. |
+| `cham.close` | character; if \\code{cham.close = "start.time"} (default), the original \\code{start.time} before cropping will be saved into a new column \\code{cham.close}. Set \\code{cham.close = NULL} to drop the original \\code{start.time}. |
+| `cham.open` | character; if \\code{cham.open = "end.time"} (default), the original \\code{end.time} before cropping will be saved into a new column \\code{cham.open}. Set \\code{cham.open = NULL} to drop the original \\code{end.time}. |
+
+#### Example
+
+```{r}
+#| eval: false
+
+# Load example data
+data(manID.G2201i)
+
+# Create an auxfile to define different crop_start and crop_end per UniqueID
+auxfile <- cbind.data.frame(UniqueID = c("meas1", "meas2"),
+                            crop_start = c(2,10),
+                            crop_end = c(5,0))
+
+# The arguments "crop_start" and "crop_end" must be set to "aux" to use
+# unique values from the auxfile
+crop.G2201i <- crop.meas(dataframe = manID.G2201i, auxfile = auxfile,
+                         crop_start = "aux", crop_end = "aux")
+
+# Alternatively, cropping can be applied equally across all measurements
+crop.G2201i <- crop.meas(dataframe = manID.G2201i, auxfile = auxfile,
+                         crop_start = 5, crop_end = 5)
+```
+
+
+### `flux.term` {#sec-flux-term}
+
+#### Usage
+
+```{r}
+#| eval: false
+#| code-copy: false
+flux.term(V_L, P_kPa, A_cm2, T_C, H2O_mol)
+```
+
+#### Arguments
+
+| Parameter | Description |
+|:----------|:---------------------------|
+| `V\_L` | numerical; total volume inside the chamber, tubes, instruments, etc. (L) |
+| `P\_kPa` | numerical; atmospheric pressure (kPa) |
+| `A\_cm2` | numerical; area of the soil surface inside the chamber \\ifelse{html}{\\out{(cm<sup>2</sup>)}}{\\eqn{(cm^2)}{ASCII}} |
+| `T\_C` | numerical; air temperature before chamber closure (Celsius) |
+| `H2O\_mol` | numerical; water vapor concentration in the air before chamber closure (mol/mol) |
+
+#### Example
+
+```{r}
+#| eval: false
+# No examples provided in roxygen.
+```
+
+
+### `g.factor` {#sec-g-factor}
+
+#### Usage
+
+```{r}
+#| eval: false
+#| code-copy: false
+g.factor(HM.flux, LM.flux, eps)
+```
+
+#### Arguments
+
+| Parameter | Description |
+|:----------|:---------------------------|
+| `HM.flux` | a numerical value; flux estimate from a non-linear regression model (e.g. Hutchinson and Mosier). Calculated with the \\code{\\link\[goFlux\]{HM.flux}} function of this package. |
+| `LM.flux` | a numerical value; flux estimate from a linear regression model. Calculated with the \\code{\\link\[goFlux\]{LM.flux}} function of this package. |
+
+#### Example
+
+```{r}
+#| eval: false
+# No examples provided in roxygen.
+```
+
+
+### `HM.flux` {#sec-hm-flux}
+
+#### Usage
+
+```{r}
+#| eval: false
+#| code-copy: false
+HM.flux(gas.meas, time.meas, flux.term, k.max, k.min, Ct, C0, k.mult)
+```
+
+#### Arguments
+
+| Parameter | Description |
+|:----------|:---------------------------|
+| `gas.meas` | numerical vector containing gas measurements (ppm or ppb) |
+| `time.meas` | numerical vector containing time stamps (seconds) |
+| `flux.term` | numerical value; flux term calculated with the function \\code{\\link\[goFlux\]{flux.term}} |
+| `Ct` | numerical value; gas concentration after \\emph{t} seconds (ppm or ppb). |
+| `C0` | numerical value; initial gas concentration at time 0 second (ppm or ppb). |
+| `k.max` | numerical value; kappa-max is the maximal curvature allowed in the Hutchinson and Mosier model. Calculated with the \\code{\\link\[goFlux\]{k.max}} function. |
+| `k.min` | numerical value; a lower boundary value for kappa in the HM model. To allow for a log-like curvature, set \\code{k.min} below 0 (ex. -1), otherwise it should be just above 0 (ex. 10^-8). k.min cannot be 0 as this would result in a singular gradient. |
+| `k.mult` | numerical value; a multiplier for the allowed k.max. Default is no multiplier (\\code{k.mult = 1}). |
+
+#### Example
+
+```{r}
+#| eval: false
+# No examples provided in roxygen.
+```
+
+
+### `k.max` {#sec-k-max}
+
+#### Usage
+
+```{r}
+#| eval: false
+#| code-copy: false
+k.max(MDF, LM.flux, t)
+```
+
+#### Arguments
+
+| Parameter | Description |
+|:----------|:---------------------------|
+| `MDF` | numerical value; minimal detectable flux, calculated with the function \\code{\\link\[goFlux\]{MDF}} |
+| `LM.flux` | numerical value; flux estimate from a linear flux calculation model, calculated with the function \\code{\\link\[goFlux\]{LM.flux}} |
+| `t` | numerical value; measurement time (enclosure time) (seconds) |
+
+#### Example
+
+```{r}
+#| eval: false
+# No examples provided in roxygen.
+```
+
+
+### `LM.flux` {#sec-lm-flux}
+
+#### Usage
+
+```{r}
+#| eval: false
+#| code-copy: false
+LM.flux(gas.meas, time.meas, flux.term)
+```
+
+#### Arguments
+
+| Parameter | Description |
+|:----------|:---------------------------|
+| `gas.meas` | numerical vector containing gas measurements (ppm or ppb) |
+| `time.meas` | numerical vector containing time stamps (seconds) |
+| `flux.term` | numerical value; flux term calculated with the function \\code{\\link\[goFlux\]{flux.term}} |
+
+#### Example
+
+```{r}
+#| eval: false
+# No examples provided in roxygen.
+```
+
+
+### `MDF` {#sec-mdf}
+
+#### Usage
+
+```{r}
+#| eval: false
+#| code-copy: false
+MDF(p, t, flux.term)
+```
+
+#### Arguments
+
+| Parameter | Description |
+|:----------|:---------------------------|
+| `p` | numerical; precision of the instrument (same units as measured gas; ex. ppm) |
+| `t` | numerical; measurement time (enclosure time; seconds) |
+| `flux.term` | numerical; flux term calculated with the function \\code{\\link\[goFlux\]{flux.term}} |
+
+#### Example
+
+```{r}
+#| eval: false
+# No examples provided in roxygen.
+```
+

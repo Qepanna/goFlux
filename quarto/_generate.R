@@ -1,5 +1,7 @@
 #!/usr/bin/env Rscript
 
+library(jsonlite)
+
 `%||%` <- function(x, y) if (is.null(x) || length(x) == 0) y else x
 
 parse_args <- function() {
@@ -274,6 +276,12 @@ extract_rd_entries <- function(file_path) {
 }
 
 target_qmd_for_function <- function(function_name) {
+  # Explicit routing to prevent cross-qmd duplication (Phase 3)
+  if (function_name == "flux2pdf") return("flux2pdf.qmd")
+  if (function_name == "flux.plot") return("flux2pdf.qmd")
+  if (function_name == "obs.win") return("manualID.qmd")
+  
+  # Standard routing
   if (function_name == "goFlux") return("goFlux.qmd")
   if (function_name == "best.flux") return("bestflux.qmd")
   if (function_name == "import2RData" || grepl("^import\\.", function_name)) return("import.qmd")
@@ -308,8 +316,83 @@ metadata_from_repo <- function() {
 }
 
 load_snapshot <- function(path) {
+  # Auto-migrate from RDS to JSON if needed
+  rds_path <- sub("\\.json$", ".rds", path)
+  if (file.exists(rds_path) && !file.exists(path)) {
+    old_snapshot <- readRDS(rds_path)
+    save_snapshot_json(path, old_snapshot)
+    message("Migrated snapshot from RDS to JSON: ", path)
+  }
+  
   if (!file.exists(path)) return(data.frame())
-  readRDS(path)
+  
+  # Load JSON snapshot - simplified approach
+  tryCatch({
+    json_text <- readLines(path, warn = FALSE)
+    json_str <- paste(json_text, collapse = "\n")
+    
+    # Parse JSON with proper error handling
+    data <- tryCatch(
+      jsonlite::fromJSON(json_str, simplifyDataFrame = FALSE),
+      error = function(e) NULL
+    )
+    
+    if (is.null(data) || !is.list(data)) return(data.frame())
+    
+    # Handle structure: {"functions": [{...}, ...]}
+    functions_list <- if (!is.null(data$functions)) data$functions else data
+    
+    if (length(functions_list) == 0) return(data.frame())
+    
+    # Reconstruct data.frame - handle both list and list-of-lists
+    if (is.list(functions_list[[1]])) {
+      # It's a list of functions
+      result <- do.call(rbind, lapply(functions_list, function(func) {
+        data.frame(
+          function_name = func$function_name %||% "",
+          file_path = func$file_path %||% "",
+          source_hash = func$source_hash %||% "",
+          signature = func$signature %||% "",
+          qmd_target = func$qmd_target %||% "other.qmd",
+          stringsAsFactors = FALSE,
+          row.names = NULL
+        )
+      }))
+      return(result)
+    } else {
+      return(data.frame())
+    }
+  }, error = function(e) {
+    message("Warning: Failed to load snapshot, starting fresh: ", e$message)
+    return(data.frame())
+  })
+}
+
+save_snapshot_json <- function(path, data) {
+  # Convert data.frame to simple JSON for human-readable snapshots
+  if (nrow(data) == 0) {
+    json_obj <- list(functions = list(), metadata = list(created = Sys.time()))
+  } else {
+    json_obj <- list(
+      metadata = list(
+        created = format(Sys.time(), "%Y-%m-%d %H:%M:%S"),
+        functions_count = nrow(data)
+      ),
+      functions = lapply(1:nrow(data), function(i) {
+        list(
+          function_name = data[i, "function_name"],
+          file_path = data[i, "file_path"],
+          source_hash = data[i, "source_hash"],
+          signature = data[i, "signature"],
+          qmd_target = data[i, "qmd_target"]
+        )
+      })
+    )
+  }
+  
+  # Use jsonlite for pretty-printing
+  json_text <- jsonlite::toJSON(json_obj, pretty = TRUE, auto_unbox = TRUE)
+  writeLines(as.character(json_text), path)
 }
 
 detect_changes <- function(current, previous) {
@@ -348,9 +431,193 @@ escape_md_cell <- function(x) {
   x <- gsub("\\[", "\\\\[", x)      # Left bracket
   x <- gsub("\\]", "\\\\]", x)      # Right bracket
   x <- gsub("\\`", "\\\\`", x)      # Backtick
+  x <- gsub("\t", "  ", x)          # Tab to spaces (Phase 3)
   # Normalize whitespace
   x <- gsub("\\s+", " ", x)
   trimws(x)
+}
+
+# ========== Phase 3 Hardened Utilities ==========
+
+find_insertion_point_safe <- function(lines, before_pattern = NULL) {
+  # Find safe insertion point for new content
+  # Returns line index after the last matching block, or EOF if no match
+  if (length(lines) == 0) return(1)
+  
+  # If before_pattern provided, find it
+  if (!is.null(before_pattern)) {
+    idx <- grep(before_pattern, lines)
+    if (length(idx) > 0) {
+      return(min(idx))
+    }
+  }
+  
+  # Default: Append at end
+  length(lines) + 1
+}
+
+detect_anchor_collisions <- function(lines, new_anchor) {
+  # Scan for duplicate anchor IDs
+  anchor_pattern <- paste0("\\{#", new_anchor, "\\}")
+  matches <- grep(anchor_pattern, lines, fixed = TRUE)
+  if (length(matches) > 0) {
+    return(list(
+      collision = TRUE,
+      line_numbers = matches,
+      message = sprintf("Anchor collision: %s already exists at lines %s",
+                        new_anchor, paste(matches, collapse = ", "))
+    ))
+  }
+  list(collision = FALSE)
+}
+
+validate_before_update <- function(qmd_path, function_name, new_anchor = NULL) {
+  # Pre-flight validation gate
+  if (!file.exists(qmd_path)) {
+    return(list(
+      valid = FALSE,
+      error = sprintf("QMD file not found: %s", qmd_path)
+    ))
+  }
+  
+  lines <- readLines(qmd_path, warn = FALSE)
+  
+  if (!is.null(new_anchor)) {
+    collision_check <- detect_anchor_collisions(lines, new_anchor)
+    if (collision_check$collision) {
+      return(list(
+        valid = FALSE,
+        error = collision_check$message
+      ))
+    }
+  }
+  
+  list(valid = TRUE)
+}
+
+validate_markdown_tables <- function(lines) {
+  # Validate markdown table structure
+  # Returns list with validation status and any errors
+  in_table <- FALSE
+  table_start <- NULL
+  errors <- character(0)
+  
+  for (i in seq_along(lines)) {
+    line <- lines[i]
+    
+    # Check for table rows (contain pipes)
+    if (grepl("\\|", line)) {
+      if (!in_table) {
+        in_table <- TRUE
+        table_start <- i
+      }
+      
+      # Count pipes (should be consistent)
+      pipe_count <- length(strsplit(line, "\\|")[[1]]) - 1
+      if (pipe_count < 1) {
+        errors <- c(errors, sprintf("Line %d: Invalid table row format", i))
+      }
+    } else if (in_table && line != "") {
+      # End of table
+      in_table <- FALSE
+      table_start <- NULL
+    }
+  }
+  
+  list(valid = length(errors) == 0, errors = errors)
+}
+
+# ========== End Phase 3 Hardened Utilities ==========
+
+# Phase 3: Update other.qmd with new function sections (additive approach)
+update_other_qmd <- function(qmd_path, function_name, description = "", 
+                             signature, params, examples, dry_run = FALSE) {
+  if (!file.exists(qmd_path)) {
+    message("[WARN] Missing qmd target: ", qmd_path)
+    return(FALSE)
+  }
+  
+  lines <- readLines(qmd_path, warn = FALSE)
+  
+  # Check if function already documented
+  fn_heading_pattern <- paste0("^###+ .*\\b", gsub("\\.", "\\\\.", function_name), "\\b")
+  existing_idx <- which(grepl(fn_heading_pattern, lines, perl = TRUE))
+  
+  changed <- FALSE
+  
+  if (length(existing_idx) > 0) {
+    # Update existing section (e.g., iso.comp)
+    message("[INFO] Updating existing section: ", function_name, " in ", basename(qmd_path))
+    section_start <- existing_idx[1]
+    
+    # Find next heading
+    next_heading <- which(seq_along(lines) > section_start & grepl("^### ", lines))
+    section_end <- if (length(next_heading) > 0) next_heading[1] - 1 else length(lines)
+    
+    # For iso.comp: preserve intro, update Usage/Args/Example blocks
+    # Find and update subsections
+    usage_bounds <- find_section_bounds(lines, section_start, "^#### Usage", section_end)
+    if (!is.null(usage_bounds)) {
+      usage_new <- build_usage_block(signature)
+      lines <- replace_range(lines, usage_bounds$start, usage_bounds$end, usage_new)
+      changed <- TRUE
+      section_end <- section_end - (usage_bounds$end - usage_bounds$start + 1) + length(usage_new)
+    }
+    
+    args_bounds <- find_section_bounds(lines, section_start, "^#### Arguments", section_end)
+    if (!is.null(args_bounds)) {
+      args_new <- build_arguments_block(params)
+      lines <- replace_range(lines, args_bounds$start, args_bounds$end, args_new)
+      changed <- TRUE
+      section_end <- section_end - (args_bounds$end - args_bounds$start + 1) + length(args_new)
+    }
+    
+    example_bounds <- find_section_bounds(lines, section_start, "^#### Example[s]?", section_end)
+    if (!is.null(example_bounds)) {
+      ex_new <- build_example_block(examples)
+      lines <- replace_range(lines, example_bounds$start, example_bounds$end, ex_new)
+      changed <- TRUE
+    }
+  } else {
+    # Add new section at end of file
+    message("[INFO] Adding new section: ", function_name, " to ", basename(qmd_path))
+    
+    # Build new function section with proper anchor
+    anchor <- paste0("sec-", tolower(gsub("\\.", "-", function_name)))
+    new_section <- c(
+      "",
+      paste0("### `", function_name, "` {#", anchor, "}"),
+      ""
+    )
+    
+    # Add description if provided
+    if (nchar(description) > 0) {
+      new_section <- c(new_section, description, "")
+    }
+    
+    # Add Usage, Arguments, and Example blocks
+    new_section <- c(
+      new_section,
+      build_usage_block(signature),
+      build_arguments_block(params),
+      build_example_block(examples)
+    )
+    
+    # Append to file
+    lines <- c(lines, new_section)
+    changed <- TRUE
+  }
+  
+  if (changed && !dry_run) {
+    validate <- validate_before_update(qmd_path, function_name)
+    if (!validate$valid) {
+      message("[WARN] Validation failed: ", validate$error)
+      return(FALSE)
+    }
+    writeLines(lines, qmd_path)
+  }
+  
+  changed
 }
 
 build_usage_block <- function(signature) {
@@ -403,12 +670,25 @@ build_example_block <- function(examples_text) {
   )
 }
 
-find_section_bounds <- function(lines, start_idx, heading_regex) {
+find_section_bounds <- function(lines, start_idx, heading_regex, section_end = NULL) {
   idx <- which(seq_along(lines) > start_idx & grepl(heading_regex, lines, perl = TRUE))
   if (length(idx) == 0) return(NULL)
   h_start <- idx[1]
-  next_h <- which(seq_along(lines) > h_start & grepl("^#### ", lines))
-  h_end <- if (length(next_h) == 0) length(lines) else next_h[1] - 1
+  
+  # Only look for next heading within section_end if provided
+  if (!is.null(section_end)) {
+    next_h <- which(seq_along(lines) > h_start & seq_along(lines) <= section_end & grepl("^#### ", lines))
+  } else {
+    next_h <- which(seq_along(lines) > h_start & grepl("^#### ", lines))
+  }
+  
+  # If no next heading found, use section_end or file end
+  if (length(next_h) == 0) {
+    h_end <- if (is.null(section_end)) length(lines) else section_end
+  } else {
+    h_end <- next_h[1] - 1
+  }
+  
   list(start = h_start, end = h_end)
 }
 
@@ -438,7 +718,7 @@ update_function_qmd <- function(qmd_path, function_name, signature, params, exam
 
   changed <- FALSE
 
-  usage_bounds <- find_section_bounds(lines, section_start, "^#### Usage")
+  usage_bounds <- find_section_bounds(lines, section_start, "^#### Usage", section_end)
   if (!is.null(usage_bounds) && usage_bounds$start <= section_end) {
     usage_new <- build_usage_block(signature)
     lines <- replace_range(lines, usage_bounds$start, usage_bounds$end, usage_new)
@@ -446,7 +726,7 @@ update_function_qmd <- function(qmd_path, function_name, signature, params, exam
     section_end <- section_end - (usage_bounds$end - usage_bounds$start + 1) + length(usage_new)
   }
 
-  args_bounds <- find_section_bounds(lines, section_start, "^#### Arguments")
+  args_bounds <- find_section_bounds(lines, section_start, "^#### Arguments", section_end)
   if (!is.null(args_bounds) && args_bounds$start <= section_end) {
     args_new <- build_arguments_block(params)
     lines <- replace_range(lines, args_bounds$start, args_bounds$end, args_new)
@@ -454,7 +734,7 @@ update_function_qmd <- function(qmd_path, function_name, signature, params, exam
     section_end <- section_end - (args_bounds$end - args_bounds$start + 1) + length(args_new)
   }
 
-  example_bounds <- find_section_bounds(lines, section_start, "^#### Example[s]?")
+  example_bounds <- find_section_bounds(lines, section_start, "^#### Example[s]?", section_end)
   if (!is.null(example_bounds) && example_bounds$start <= section_end) {
     ex_new <- build_example_block(examples)
     lines <- replace_range(lines, example_bounds$start, example_bounds$end, ex_new)
@@ -746,7 +1026,7 @@ update_import_qmd <- function(qmd_path, all_details, dry_run = FALSE) {
 main <- function() {
   opts <- parse_args()
   ensure_dir("../.goflux_automation")
-  snapshot_path <- "../.goflux_automation/snapshot.rds"
+  snapshot_path <- "../.goflux_automation/snapshot.json"
 
   message("=== goFlux documentation generator ===")
   message("Mode: ", opts$mode, if (opts$dry_run) " (dry-run)" else "")
@@ -767,8 +1047,9 @@ main <- function() {
 
   touched <- character(0)
   import_details <- list()
+  other_details <- list()
   
-  # First pass: collect import details for batch processing
+  # First pass: collect details for batch processing
   for (i in seq_len(nrow(changes))) {
     row <- changes[i, ]
     details <- extract_entry_details(row)
@@ -783,6 +1064,11 @@ main <- function() {
     if (target == "import.qmd" && grepl("^import", row$function_name)) {
       import_details[[row$function_name]] <- details
     }
+    
+    # Collect other.qmd functions for Phase 3 batch update (Phase 3)
+    if (target == "other.qmd") {
+      other_details[[row$function_name]] <- details
+    }
   }
   
   # Second pass: update qmd files
@@ -794,7 +1080,7 @@ main <- function() {
     }
 
     target <- row$qmd_target
-    if (target %in% c("goFlux.qmd", "bestflux.qmd")) {
+    if (target %in% c("goFlux.qmd", "bestflux.qmd", "manualID.qmd", "flux2pdf.qmd")) {
       updated <- update_function_qmd(
         qmd_path = target,
         function_name = row$function_name,
@@ -809,6 +1095,8 @@ main <- function() {
       }
     } else if (target == "import.qmd") {
       # Will be handled in batch below
+    } else if (target == "other.qmd") {
+      # Will be handled in batch below (Phase 3)
     } else {
       message("[INFO] Pending implementation for target ", target, " (", row$function_name, ")")
     }
@@ -826,6 +1114,30 @@ main <- function() {
       message("[OK] Updated: ", length(import_details), " import functions -> import.qmd")
     }
   }
+  
+  # Batch update other.qmd if any other functions changed (Phase 3)
+  if (length(other_details) > 0) {
+    other_updated_count <- 0
+    for (func_name in names(other_details)) {
+      details <- other_details[[func_name]]
+      updated <- update_other_qmd(
+        qmd_path = "other.qmd",
+        function_name = func_name,
+        description = "",
+        signature = details$signature,
+        params = if (length(details$params) > 0) details$params else list(),
+        examples = details$examples,
+        dry_run = opts$dry_run
+      )
+      if (isTRUE(updated)) {
+        other_updated_count <- other_updated_count + 1
+      }
+    }
+    if (other_updated_count > 0) {
+      touched <- unique(c(touched, "other.qmd"))
+      message("[OK] Updated: ", other_updated_count, " functions -> other.qmd")
+    }
+  }
 
   if (!opts$dry_run) {
     # Validate render if enabled
@@ -836,7 +1148,7 @@ main <- function() {
       }
     }
     
-    saveRDS(current, snapshot_path)
+    save_snapshot_json(snapshot_path, current)
     message("Snapshot saved: ", snapshot_path)
   }
 

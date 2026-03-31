@@ -1,0 +1,149 @@
+---
+title: "Flux calculation"
+format: 
+  html: 
+    css: styles.css
+engine: knitr
+bibliography: references.bib
+csl: apa-no-initials.csl
+editor: visual
+---
+
+The function `goFlux` calculates fluxes from a variety of greenhouse gases (CO~2~, CH~4~, N~2~O, NO~2~, NO, NH~3~, CO, and H~2~O) using both linear (LM) and non-linear (HM) [@hutchinson1981] flux calculation methods. The HM model for the chamber concentration $C_t$ at time $t > 0$ after deployment is given by:
+
+$$\mathbf{Eqn~1}~~~~~~C_t = \varphi~+~(C_0 - \varphi)e^{-~\kappa~t}$$ {#eq-HM}
+
+Where $\varphi$ is the assumed concentration of constant gas source below the surface (also known as $C_i$), $C_0$ is the concentration in the chamber at the moment of chamber closure and $\kappa$ (kappa) determines the curvature of the model. A large kappa returns a strong curvature.
+
+A maximum threshold for this parameter, kappa-max ($k.max$), can be calculated from the linear flux estimate ($LM.flux$), the minimal detectable flux ($MDF$) and the time of chamber closure ($t$) [@hüppi2018; @christiansen2015].
+
+$$\mathbf{Eqn~2}~~~~~~k.max = \frac{LM.flux}{MDF~\times~t}$$ {#eq-k.max}
+
+Where $LM.flux$ and $MDF$ have the same units (nmol or µmol·m^-2^·s^-1^) and $t$ is in seconds. Therefore, the units of kappa-max is s^-1^. This limit of kappa-max is included in the `goFlux` function, so that the non-linear flux estimate cannot exceed this maximum curvature. See [here](bestflux.qmd#minimal-detectable-flux) for more details about the minimal detectable flux (MDF).
+
+All flux estimates, including the MDF, are multiplied by a $flux.term$ which is used to correct for water vapor inside the chamber, as well as convert the units to obtain a term in nmol or µmol·m^-2^·s^-1^:
+
+$$\mathbf{Eqn~3}~~~~~~flux.term = \frac{(1 - H_2O)~V~P}{A~R~T}$$ {#eq-flux.term}
+
+Where $H_2O$ is the water vapor in mol·mol^-1^, $V$ is the volume inside the chamber (+instrument and tubing) in liters, $P$ is the pressure in kPa, $A$ is the surface area inside the chamber in m^2^, $R$ is the universal gas constant in L·kPa·K^-1^·mol^-1^, and $T$ is the temperature inside the chamber in Kelvin. Each parameter is measured inside the chamber at $t = 0$.
+
+::: callout-note
+## Total volume = chamber + tubing + instruments
+
+Note that the total volume (Vtot) needed for the calculation of the $flux.term$, includes the volume inside the tubing and inside your instruments. Even though these volumes may seem negligible, it is important to include them, especially when comparing flux estimates measured with different instruments.
+
+The good news is, we did the research for you! Find the internal volume of each instrument compatible with the goFlux R package in this Excel spreadsheet: {{< downloadthis docs/example_auxfile.xlsx label="download" dname=example_auxfile id=auxfile-btn >}}
+:::
+
+### Water vapor correction
+
+The "flux term" is a conversion factor used to convert the flux units. Furthermore, the `flux.term` contains a correction term to account for water vapor inside the chamber: $(1 - H_2O)$. This correction term is often overlooked, but is essential when estimating fluxes using dry mole fractions of gases, as described below.
+
+During a measurement in a closed chamber system, if water vapor increases due to evapo-transpiration from soils and plants, it displaces some of the chamber air, thereby diluting all other gases. As a result, flux measurements are underestimated [@welles2001]. That is why most manufacturers provide the dry fraction of measured gases (e.g., `CO2dry_ppm`), meaning that gas concentrations relate the dry mole fraction to the mole fraction measured in moist air by accounting for the dilution effect of water vapor. If manufacturers do not provide the dry fraction of gases, the import functions of the *goFlux* R package converts gas concentrations to their dry fractions automatically.
+
+For example, to obtain the CO~2~ flux $F_c$ in µmol·m^-2^·s^-1^, one must multiply the rate of change of the CO~2~ mole fraction $dC/dt$ with other environmental parameters, immediately after chamber closure, as follows:
+
+$$
+\mathbf{Eqn~4}~~~~~~F_c = \frac{V}{A}\cdot\frac{P_0}{R~T_0}\cdot\frac{dC}{dt}
+$$ {#eq-4}
+
+Where $V$ is the volume inside the chamber (+instrument and tubing) in liters, $P_0$ is the initial air pressure in kPa, $A$ is the surface area inside the chamber in m^2^, $R$ is the universal gas constant in L·kPa·K^-1^·mol^-1^, $T_0$ is the initial temperature inside the chamber in Kelvin. However, this equation does not account for the water vapor dilution in the chamber. To correct for water vapor dilution, one must replace $C$, the CO~2~ mole fraction, with the dry mole fraction $C'$:
+
+$$
+\mathbf{Eqn~5}~~~~~~C = C'(1~-~W)
+$$ {#eq-5}
+
+Where $W$ is the water vapor in mol·mol^-1^. Therefore, when we use the dry fractions of gases for calculating the rate change in gas concentration, we must also correct for water vapor dilution at the start of the measurement in the equation:
+
+$$
+\mathbf{Eqn~6}~~~~~~F_c = \frac{V}{A}\cdot\frac{P_0(1-W_0)}{R~T_0}\cdot\frac{dC'}{dt}
+$$ {#eq-6}
+
+For a more detailed demonstration of how these equations were obtained, refer to the LI-COR support documentations of the LI-8100A instrument ([Support \> LI-8100A \> Operating Instructions \> Deriving the Flux Equation: The Model](https://www.licor.com/support/LI-8100A/topics/deriving-the-flux-equation.html#fc)).
+
+## **Usage**
+
+::: callout-note
+Code chunks under **Usage** sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.
+:::
+
+```{r}
+#| eval: false
+#| code-copy: false
+goFlux(
+  dataframe,
+  gastype,
+  H2O_col = "H2O_ppm",
+  prec = NULL,
+  Area = NULL,
+  offset = NULL,
+  Vtot = NULL,
+  Vcham = NULL,
+  Pcham = NULL,
+  Tcham = NULL,
+  k.mult = 1,
+  warn.length = 60,
+  k.min = 10^-8
+)
+```
+
+### Arguments
+
+|  |  |
+|----|----|
+| `dataframe` | a data.frame containing gas measurements (see `gastype` below), water vapor measurements (see `H2O_col` below) and the following columns: `UniqueID`, `Etime`, `Vtot`, `Area`, `Pcham`, `Tcham` and `flag` (see the parameters `Vtot`, `Area`, `Pcham` and `Tcham` below for more details). `chamID` may be used instead of `UniqueID`. |
+| `gastype` | character string; specifies which column should be used for the flux calculations. Must be one of the following: "CO2dry_ppm", "CH4dry_ppb", "COdry_ppb", "N2Odry_ppb", "NH3dry_ppb", "NO_ppb", "NO2_ppb" or "H2O_ppm". |
+| `H2O_col` | character string; specifies which column should be used to subtract the effect of water vapor in the chamber space. Default is `H2O_col = "H2O_ppm"`. |
+| `prec` | numerical value; precision of the instruments. Units must be the same as `gastype`. With the default `prec = NULL`, instrument precision for each gas must be provided in `dataframe`. |
+| `Area` | numerical value; area of the soil surface inside the chamber (cm^2^). Alternatively, provide the column `Area` in `dataframe` if `Area` is different between samples. |
+| `offset` | (optional) numerical value; height between the soil surface and the chamber (cm). Alternatively, provide the column `offset` in `dataframe` if `offset` is different between samples. `offset` is only used if `Vtot` is missing. |
+| `Vtot` | numerical value; total volume inside the chamber, tubes, instruments, etc. (L). Alternatively, provide the column `Vtot` in `dataframe` if `Vtot` is different between samples. If `Vtot` is missing, the function will calculate it from `Area`, `Vcham` and `offset`. |
+| `Vcham` | (optional) numerical value; volume inside the chamber, tubes and instruments (L). Alternatively, provide the column `Vcham` in `dataframe` if `Vcham` is different between samples. `Vhcam` is only used if `Vtot` is missing. |
+| `Pcham` | numerical value; pressure inside the chamber (kPa). Alternatively, provide the column `Pcham` in `dataframe` if `Pcham` is different between samples. If `Pcham` is not provided, normal atmospheric pressure (101.325 kPa) is used. |
+| `Tcham` | numerical value; temperature inside the chamber (Celsius). Alternatively, provide the column `Tcham` in `dataframe` if `Tcham` is different between samples. If `Tcham` is not provided, 15°C is used as default. |
+| `k.mult` | numerical value; a multiplier for the allowed kappa-max. Default setting is no multiplier (`k.mult = 1`). `k.mult` cannot be negative and must be smaller or equal to 10. |
+| `warn.length` | numerical value; limit under which a measurement is flagged for being too short (`nb.obs < warn.length`). |
+| `k.min` | numerical value; a lower boundary value for kappa in the HM model. Default is `k.min = 10^-8` |
+
+### Details
+
+Flux estimate units are µmol m^-2^s^-1^ (if initial concentration is ppm, e.g. CO2dry_ppm) and nmol m^-2^s^-1^ (if initial concentration is ppb, e.g. CH4dry_ppb).
+
+The `goFlux` function calculates flux estimates from the linear model (LM) and the Hutchinson and Mosier model (HM). The HM model is a non-linear model, whose curvature is controlled by the parameter kappa. A large kappa returns a strong curvature. A maximum threshold for this parameter, kappa-max (`k.max`), can be calculated from the linear flux estimate (`LM.flux`), the minimal detectable flux (`MDF`) and the time of chamber closure. This limit of kappa-max is included in the `goFlux` function, so that the non-linear flux estimate cannot exceed this maximum curvature. Inversely, one can set a minimal threshold for kappa: to allow for a log-like curvature, set `k.min` below 0 (ex. -1), otherwise it should be just above 0 (ex. 10\^-8). `k.min` cannot be 0 as this would result in a singular gradient.
+
+All flux estimates, including the `MDF`, are multiplied by a `flux.term` which is used to correct for water vapor inside the chamber, as well as convert the units to obtain a term in nmol or µmol m^-2^s^-1^.
+
+The argument `Area` is in (cm^2^), but the output units from the `goFlux` function are in (m^2^). This means that there is a factor of 10,000 to convert from (cm^2^) to (m^2^). This is important to take into account if one would provide something else than an `Area` in (cm^2^) to the function. For example, with incubated soil samples, one may provide an amount of soil (kg) instead of an `Area`. To get the right units in that case, multiply the kilograms of soil by 10,000 to remove the conversion from (cm^2^) to (m^2^).
+
+In `gastype`, the gas species listed are the ones for which this package has been adapted. Please write to the maintainer of this package for adaptation of additional gases.
+
+`warn.length` is the limit below which the chamber closure time is flagged for being too short (`nb.obs < warn.length`). Portable greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore, for the default setting of `warn.length = 60`, the chamber closure time should be approximately one minute (60 seconds). If the number of observations is smaller than the threshold, a warning is printed: e.g. "Low number of observations: UniqueID X has 59 observations".
+
+### Value
+
+The function returns a data frame with 28 columns: a `UniqueID` per measurement, 11 columns for the linear model results (linear flux estimate (`LM.flux`), initial gas concentration (`LM.C0`), final gas concentration (`LM.Ct`), slope of linear regression (`LM.slope`), mean absolute error (`LM.MAE`), root mean square error (`LM.RMSE`), Akaike's information criterion corrected for small sample size (`LM.AICc`), standard error (`LM.SE`), relative standard error (`LM.se.rel`), coefficient of determination (`LM.r2`), and *p-value* (`LM.p.val`)), 11 columns for the non-linear model results (non-linear flux estimate (`HM.flux`), initial gas concentration (`HM.C0`), the assumed concentration of constant gas source below the surface (`HM.Ci`), slope at `t=0` (`HM.slope`), mean absolute error (`HM.MAE`), root mean square error (`HM.RMSE`), Akaike's information criterion corrected for small sample size (`HM.AICc`), standard error (`HM.SE`), relative standard error (`HM.se.rel`), coefficient of determination (`HM.r2`), and curvature (kappa; `HM.k`), as well as the minimal detectable flux (`MDF`), the precision of the instrument (`prec`), the flux term (`flux.term`), kappa-max (`k.max`), the g factor (g.fact; `g.factor`), the number of observations used (`nb.obs`) and the true initial gas concentration (`C0`) and final gas concentration (`Ct`).
+
+### Example
+
+```{r}
+#| eval: false
+data(manID.UGGA)
+CO2_flux <- goFlux(manID.UGGA, "CO2dry_ppm")
+CH4_flux <- goFlux(manID.UGGA, "CH4dry_ppb")
+```
+
+::: callout-tip
+#### Tip: Use the function on multiple files at a time
+
+To load multiple RData files at once in your environment and store them all in one object, use the function `map_df` from the package `purrr`.
+
+Use the argument `pattern` to load only the files that match a pattern.
+
+```{r}
+#| eval: false
+my.files <- list.files(path = "RData", pattern = "imp.RData", full.names = TRUE) %>%
+  map_df(~ get(load(.x)))
+
+CO2_flux <- goFlux(my.files, "CO2dry_ppm")
+```
+:::
