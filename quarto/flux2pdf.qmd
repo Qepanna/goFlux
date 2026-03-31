@@ -1,6 +1,11 @@
 ---
 title: "Visual inspection"
 engine: knitr
+format:
+  html:
+    css: custom.scss
+    bibliography: references.bib
+    csl: apa-no-initials.csl
 editor: visual
 ---
 

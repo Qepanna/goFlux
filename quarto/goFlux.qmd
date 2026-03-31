@@ -1,8 +1,11 @@
 ---
 title: "Flux calculation"
 engine: knitr
-bibliography: references.bib
-csl: apa-no-initials.csl
+format:
+  html:
+    css: custom.scss
+    bibliography: references.bib
+    csl: apa-no-initials.csl
 editor: visual
 ---
 
