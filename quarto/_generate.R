@@ -1048,15 +1048,32 @@ main <- function() {
   touched <- character(0)
   import_details <- list()
   other_details <- list()
+  all_metadata <- list()  # Collect metadata for ALL functions for _examples.R (CI/CD only)
   
-  # First pass: collect details for batch processing
-  for (i in seq_len(nrow(changes))) {
-    row <- changes[i, ]
+  # First pass: collect metadata for changed functions (and ALL if rendering)
+  # Only collect all metadata when validate_render is enabled (i.e., not using --no-render)
+  # This keeps local development fast while supporting _examples.R in CI/CD
+  functions_to_extract <- if (opts$validate_render) {
+    # Full render: extract ALL functions for _examples.R
+    seq_len(nrow(current))
+  } else {
+    # Local iteration: extract only changed functions for speed
+    which(current$function_name %in% changes$function_name)
+  }
+  
+  for (i in functions_to_extract) {
+    row <- current[i, ]
     details <- extract_entry_details(row)
     if (is.null(details)) {
-      message("[WARN] Could not re-extract metadata: ", row$function_name)
+      message("[WARN] Could not extract metadata: ", row$function_name)
       next
     }
+    
+    # Store in all_metadata (used for _examples.R and qmd updates)
+    all_metadata[[row$function_name]] <- details
+    
+    # Only collect details for functions in changes list (for updating qmd files)
+    if (!(row$function_name %in% changes$function_name)) next
     
     target <- row$qmd_target
     
@@ -1071,11 +1088,14 @@ main <- function() {
     }
   }
   
-  # Second pass: update qmd files
+  # Second pass: update qmd files (use pre-extracted metadata)
   for (i in seq_len(nrow(changes))) {
     row <- changes[i, ]
-    details <- extract_entry_details(row)
+    
+    # Retrieve pre-extracted metadata (from first pass)
+    details <- all_metadata[[row$function_name]]
     if (is.null(details)) {
+      message("[WARN] Metadata not found for ", row$function_name)
       next
     }
 
@@ -1150,6 +1170,15 @@ main <- function() {
     
     save_snapshot_json(snapshot_path, current)
     message("Snapshot saved: ", snapshot_path)
+    
+    # Save metadata for _examples.R (only in full render mode, not --no-render)
+    if (opts$validate_render && length(all_metadata) > 0) {
+      generated_dir <- file.path(getwd(), "_generated")
+      ensure_dir(generated_dir)
+      metadata_file <- file.path(generated_dir, "function_metadata.RDS")
+      saveRDS(all_metadata, metadata_file)
+      message("Metadata saved: ", metadata_file, " (", length(all_metadata), " functions)")
+    }
   }
 
   if (length(touched) > 0) {
