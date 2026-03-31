@@ -105,8 +105,6 @@ jobs:
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
         timeout-minutes: 5
-        with:
-          version: 1.8.27
 
       - name: Render Quarto project
         working-directory: ./quarto
