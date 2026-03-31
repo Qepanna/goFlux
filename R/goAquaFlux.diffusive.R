@@ -77,6 +77,90 @@
 #'
 #' @keywords internal
 #'
+#'
+
+
+
+# --- Check if abrupt change before/after a bubbling event
+
+.has_abrupt_change <- function(df, gastype, split_time,
+                               window_size = 60,
+                               min_points = 10,
+                               threshold) {
+
+  df_local <- df[
+    df$Etime >= (split_time - window_size) &
+      df$Etime <= (split_time + window_size),
+  ]
+
+  df_before <- df_local[df_local$Etime < split_time, ]
+  df_after  <- df_local[df_local$Etime >= split_time, ]
+
+  if (nrow(df_before) < min_points || nrow(df_after) < min_points) {
+    return(TRUE) # conservative: assume change if not enough data
+  }
+
+  # Fit linear models
+  fit_before <- lm(df_before[[gastype]] ~ df_before$Etime)
+  fit_after  <- lm(df_after[[gastype]] ~ df_after$Etime)
+
+  slope_before <- coef(fit_before)[2]
+  slope_after  <- coef(fit_after)[2]
+
+  # Compare slopes (relative difference)
+  rel_diff <- abs(slope_after - slope_before) / max(abs(slope_before), 1e-9)
+
+  return(rel_diff > threshold)
+}
+
+
+# --- Determine diffusive window
+
+.select_diffusive_window <- function(df, gastype, bubbles,
+                                     window = 30,
+                                     min_points = 10,
+                                     threshold = 0.5) {
+
+  if (is.null(bubbles) || nrow(bubbles) == 0) {
+    return(list(df_diff = df,
+                stop_time = NA))
+  } else if(gastype == "CH4dry_ppb" & !is.na(bubbles$start[1])){
+    return(list(df_diff = df[df$Etime < bubbles$start[1], ],
+                stop_time = bubbles$start[1]))
+  }
+
+  bubble_times <- bubbles$start
+  stop_time <- max(df$Etime)
+
+  for (i in seq_along(bubble_times)) {
+
+    t_bubble <- bubble_times[i]
+
+    change <- .has_abrupt_change(df, gastype, t_bubble,
+                                 window = window,
+                                 min_points = min_points,
+                                 threshold = threshold)
+
+    if (change) {
+      stop_time <- t_bubble
+      last_valid_bubble <- ifelse(i == 1, NA, bubble_times[i - 1])
+      break
+    } else {
+      # continue expanding window
+      last_valid_bubble <- t_bubble
+    }
+  }
+
+  df_diff <- df[df$Etime < stop_time, ]
+
+  return(list(
+    df_diff = df_diff,
+    stop_time = stop_time
+  ))
+}
+
+# --- Main function starts here
+
 goAquaFlux.diffusive <- function(df,
                                  gastype,
                                  criteria = criteria,
@@ -85,19 +169,13 @@ goAquaFlux.diffusive <- function(df,
 
   df <- df[!duplicated(df$Etime), ]
 
+
   # --- Determine diffusive window
-  if (is.null(bubbles) || nrow(bubbles) == 0) {
+  res_window <- .select_diffusive_window(df, gastype, bubbles)
 
-    # No bubbling detected
-    df_diff <- df
-    first_bubble_time <- NA
+  df_diff <- res_window$df_diff
+  first_bubble_time <- res_window$stop_time
 
-  } else {
-
-    first_bubble_time <- bubbles$start[1]
-    df_diff <- df[df$Etime < first_bubble_time, ]
-
-  }
 
   n_used <- nrow(df_diff)
 
