@@ -15,7 +15,7 @@
 #'
 #' @export
 #'
-flux.plot.aqua <- function(flux.results, dataframe, gastype, shoulder = 30,
+flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
                            plot.display = c("diffusive.window", "ebullition.events"),
                            flux.unit = NULL,
                            quality.check = FALSE,
@@ -41,8 +41,15 @@ flux.plot.aqua <- function(flux.results, dataframe, gastype, shoulder = 30,
     stop("'dataframe' must contain a column matching 'gastype'")
   }
 
-  if (missing(flux.results)) stop("'flux.results' is required")
-  if (!is.data.frame(flux.results)) stop("'flux.results' must be a data.frame")
+
+  if (missing(flux.results.ls)) stop("'flux.results' is required")
+  if (!is.list(flux.results.ls)) stop("'flux.results' must be a list")
+
+  flux.results <- flux.results.ls$flux_summary
+  if (!is.data.frame(flux.results)) stop("'flux.results' must be a dataframe")
+
+
+  bubbles <- flux.results.ls$bubbles # if is.null(bubbles) ebullition events will not be displayed in the plot
 
   # Check required columns in flux.results
   required_cols <- c("UniqueID", "flux_total", "flux_diffusive", "flux_ebullition",
@@ -118,13 +125,35 @@ flux.plot.aqua <- function(flux.results, dataframe, gastype, shoulder = 30,
     df_good <- data_corr[[f]]
 
     # Extract flux results for this UniqueID
+    UniqueID <- unique(df_all$UniqueID)
     flux_total <- unique(df_all$flux_total) * conversion.factor
     SE_total <- unique(df_all$SE_total) * conversion.factor
     flux_diff <- unique(df_all$flux_diffusive) * conversion.factor
     SE_diff <- unique(df_all$SE_diffusive) * conversion.factor
     flux_ebull <- unique(df_all$flux_ebullition) * conversion.factor
     SE_ebull <- unique(df_all$SE_ebullition) * conversion.factor
-    first_bubble <- unique(df_all$first_bubble_time)
+
+
+    n_obs_diff <- flux.results$n_obs.diffusion[flux.results$UniqueID == UniqueID]
+    if(!is.null(n_obs_diff)){
+      df_diff <- df_all[seq(1,n_obs_diff),]
+    }
+
+
+    if(!is.null(bubbles)){
+      bubbles_f <- bubbles[bubbles$UniqueID == UniqueID,]
+
+      can.plot.bubbles <- !is.null(bubbles_f) & nrow(bubbles_f)>0
+
+      if(can.plot.bubbles){
+        first_bubble <- bubbles_f$start[1]
+      }
+
+
+    } else {
+      can.plot.bubbles <- FALSE
+    }
+
 
     # Plot limits
     xmax <- max(na.omit(df_good$Etime)) + shoulder
@@ -177,20 +206,6 @@ flux.plot.aqua <- function(flux.results, dataframe, gastype, shoulder = 30,
       }
     }
 
-    # # Plot ebullition events
-    # if (!is.null(plot.display) && any(grepl("\\<ebullition.events\\>", plot.display))) {
-    #   if (!is.na(first_bubble)) {
-    #     display_elements$ebullition_marker <- annotate(
-    #       "vline", xintercept = first_bubble,
-    #       linetype = "dashed", color = "red", size = 0.8
-    #     )
-    #     display_elements$ebullition_label <- annotate(
-    #       "text", x = first_bubble, y = ymax+0.1*ydiff, label = "Diffusive window",
-    #       vjust = -0.5, color = "blue", size = 3
-    #     )
-    #   }
-    # }
-
 
     # Prepare component labels and flux values separately
     delta <- 0.04
@@ -219,6 +234,8 @@ flux.plot.aqua <- function(flux.results, dataframe, gastype, shoulder = 30,
       y = ymin-ydiff*0.15
     )
 
+    df_all$UniqueID <- unique(data_split[[f]]$UniqueID)
+
     # ---- Base plot ----
     plot <- ggplot(df_all, aes(x = Etime)) +
       geom_point(aes(y = .data[[gastype]], color = as.factor(flag)))
@@ -226,13 +243,13 @@ flux.plot.aqua <- function(flux.results, dataframe, gastype, shoulder = 30,
     # ---- Optional layers ----
 
     # Diffusive window (rectangle)
-    if (!is.null(plot.display) && "diffusive.window" %in% plot.display && !is.na(first_bubble)) {
+    if (!is.null(plot.display) && "diffusive.window" %in% plot.display) {
 
       rect_df <- data.frame(
         xmin = 0,
-        xmax = first_bubble,
-        ymin = -Inf,
-        ymax = Inf
+        xmax = max(df_diff$Etime),
+        ymin = min(df_diff[[gastype]]),
+        ymax = max(df_diff[[gastype]])
       )
 
       plot <- plot +
@@ -247,24 +264,26 @@ flux.plot.aqua <- function(flux.results, dataframe, gastype, shoulder = 30,
     }
 
     # Ebullition event (vertical line + label)
-    if (!is.null(plot.display) && "ebullition.events" %in% plot.display && !is.na(first_bubble)) {
+    if (!is.null(plot.display) && "ebullition.events" %in% plot.display && can.plot.bubbles) {
       plot <- plot +
-        geom_vline(
-          xintercept = first_bubble,
-          linetype = "dashed",
-          color = "red",
-          linewidth = 0.8
+        geom_rect(
+          data = bubbles_f,
+          aes(xmin = start, xmax = end, ymin = -Inf, ymax = Inf),
+          fill = "red",
+          alpha = 0.2,
+          inherit.aes = FALSE
         )
       # label
       plot <- plot +
         annotate(
           "text",
-          x = first_bubble+60,
-          y = ymax + 0.1 * ydiff,
-          label = "Ebullition event",
+          x = (bubbles_f$start[1]+bubbles_f$end[1])/2,
+          y = ymax - 0.12* ydiff,
+          label = "1st ebullition event",
           color = "red",
           size = 3,
-          vjust = -0.5
+          vjust = -0.5,
+          angle=90
         )
 
     }
@@ -329,10 +348,10 @@ flux.plot.aqua <- function(flux.results, dataframe, gastype, shoulder = 30,
       theme(
         axis.title.x = element_text(size = 10, face = "bold"),
         axis.title.y = element_text(size = 10, face = "bold")
-      )
+      )+
+      ggtitle(unique(df_all$UniqueID))
 
+    # plot$plot_env$UniqueID <- unique(df_all$UniqueID)
     return(plot)
   })
-
-  return(plot_list)
 }
