@@ -22,7 +22,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: quarto-deploy-${{ github.event_name != 'pull_request' || github.run_id }}
+  group: quarto-deploy-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
 jobs:
@@ -42,6 +42,8 @@ jobs:
         with:
           use-public-rspm: true
           r-version: 'release'
+          cache: 'packages'
+          cache-version: 1
 
       - name: Install R dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
@@ -49,19 +51,13 @@ jobs:
           extra-packages: |
             any::knitr
             any::rmarkdown
-            any::devtools
             any::dplyr
             any::purrr
-            any::readxl
-            any::openxlsx
-            any::usethis
-            any::credentials
             any::tidyr
             any::tibble
             any::ggplot2
             any::stringr
             any::jsonlite
-            any::digest
             local::.
           needs: website
 
@@ -108,7 +104,7 @@ jobs:
 
       - name: Render Quarto project
         working-directory: ./quarto
-        timeout-minutes: 3
+        timeout-minutes: 5
         run: quarto render
 
       # TODO: Validate import sync report (Phase 3b)
