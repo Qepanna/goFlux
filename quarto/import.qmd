@@ -503,19 +503,26 @@ Import single raw gas measurement files from the LI-COR 6400 (CO~2~ and H~2~O G
 ```{r}
 #| eval: false
 #| code-copy: false
-import.LI6400(inputfile, date.format, timezone, save, keep_all, prec)
+import.LI6400(
+  inputfile,
+  date.format = "mdy",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE,
+  prec = c(0.15, 20)
+)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
+|  |  |
+|--------------------------|----------------------------------------------|
 | `inputfile` | character string; the name of a file with the extension .txt |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "mdy", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep\_all` | logical; if \\code{keep\_all = TRUE}, keep all columns from the raw file. The default is \\code{keep\_all = FALSE}, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry\_ppm" and "H2O\_ppm". The default is \\code{prec = c(0.15, 20)}. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
+| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm" and H2O_ppm". The default is `prec = c(0.15, 20)`. |
 
 #### Details
 
@@ -538,12 +545,15 @@ The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlu
 
 ```{r}
 #| eval: false
-
-# Load file from downloaded package
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
 file.path <- system.file("extdata", "LI6400/LI6400.txt", package = "goFlux")
 
-# Run function
+# Import in the environment
 imp.LI6400 <- import.LI6400(inputfile = file.path)
+
+# Or save in a RData folder in the working directory
+import.LI6400(inputfile = file.path, save = TRUE)
 ```
 
 ### LI-7810 {#sec-single-LICOR-LI7810}
@@ -555,19 +565,26 @@ Import single raw gas measurement files from the LI-COR 7810 (CO~2~, CH~4~ and 
 ```{r}
 #| eval: false
 #| code-copy: false
-import.LI7810(inputfile, date.format, timezone, save, keep_all, prec)
+import.LI7810(
+  inputfile,
+  date.format = "ymd",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE,
+  prec = c(3.5, 0.6, 45)
+)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
-| `inputfile` | character string; the name of a file with the extension .data or .txt |
+|  |  |
+|--------------------------|----------------------------------------------|
+| `inputfile` | character string; the name of a file with the extension .data |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep\_all` | logical; if \\code{keep\_all = TRUE}, keep all columns from the raw file. The default is \\code{keep\_all = FALSE}, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry\_ppm", "CH4dry\_ppb" and "H2O\_ppm". The default is \\code{prec = c(3.5, 0.6, 45)}. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
+| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", CH4dry_ppb" and H2O_ppm". The default is `prec = c(3.5, 0.6, 45)`. |
 
 #### Details
 
@@ -588,12 +605,15 @@ The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlu
 
 ```{r}
 #| eval: false
-
-# Load file from downloaded package
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
 file.path <- system.file("extdata", "LI7810/LI7810.data", package = "goFlux")
 
-# Run function
+# Import in the environment
 imp.LI7810 <- import.LI7810(inputfile = file.path)
+
+# Or save in a RData folder in the working directory
+import.LI7810(inputfile = file.path, save = TRUE)
 ```
 
 ### LI-7820 {#sec-single-LICOR-LI7820}
@@ -605,19 +625,26 @@ Import single raw gas measurement files from the LI-COR 7820 (N~2~O and H~2~O GH
 ```{r}
 #| eval: false
 #| code-copy: false
-import.LI7820(inputfile, date.format, timezone, save, keep_all, prec)
+import.LI7820(
+  inputfile,
+  date.format = "ymd",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE,
+  prec = c(0.4, 45)
+)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
-| `inputfile` | character string; the name of a file with the extension .data or .txt |
+|  |  |
+|--------------------------|----------------------------------------------|
+| `inputfile` | character string; the name of a file with the extension .data |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep\_all` | logical; if \\code{keep\_all = TRUE}, keep all columns from the raw file. The default is \\code{keep\_all = FALSE}, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "N2Odry\_ppb" and "H2O\_ppm". The default is \\code{prec = c(0.4, 45)}. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
+| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "N2Odry_ppb" and H2O_ppm". The default is `prec = c(0.4, 45)`. |
 
 #### Details
 
@@ -638,12 +665,15 @@ The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlu
 
 ```{r}
 #| eval: false
-
-# Load file from downloaded package
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
 file.path <- system.file("extdata", "LI7820/LI7820.data", package = "goFlux")
 
-# Run function
+# Import in the environment
 imp.LI7820 <- import.LI7820(inputfile = file.path)
+
+# Or save in a RData folder in the working directory
+import.LI7820(inputfile = file.path, save = TRUE)
 ```
 
 ### LI-8100 {#sec-single-LICOR-LI8100}
@@ -655,19 +685,26 @@ Import single raw gas measurement files from the LI-COR 8100 (CO~2~ and H~2~O G
 ```{r}
 #| eval: false
 #| code-copy: false
-import.LI8100(inputfile, date.format, timezone, save, keep_all, prec)
+import.LI8100(
+  inputfile,
+  date.format = "ymd",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE,
+  prec = c(1, 10)
+)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
+|  |  |
+|--------------------------|----------------------------------------------|
 | `inputfile` | character string; the name of a file with the extension .81x |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep\_all` | logical; if \\code{keep\_all = TRUE}, keep all columns from the raw file. The default is \\code{keep\_all = FALSE}, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry\_ppm" and "H2O\_ppm". The default is \\code{prec = c(1, 10)}. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
+| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm" and H2O_ppm". The default is `prec = c(1, 10)`. |
 
 #### Details
 
@@ -687,12 +724,15 @@ The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlu
 
 ```{r}
 #| eval: false
-
-# Load file from downloaded package
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
 file.path <- system.file("extdata", "LI8100/LI8100.81x", package = "goFlux")
 
-# Run function
+# Import in the environment
 imp.LI8100 <- import.LI8100(inputfile = file.path)
+
+# Or save in a RData folder in the working directory
+import.LI8100(inputfile = file.path, save = TRUE)
 ```
 
 ### LI-8150 + LI-8100A {#sec-single-LICOR-LI8150}
@@ -704,19 +744,26 @@ Import single raw gas measurement files from the LI-COR Multiplexer LI-8150 conn
 ```{r}
 #| eval: false
 #| code-copy: false
-import.LI8150(inputfile, date.format, timezone, save, keep_all, prec)
+import.LI8150(
+  inputfile,
+  date.format = "ymd",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE,
+  prec = c(1, 10)
+)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
+|  |  |
+|--------------------------|----------------------------------------------|
 | `inputfile` | character string; the name of a file with the extension .81x |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep\_all` | logical; if \\code{keep\_all = TRUE}, keep all columns from the raw file. The default is \\code{keep\_all = FALSE}, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry\_ppm" and "H2O\_ppm". The default is \\code{prec = c(1, 10)}. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
+| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm" and H2O_ppm". The default is `prec = c(1, 10)`. |
 
 #### Details
 
@@ -736,12 +783,15 @@ The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlu
 
 ```{r}
 #| eval: false
-
-# Load file from downloaded package
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
 file.path <- system.file("extdata", "LI8150/LI8150.81x", package = "goFlux")
 
-# Run function
+# Import in the environment
 imp.LI8150 <- import.LI8150(inputfile = file.path)
+
+# Or save in a RData folder in the working directory
+import.LI8150(inputfile = file.path, save = TRUE)
 ```
 
 ### LI-8200 (Smart Chamber) {#sec-single-LICOR-LI8200}
@@ -753,17 +803,17 @@ Import single raw data files from the LI-COR smart chamber (LI-8200) with the fu
 ```{r}
 #| eval: false
 #| code-copy: false
-import.LI8200(inputfile, date.format, timezone, save)
+import.LI8200(inputfile, date.format = "ymd", timezone = "UTC", save = FALSE)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
+|  |  |
+|--------------------------|----------------------------------------------|
 | `inputfile` | character string; the name of a file with the extension .json |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
 
 #### Details
 
@@ -788,12 +838,15 @@ As opposed to the other import functions, there is no option to "keep_all" with 
 
 ```{r}
 #| eval: false
-
-# Load file from downloaded package
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
 file.path <- system.file("extdata", "LI8200/LI8200.json", package = "goFlux")
 
-# Run function
+# Import in the environment
 imp.LI8200 <- import.LI8200(inputfile = file.path)
+
+# Or save in a RData folder in the working directory
+import.LI8200(inputfile = file.path, save = TRUE)
 ```
 
 ### LI-8250 (Multiplexer) {#sec-single-LI8250}
@@ -805,23 +858,39 @@ Import single raw data files from the LI-COR Multiplexer (LI-8250) with the func
 ```{r}
 #| eval: false
 #| code-copy: false
-import.LI8250(inputfile, date.format, timezone, save, keep_all, inst1, inst2, gas1, gas2, prec1, prec2, dry1, dry2, SWC.col, Tsoil.col)
+import.LI8250(
+  inputfile,
+  date.format = "ymd",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE,
+  inst1,
+  inst2 = NULL,
+  gas1,
+  gas2 = NULL,
+  prec1,
+  prec2 = NULL,
+  dry1 = T,
+  dry2 = T,
+  SWC.col,
+  Tsoil.col
+)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
+|  |  |
+|--------------------------|----------------------------------------------|
 | `inputfile` | character string; the name of a file with the extension .82z |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep\_all` | logical; if \\code{keep\_all = TRUE}, keep all columns from the raw file. The default is \\code{keep\_all = FALSE}, and columns that are not necessary for gas flux calculation are removed. |
-| `inst1,inst2` | character strings; a pattern to match the columns containing the name of each instrument. For example, with a LI-COR LI-7810, \\code{inst1 = "LI-7810"} and \\code{inst2 = NULL}, which matches the example data file provided with the package. |
-| `gas1,gas2` | character vectors; a pattern to match the columns containing each gas measurement. For example, with a LI-COR LI-7810 \\code{gas1 = c("CO2\_DRY", "CH4\_DRY", "H2O")} and \\code{gas2 = NULL}, which matches the example data file provided with the package. |
-| `prec1,prec2` | numerical vectors; the precision of the instrument for each gas mentioned in \\code{gas1} and \\code{gas2}. For example, with a LI-COR LI-7810, \\code{prec1 = c(3.5, 0.6, 45)} and \\code{prec2 = NULL}, which matches the example data file provided with the package. Note that the order in the arguments \\code{precX} must match the order of the arguments in \\code{gasX}. |
-| `dry1,dry2` | logical; are the gas measurements compensated for water vapor (dry fraction)? If \\code{dryX = TRUE} (default), the gases are compensated for water vapor, and will be named accordingly. For example, the column "CO2\_DRY" will become "CO2dry\_ppm". |
-| `Tsoil.col,SWC.col` | character string; a pattern to match the columns that fit the corresponding parameter. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
+| `inst1`, `inst2` | character strings; a pattern to match the columns containing the name of each instrument. For example, with a LI-COR LI-7810, `inst1 = "LI-7810"` and `inst2 = NULL`, which matches the example data file provided with the package. |
+| `gas1`, `gas2` | character vectors; a pattern to match the columns containing each gas measurement. For example, with a LI-COR LI-7810 `gas1 = c("CO2_DRY", "CH4_DRY", "H2O")` and `gas2 = NULL`, which matches the example data file provided with the package. |
+| `prec1`, `prec2` | numerical vectors; the precision of the instrument for each gas mentioned in `gas1` and `gas2`. For example, with a LI-COR LI-7810, `prec1 = c(3.5, 0.6, 45)` and `prec2 = NULL`, which matches the example data file provided with the package. Note that the order in the arguments `precX` must match the order of the arguments in `gasX`. |
+| `dry1`, `dry2` | logical; are the gas measurements compensated for water vapor (dry fraction)? If `dryX = TRUE` (default), the gases are compensated for water vapor, and will be named accordingly. For example, the column "CO2_DRY" will become "CO2dry_ppm". |
+| `Tsoil.col`, `SWC.col` | character string; a pattern to match the columns that fit the corresponding parameter. |
 
 #### Details
 
@@ -846,15 +915,21 @@ According to the data dictionary of the LI-8250 Multiplexer [online](https://www
 
 ```{r}
 #| eval: false
-
-# Load file from downloaded package
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
 file.path <- system.file("extdata", "LI8250/LI8250.82z", package = "goFlux")
 
-# Run function
+# Import in the environment
 imp.LI8250 <- import.LI8250(inputfile = file.path, inst1 = "LI-7810",
                             gas1 = c("CO2_DRY", "CH4_DRY", "H2O"),
                             prec1 = c(3.5, 0.6, 45), SWC.col = "SWC_1",
                             Tsoil.col = "TS_1")
+
+# Or save in a RData folder in the working directory
+import.LI8250(inputfile = file.path, save = TRUE, inst1 = "LI-7810",
+              gas1 = c("CO2_DRY", "CH4_DRY", "H2O"),
+              prec1 = c(3.5, 0.6, 45), SWC.col = "SWC_1",
+              Tsoil.col = "TS_1")
 ```
 
 ## LGR {#sec-single-LGR}
@@ -868,19 +943,26 @@ Import single raw gas measurement files from the ultra-portable GHG analyzers (G
 ```{r}
 #| eval: false
 #| code-copy: false
-import.UGGA(inputfile, date.format, timezone, save, keep_all, prec)
+import.UGGA(
+  inputfile,
+  date.format = "dmy",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE,
+  prec = c(0.2, 1.4, 50)
+)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
+|  |  |
+|--------------------------|----------------------------------------------|
 | `inputfile` | character string; the name of a file with the extension .txt |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "dmy", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep\_all` | logical; if \\code{keep\_all = TRUE}, keep all columns from the raw file. The default is \\code{keep\_all = FALSE}, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry\_ppm", "CH4dry\_ppb" and "H2O\_ppm". The default is \\code{prec = c(0.2, 1.4, 50)}, which corresponds to the ultra-portable GGA (GLA132 series). For the micro ultra-portable GGA (GLA131 series), use \\code{prec = c(0.35, 0.9, 200)}. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
+| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", CH4dry_ppb" and H2O_ppm". The default is `prec = c(0.2, 1.4, 50)`, which corresponds to the ultra-portable GGA (GLA132 series). For the micro ultra-portable GGA (GLA131 series), use `prec = c(0.35, 0.9, 200)`. |
 
 #### Details
 
@@ -896,16 +978,36 @@ If your LGR instrument (UGGA or MGGA) uses different units, either convert the u
 
 The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers/lgr-icos-ultraportable-analyzers-gla132-series) for the latest model of this instrument available at the time of the creation of this function (11-2023).
 
-#### Example
+#### Examples
+
+##### UGGA (GLA132 series)
 
 ```{r}
 #| eval: false
-
-# Load file from downloaded package
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
 file.path <- system.file("extdata", "UGGA/UGGA.txt", package = "goFlux")
 
-# Run function
-imp.UGGA <- import.UGGA(inputfile = file.path)
+# Import in the environment
+imp.UGGA <- import.UGGA(inputfile = file.path, prec = c(0.2, 1.4, 50))
+
+# Or save in a RData folder in the working directory
+import.UGGA(inputfile = file.path, prec = c(0.2, 1.4, 50), save = TRUE)
+```
+
+##### MGGA (GLA131 series)
+
+```{r}
+#| eval: false
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
+file.path <- system.file("extdata", "UGGA/UGGA.txt", package = "goFlux")
+
+# Import in the environment
+imp.MGGA <- import.UGGA(inputfile = file.path, prec = c(0.35, 0.9, 200))
+
+# Or save in a RData folder in the working directory
+import.UGGA(inputfile = file.path, prec = c(0.35, 0.9, 200), save = TRUE)
 ```
 
 ### N2OM1 {#sec-single-LGR-N2OM1}
@@ -917,19 +1019,26 @@ Import single raw gas measurement files from the N2OM1 GHG analyzers (GLA151 ser
 ```{r}
 #| eval: false
 #| code-copy: false
-import.N2OM1(inputfile, date.format, timezone, save, keep_all, prec)
+import.N2OM1(
+  inputfile,
+  date.format = "dmy",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE,
+  prec = c(0.5, 2, 50)
+)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
+|  |  |
+|--------------------------|----------------------------------------------|
 | `inputfile` | character string; the name of a file with the extension .txt |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "dmy", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep\_all` | logical; if \\code{keep\_all = TRUE}, keep all columns from the raw file. The default is \\code{keep\_all = FALSE}, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "N2Odry\_ppb", "CH4dry\_ppb" and "H2O\_ppm". The default is \\code{prec = c(0.5, 2, 50)}. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
+| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "N2Odry_ppb", CH4dry_ppb" and H2O_ppm". The default is `prec = c(0.5, 2, 50)`. |
 
 #### Details
 
@@ -949,12 +1058,15 @@ The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlu
 
 ```{r}
 #| eval: false
-
-# Load file from downloaded package
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
 file.path <- system.file("extdata", "N2OM1/N2OM1.txt", package = "goFlux")
 
-# Run function
-imp.N2OM1 <- import.N2OM1(inputfile = file.path)
+# Import in the environment
+imp.N2OM1 <- import.N2OM1(inputfile = file.path, prec = c(0.5, 2, 50))
+
+# Or save in a RData folder in the working directory
+import.N2OM1(inputfile = file.path, prec = c(0.5, 2, 50), save = TRUE)
 ```
 
 ### N2Oi2 {#sec-single-LGR-N2Oi2}
@@ -966,19 +1078,26 @@ Import single raw gas measurement files from the Isotopic N~2~O analyzer (GLA451
 ```{r}
 #| eval: false
 #| code-copy: false
-import.N2Oi2(inputfile, date.format, timezone, save, keep_all, prec)
+import.N2Oi2(
+  inputfile,
+  date.format = "dmy",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE,
+  prec = c(0.05, 50)
+)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
+|  |  |
+|--------------------------|----------------------------------------------|
 | `inputfile` | character string; the name of a file with the extension .txt |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "dmy", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep\_all` | logical; if \\code{keep\_all = TRUE}, keep all columns from the raw file. The default is \\code{keep\_all = FALSE}, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "N2Odry\_ppb" and "H2O\_ppm". The default is \\code{prec = c(0.05, 50)}. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
+| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "N2Odry_ppb", and "H2O_ppm". The default is `prec = c(0.05, 50)`. |
 
 #### Details
 
@@ -998,12 +1117,15 @@ The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlu
 
 ```{r}
 #| eval: false
-
-# Load file from downloaded package
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
 file.path <- system.file("extdata", "N2Oi2/N2Oi2.txt", package = "goFlux")
 
-# Run function
-#imp.N2Oi2 <- import.N2Oi2(inputfile = file.path)
+# Import in the environment
+imp.N2Oi2 <- import.N2Oi2(inputfile = file.path, prec = c(0.05, 50))
+
+# Or save in a RData folder in the working directory
+import.N2Oi2(inputfile = file.path, prec = c(0.05, 50), save = TRUE)
 ```
 
 ## GAIA2TECH {#sec-single-GAIA}
@@ -1122,26 +1244,40 @@ Imports single raw gas measurement files from the SkyLine2D system from Earth Bo
 ```{r}
 #| eval: false
 #| code-copy: false
-import.skyline(inputfile, date.format, timezone, save, keep_all, deadband, shoulder, CH.col, CH.clo.col, sensor1, sensor2, inst, gas, prec, dry)
+import.skyline(
+  inputfile,
+  date.format = "ymd",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE,
+  background = FALSE,
+  CH.col = "CH ID",
+  CH.clo.col = "Chamber closed",
+  sensor1 = "Analog Sensor1",
+  sensor2 = "Analog Sensor2",
+  inst = "Instrument",
+  gas = c("CO2", "CH4 Dry", "N2O Dry", "H2O"),
+  prec = c(0.24, 0.3, 5, 500),
+  dry = T
+)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
+|  |  |
+|---------------------|---------------------------------------------------|
 | `inputfile` | character string; the name of a file with the extension .csv |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep\_all` | logical; if \\code{keep\_all = TRUE}, keep all columns from the raw file. The default is \\code{keep\_all = FALSE}, and columns that are not necessary for gas flux calculation are removed. |
-| `deadband` | numerical; define a deadband at the start of measurements (seconds). |
-| `shoulder` | numerical; include background data points before and after the measurement (seconds). |
-| `CH.clo.col,CH.col` | character string; a pattern to match columns that fit the corresponding parameters: \\code{CH.col = "CH ID"} and \\code{CH.clo.col = "Chamber closed"}. |
-| `inst` | character string; a pattern to match the column containing the name of the GHG analyzer: \\code{inst = "Instrument"}. |
-| `sensor1,sensor2` | character strings; a pattern to match the columns containing the name of each sensor. By default, \\code{sensor1 = "Analog Sensor1"}, \\code{sensor2 = "Analog Sensor2"}, to match the example data file provided with the package. Set to NULL to ignore these columns. |
-| `gas` | character vector; a pattern to match the columns containing each gas measurement. By default, \\code{gas = c("CO2", "CH4 Dry", "N2O Dry", "H2O")}, to match the example data file provided with the package. |
-| `prec` | numerical vector; the precision of the instrument for each gas mentioned in \\code{gas}. By default, \\code{prec = c(0.24, 0.3, 5, 500)}, to match the example data file provided with the package. Note that the order in the arguments \\code{prec} must match the order of the arguments in \\code{gas}. |
-| `dry` | logical; are the gas measurements compensated for water vapor (dry fraction)? If \\code{dry = TRUE} (default), the gases are already compensated for water vapor. Otherwise, the gases will be converted to a dry fraction. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
+| `background` | logical; if `background = FALSE`, removes all data from the opened chamber. |
+| `CH.clo.col`, `CH.col` | character string; a pattern to match columns that fit the corresponding parameters: `CH.col = "CH ID"` and `CH.clo.col = "Chamber closed"`. |
+| `sensor1`, `sensor2` | character strings; a pattern to match the columns containing the name of each sensor. By default, `sensor1 = "Analog Sensor1"`, `sensor2 = "Analog Sensor2"`, to match the example data file provided with the package. Set to NULL to ignore these columns. |
+| `inst` | character string; a pattern to match the column containing the name of the GHG analyzer: `inst = "Instrument"`. |
+| `gas` | character vector; a pattern to match the columns containing each gas measurement. By default, `gas = c("CO2", "CH4 Dry", "N2O Dry", "H2O")`, to match the example data file provided with the package. |
+| `prec` | numerical vector; the precision of the instrument for each gas mentioned in `gas`. By default, `prec = c(0.24, 0.3, 5, 500)`, to match the example data file provided with the package. Note that the order in the arguments `prec` must match the order of the arguments in `gas`. |
+| `dry` | logical; are the gas measurements compensated for water vapor (dry fraction)? If `dry = TRUE` (default), the gases are already compensated for water vapor. Otherwise, the gases will be converted to a dry fraction. |
 
 #### Details
 
@@ -1163,12 +1299,15 @@ The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlu
 
 ```{r}
 #| eval: false
-
-# Load file from downloaded package
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
 file.path <- system.file("extdata", "skyline/skyline.csv", package = "goFlux")
 
-# Run function
+# Import in the environment
 imp.skyline <- import.skyline(inputfile = file.path)
+
+# Or save in a RData folder in the working directory
+import.skyline(inputfile = file.path, save = TRUE)
 ```
 
 ## Gasmet {#sec-single-Gasmet}
@@ -1182,19 +1321,26 @@ Import single raw gas measurement files from the Gasmet DX4015 gas analyzer (CO,
 ```{r}
 #| eval: false
 #| code-copy: false
-import.DX4015(inputfile, date.format, timezone, save, keep_all, prec)
+import.DX4015(
+  inputfile,
+  date.format = "ymd",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE,
+  prec = c(1.6, 23, 13, 2, 23, 33)
+)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
+|  |  |
+|--------------------------|----------------------------------------------|
 | `inputfile` | character string; the name of a file with the extension .TXT |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep\_all` | logical; if \\code{keep\_all = TRUE}, keep all columns from the raw file. The default is \\code{keep\_all = FALSE}, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry\_ppm", "COdry\_ppb", "CH4dry\_ppb", "N2Odry\_ppb", "NH3dry\_ppb" and "H2O\_ppm". The default is \\code{prec = c(1.6, 23, 13, 2, 23, 33)}. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
+| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", "COdry_ppb", CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" and H2O_ppm". The default is `prec = c(1.6, 23, 13, 2, 23, 33)`. |
 
 #### Details
 
@@ -1215,12 +1361,15 @@ The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlu
 
 ```{r}
 #| eval: false
-
-# Load file from downloaded package
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
 file.path <- system.file("extdata", "DX4015/DX4015.TXT", package = "goFlux")
 
-# Run function
+# Import in the environment
 imp.DX4015 <- import.DX4015(inputfile = file.path)
+
+# Or save in a RData folder in the working directory
+import.DX4015(inputfile = file.path, save = TRUE)
 ```
 
 ### GT5000 {#sec-single-Gasmet-GT5000}
@@ -1232,19 +1381,26 @@ Import single raw gas measurement files from the Gasmet GT5000 gas analyzer (CO,
 ```{r}
 #| eval: false
 #| code-copy: false
-import.GT5000(inputfile, date.format, timezone, save, keep_all, prec)
+import.GT5000(
+  inputfile,
+  date.format = "ymd",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE,
+  prec = c(1.6, 23, 13, 2, 23, 33)
+)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
+|  |  |
+|--------------------------|----------------------------------------------|
 | `inputfile` | character string; the name of a file with the extension .TXT |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep\_all` | logical; if \\code{keep\_all = TRUE}, keep all columns from the raw file. The default is \\code{keep\_all = FALSE}, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry\_ppm", "COdry\_ppb", "CH4dry\_ppb", "N2Odry\_ppb", "NH3dry\_ppb" and "H2O\_ppm". The default is \\code{prec = c(1.6, 23, 13, 2, 23, 33)}. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
+| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", "COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" and "H2O_ppm". The default is `prec = c(1.6, 23, 13, 2, 23, 33)`. |
 
 #### Details
 
@@ -1265,12 +1421,15 @@ The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlu
 
 ```{r}
 #| eval: false
-
-# Load file from downloaded package
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
 file.path <- system.file("extdata", "GT5000/GT5000.TXT", package = "goFlux")
 
-# Run function
+# Import in the environment
 imp.GT5000 <- import.GT5000(inputfile = file.path)
+
+# Or save in a RData folder in the working directory
+import.GT5000(inputfile = file.path, save = TRUE)
 ```
 
 ## Picarro {#sec-single-Picarro}
@@ -1284,23 +1443,34 @@ Import single raw gas measurement files from the Picarro G2201-*i* (CO~2~ and CH
 ```{r}
 #| eval: false
 #| code-copy: false
-import.G2201i(inputfile, date.format, timezone, save, keep_all, prec, CH4, CO2, sum, range)
+import.G2201i(
+  inputfile,
+  date.format = "ymd",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE,
+  prec = c(0.2, 50, 100),
+  CH4 = "HP_12CH4_dry",
+  CO2 = "12CO2_dry",
+  sum = TRUE,
+  range = 10
+)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
+|  |  |
+|--------------------------|----------------------------------------------|
 | `inputfile` | character string; the name of a file with the extension .dat |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep\_all` | logical; if \\code{keep\_all = TRUE}, keep all columns from the raw file. The default is \\code{keep\_all = FALSE}, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry\_ppm", "CH4dry\_ppb" and "H2O\_ppm". The default is \\code{prec = c(0.2, 50, 100)}. |
-| `CH4` | character string; which column should be used for \\ifelse{html}{\\out{CH<sub>4</sub>}}{\\eqn{CH\[4\]}{ASCII}} concentration. By default, \\code{CH4 = "HP\_12CH4\_dry"}. |
-| `CO2` | character string; which column should be used for \\ifelse{html}{\\out{CO<sub>2</sub>}}{\\eqn{CO\[2\]}{ASCII}} concentration. By default, \\code{CO2 = "12CO2\_dry"}. |
-| `sum` | logical; if \\code{sum = TRUE} (default), the arguments \\code{CH4} and \\code{CO2} are ignored and, instead, both fractions (carbon isotope 12 and 13) of each gas, are summed after correction for water vapor, to obtain the total gas concentration. See the argument \\code{range} for the selection between the HP or the HR measurement of \\ifelse{html}{\\out{CH<sub>4</sub>}}{\\eqn{CH\[4\]}{ASCII}} concentration. |
-| `range` | numerical value; at which threshold should the function select between high precision (HP) and high resolution (HR) of \\ifelse{html}{\\out{CH<sub>4</sub>}}{\\eqn{CH\[4\]}{ASCII}} concentration? The default is \\code{range = 10}. If the methane concentration recorded in the column \\code{HP\_12CH4\_dry} is above 10 ppm, the concentration from the columns \\code{HR\_12CH4\_dry} and \\code{HR\_13CH4} are used for the sum instead of HP. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
+| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", "CH4dry_ppb" and "H2O_ppm". The default is `prec = c(0.2, 50, 100)`. |
+| `CH4` | character string; which column should be used for CH~4~ concentration. By default, `CH4 = "HP_12CH4_dry"`. |
+| `CO2` | character string; which column should be used for CO~2~ concentration. By default, `CO2 = "12CO2_dry"`. |
+| `sum` | logical; if `sum = TRUE` (default), the arguments `CH4` and `CO2` are ignored and, instead, both fractions (carbon isotope 12 and 13) of each gas, are summed after correction for water vapor, to obtain the total gas concentration. See the argument `range` for the selection between the HP or the HR measurement of CH~4~ concentration. |
+| `range` | numerical value; at which threshold should the function select between high precision (HP) and high resolution (HR) of CH~4~ concentration? The default is `range = 10`. If the methane concentration recorded in the column `HP_12CH4_dry` is above 10 ppm, the concentration from the columns `HR_12CH4_dry` and `HR_13CH4` are used for the sum instead of HP. |
 
 #### Details
 
@@ -1339,12 +1509,15 @@ The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlu
 
 ```{r}
 #| eval: false
-
-# Load file from downloaded package
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
 file.path <- system.file("extdata", "G2201i/2025/05/13/G2201i.dat", package = "goFlux")
 
-# Run function
+# Import in the environment
 imp.G2201i <- import.G2201i(inputfile = file.path)
+
+# Or save in a RData folder in the working directory
+import.G2201i(inputfile = file.path, save = TRUE)
 ```
 
 ### G2508 {#sec-single-Picarro-G2508}
@@ -1356,19 +1529,26 @@ Import single raw gas measurement files from the Picarro G2508 (CO~2~, CH~4~, N~
 ```{r}
 #| eval: false
 #| code-copy: false
-import.G2508(inputfile, date.format, timezone, save, keep_all, prec)
+import.G2508(
+  inputfile,
+  date.format = "ymd",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE,
+  prec = c(0.24, 0.3, 5, 0.16, 500)
+)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
+|  |  |
+|--------------------------|----------------------------------------------|
 | `inputfile` | character string; the name of a file with the extension .dat |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep\_all` | logical; if \\code{keep\_all = TRUE}, keep all columns from the raw file. The default is \\code{keep\_all = FALSE}, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry\_ppm", "CH4dry\_ppb", "N2Odry\_ppb", "NH3dry\_ppb" and "H2O\_ppm". The default is \\code{prec = c(0.24, 0.3, 5, 0.16, 500)}. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
+| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" and H2O_ppm". The default is `prec = c(0.24, 0.3, 5, 0.16, 500)`. |
 
 #### Details
 
@@ -1390,12 +1570,15 @@ The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlu
 
 ```{r}
 #| eval: false
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
+file.path <- system.file("extdata", "G2508/2022/08/01/G2508.dat", package = "goFlux")
 
-# Load file from downloaded package
-file.path <- system.file("extdata", "G2508/2023/08/01/G2508.dat", package = "goFlux")
-
-# Run function
+# Import in the environment
 imp.G2508 <- import.G2508(inputfile = file.path)
+
+# Or save in a RData folder in the working directory
+import.G2508(inputfile = file.path, save = TRUE)
 ```
 
 ### G4301 {#sec-single-Picarro-G4301}
@@ -1407,19 +1590,26 @@ Import single raw gas measurement files from the Picarro G4301 (CO~2~, CH~4~ an
 ```{r}
 #| eval: false
 #| code-copy: false
-import.G4301(inputfile, date.format, timezone, save, keep_all, prec)
+import.G4301(
+  inputfile,
+  date.format = "ymd",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE,
+  prec = c(0.025, 0.1, 10)
+)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
+|  |  |
+|--------------------------|----------------------------------------------|
 | `inputfile` | character string; the name of a file with the extension .dat |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep\_all` | logical; if \\code{keep\_all = TRUE}, keep all columns from the raw file. The default is \\code{keep\_all = FALSE}, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry\_ppm", "CH4dry\_ppb" and "H2O\_ppm". The default is \\code{prec = c(0.025, 0.1, 10)}. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
+| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", CH4dry_ppb" and H2O_ppm". The default is `prec = c(0.025, 0.1, 10)`. |
 
 #### Details
 
@@ -1441,12 +1631,15 @@ The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlu
 
 ```{r}
 #| eval: false
-
-# Load file from downloaded package
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
 file.path <- system.file("extdata", "G4301/G4301.dat", package = "goFlux")
 
-# Run function
+# Import in the environment
 imp.G4301 <- import.G4301(inputfile = file.path)
+
+# Or save in a RData folder in the working directory
+import.G4301(inputfile = file.path, save = TRUE)
 ```
 
 ## PP-Systems {#sec-single-PP-System}
@@ -1460,19 +1653,27 @@ Import single raw gas measurement files from the PP-Systems EGM-5 Portable CO~2~
 ```{r}
 #| eval: false
 #| code-copy: false
-import.EGM5(inputfile, date.format, timezone, save, keep_all, prec, proc.data.field)
+import.EGM5(
+  inputfile,
+  date.format = "dmy",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE,
+  prec = c(3, 1, 500),
+  proc.data.field = NULL
+)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
+|  |  |
+|--------------------------|----------------------------------------------|
 | `inputfile` | character string; the name of a file with the extension .TXT |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "dmy", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep\_all` | logical; if \\code{keep\_all = TRUE}, keep all columns from the raw file. The default is \\code{keep\_all = FALSE}, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry\_ppm", "O2dry\_pct" and "H2O\_ppm". The default is \\code{prec = c(3, 1, 500)}. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
+| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", "O2dry_pct" and H2O_ppm". The default is `prec = c(3, 1, 500)`. |
 | `proc.data.field` | numeric value; select the process data field used with the EGM-5. There are 5 different modes available: (1) Measure mode; (2) SRC or Custom mode; (3) CPY mode; (4) Injection mode; or (5) Static mode. If no value is specified, the parameters will be named "param1", "param2", "param3", "param4" and "param5". |
 
 #### Details
@@ -1499,12 +1700,15 @@ Note that the default file extension for this instrument is .TXT, however, it is
 
 ```{r}
 #| eval: false
-
-# Load file from downloaded package
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
 file.path <- system.file("extdata", "EGM5/EGM5.TXT", package = "goFlux")
 
-# Run function
+# Import in the environment
 imp.EGM5 <- import.EGM5(inputfile = file.path)
+
+# Or save in a RData folder in the working directory
+import.EGM5(inputfile = file.path, save = TRUE)
 ```
 
 ## Aeris Technologies {#sec-single-Aeris}
@@ -1518,19 +1722,26 @@ Import single raw data files from the MIRA Ultra CH~4~/ C~2~H~6~ Natural Gas Lea
 ```{r}
 #| eval: false
 #| code-copy: false
-import.uCH4(inputfile, date.format, timezone, save, keep_all, prec)
+import.uCH4(
+  inputfile,
+  date.format = "mdy",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE,
+  prec = c(1, 0.5, 15)
+)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
+|  |  |
+|--------------------------|----------------------------------------------|
 | `inputfile` | character string; the name of a file with the extension .txt |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "mdy", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep\_all` | logical; if \\code{keep\_all = TRUE}, keep all columns from the raw file. The default is \\code{keep\_all = FALSE}, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CH4\_ppb", "C2H6dry\_ppb" and "H2O\_ppm". The default is \\code{prec = c(1, 0.5, 15)}. The precision for water vapor is currently unknown, and a default of 1 ppm is used. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
+| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CH4_ppb", "C2H6dry_ppb" and "H2O_ppm". The default is `prec = c(1, 0.5, 15)`. The precision for water vapor is currently unknown, and a default of 1 ppm is used. |
 
 #### Details
 
@@ -1547,16 +1758,19 @@ If your Aeris instrument (MIRA Ultra CH~4~/ C~2~H~6~ analyzer) uses different un
 
 The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for C~2~H~6~ and CH~4~, or 1 ppb for H~2~O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://aerissensors.com/mira-pico-mobile-lds/s) for the latest model of this instrument available at the time of the creation of this function (01-2024). The precision for water vapor is currently unknown, and a default of 1 ppm is used.
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
-
-# Load file from downloaded package
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
 file.path <- system.file("extdata", "uCH4/uCH4.txt", package = "goFlux")
 
-# Run function
+# Import in the environment
 imp.uCH4 <- import.uCH4(inputfile = file.path)
+
+# Or save in a RData folder in the working directory
+import.uCH4(inputfile = file.path, save = TRUE)
 ```
 
 ### MIRA Ultra N~2~O/ CO~2~ analyzer {#sec-single-Aeris-uN2O}
@@ -1568,19 +1782,26 @@ Import single raw data files from the MIRA Ultra N~2~O/ CO~2~ High Accuracy Anal
 ```{r}
 #| eval: false
 #| code-copy: false
-import.uN2O(inputfile, date.format, timezone, save, keep_all, prec)
+import.uN2O(
+  inputfile,
+  date.format = "mdy",
+  timezone = "UTC",
+  save = FALSE,
+  keep_all = FALSE,
+  prec = c(0.2, 0.2, 15)
+)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
+|  |  |
+|--------------------------|----------------------------------------------|
 | `inputfile` | character string; the name of a file with the extension .txt |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "mdy", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep\_all` | logical; if \\code{keep\_all = TRUE}, keep all columns from the raw file. The default is \\code{keep\_all = FALSE}, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry\_ppm", "N2O\_ppb" and "H2O\_ppm". The default is \\code{prec = c(0.2, 0.2, 15)}. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
+| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", "N2O_ppb" and "H2O_ppm". The default is `prec = c(0.2, 0.2, 15)`. |
 
 #### Details
 
@@ -1596,16 +1817,19 @@ If your Aeris instrument (MIRA Ultra N~2~O/ CO~2~ analyzer) uses different units
 
 The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and N~2~O, or 1 ppb for H~2~O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://aerissensors.com/ultimate-precision-for-your-ghgs-measurementsthe-mira-co2-n2o/) for the latest model of this instrument available at the time of the creation of this function (01-2024). The precision for water vapor is currently unknown, and a default of 1 ppm is used.
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
-
-# Load file from downloaded package
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
 file.path <- system.file("extdata", "uN2O/uN2O.txt", package = "goFlux")
 
-# Run function
+# Import in the environment
 imp.uN2O <- import.uN2O(inputfile = file.path)
+
+# Or save in a RData folder in the working directory
+import.uN2O(inputfile = file.path, save = TRUE)
 ```
 
 ## Healthy Photon {#sec-single-HealthyPhoton}
@@ -1619,18 +1843,24 @@ Imports single raw gas measurement files from the all-in-one GHG analyzer HT8850
 ```{r}
 #| eval: false
 #| code-copy: false
-import.HT8850(inputfile, date.format, timezone, save, prec)
+import.HT8850(
+  inputfile,
+  date.format = "ymd",
+  timezone = "UTC",
+  save = FALSE,
+  prec = c(0.5, 3, 0.5, 10)
+)
 ```
 
 #### Arguments
 
-| Parameter | Description |
-|:----------|:---------------------------|
+|  |  |
+|------------------|------------------------------------------------------|
 | `inputfile` | character string; the name of a file with the extension .txt |
 | `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
 | `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if \\code{save = TRUE}, saves the file as an .RData file in a RData folder in the current working directory. If \\code{save = FALSE}, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry\_ppm", "CH4dry\_ppb", "N2O\_ppb" and "H2O\_ppm". The default is \\code{prec = c(0.5, 3, 0.5, 10)}. |
+| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
+| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", "CH4dry_ppb", "N2O_ppb" and "H2O_ppm". The default is `prec = c(0.5, 3, 0.5, 10)`. |
 
 #### Details
 
@@ -1649,12 +1879,15 @@ The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlu
 
 ```{r}
 #| eval: false
-
-# Load file from downloaded package
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
 file.path <- system.file("extdata", "HT8850/HT8850.txt", package = "goFlux")
 
-# Run function
+# Import in the environment
 imp.HT8850 <- import.HT8850(inputfile = file.path)
+
+# Or save in a RData folder in the working directory
+import.HT8850(inputfile = file.path, save = TRUE)
 ```
 
 ## GasmetPD {#sec-single-GasmetPD}
