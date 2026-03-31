@@ -1,8 +1,5 @@
 ---
 title: "Identify start and end of measurements"
-format: 
-  html: 
-    css: styles.css
 engine: knitr
 editor: visual
 ---
@@ -130,7 +127,7 @@ The manual identification of measurements is done in three steps:
 
 The auxiliary file (`auxfile`) requires two elements: a `UniqueID` and a `start.time` for each measurement. The `UniqueID` must be **unique**. For example, one could combine the name of a site (733a), a plot number (C) and a subplot (C), which would give the `UniqueID` "733a_C_C". If repeated measurements are done on the same experimental unit, then a date (e.g. 2022-09-28) could be added to the `UniqueID` (e.g. "733a_C_C_220928") to make it truly unique and easy to understand. The `start.time` must be in the format "%Y-%m-%d %H:%M:%S" (e.g. 2022-09-28 12:17:00) to be converted to POSIXct.
 
-You can {{< downloadthis docs/example_auxfile.xlsx label="download" dname=example_auxfile id=auxfile-btn >}} an example Excel spreadsheet that you can use to create your auxiliary file.
+You can [download](quarto/docs/example_auxfile.xlsx) an example Excel spreadsheet that you can use to create your auxiliary file.
 
 ### Load the auxfile
 
