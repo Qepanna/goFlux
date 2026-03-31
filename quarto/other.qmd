@@ -71,7 +71,6 @@ auto_db <- auto.deadband(manID.UGGA, "CO2dry_ppm")
 crop_UGGA <- crop.meas(manID.UGGA, auto_db, deadband = "aux")
 ```
 
-
 ### `autoID` {#sec-autoid}
 
 #### Usage
@@ -114,7 +113,6 @@ data(imp.LI8200)
 data(imp.LI7820)
 autoID.LI7820 <- autoID(inputfile = imp.LI7820, deadband = 20, auxfile = imp.LI8200)
 ```
-
 
 ### `click.peak2` {#sec-click-peak2}
 
@@ -192,7 +190,6 @@ ow.LI6400 <- obs.win(inputfile = imp.LI6400, shoulder = 0)
 manID.LI6400 <- click.peak2(ow.LI6400, seq = seq(1,3)) }
 ```
 
-
 ### `crop.meas` {#sec-crop-meas}
 
 #### Usage
@@ -239,7 +236,6 @@ crop.G2201i <- crop.meas(dataframe = manID.G2201i, auxfile = auxfile,
                          crop_start = 5, crop_end = 5)
 ```
 
-
 ### `flux.term` {#sec-flux-term}
 
 #### Usage
@@ -267,7 +263,6 @@ flux.term(V_L, P_kPa, A_cm2, T_C, H2O_mol)
 # No examples provided in roxygen.
 ```
 
-
 ### `g.factor` {#sec-g-factor}
 
 #### Usage
@@ -291,7 +286,6 @@ g.factor(HM.flux, LM.flux, eps)
 #| eval: false
 # No examples provided in roxygen.
 ```
-
 
 ### `HM.flux` {#sec-hm-flux}
 
@@ -323,7 +317,6 @@ HM.flux(gas.meas, time.meas, flux.term, k.max, k.min, Ct, C0, k.mult)
 # No examples provided in roxygen.
 ```
 
-
 ### `k.max` {#sec-k-max}
 
 #### Usage
@@ -348,7 +341,6 @@ k.max(MDF, LM.flux, t)
 #| eval: false
 # No examples provided in roxygen.
 ```
-
 
 ### `LM.flux` {#sec-lm-flux}
 
@@ -375,7 +367,6 @@ LM.flux(gas.meas, time.meas, flux.term)
 # No examples provided in roxygen.
 ```
 
-
 ### `MDF` {#sec-mdf}
 
 #### Usage
@@ -400,4 +391,6 @@ MDF(p, t, flux.term)
 #| eval: false
 # No examples provided in roxygen.
 ```
+
+NA
 
