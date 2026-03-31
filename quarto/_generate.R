@@ -792,6 +792,13 @@ extract_entry_details <- function(entry_row) {
 
 validate_render <- function() {
   message("[INFO] Validating quarto render...")
+  
+  # Check if quarto is available first (might not be installed yet in CI/CD)
+  if (!nzchar(Sys.which("quarto"))) {
+    message("[SKIP] Quarto not installed yet (will be set up in workflow)")
+    return(TRUE)  # Skip validation; workflow will set up Quarto later
+  }
+  
   result <- system("quarto render . --no-execute 2>&1", intern = TRUE)
   
   if (any(grepl("ERROR", result, ignore.case = TRUE))) {

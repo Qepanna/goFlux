@@ -1,0 +1,288 @@
+{
+  "metadata": {
+    "created": "2026-03-31 13:00:24",
+    "functions_count": 40
+  },
+  "functions": [
+    {
+      "function_name": "auto.deadband",
+      "file_path": "../R/auto.deadband.R",
+      "source_hash": "5695eaa9f0018ae1734448d5be91a71f",
+      "signature": "auto.deadband(dataframe, gastype, db.min, db.max, obs.win, mov.win, min.r2)",
+      "qmd_target": "other.qmd"
+    },
+    {
+      "function_name": "autoID",
+      "file_path": "../R/autoID.R",
+      "source_hash": "27b4273c787cf2bc51a145313049a0e8",
+      "signature": "autoID(inputfile, auxfile, obs.length, deadband, crop.end, shoulder, drop)",
+      "qmd_target": "other.qmd"
+    },
+    {
+      "function_name": "best.flux",
+      "file_path": "../R/best.flux.R",
+      "source_hash": "27fc7c7272f9bce54b9de14c784d783e",
+      "signature": "best.flux(flux.result, criteria, intercept.lim, g.limit, p.val, k.ratio, warn.length)",
+      "qmd_target": "bestflux.qmd"
+    },
+    {
+      "function_name": "click.peak2",
+      "file_path": "../R/click.peak2.R",
+      "source_hash": "177cc432398088d311c2153045e55bd6",
+      "signature": "click.peak2(ow.list, gastype, sleep, plot.lim, seq, warn.length, save.plots, width, height, abline, abline_corr)",
+      "qmd_target": "other.qmd"
+    },
+    {
+      "function_name": "crop.meas",
+      "file_path": "../R/crop.meas.R",
+      "source_hash": "e33f6411be77ae4237188547f26a9959",
+      "signature": "crop.meas(dataframe, auxfile, crop_start, crop_end, deadband, max.obs.length, cham.close, cham.open)",
+      "qmd_target": "other.qmd"
+    },
+    {
+      "function_name": "flux.plot",
+      "file_path": "../R/flux.plot.R",
+      "source_hash": "a3f5b58fb7e0d1f0e589524ddc88c670",
+      "signature": "flux.plot(flux.results, dataframe, gastype, shoulder, plot.legend, plot.display, quality.check, flux.unit, flux.term.unit, best.model, p.val.disp, side, conversion.factor)",
+      "qmd_target": "flux2pdf.qmd"
+    },
+    {
+      "function_name": "flux.term",
+      "file_path": "../R/flux.term.R",
+      "source_hash": "8a89769aae535d73c3517c7a9a648746",
+      "signature": "flux.term(V_L, P_kPa, A_cm2, T_C, H2O_mol)",
+      "qmd_target": "other.qmd"
+    },
+    {
+      "function_name": "flux2pdf",
+      "file_path": "../R/flux2pdf.R",
+      "source_hash": "6eb317c198f219b92097512110426779",
+      "signature": "flux2pdf(plot.list, outfile, width, height)",
+      "qmd_target": "flux2pdf.qmd"
+    },
+    {
+      "function_name": "g.factor",
+      "file_path": "../R/g.factor.R",
+      "source_hash": "361af8521bc8045319ee9c24548209c4",
+      "signature": "g.factor(HM.flux, LM.flux, eps)",
+      "qmd_target": "other.qmd"
+    },
+    {
+      "function_name": "goFlux",
+      "file_path": "../R/goFlux.R",
+      "source_hash": "15307c56572209cf8b193ad4c4c7724d",
+      "signature": "goFlux(dataframe, gastype, H2O_col, prec, Area, offset, Vtot, Vcham, Pcham, Tcham, k.mult, warn.length, k.min)",
+      "qmd_target": "goFlux.qmd"
+    },
+    {
+      "function_name": "HM.flux",
+      "file_path": "../R/HM.flux.R",
+      "source_hash": "e499bdca3ce37fe9deb2806191814e7b",
+      "signature": "HM.flux(gas.meas, time.meas, flux.term, k.max, k.min, Ct, C0, k.mult)",
+      "qmd_target": "other.qmd"
+    },
+    {
+      "function_name": "import.DX4015",
+      "file_path": "../R/import.DX4015.R",
+      "source_hash": "b122fbdc418030d30528aa38ea4f8cf3",
+      "signature": "import.DX4015(inputfile, date.format, timezone, save, keep_all, prec)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.EGM5",
+      "file_path": "../R/import.EGM5.R",
+      "source_hash": "93be91c8084e915b5d0f98d92b0b850b",
+      "signature": "import.EGM5(inputfile, date.format, timezone, save, keep_all, prec, proc.data.field)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.eosMX12",
+      "file_path": "../R/import.eosMX12.R",
+      "source_hash": "a1686743da2b1799a56641ebd9e55850",
+      "signature": "import.eosMX12(inputfile, timezone, save)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.G2201i",
+      "file_path": "../R/import.G2201i.R",
+      "source_hash": "9bbbb5f8bbbe155087a0071abe8dee28",
+      "signature": "import.G2201i(inputfile, date.format, timezone, save, keep_all, prec, CH4, CO2, sum, range)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.G2508",
+      "file_path": "../R/import.G2508.R",
+      "source_hash": "42d34e35c3a63eaa764680336b2830a9",
+      "signature": "import.G2508(inputfile, date.format, timezone, save, keep_all, prec)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.G4301",
+      "file_path": "../R/import.G4301.R",
+      "source_hash": "620239fbd8b6638208ab2318700c4dc2",
+      "signature": "import.G4301(inputfile, date.format, timezone, save, keep_all, prec)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.GAIA",
+      "file_path": "../R/import.GAIA.R",
+      "source_hash": "be6c6e2764a6f6355740a46db901febc",
+      "signature": "import.GAIA(inputfile, date.format, timezone, pivot, active, flag, background, save, CH.col, SWC.col, Tsoil.col, Tcham.col, PAR.col, WTD.col, Op.stat.col, inst1, inst2, inst3, gas1, gas2, gas3, prec1, prec2, prec3, dry1, dry2, dry3, manual, sep, skip)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.GasmetPD",
+      "file_path": "../R/import.GasmetPD.R",
+      "source_hash": "f43e05dc4e3031fedf353e0e9555dcf2",
+      "signature": "import.GasmetPD(inputfile, date.format, timezone, save, keep_all, gas, prec)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.GT5000",
+      "file_path": "../R/import.GT5000.R",
+      "source_hash": "548f9fc084f1671c368bff4d22b52139",
+      "signature": "import.GT5000(inputfile, date.format, timezone, save, keep_all, prec)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.HT8850",
+      "file_path": "../R/import.HT8850.R",
+      "source_hash": "d5083a7a23582edbe6da2b22b91c8426",
+      "signature": "import.HT8850(inputfile, date.format, timezone, save, prec)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.LI6400",
+      "file_path": "../R/import.LI6400.R",
+      "source_hash": "7455202541421bcd71a9a076a99be90f",
+      "signature": "import.LI6400(inputfile, date.format, timezone, save, keep_all, prec)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.LI7810",
+      "file_path": "../R/import.LI7810.R",
+      "source_hash": "8fede783157aee283e5e5f764902fd60",
+      "signature": "import.LI7810(inputfile, date.format, timezone, save, keep_all, prec)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.LI7820",
+      "file_path": "../R/import.LI7820.R",
+      "source_hash": "00cce6516f0a0fdfdafcfffe88aedf8a",
+      "signature": "import.LI7820(inputfile, date.format, timezone, save, keep_all, prec)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.LI8100",
+      "file_path": "../R/import.LI8100.R",
+      "source_hash": "3b66c311ecea4bc4e33efd1e13ce4150",
+      "signature": "import.LI8100(inputfile, date.format, timezone, save, keep_all, prec)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.LI8150",
+      "file_path": "../R/import.LI8150.R",
+      "source_hash": "f480479b4d2d425fdec64d143d3b4d0a",
+      "signature": "import.LI8150(inputfile, date.format, timezone, save, keep_all, prec)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.LI8200",
+      "file_path": "../R/import.LI8200.R",
+      "source_hash": "ade7a45f51044148e5502f596c6bc378",
+      "signature": "import.LI8200(inputfile, date.format, timezone, save)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.LI8250",
+      "file_path": "../R/import.LI8250.R",
+      "source_hash": "27f873e807bd04af6610bfe7ac17516e",
+      "signature": "import.LI8250(inputfile, date.format, timezone, save, keep_all, inst1, inst2, gas1, gas2, prec1, prec2, dry1, dry2, SWC.col, Tsoil.col)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.N2Oi2",
+      "file_path": "../R/import.N2Oi2.R",
+      "source_hash": "8281080157f90ceac522cd835acf99a6",
+      "signature": "import.N2Oi2(inputfile, date.format, timezone, save, keep_all, prec)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.N2OM1",
+      "file_path": "../R/import.N2OM1.R",
+      "source_hash": "2a9a0beff5ffeacb5c316dead96e3b40",
+      "signature": "import.N2OM1(inputfile, date.format, timezone, save, keep_all, prec)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.skyline",
+      "file_path": "../R/import.skyline.R",
+      "source_hash": "d4a2979afc031f53a76b56c53ae283ef",
+      "signature": "import.skyline(inputfile, date.format, timezone, save, keep_all, deadband, shoulder, CH.col, CH.clo.col, sensor1, sensor2, inst, gas, prec, dry)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.uCH4",
+      "file_path": "../R/import.uCH4.R",
+      "source_hash": "70db8dfc0ce07e6c2742a29ddf6da9dd",
+      "signature": "import.uCH4(inputfile, date.format, timezone, save, keep_all, prec)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.UGGA",
+      "file_path": "../R/import.UGGA.R",
+      "source_hash": "1318f2200a3097a2e63098f14abefcd8",
+      "signature": "import.UGGA(inputfile, date.format, timezone, save, keep_all, prec)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import.uN2O",
+      "file_path": "../R/import.uN2O.R",
+      "source_hash": "230038ed4b608a7d245670efafe6e303",
+      "signature": "import.uN2O(inputfile, date.format, timezone, save, keep_all, prec)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "import2RData",
+      "file_path": "../R/import2RData.R",
+      "source_hash": "7c43e72a5299334903fae4a93872b803",
+      "signature": "import2RData(path, instrument, date.format, timezone, keep_all, prec, merge, proc.data.field, pivot, active, flag, background, deadband, shoulder, SWC.col, Tsoil.col, Tcham.col, PAR.col, WTD.col, CH.col, Op.stat.col, CH.clo.col, sensor1, sensor2, inst1, inst2, inst3, inst, gas1, gas2, gas3, gas, prec1, prec2, prec3, dry1, dry2, dry3, dry, manual, sep, skip, CH4, CO2, sum, range)",
+      "qmd_target": "import.qmd"
+    },
+    {
+      "function_name": "iso.comp",
+      "file_path": "../R/iso.comp.R",
+      "source_hash": "2aa2784179621b2a65e7e80be79c913d",
+      "signature": "iso.comp(dataframe, CO2dry_ppm, delta_13C, N2Odry_ppb, delta_15N, delta_18O, save.plots)",
+      "qmd_target": "other.qmd"
+    },
+    {
+      "function_name": "k.max",
+      "file_path": "../R/k.max.R",
+      "source_hash": "97854b7f406a175a9164ad01afe41d2a",
+      "signature": "k.max(MDF, LM.flux, t)",
+      "qmd_target": "other.qmd"
+    },
+    {
+      "function_name": "LM.flux",
+      "file_path": "../R/LM.flux.R",
+      "source_hash": "35f688fa9c8d3a5aa037a5763c33bd4e",
+      "signature": "LM.flux(gas.meas, time.meas, flux.term)",
+      "qmd_target": "other.qmd"
+    },
+    {
+      "function_name": "MDF",
+      "file_path": "../R/MDF.R",
+      "source_hash": "5908c322059a320488002ddb81dfc6ef",
+      "signature": "MDF(p, t, flux.term)",
+      "qmd_target": "other.qmd"
+    },
+    {
+      "function_name": "obs.win",
+      "file_path": "../R/obs.win.R",
+      "source_hash": "f873f8738f25415aff95e3588ceed79c",
+      "signature": "obs.win(inputfile, auxfile, gastype, obs.length, shoulder)",
+      "qmd_target": "manualID.qmd"
+    }
+  ]
+}
