@@ -1,9 +1,11 @@
 ---
 title: "Installation"
-editor: visual
 format:
   html:
     toc: false
+    bibliography: references.bib
+    csl: apa-no-initials.csl
+editor: visual
 ---
 
 ## Installing R and RStudio
