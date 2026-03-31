@@ -141,6 +141,35 @@
 #'
 #' @export
 #'
+#'
+#'
+
+# --- Helper to bind results into clean list of dataframes
+.bind_with_id <- function(lst, element_name) {
+  do.call(rbind, lapply(seq_along(lst), function(i) {
+
+    x <- lst[[i]][[element_name]]
+
+    # Skip NULL or empty elements safely
+    if (is.null(x) || nrow(x) == 0) return(NULL)
+
+    # Ensure data.frame
+    x <- as.data.frame(x)
+
+    # Add UniqueID if missing
+    if (!"UniqueID" %in% names(x)) {
+      if ("flux_summary" %in% names(lst[[i]])) {
+        x$UniqueID <- lst[[i]]$flux_summary$UniqueID
+      } else {
+        x$UniqueID <- paste0("ID_", i)
+      }
+    }
+
+    return(x)
+  }))
+}
+
+# --- This is the main function
 goAquaFlux <- function(dataframe,
                        gastype,
                        H2O_col = "H2O_ppm",
@@ -754,9 +783,10 @@ goAquaFlux <- function(dataframe,
 
 
     # ---- combine outputs ----
-    flux.res.ls[[f]] <- data.frame(
-      gastype = gastype,
+
+    flux_summary <- data.frame(
       UniqueID = df$UniqueID[1],
+      gastype = gastype,
 
       flux_total = total_flux$flux,
       SE_total = total_flux$SE,
@@ -771,17 +801,31 @@ goAquaFlux <- function(dataframe,
       first_bubble_time = diffusive_flux$first_bubble_time
     )
 
+    flux.res.ls[[f]] <- list(
+      flux_summary = flux_summary,
+      bubbles = bubbles,
+      best.diffusive.flux = diffusive_flux$best.flux.output
+    )
+
   }
 
-  # -------------------------------------------------
-  # 6. Return format
-  # -------------------------------------------------
+  # reorganize flux.res.ls by UniqueID
+  df_flux_summary <- .bind_with_id(flux.res.ls, "flux_summary")
 
-  if (return_df) {
-    return(dplyr::bind_rows(flux.res.ls))
-  } else {
-    return(flux.res.ls)
-  }
+  df_bubbles <- .bind_with_id(flux.res.ls, "bubbles")
+
+  df_diffusive <- .bind_with_id(flux.res.ls, "best.diffusive.flux")
+
+  # order by UniqueID
+  df_flux_summary <- df_flux_summary[order(df_flux_summary$UniqueID), ]
+  df_bubbles      <- df_bubbles[order(df_bubbles$UniqueID), ]
+  df_diffusive    <- df_diffusive[order(df_diffusive$UniqueID), ]
+
+  return(list(
+    flux_summary = df_flux_summary,
+    bubbles = df_bubbles,
+    diffusive = df_diffusive
+  ))
 }
 
 
