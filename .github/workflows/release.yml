@@ -25,7 +25,7 @@ jobs:
       
       # If a release was created, log it
       - name: Log release info
-        if: steps.release.outputs.release_created
+        if: ${{ steps.release.outputs.release_created == 'true' }}
         run: |
           echo "Release created!"
           echo "Tag: ${{ steps.release.outputs.tag_name }}"
