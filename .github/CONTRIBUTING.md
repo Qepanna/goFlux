@@ -4,7 +4,7 @@ Thank you for your interest in contributing to goFlux! This document outlines gu
 
 ## Commit Message Format
 
-Starting with v0.3.0, we follow **conventional commits** to enable automatic versioning and changelog generation via release-please. This helps maintain a clear release history and makes it easy to understand what changed between versions.
+Starting now, we follow **conventional commits** to enable automatic versioning and changelog generation via release-please. This helps maintain a clear release history and makes it easy to understand what changed between versions.
 
 > **Note**: This is a new standard. Historical goFlux commits used informal messages (e.g., "new function X", "fix issue Y"). Going forward, please use the format below.
 
