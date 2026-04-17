@@ -1,7 +1,7 @@
 Package: goFlux
 Type: Package
 Title: User-Friendly Chamber Data Processing, Flux Estimation, and Diagnostics
-Version: 0.2.1
+Version: 0.3.0
 Authors@R: c(person("Karelle", "Rheault", email = "karh@ign.ku.dk", role = c("cre", "aut", "dtc")),
              person("Klaus", "Steenberg Larsen", email = "ksl@ign.ku.dk", role = c("aut", "ths")))
 Maintainer: Karelle Rheault <karh@ign.ku.dk>
