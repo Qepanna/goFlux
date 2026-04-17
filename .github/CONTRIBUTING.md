@@ -95,7 +95,7 @@ feat Add import function for GasmetPD. (missing colon, wrong punctuation)
 5. **Create a pull request** on GitHub
 6. **Once merged to `main`**, release-please automatically:
    - Creates a release PR with version bump based on commits
-   - Updates `DESCRIPTION`, `NAMESPACE`, and generates `CHANGELOG.md`
+   - Updates the package version in `DESCRIPTION` and updates `CHANGELOG.md`
    - Maintainer reviews and merges the release PR
    - GitHub creates a release with the new version tag
 
