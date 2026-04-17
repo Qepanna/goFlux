@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - master
-      - release_please
+  workflow_dispatch:
 
 permissions:
   contents: write
