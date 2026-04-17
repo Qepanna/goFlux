@@ -5,11 +5,12 @@
 .RDataTmp
 .Ruserdata
 README.Rmd
+/memories/
 _GENERATION_GUIDE.md
 DOCUMENTATION.md
 .github/prompts/
 plan.md
-
+/memories/
 # Generated outputs
 _generated/
 
@@ -27,3 +28,4 @@ quarto/~*.qmd
 
 # Rendered outputs
 _site/
+.DS_Store
