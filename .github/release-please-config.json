@@ -1,4 +1,5 @@
 {
+  "last-release-sha": "31ec187557b9f7ecb7a7c943d99d933c22926112",
   "packages": {
     ".": {
       "package-name": "goFlux",
