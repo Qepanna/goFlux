@@ -103,15 +103,31 @@ Don't stress about commit formatting yet! You can use informal messages while ex
 
 ### After Merge to `master`
 
-7. **Release-please automatically handles versioning:**
-   - Analyzes commit types that were merged to `master`
-   - Only `feat:` commits bump the minor version, only `fix:` commits bump the patch
-   - All other types (`docs:`, `chore:`, `test:`, etc.) don't trigger version bumps
-   - Creates a release PR with the version bump and updates `DESCRIPTION` and `CHANGELOG.md`
-   - Maintainer reviews and merges the release PR
-   - GitHub creates an official release with the new version tag
+7. **Release-please checks commits since the latest reachable `goFlux-X.Y.Z` tag.**
+   - It only runs release creation when it finds commit subjects starting with:
+     - `feat:`
+     - `fix:`
+   - Supported forms include:
+     - `feat: add import function for GasmetPD`
+     - `fix: correct chamber volume calculation`
+     - `feat(autoID): improve peak detection`
+     - `fix(HM.flux)!: change default fitting behavior`
 
-**Key Point**: Only commits merged to `master` affect version bumps. This means you can experiment freely on your branch—commit messages only matter when merging!
+8. **What does NOT trigger an automated release PR (by policy):**
+   - `docs: ...`
+   - `chore: ...`
+   - `refactor: ...`
+   - `test: ...`
+   - `perf: ...`
+
+9. **When a release is triggered:**
+   - release-please creates a release PR with version bump
+   - updates `DESCRIPTION` and `CHANGELOG.md`/release notes
+   - maintainer reviews and merges
+   - GitHub creates the release tag
+
+**Key Point**: You can use informal commits during development, but before merge use a clean commit message. Only `feat:` or `fix:` prefixes are intended to trigger automated release PRs in this repository.
+
 ## When in Doubt
 
 - Check recent goFlux pulls and releases: https://github.com/Qepanna/goFlux/releases

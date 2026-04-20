@@ -3,7 +3,6 @@ name: release-please
 on:
   push:
     branches:
-      - main
       - master
   workflow_dispatch:
 
@@ -16,16 +15,48 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+        with:
+          fetch-depth: 0
+
+      - name: Decide whether to run release-please (feat/fix only; nearest reachable goFlux tag)
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+
+          # Nearest reachable canonical tag on current branch history
+          last_tag="$(git describe --tags --abbrev=0 --match 'goFlux-[0-9]*.[0-9]*.[0-9]*' 2>/dev/null || true)"
+
+          if [[ -z "$last_tag" ]]; then
+            echo "No reachable goFlux semver tag found; skipping auto release."
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Last reachable goFlux tag: $last_tag"
+
+          # Commit subjects since baseline tag
+          messages="$(git log "${last_tag}..HEAD" --pretty=format:%s || true)"
+
+          # Conventional Commits: feat/fix, optional scope, optional !
+          if LC_ALL=C echo "$messages" | grep -Eiq '^(feat|fix)(\([^)]+\))?(!)?:[[:space:]]'; then
+            echo "Found feat/fix commits since ${last_tag}; running release-please."
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No feat/fix commits since ${last_tag}; skipping release-please."
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: googleapis/release-please-action@v4
+        if: ${{ steps.gate.outputs.should_run == 'true' }}
         id: release
         with:
           config-file: .github/release-please-config.json
           token: ${{ secrets.GITHUB_TOKEN }}
-      
-      # If a release was created, log it
+
       - name: Log release info
-        if: ${{ steps.release.outputs.release_created == 'true' }}
+        if: ${{ steps.gate.outputs.should_run == 'true' && steps.release.outputs.release_created == 'true' }}
         run: |
           echo "Release created!"
           echo "Tag: ${{ steps.release.outputs.tag_name }}"
