@@ -1,3 +1,7 @@
+## 0.3.1 (2026-04-20)
+
+**Full Changelog**: https://github.com/Qepanna/goFlux/compare/goFlux-0.3.0...goFlux-0.3.1
+
 ## 0.3.0 (2026-04-20)
 
 ## What's Changed
