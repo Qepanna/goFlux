@@ -2,11 +2,7 @@
 
 Thank you for your interest in contributing to goFlux! This document outlines guidelines for contributing, particularly regarding commit messages which help automate our release process.
 
-## Commit Message Format
-
-Starting now, we follow **conventional commits** to enable automatic versioning and changelog generation via release-please. This helps maintain a clear release history and makes it easy to understand what changed between versions.
-
-> **Note**: This is a new standard. Historical goFlux commits used informal messages (e.g., "new function X", "fix issue Y"). Going forward, please use the format below.
+We use **conventional commits** to enable automatic versioning and changelog generation via release-please. This helps maintain a clear release history and makes it easy to understand what changed between versions.
 
 ### Format
 
@@ -49,14 +45,13 @@ Starting now, we follow **conventional commits** to enable automatic versioning 
   - Example: `chore: add gitignore entries`
   - → No version bump
 
-### Rules
+### Rules for Commit Messages
 
 1. **Start with the type** in lowercase: `feat:`, `fix:`, `docs:`, etc. (not `Feat:` or `FEAT:`)
 2. **Keep the subject line concise** — aim for under 50 characters
 3. **Use imperative mood** — write "add feature" not "adds feature" or "added feature"
 4. **Don't end with a period**
 5. **Reference issues when applicable** — e.g., `fix: resolve flux calculation error (closes #123)`
-6. **One commit = one type** — if your work spans multiple types, split into multiple commits (e.g., first `feat: ...`, then `docs: ...`)
 
 ### Examples
 
@@ -82,23 +77,41 @@ Add import function for GasmetPD (missing type)
 feat Add import function for GasmetPD. (missing colon, wrong punctuation)
 ```
 
-## Workflow
+## Workflow: From Development to Release
+
+### During Development (on your feature branch)
+
+Don't stress about commit formatting yet! You can use informal messages while experimenting:
 
 1. **Create a feature branch**: `git checkout -b feature/your-feature-name`
 2. **Make your changes** to source code or documentation
-3. **Commit with a conventional message**: 
+3. **Commit freely with informal messages**:
    ```bash
-   git commit -m "feat: add import function for your instrument"
-   git commit -m "fix: correct flux calculation bug"
+   git commit -m "wip: testing new import logic"
+   git commit -m "trying different approach"
+   git commit -m "debugging issue"
    ```
 4. **Push to your branch**: `git push origin feature/your-feature-name`
-5. **Create a pull request** on GitHub
-6. **Once merged to `main`**, release-please automatically:
-   - Creates a release PR with version bump based on commits
-   - Updates the package version in `DESCRIPTION` and updates `CHANGELOG.md`
-   - Maintainer reviews and merges the release PR
-   - GitHub creates a release with the new version tag
 
+### Before Merging (clean up your commits)
+
+5. **Create a pull request** on GitHub with a clear description
+6. **Before merging to `master`**, ensure your commits are clean and properly formatted:
+   - **Option A (Recommended)**: Use GitHub's **"Squash and merge"** button and write a single proper commit message
+     - This turns all your experimental commits into one clean `feat:` or `fix:` commit
+   - **Option B**: Manually rebase/amend your commits locally to use conventional format
+
+### After Merge to `master`
+
+7. **Release-please automatically handles versioning:**
+   - Analyzes commit types that were merged to `master`
+   - Only `feat:` commits bump the minor version, only `fix:` commits bump the patch
+   - All other types (`docs:`, `chore:`, `test:`, etc.) don't trigger version bumps
+   - Creates a release PR with the version bump and updates `DESCRIPTION` and `CHANGELOG.md`
+   - Maintainer reviews and merges the release PR
+   - GitHub creates an official release with the new version tag
+
+**Key Point**: Only commits merged to `master` affect version bumps. This means you can experiment freely on your branch—commit messages only matter when merging!
 ## When in Doubt
 
 - Check recent goFlux pulls and releases: https://github.com/Qepanna/goFlux/releases
