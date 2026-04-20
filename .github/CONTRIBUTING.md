@@ -79,7 +79,7 @@ feat Add import function for GasmetPD. (missing colon, wrong punctuation)
 
 ## Workflow: From Development to Release
 
-### During Development (on your feature branch):
+### During Development (on your feature branch)
 
 Don't stress about commit formatting yet! You can use informal messages while experimenting:
 
