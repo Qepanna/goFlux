@@ -1,0 +1,13 @@
+{
+  "packages": {
+    ".": {
+      "package-name": "goFlux",
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": false,
+      "changelog-path": "CHANGELOG.md",
+      "changelog-type": "github",
+      "release-type": "r",
+      "include-v-in-tag": false
+    }
+  }
+}
