@@ -324,7 +324,9 @@ find.bubbles <- function(df,
 
     df_local$bubble <- ifelse(df_local$time >= tb.start, 1, 0)
 
-    mod <- try(lm(conc ~ time + bubble, data = df_local), silent = TRUE)
+    df_local$time_centered <- df_local$time - tb.start
+
+    mod <- try(lm(conc ~ time_centered + bubble, data = df_local), silent = TRUE)
 
     if (inherits(mod, "try-error"))
       next
@@ -336,23 +338,26 @@ find.bubbles <- function(df,
 
     chunks$magnitude[i] <- coefs["bubble","Estimate"]
     chunks$SE[i] <- coefs["bubble","Std. Error"]
-    chunks$slope[i] <- coefs["time","Estimate"]
+    chunks$slope[i] <- coefs["time_centered","Estimate"]
     chunks$n_used[i] <- nrow(df_local)
   }
 
 
   # --------------------------------------------
-  # Filter minor bubbles
+  # Filter minor bubbles and keep positive magnitude and slopes only
   # --------------------------------------------
 
   valid <- !is.na(chunks$magnitude)
 
+  valid <- valid & chunks$magnitude > 0
+  valid <- valid & chunks$slope > 0   # optional but stricter
+
   if (!is.null(min_magnitude)) {
-    valid <- valid & abs(chunks$magnitude) >= min_magnitude
+    valid <- valid & chunks$magnitude >= min_magnitude
   }
 
   if (!is.null(min_snr)) {
-    snr <- abs(chunks$magnitude) / pmax(chunks$SE, .Machine$double.eps) # guard against zero SE
+    snr <- chunks$magnitude / pmax(chunks$SE, .Machine$double.eps)
     valid <- valid & snr >= min_snr
   }
 
