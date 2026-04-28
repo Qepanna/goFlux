@@ -43,7 +43,18 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
 
 
   if (missing(flux.results.ls)) stop("'flux.results' is required")
-  if (!is.list(flux.results.ls)) stop("'flux.results' must be a list")
+  if (!is.list(flux.results.ls)){
+    if (is.data.frame(flux.results)){
+      message("flux.results.ls is a data.frame, calling flux.plot assuming diffusion only")
+      return(flux.plot(flux.results = flux.results.ls, dataframe = dataframe,
+                       gastype = gastype, quality.check = TRUE,
+                       plot.legend = c("MAE", "AICc", "k.ratio", "g.factor"),
+                       plot.display = c("Ci", "C0", "MDF", "prec", "nb.obs", "flux.term"))
+      )
+    } else {
+      stop("'flux.results' must be a list")
+    }
+  }
 
   flux.results <- flux.results.ls$flux_summary
   if (!is.data.frame(flux.results)) stop("'flux.results' must be a dataframe")
@@ -66,6 +77,12 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
   if (!is.logical(quality.check)) stop("'quality.check' must be TRUE or FALSE")
   if (!is.numeric(conversion.factor) || conversion.factor <= 0) {
     stop("'conversion.factor' must be positive")
+  }
+
+
+  # Hutchinson and Mosier model
+  HMmod <- function(Ci, C0, k, x){
+    Ci + (C0 - Ci) * exp(-k * x)
   }
 
   # Assign NULL to variables without binding
@@ -117,6 +134,8 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
     data_split[[f]] %>% filter(flag == 1)
   })
 
+  data_diffusion <- flux.results.ls$diffusive
+
   # Create plots
   pboptions(char = "=")
   plot_list <- pblapply(seq_along(data_split), function(f) {
@@ -133,6 +152,25 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
     flux_ebull <- unique(df_all$flux_ebullition) * conversion.factor
     SE_ebull <- unique(df_all$SE_ebullition) * conversion.factor
 
+    # Extract diffusion model fits for this UniqueID
+    plot_diffusion = FALSE # by default
+    if(!is.null(data_diffusion)){
+      ind_diff = which(data_diffusion$UniqueID == UniqueID)
+      if (dim(data_diffusion[ind_diff,])[1]>=1){
+        plot_diffusion = TRUE
+
+        LM.slope <- unique(data_diffusion$LM.slope[ind_diff])
+        LM.C0 <- unique(data_diffusion$LM.C0[ind_diff])
+
+        HM.Ci <- unique(data_diffusion$HM.Ci[ind_diff])
+        HM.C0 <- unique(data_diffusion$HM.C0[ind_diff])
+        HM.k <- unique(data_diffusion$HM.k[ind_diff])
+
+        df_all$HM_mod = HMmod(HM.Ci, HM.C0, HM.k, df_all$Etime)
+      }
+    }
+
+
 
     n_obs_diff <- flux.results$n_obs.diffusion[flux.results$UniqueID == UniqueID]
     if(!is.null(n_obs_diff)){
@@ -147,6 +185,8 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
 
       if(can.plot.bubbles){
         first_bubble <- bubbles_f$start[1]
+      } else {
+        first_bubble <- NA
       }
 
 
@@ -236,9 +276,15 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
 
     df_all$UniqueID <- unique(data_split[[f]]$UniqueID)
 
+
+
     # ---- Base plot ----
+
     plot <- ggplot(df_all, aes(x = Etime)) +
       geom_point(aes(y = .data[[gastype]], color = as.factor(flag)))
+
+
+
 
     # ---- Optional layers ----
 
@@ -321,6 +367,17 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
         fontface = "italic",
         inherit.aes = FALSE
       )
+
+    # Add diffusion models if OK
+    if (plot_diffusion){
+      plot <- plot +
+        # Linear model
+        geom_abline(slope = LM.slope, intercept = LM.C0,
+                    linewidth = 1, col = "blue") +
+
+        # Hutchinson and Mosier
+        geom_line(aes(y = HM_mod), linewidth = 1, col = "red")
+    }
 
     # ---- Scales & styling ----
     plot <- plot +
