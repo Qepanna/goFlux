@@ -818,8 +818,13 @@ goAquaFlux <- function(dataframe,
 
   # order by UniqueID
   df_flux_summary <- df_flux_summary[order(df_flux_summary$UniqueID), ]
-  df_bubbles      <- df_bubbles[order(df_bubbles$UniqueID), ]
-  df_diffusive    <- df_diffusive[order(df_diffusive$UniqueID), ]
+  if(!is.null(df_bubbles)){
+    df_bubbles <- df_bubbles[order(df_bubbles$UniqueID), ]
+    }
+
+  if(!is.null(df_diffusive)){
+    df_diffusive <- df_diffusive[order(df_diffusive$UniqueID), ]
+    }
 
   return(list(
     flux_summary = df_flux_summary,
