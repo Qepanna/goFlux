@@ -43,13 +43,15 @@
 #'   \code{"AICc"}, \code{"SE"}, \code{"g.factor"}, \code{"kappa"},
 #'   \code{"MDF"}, \code{"nb.obs"}, \code{"intercept"}, and \code{"p-value"}.
 #'
-#' @param Area Numeric scalar representing chamber base area (m²). If
-#'   \code{NULL}, the value is retrieved from the \code{Area} column in
-#'   \code{dataframe}.
+#' @param Area Numeric scalar; chamber base area in
+#'   \ifelse{html}{\out{cm<sup>2</sup>}}{\eqn{cm^2}{ASCII}} (as in
+#'   \code{\link[goFlux]{goFlux}}; note the internal factor of 10,000 to
+#'   \ifelse{html}{\out{m<sup>2</sup>}}{\eqn{m^2}{ASCII}}). If \code{NULL}, the
+#'   value is retrieved from the \code{Area} column in \code{dataframe}.
 #'
-#' @param offset Numeric scalar representing the vertical chamber offset
-#'   (mm) used to compute total chamber volume when \code{Vtot} is not
-#'   directly provided.
+#' @param offset Numeric scalar; height between the water surface and the
+#'   chamber top in cm, used to compute \code{Vtot} as
+#'   \code{Vcham + Area * offset / 1000} when \code{Vtot} is not provided.
 #'
 #' @param Vtot Numeric scalar specifying total chamber volume (L). If
 #'   \code{NULL}, it is calculated as:
@@ -64,11 +66,25 @@
 #' @param Tcham Numeric scalar representing chamber temperature (°C).
 #'   If \code{NULL}, a default temperature of 15 °C is assumed.
 #'
+#' @param use_bubble_detection Logical; if \code{TRUE} (default) bubbling events
+#'   are detected using \code{bubble_gas} and, when \code{gastype == bubble_gas},
+#'   the flux is partitioned into diffusive and ebullitive components. If
+#'   \code{FALSE}, no bubble detection is performed and only a diffusive flux is
+#'   returned.
+#'
 #' @param bubble.window.size Integer specifying the rolling window size
 #'   (number of observations) used for bubble detection.
 #'
 #' @param bubble_gas Character string specifying the gas used to detect
 #'   bubbling events. Default is \code{"CH4dry_ppb"}.
+#'
+#' @param bubble.method Character; dispersion metric passed to
+#'   \code{\link{find.bubbles}}: \code{"mad"} (default), \code{"variance"} or
+#'   \code{"diff"} (rolling MAD of increments, robust to a diffusive trend).
+#'
+#' @param bubble.args Named list of additional arguments forwarded to
+#'   \code{\link{find.bubbles}} (e.g. \code{list(k = 5, min_magnitude = 10)}).
+#'   Values here override the defaults for advanced tuning.
 #'
 #' @param ebullition.final_window_min Minimum time window (minutes) required
 #'   after the last bubble event to define the incubation end for ebullition
@@ -80,26 +96,32 @@
 #' @param diffusion.minimum_window Minimum number of observations required
 #'   to compute diffusive flux before the first bubble event.
 #'
-#' @param return_df Logical indicating whether results should be returned
-#'   as a single \code{data.frame}. If \code{FALSE}, results are returned
-#'   as a list of data.frames (one per incubation).
+#' @param return_df Logical. If \code{TRUE} (default) the function returns a
+#'   tidy list of three data frames (see \strong{Value}). If \code{FALSE}, the
+#'   raw per-incubation results list is returned instead, which is convenient
+#'   for advanced users who want the untidied intermediate objects.
 #'
 #' @return
-#' If \code{return_df = TRUE}, a data frame containing one row per
-#' incubation with the following columns:
-#' \itemize{
-#'   \item \code{UniqueID} – incubation identifier
-#'   \item \code{flux_total} – total gas flux
-#'   \item \code{SE_total} – standard error of total flux
-#'   \item \code{flux_diffusive} – diffusive flux component
-#'   \item \code{SE_diffusive} – standard error of diffusive flux
-#'   \item \code{flux_ebullition} – ebullition flux component
-#'   \item \code{SE_ebullition} – standard error of ebullition flux
-#'   \item \code{first_bubble_time} – time of first detected bubbling event
+#' If \code{return_df = TRUE} (default), a named list of three data frames:
+#' \describe{
+#'   \item{\code{flux_summary}}{One row per incubation, with \code{UniqueID},
+#'     \code{gastype}, \code{flux_total}, \code{SE_total}, \code{flux_diffusive},
+#'     \code{SE_diffusive}, \code{n_obs.diffusion}, \code{flux_ebullition},
+#'     \code{SE_ebullition} and \code{first_bubble_time}.}
+#'   \item{\code{bubbles}}{All detected bubbling events across incubations
+#'     (\code{NULL} if none), each tagged with its \code{UniqueID}.}
+#'   \item{\code{diffusive}}{The selected diffusive-model row (from
+#'     \code{\link[goFlux]{best.flux}}) per incubation, tagged with
+#'     \code{UniqueID}.}
 #' }
 #'
-#' If \code{return_df = FALSE}, a list containing one data frame per
-#' incubation is returned.
+#' If \code{return_df = FALSE}, the raw per-incubation results list is returned.
+#'
+#' Flux units follow \code{\link[goFlux]{goFlux}}:
+#' \ifelse{html}{\out{µmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{µmol m^{-2}s^{-1}}{ASCII}}
+#' for ppm gases and
+#' \ifelse{html}{\out{nmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{nmol m^{-2}s^{-1}}{ASCII}}
+#' for ppb gases.
 #'
 #' @details
 #' Bubble detection is performed using a rolling window approach applied
@@ -141,35 +163,10 @@
 #'
 #' @export
 #'
-#'
-#'
-
-# --- Helper to bind results into clean list of dataframes
-.bind_with_id <- function(lst, element_name) {
-  do.call(rbind, lapply(seq_along(lst), function(i) {
-
-    x <- lst[[i]][[element_name]]
-
-    # Skip NULL or empty elements safely
-    if (is.null(x) || nrow(x) == 0) return(NULL)
-
-    # Ensure data.frame
-    x <- as.data.frame(x)
-
-    # Add UniqueID if missing
-    if (!"UniqueID" %in% names(x)) {
-      if ("flux_summary" %in% names(lst[[i]])) {
-        x$UniqueID <- lst[[i]]$flux_summary$UniqueID
-      } else {
-        x$UniqueID <- paste0("ID_", i)
-      }
-    }
-
-    return(x)
-  }))
-}
-
-# --- This is the main function
+## NOTE: the roxygen block above documents goAquaFlux(). The `.bind_with_id`
+## helper was moved to the END of this file: when it sat here (between the
+## roxygen block and goAquaFlux), roxygen2 attached the documentation and
+## @export to the helper instead of to goAquaFlux().
 goAquaFlux <- function(dataframe,
                        gastype,
                        H2O_col = "H2O_ppm",
@@ -185,6 +182,8 @@ goAquaFlux <- function(dataframe,
                        use_bubble_detection = TRUE,
                        bubble.window.size = 30,
                        bubble_gas = "CH4dry_ppb",
+                       bubble.method = "mad",   ## "mad" (default), "variance" or "diff"; passed to find.bubbles().
+                       bubble.args = list(),    ## named list of extra find.bubbles() args (e.g. list(k = 5, min_magnitude = 10)).
 
                        # Ebullition flux
                        ebullition.final_window_min = 30,
@@ -503,7 +502,14 @@ goAquaFlux <- function(dataframe,
 
     data_split <- dataframe %>%
       rename(H2O_ppm_select = all_of(H2O_col)) %>%
-      mutate(H2O_mol = H2O_ppm_select / (1000*1000)) %>%
+      ## Keep the ORIGINAL water vapour in ppm as `H2O_ppm` as well as the
+      ## mole fraction `H2O_mol`. goAquaFlux uses H2O_mol for its own flux.term,
+      ## while goAquaFlux.diffusive() passes H2O_ppm to goFlux() (which does its
+      ## own ppm -> mole-fraction conversion). Without this, goFlux would divide
+      ## an already-converted H2O_mol by 1e6 a second time, silently disabling
+      ## the water-vapour dilution correction.
+      mutate(H2O_mol = H2O_ppm_select / (1000*1000),
+             H2O_ppm = H2O_ppm_select) %>%
       select(
         UniqueID,
         any_of(c("chamID","DATE")),
@@ -511,7 +517,7 @@ goAquaFlux <- function(dataframe,
         flag,
         any_of(gas_cols),              # <-- keep both gases
         contains("_prec"),
-        H2O_mol,
+        H2O_mol, H2O_ppm,
         Vtot, Area, Pcham, Tcham
       ) %>%
       filter(flag == 1) %>%
@@ -701,11 +707,13 @@ goAquaFlux <- function(dataframe,
 
     if (compute_ebullition && bubble_gas %in% names(df)) {
 
-      bubbles <- find.bubbles(
-        df = df,
-        bubble_source = bubble_gas,
-        window.size = bubble.window.size
-      )
+      ## forward the detection method and any extra tuning args, while
+      ## keeping simple defaults for beginners. `bubble.args` wins on conflicts.
+      .bubble_call <- utils::modifyList(
+        list(df = df, bubble_source = bubble_gas,
+             window.size = bubble.window.size, method = bubble.method),
+        bubble.args)
+      bubbles <- do.call(find.bubbles, .bubble_call)
 
     } else {
 
@@ -731,16 +739,20 @@ goAquaFlux <- function(dataframe,
 
     } else {
 
+      ## Use the same field names the function actually returns
+      ## (flag_inconsistent + message), so the ebullition object has a
+      ## consistent shape whether or not it was computed.
       ebullition_flux <- list(
-        flux = NA,
-        SE = NA,
-        F_tot2pts = NA,
-        F_tot2pts.SE = NA,
-        n_bubbles = NA,
-        deltaC_bubbles = NA,
-        deltaC_total = NA,
-        bubble_ratio = NA,
-        inconsistent = NA
+        flux = NA_real_,
+        SE = NA_real_,
+        F_tot2pts = NA_real_,
+        F_tot2pts.SE = NA_real_,
+        n_bubbles = NA_integer_,
+        deltaC_bubbles = NA_real_,
+        deltaC_total = NA_real_,
+        bubble_ratio = NA_real_,
+        flag_inconsistent = NA,
+        message = "Ebullition not computed (gastype is not the bubble gas)"
       )
     }
 
@@ -752,6 +764,9 @@ goAquaFlux <- function(dataframe,
       df = df,
       gastype = gastype,
       criteria = criteria,
+      bubble_gas = bubble_gas,   ## Needed so the diffusive window is
+                                 ## truncated correctly for the bubble gas and,
+                                 ## for other gases, only on an abrupt change.
       bubbles = bubbles,
       minimum_window = diffusion.minimum_window
     )
@@ -809,6 +824,12 @@ goAquaFlux <- function(dataframe,
 
   }
 
+  ## Close the progress bar opened above.
+  close(pb)
+
+  ## When FALSE, return the raw per-incubation results list (advanced use).
+  if (!isTRUE(return_df)) return(flux.res.ls)
+
   # reorganize flux.res.ls by UniqueID
   df_flux_summary <- .bind_with_id(flux.res.ls, "flux_summary")
 
@@ -834,3 +855,32 @@ goAquaFlux <- function(dataframe,
 }
 
 
+
+
+# --- Internal helper: bind a named element across the per-incubation results --
+# For each incubation in `lst`, extract `element_name` (a data.frame), tag it
+# with the incubation's UniqueID (taken from its flux_summary when the element
+# itself lacks one, e.g. the bubbles table), and row-bind everything together.
+# Returns NULL if no incubation contributed rows.
+.bind_with_id <- function(lst, element_name) {
+  do.call(rbind, lapply(seq_along(lst), function(i) {
+
+    x <- lst[[i]][[element_name]]
+
+    # Skip NULL or empty elements safely
+    if (is.null(x) || nrow(x) == 0) return(NULL)
+
+    x <- as.data.frame(x)
+
+    # Add UniqueID if missing (e.g. the bubbles data.frame has no UniqueID)
+    if (!"UniqueID" %in% names(x)) {
+      if ("flux_summary" %in% names(lst[[i]])) {
+        x$UniqueID <- lst[[i]]$flux_summary$UniqueID
+      } else {
+        x$UniqueID <- paste0("ID_", i)
+      }
+    }
+
+    return(x)
+  }))
+}
