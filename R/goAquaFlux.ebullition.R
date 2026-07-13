@@ -1,95 +1,66 @@
 #' Estimate ebullitive gas flux from detected bubbling events
 #'
-#' Computes the ebullitive component of gas flux during an aquatic chamber
-#' incubation using bubbling events detected by \code{find.bubbles()}.
-#' Ebullition flux is estimated from the summed concentration increase
-#' associated with individual bubbling events and scaled by incubation time
-#' and a flux conversion factor.
+#' Computes the ebullitive component of a gas flux during an aquatic chamber
+#' incubation, using bubbling events detected by \code{\link{find.bubbles}}.
+#' The ebullitive flux is estimated from the summed concentration steps
+#' attributed to individual bubbling events, divided by the effective incubation
+#' time and scaled by the flux conversion term. An independent two-point
+#' (endpoint) estimate of the total flux is also returned for diagnostic
+#' comparison, together with several consistency checks.
 #'
-#' The function also computes an independent total flux estimate using the
-#' endpoint (two-point) concentration method for diagnostic comparison.
-#' Several consistency checks are performed to detect situations where the
-#' summed bubble magnitudes exceed the observed overall concentration change.
+#' @param df A data.frame for a single incubation. Must contain an \code{Etime}
+#'   column (elapsed time, seconds, starting at 0) and the gas concentration
+#'   column named by \code{gastype}. Rows are assumed to be sorted by
+#'   \code{Etime}.
 #'
-#' @param df A data.frame containing the incubation time series. Must include
-#'   an \code{Etime} column representing elapsed incubation time and the gas
-#'   concentration variable specified by \code{gastype}.
+#' @param gastype Character; name of the gas concentration column
+#'   (e.g. \code{"CH4dry_ppb"}).
 #'
-#' @param gastype Character string specifying the gas concentration variable
-#'   to analyze (e.g. \code{"CH4dry_ppb"}, \code{"CO2dry_ppm"}).
+#' @param bubbles Data.frame of bubbling events from \code{\link{find.bubbles}}
+#'   (or \code{NULL}). Must contain \code{start}, \code{end} and \code{magnitude};
+#'   an optional \code{SE} column enables error propagation.
 #'
-#' @param bubbles Optional data.frame containing bubbling events detected by
-#'   \code{find.bubbles()}. Must include at least a \code{magnitude} column
-#'   representing the estimated concentration step associated with each
-#'   bubbling event and optionally a \code{SE} column containing the standard
-#'   error of the magnitude estimate.
+#' @param flux.term Numeric; conversion factor turning a concentration change
+#'   per unit time into flux units (from \code{\link[goFlux]{flux.term}}).
 #'
-#' @param flux.term Numeric conversion factor transforming concentration change
-#'   per unit time into flux units. Typically derived from chamber geometry and
-#'   environmental conditions (e.g., using a gas law conversion).
+#' @param final_window.min Numeric; minimum time (seconds) that must remain
+#'   after the last bubble for the full deployment length to be used as the
+#'   incubation time. If less time remains, the incubation time is truncated to
+#'   the start of the last bubbling event. Default \code{30}.
 #'
-#' @param final_window.min Numeric. Minimum time (in seconds) required after the
-#'   last detected bubbling event to consider the full incubation length for
-#'   flux calculation. If the remaining time after the last bubble is shorter
-#'   than this threshold, the incubation time is truncated to the start of the
-#'   last bubbling event.
+#' @param window_C0Cf Numeric; duration (seconds) of the initial and final
+#'   windows used to compute mean start and end concentrations for the two-point
+#'   endpoint estimate. Default \code{10}.
 #'
-#' @param window_C0Cf Numeric. Duration (in seconds) of the initial and final
-#'   windows used to compute mean starting and ending concentrations for the
-#'   endpoint (two-point) flux estimate.
-#'
-#' @return
-#' A list containing:
+#' @return A named list, always with the same fields:
 #' \describe{
-#'   \item{flux}{Estimated ebullitive flux.}
-#'   \item{SE}{Standard error of the ebullitive flux estimate.}
-#'   \item{F_tot2pts}{Total flux estimated using the endpoint (two-point) method.}
-#'   \item{F_tot2pts.SE}{Standard error of the endpoint total flux estimate.}
-#'   \item{n_bubbles}{Number of bubbling events used in the calculation.}
-#'   \item{deltaC_bubbles}{Total concentration increase attributed to bubbling events.}
-#'   \item{deltaC_total}{Observed total concentration change over the incubation.}
-#'   \item{bubble_ratio}{Ratio between bubbling-induced concentration change and total change.}
-#'   \item{inconsistent}{Logical flag indicating that summed bubble magnitudes exceed the observed endpoint concentration change.}
-#'   \item{message}{Optional message returned when no bubbling events are detected
-#'   or when bubbling magnitudes are unavailable.}
+#'   \item{flux}{Ebullitive flux (0 when no bubbles, \code{NA} when magnitudes
+#'     are unavailable).}
+#'   \item{SE}{Standard error of the ebullitive flux (\code{NA} if \code{bubbles}
+#'     has no \code{SE} column).}
+#'   \item{F_tot2pts}{Two-point endpoint estimate of the total flux.}
+#'   \item{F_tot2pts.SE}{Standard error of the endpoint estimate.}
+#'   \item{n_bubbles}{Number of bubbling events used.}
+#'   \item{deltaC_bubbles}{Summed concentration increase attributed to bubbles.}
+#'   \item{deltaC_total}{Observed endpoint concentration change (Cf - C0).}
+#'   \item{bubble_ratio}{\code{deltaC_bubbles / deltaC_total}.}
+#'   \item{flag_inconsistent}{Logical; \code{TRUE} when summed bubble magnitudes
+#'     exceed the observed endpoint change.}
+#'   \item{message}{Diagnostic message (\code{NA} when nothing to report).}
 #' }
 #'
 #' @details
-#' The ebullitive flux is computed as:
-#'
+#' Ebullitive flux:
 #' \deqn{F_E = \frac{\sum \Delta C_{bubble}}{t_{inc}} \times K}
-#'
-#' where:
-#' \itemize{
-#'   \item \eqn{\sum \Delta C_{bubble}} is the summed concentration increase
-#'   associated with bubbling events,
-#'   \item \eqn{t_{inc}} is the effective incubation time,
-#'   \item \eqn{K} is the flux conversion factor (\code{flux.term}).
-#' }
-#'
-#' Standard errors are propagated assuming independence of individual bubble
+#' with \eqn{K} the flux conversion term and \eqn{t_{inc}} the effective
+#' incubation time. Standard errors are propagated assuming independent bubble
 #' magnitude estimates:
-#'
 #' \deqn{SE(F_E) = \frac{K}{t_{inc}} \sqrt{\sum SE_{bubble}^2}}
 #'
-#' Diagnostic checks are implemented to identify inconsistencies between the
-#' cumulative bubble magnitude and the observed endpoint concentration change.
-#' When the sum of bubble magnitudes exceeds the observed concentration change,
-#' a warning is issued and the \code{inconsistent} flag is set to \code{TRUE}.
+#' @seealso \code{\link{find.bubbles}}, \code{\link{goAquaFlux.diffusive}},
+#'   \code{\link{goAquaFlux.total}}
 #'
-#' @examples
-#' ebullition_flux <- goAquaFlux.ebullition(
-#'   df = incubation_data,
-#'   gastype = "CH4dry_ppb",
-#'   bubbles = bubbles,
-#'   flux.term = K
-#' )
-#'
-#' @seealso
-#' \code{\link{find.bubbles}},
-#' \code{\link{goAquaFlux.diffusive}},
-#' \code{\link{goAquaFlux.total}}
-#'
+#' @importFrom stats var
 #' @include goFlux-package.R
 #'
 #' @keywords internal
@@ -100,133 +71,98 @@ goAquaFlux.ebullition <- function(df,
                                   flux.term,
                                   final_window.min = 30,
                                   window_C0Cf = 10) {
+
+  ## Initialise the message so we never accidentally return base::message.
+  msg <- NA_character_
+
+  ## NOTE: a small helper guarantees every exit path returns the SAME set of
+  ## fields (the original returned `inconsistent` in some branches and
+  ## `flag_inconsistent` in others, and omitted `message` on the main path).
+  .out <- function(flux, SE, n_bubbles, deltaC_bubbles, bubble_ratio,
+                   flag_inconsistent, message) {
+    list(flux = flux, SE = SE,
+         F_tot2pts = F_tot2pts, F_tot2pts.SE = F_tot2pts.SE,
+         n_bubbles = n_bubbles,
+         deltaC_bubbles = deltaC_bubbles,
+         deltaC_total = deltaC_total,
+         bubble_ratio = bubble_ratio,
+         flag_inconsistent = flag_inconsistent,
+         message = message)
+  }
+
   end_limit <- df$Etime[nrow(df)]
 
-
-  # ----------- Retrieve initial and final concentrations Co and Cf
-  # Define initial window
+  # ---- Endpoint (two-point) total-flux estimate ----------------------------
+  # Mean concentration over the first and last `window_C0Cf` seconds.
   idx0 <- df$Etime <= window_C0Cf
-
-  # Define final window
   idxf <- df$Etime >= (end_limit - window_C0Cf) & df$Etime < end_limit
 
-  # Compute means
   C0_vals <- df[[gastype]][idx0]
   Cf_vals <- df[[gastype]][idxf]
 
   C0 <- mean(C0_vals, na.rm = TRUE)
   Cf <- mean(Cf_vals, na.rm = TRUE)
 
-  # Variances
   s0 <- var(C0_vals, na.rm = TRUE)
   sf <- var(Cf_vals, na.rm = TRUE)
 
-  n0 <- sum(idx0)
-  nf <- sum(idxf)
-
-
+  ## Count only non-missing values, so the SE below matches the mean.
+  n0 <- sum(!is.na(C0_vals))
+  nf <- sum(!is.na(Cf_vals))
 
   deltaC_total <- Cf - C0
 
-  # ----------------------------
-  # Total flux and SE with 2-points method
-  # ----------------------------
-
   F_tot2pts <- deltaC_total / end_limit * flux.term
+  ## NOTE: SE requires >= 2 obs in each window; otherwise var() is NA -> SE NA.
+  F_tot2pts.SE <- (flux.term / end_limit) * sqrt((s0 / n0) + (sf / nf))
 
-  F_tot2pts.SE <- (flux.term / end_limit) *
-    sqrt((s0 / n0) + (sf / nf))
-
-
+  # ---- No bubbles ----------------------------------------------------------
   if (is.null(bubbles) || nrow(bubbles) == 0) {
-    return(list(
-      flux = 0,
-      SE = 0,
-      F_tot2pts = F_tot2pts,
-      F_tot2pts.SE = F_tot2pts.SE,
-      n_bubbles = 0,
-      deltaC_bubbles = 0,
-      deltaC_total = deltaC_total,
-      bubble_ratio = 0,
-      inconsistent = FALSE,
-      message = "No bubbling events detected"
-    ))
-
+    return(.out(flux = 0, SE = 0, n_bubbles = 0, deltaC_bubbles = 0,
+                bubble_ratio = 0, flag_inconsistent = FALSE,
+                message = "No bubbling events detected"))
   }
 
-  # Remove bubbles with invalid magnitude
+  # Drop bubbles with an unusable magnitude.
   bubbles <- bubbles[!is.na(bubbles$magnitude), ]
 
   if (nrow(bubbles) == 0) {
-    return(list(
-      flux = NA,
-      SE = NA,
-      F_tot2pts = F_tot2pts,
-      F_tot2pts.SE = F_tot2pts.SE,
-      n_bubbles = NA,
-      deltaC_bubbles = NA,
-      deltaC_total = deltaC_total,
-      bubble_ratio = NA,
-      inconsistent = FALSE,
-      message = "Bubble magnitudes unavailable"
-    ))
-  } else {
-    # If not enough observations after last bubble, incubation_time is
-    # set to the start of the last bubble.
-    t.after_bubble <- end_limit - bubbles$end[nrow(bubbles)]
-    if (t.after_bubble >= final_window.min){
-      incubation_time = end_limit
-    } else {
-      incubation_time = bubbles$start[nrow(bubbles)]
-    }
+    return(.out(flux = NA_real_, SE = NA_real_, n_bubbles = 0L,
+                deltaC_bubbles = NA_real_, bubble_ratio = NA_real_,
+                flag_inconsistent = FALSE,
+                message = "Bubble magnitudes unavailable"))
   }
 
-  # Sum concentration increase
+  # ---- Effective incubation time -------------------------------------------
+  # If too little time remains after the last bubble, the trailing window is
+  # not representative of ebullition; truncate to the last bubble's start.
+  t.after_bubble <- end_limit - bubbles$end[nrow(bubbles)]
+  incubation_time <- if (t.after_bubble >= final_window.min) {
+    end_limit
+  } else {
+    bubbles$start[nrow(bubbles)]
+  }
+
+  # ---- Summed bubble magnitude and consistency check -----------------------
   deltaC_bubbles <- sum(bubbles$magnitude, na.rm = TRUE)
-
-
-
   ratio <- deltaC_bubbles / deltaC_total
 
-  # issue a warning when deltaC_bubbles > deltaC_total
   flag_inconsistent <- FALSE
   if (!is.na(deltaC_total) && deltaC_bubbles > deltaC_total) {
     flag_inconsistent <- TRUE
-    message = "Sum of bubble magnitudes exceeds endpoint concentration change"
+    msg <- "Sum of bubble magnitudes exceeds endpoint concentration change"
   }
 
+  # ---- Error propagation ----------------------------------------------------
+  var_sum <- if ("SE" %in% colnames(bubbles)) {
+    sum(bubbles$SE^2, na.rm = TRUE)
+  } else NA_real_
 
-  # Variance propagation
-  if ("SE" %in% colnames(bubbles)) {
-    var_sum <- sum(bubbles$SE^2, na.rm = TRUE)
-  } else {
-    var_sum <- NA
-  }
-
-
-  # ----------------------------
-  # Ebullition flux and SE estimates
-  # ----------------------------
-
+  # ---- Ebullitive flux ------------------------------------------------------
   flux <- deltaC_bubbles / incubation_time * flux.term
+  flux_se <- if (!is.na(var_sum)) (flux.term / incubation_time) * sqrt(var_sum) else NA_real_
 
-  if (!is.na(var_sum)) {
-    flux_se <- (flux.term / incubation_time) * sqrt(var_sum)
-  } else {
-    flux_se <- NA
-  }
-
-  # Saving results in a list
-  return(list(
-    flux = flux,
-    SE = flux_se,
-    F_tot2pts = F_tot2pts,
-    F_tot2pts.SE = F_tot2pts.SE,
-    n_bubbles = nrow(bubbles),
-    deltaC_bubbles = deltaC_bubbles,
-    deltaC_total = deltaC_total,
-    bubble_ratio = ratio,
-    flag_inconsistent = flag_inconsistent
-  ))
+  .out(flux = flux, SE = flux_se, n_bubbles = nrow(bubbles),
+       deltaC_bubbles = deltaC_bubbles, bubble_ratio = ratio,
+       flag_inconsistent = flag_inconsistent, message = msg)
 }
-
