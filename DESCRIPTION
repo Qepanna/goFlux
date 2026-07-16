@@ -2,7 +2,8 @@ Package: goFlux
 Type: Package
 Title: User-Friendly Chamber Data Processing, Flux Estimation, and Diagnostics
 Version: 0.2.0
-Authors@R: c(person("Karelle", "Rheault", email = "karh@ign.ku.dk", role = c("cre", "aut", "dtc")),
+Authors@R: c(person("Camille", "Minaudo", email = "camille.minaudo@ub.edu", role = c("cre", "aut")),
+             person("Karelle", "Rheault", email = "karh@ign.ku.dk", role = c("aut","dtc")),
              person("Klaus", "Steenberg Larsen", email = "ksl@ign.ku.dk", role = c("aut", "ths")))
 Maintainer: Karelle Rheault <karh@ign.ku.dk>
 Description: Import raw chamber data into R for flux calculation, quality check 
@@ -25,12 +26,18 @@ Collate:
     'autoID.R'
     'best.flux.R'
     'click.peak2.R'
+    'find.bubbles.R'
     'flux.plot.R'
+    'flux.plot.aqua.R'
     'flux.term.R'
     'flux2pdf.R'
     'g.factor.R'
+    'goAquaFlux.total.R'
+    'goAquaFlux.diffusive.R'
+    'goAquaFlux.ebullition.R'
     'k.max.R'
     'goFlux.R'
+    'goAquaFlux.R'
     'imp.LI6400-data.R'
     'imp.LI7820-data.R'
     'imp.LI8200-data.R'
@@ -62,4 +69,4 @@ Collate:
     'manID.G2201i-data.R'
     'manID.UGGA-data.R'
     'obs.win.R'
-Imports: AICcmodavg, data.table, dplyr, ggnewscale, ggplot2, ggstar, graphics, grDevices, grid, gridExtra, jsonlite, lifecycle, lubridate, minpack.lm, msm, pbapply, plyr, purrr, rjson, rlang, rlist, SimDesign, stats, stringr, tibble, tidyr, toOrdinal, utils
+Imports: AICcmodavg, data.table, dplyr, ggnewscale, ggplot2, ggstar, graphics, grDevices, grid, gridExtra, jsonlite, lifecycle, lubridate, minpack.lm, msm, pbapply, plyr, purrr, rjson, rlang, rlist, SimDesign, stats, stringr, tibble, tidyr, toOrdinal, utils, zoo
