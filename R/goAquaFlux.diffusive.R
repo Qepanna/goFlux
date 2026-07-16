@@ -64,6 +64,67 @@
 #'
 
 
+
+# --- Main function ------------------------------------------------------------
+goAquaFlux.diffusive <- function(df,
+                                 gastype,
+                                 criteria = c("MAE", "RMSE", "AICc", "SE",
+                                              "g.factor", "kappa", "MDF",
+                                              "nb.obs", "intercept", "p-value"),
+                                 bubble_gas = "CH4dry_ppb",
+                                 bubbles = NULL,
+                                 minimum_window = 30,
+                                 abrupt.window = 30,
+                                 abrupt.min.points = 10,
+                                 abrupt.threshold = 0.5) {
+
+  df <- df[!duplicated(df$Etime), ]
+
+  # Actual first bubble time (reported to the user, independent of windowing).
+  first_bubble_time <- if (!is.null(bubbles) && nrow(bubbles) > 0 &&
+                           !is.na(bubbles$start[1])) bubbles$start[1] else NA_real_
+
+  # Determine the diffusive window.
+  res_window <- .select_diffusive_window(
+    df, gastype, bubble_gas, bubbles,
+    window = abrupt.window, min_points = abrupt.min.points,
+    threshold = abrupt.threshold)
+  df_diff <- res_window$df_diff
+
+  n_used <- nrow(df_diff)
+
+  if (n_used < minimum_window) {
+    return(list(flux = NA_real_, SE = NA_real_, n_used = n_used,
+                first_bubble_time = first_bubble_time,
+                best.flux.output = NULL,
+                message = "Insufficient diffusive observations"))
+  }
+
+  ## FIX (water vapour double-correction): the incoming `H2O_mol` column is
+  ## already a mole fraction (ppm / 1e6). goFlux() divides its H2O_col by 1e6
+  ## AGAIN, so passing H2O_col = "H2O_mol" divides twice and effectively
+  ## disables the correction. We pass the original ppm column instead (carried
+  ## through by goAquaFlux as `H2O_ppm`) and let goFlux do its single
+  ## conversion. If no water column is available, disable the correction
+  ## explicitly (quietly, to avoid one warning per incubation).
+  h2o_arg <- if ("H2O_ppm" %in% names(df_diff)) "H2O_ppm" else NULL
+
+  aquaFlux.diff <- suppressWarnings(
+    goFlux(dataframe = df_diff, gastype = gastype, H2O_col = h2o_arg))
+
+  best.flux.diff <- best.flux(aquaFlux.diff, criteria = criteria)
+  best.flux.diff$SE_best_model <- ifelse(best.flux.diff$model == "LM",
+                                         best.flux.diff$LM.SE,
+                                         best.flux.diff$HM.SE)
+
+  list(flux = best.flux.diff$best.flux,
+       SE = best.flux.diff$SE_best_model,
+       n_used = n_used,
+       first_bubble_time = first_bubble_time,
+       best.flux.output = best.flux.diff)
+}
+
+
 # --- Test whether a candidate time separates two clearly different slopes -----
 .has_abrupt_change <- function(df, gastype, split_time,
                                window_size = 30,
@@ -129,62 +190,3 @@
   list(df_diff = df[df$Etime < stop_time, ], stop_time = stop_time)
 }
 
-
-# --- Main function ------------------------------------------------------------
-goAquaFlux.diffusive <- function(df,
-                                 gastype,
-                                 criteria = c("MAE", "RMSE", "AICc", "SE",
-                                              "g.factor", "kappa", "MDF",
-                                              "nb.obs", "intercept", "p-value"),
-                                 bubble_gas = "CH4dry_ppb",
-                                 bubbles = NULL,
-                                 minimum_window = 30,
-                                 abrupt.window = 30,
-                                 abrupt.min.points = 10,
-                                 abrupt.threshold = 0.5) {
-
-  df <- df[!duplicated(df$Etime), ]
-
-  # Actual first bubble time (reported to the user, independent of windowing).
-  first_bubble_time <- if (!is.null(bubbles) && nrow(bubbles) > 0 &&
-                           !is.na(bubbles$start[1])) bubbles$start[1] else NA_real_
-
-  # Determine the diffusive window.
-  res_window <- .select_diffusive_window(
-    df, gastype, bubble_gas, bubbles,
-    window = abrupt.window, min_points = abrupt.min.points,
-    threshold = abrupt.threshold)
-  df_diff <- res_window$df_diff
-
-  n_used <- nrow(df_diff)
-
-  if (n_used < minimum_window) {
-    return(list(flux = NA_real_, SE = NA_real_, n_used = n_used,
-                first_bubble_time = first_bubble_time,
-                best.flux.output = NULL,
-                message = "Insufficient diffusive observations"))
-  }
-
-  ## FIX (water vapour double-correction): the incoming `H2O_mol` column is
-  ## already a mole fraction (ppm / 1e6). goFlux() divides its H2O_col by 1e6
-  ## AGAIN, so passing H2O_col = "H2O_mol" divides twice and effectively
-  ## disables the correction. We pass the original ppm column instead (carried
-  ## through by goAquaFlux as `H2O_ppm`) and let goFlux do its single
-  ## conversion. If no water column is available, disable the correction
-  ## explicitly (quietly, to avoid one warning per incubation).
-  h2o_arg <- if ("H2O_ppm" %in% names(df_diff)) "H2O_ppm" else NULL
-
-  aquaFlux.diff <- suppressWarnings(
-    goFlux(dataframe = df_diff, gastype = gastype, H2O_col = h2o_arg))
-
-  best.flux.diff <- best.flux(aquaFlux.diff, criteria = criteria)
-  best.flux.diff$SE_best_model <- ifelse(best.flux.diff$model == "LM",
-                                         best.flux.diff$LM.SE,
-                                         best.flux.diff$HM.SE)
-
-  list(flux = best.flux.diff$best.flux,
-       SE = best.flux.diff$SE_best_model,
-       n_used = n_used,
-       first_bubble_time = first_bubble_time,
-       best.flux.output = best.flux.diff)
-}

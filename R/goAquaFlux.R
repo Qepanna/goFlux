@@ -143,7 +143,7 @@
 #' @include find.bubbles.R
 #' @include goFlux.R
 #' @include goAquaFlux.ebullition.R
-#' @include goAquaFlux.diffusion.R
+#' @include goAquaFlux.diffusive.R
 #' @include goAquaFlux.total.R
 #'
 #' @seealso
