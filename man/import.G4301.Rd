@@ -42,13 +42,14 @@ in the following order: "CO2dry_ppm", "CH4dry_ppb" and "H2O_ppm".
 The default is \code{prec = c(0.025, 0.1, 10)}.}
 }
 \value{
-A data frame containing raw data from Picarro G4301 GHG analyzer.
+A data frame containing raw data from the Picarro G4301 Mobile Gas
+Concentration Analyzer.
 }
 \description{
-Imports single raw gas measurement files from the Picarro G4301 with the
-extension .dat (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+Imports single raw gas measurement files from the Picarro G4301
+(\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}} and
-\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} GHG analyzer)
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 }
 \details{
 In \code{date.format}, the date format refers to a date found in the raw data
@@ -93,6 +94,7 @@ Use the wrapper function \code{\link[goFlux]{import2RData}}
 
 See also, import functions for other instruments:
          \code{\link[goFlux]{import.DX4015}},
+         \code{\link[goFlux]{import.eosMX12}},
          \code{\link[goFlux]{import.EGM5}},
          \code{\link[goFlux]{import.G2201i}},
          \code{\link[goFlux]{import.G2508}},

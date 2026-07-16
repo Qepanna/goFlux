@@ -87,12 +87,12 @@ autoID <- function(inputfile, auxfile = NULL, obs.length = NULL,
   ## UniqueID and chamID ####
   if(is.null(auxfile)) {
     if(!any(grepl("\\<UniqueID\\>", names(inputfile))) &
-       !any(grepl("\\<chamID\\>", names(inputfile)))) {
+        !any(grepl("\\<chamID\\>", names(inputfile)))) {
       stop("'UniqueID' is required and was not found in 'inputfile'. Alternatively, provide chamID in 'inputfile'.")
     }
   } else {
     if(!any(grepl("\\<UniqueID\\>", names(auxfile))) &
-       !any(grepl("\\<chamID\\>", names(auxfile)))) {
+        !any(grepl("\\<chamID\\>", names(auxfile)))) {
       stop("'UniqueID' is required and was not found in 'auxfile'. Alternatively, provide chamID in 'auxfile'.")
     }
   }
@@ -100,13 +100,13 @@ autoID <- function(inputfile, auxfile = NULL, obs.length = NULL,
   ## DATE ####
   if(is.null(auxfile)) {
     if(!any(grepl("\\<UniqueID\\>", names(inputfile))) &
-       any(grepl("\\<chamID\\>", names(inputfile)))) {
+        any(grepl("\\<chamID\\>", names(inputfile)))) {
       if(!any(grepl("\\<DATE\\>", names(inputfile)))){
         stop("The column DATE in required in 'inputfile' to create a UniqueID from chamID.")}
     }
   } else {
     if(!any(grepl("\\<UniqueID\\>", names(auxfile))) &
-       any(grepl("\\<chamID\\>", names(auxfile)))) {
+        any(grepl("\\<chamID\\>", names(auxfile)))) {
       if(!any(grepl("\\<DATE\\>", names(inputfile)))){
         stop("The column DATE in required in 'inputfile' to create a UniqueID from chamID.")}
     }
@@ -115,7 +115,7 @@ autoID <- function(inputfile, auxfile = NULL, obs.length = NULL,
   ## start.time and cham.close ####
   if(is.null(auxfile)) {
     if(!any(grepl("\\<start.time\\>", names(inputfile))) &
-       !any(grepl("\\<cham.close\\>", names(inputfile)))) {
+        !any(grepl("\\<cham.close\\>", names(inputfile)))) {
       stop("'start.time' is required and was not found in 'inputfile'")
     }
     if(any(grepl("\\<start.time\\>", names(inputfile)))) {
@@ -138,7 +138,7 @@ autoID <- function(inputfile, auxfile = NULL, obs.length = NULL,
     }
   } else {
     if(!any(grepl("\\<start.time\\>", names(auxfile))) &
-       !any(grepl("\\<cham.close\\>", names(auxfile)))) {
+        !any(grepl("\\<cham.close\\>", names(auxfile)))) {
       stop("'start.time' is required and was not found in 'auxfile'")
     }
     if(any(grepl("\\<start.time\\>", names(auxfile)))) {

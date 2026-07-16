@@ -60,11 +60,12 @@ files to be imported.}
 
 \item{instrument}{character string; specifies which instrument was used to
 generate the files contained in the folder path. Choose one
-of the following: "DX4015", "EGM5", "G2201i", "G2508", "G4301",
-"GAIA", "GasmetPD", "GT5000", "HT8850", "LI-6400", "LI-7810",
-"LI-7820", "LI-8100", "LI-8150", "LI-8200", "LI-8250", "N2OM1",
-"N2Oi2", "skyline", "uCH4", "uN2O", "UGGA". For more information
-about an instrument, see the section "See Also" below.}
+of the following: "DX4015", "eosMX12", "EGM5", "G2201i",
+"G2508", "G4301", "GAIA", "GasmetPD", "GT5000", "HT8850",
+"LI-6400", "LI-7810", "LI-7820", "LI-8100", "LI-8150",
+"LI-8200", "LI-8250", "N2OM1", "N2Oi2", "skyline", "uCH4",
+"uN2O", "UGGA". For more information about an instrument,
+see the section "See Also" below.}
 
 \item{date.format}{character string; specifies the date format found in the
 raw data file. Choose one of the following: "dmy", "ymd",
@@ -209,8 +210,9 @@ high accuracy analyzer and
 \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}/
 \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}}
 natural gas detection system
-\item \strong{Earth Bound Scientific}: SkyLine2D system
+\item \strong{EarthBound Scientific}: SkyLine2D system
 \item \strong{Healthy Photon}: HT8850
+\item \strong{Eosense}: eosMX 12-Channel Multiplexer
 \item \strong{GasmetPD}: Custom multiplexer from the University of Padova, Italy
 }
 }
@@ -390,7 +392,7 @@ import2RData(path = file.path, instrument = "LI-8250", date.format = "ymd",
              inst1 = "LI-7810", gas1 = c("CO2_DRY", "CH4_DRY", "H2O"),
              prec1 = c(3.5, 0.6, 45), SWC.col = "SWC_1", Tsoil.col = "TS_1")
 
-# with the SkyLine2D system (Earth Bound Scientific)
+# with the SkyLine2D system (EarthBound Scientific)
 # with this instrument, "keep_all" is not a valid argument.
 file.path <- system.file("extdata/skyline", package = "goFlux")
 import2RData(path = file.path, instrument = "skyline", date.format = "ymd",
@@ -419,6 +421,10 @@ file.path <- system.file("extdata/HT8850", package = "goFlux")
 import2RData(path = file.path, instrument = "HT8850",
              date.format = "ymd", prec = c(0.5, 3, 0.5, 10))
 
+# with the Eosense eosMX 12-Channel Multiplexer
+file.path <- system.file("extdata/eosMX12", package = "goFlux")
+import2RData(path = file.path, instrument = "eosMX12")
+
 }
 \seealso{
 Use the wrapper function \code{\link[goFlux]{import2RData}}
@@ -426,6 +432,7 @@ to import multiple files from the same folder path using any instrument.
 
 Import functions for individual instruments:
 \code{\link[goFlux]{import.DX4015}},
+\code{\link[goFlux]{import.eosMX12}},
 \code{\link[goFlux]{import.EGM5}},
 \code{\link[goFlux]{import.G2201i}},
 \code{\link[goFlux]{import.G2508}},

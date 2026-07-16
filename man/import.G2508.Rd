@@ -2,7 +2,7 @@
 % Please edit documentation in R/import.G2508.R
 \name{import.G2508}
 \alias{import.G2508}
-\title{Import function for Picarro G2508 GHG analyzer}
+\title{Import function for the Picarro G2508 Gas Concentration Analyzer}
 \usage{
 import.G2508(
   inputfile,
@@ -41,15 +41,16 @@ in the following order: "CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb",
 \code{prec = c(0.24, 0.3, 5, 0.16, 500)}.}
 }
 \value{
-A data frame containing raw data from Picarro G2508 GHG analyzer.
+A data frame containing raw data from the Picarro G2508 Gas
+Concentration Analyzer.
 }
 \description{
-Imports single raw gas measurement files from the Picarro G2508 with the
-extension .dat (\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
+Imports single raw gas measurement files from the Picarro G2508
+(\ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
 \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
 \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}, and
-\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}} GHG analyzer)
+\ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 }
 \details{
 In \code{date.format}, the date format refers to a date found in the raw data
@@ -98,6 +99,7 @@ Use the wrapper function \code{\link[goFlux]{import2RData}}
 
 See also, import functions for other instruments:
          \code{\link[goFlux]{import.DX4015}},
+         \code{\link[goFlux]{import.eosMX12}},
          \code{\link[goFlux]{import.EGM5}},
          \code{\link[goFlux]{import.G2201i}},
          \code{\link[goFlux]{import.G4301}},

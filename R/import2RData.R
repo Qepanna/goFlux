@@ -19,8 +19,9 @@
 #'                                \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}}/
 #'                                \ifelse{html}{\out{C<sub>2</sub>H<sub>6</sub>}}{\eqn{C[2]H[6]}{ASCII}}
 #'                                natural gas detection system
-#' * \strong{Earth Bound Scientific}: SkyLine2D system
+#' * \strong{EarthBound Scientific}: SkyLine2D system
 #' * \strong{Healthy Photon}: HT8850
+#' * \strong{Eosense}: eosMX 12-Channel Multiplexer
 #' * \strong{GasmetPD}: Custom multiplexer from the University of Padova, Italy
 #' @md
 #'
@@ -29,11 +30,12 @@
 #'             files to be imported.
 #' @param instrument character string; specifies which instrument was used to
 #'                   generate the files contained in the folder path. Choose one
-#'                   of the following: "DX4015", "EGM5", "G2201i", "G2508", "G4301",
-#'                   "GAIA", "GasmetPD", "GT5000", "HT8850", "LI-6400", "LI-7810",
-#'                   "LI-7820", "LI-8100", "LI-8150", "LI-8200", "LI-8250", "N2OM1",
-#'                   "N2Oi2", "skyline", "uCH4", "uN2O", "UGGA". For more information
-#'                   about an instrument, see the section "See Also" below.
+#'                   of the following: "DX4015", "eosMX12", "EGM5", "G2201i",
+#'                   "G2508", "G4301", "GAIA", "GasmetPD", "GT5000", "HT8850",
+#'                   "LI-6400", "LI-7810", "LI-7820", "LI-8100", "LI-8150",
+#'                   "LI-8200", "LI-8250", "N2OM1", "N2Oi2", "skyline", "uCH4",
+#'                   "uN2O", "UGGA". For more information about an instrument,
+#'                   see the section "See Also" below.
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",
 #'                    or "mdy".
@@ -193,6 +195,7 @@
 #'
 #' @include goFlux-package.R
 #' @include import.DX4015.R
+#' @include import.eosMX12.R
 #' @include import.EGM5.R
 #' @include import.G2201i.R
 #' @include import.G2508.R
@@ -219,6 +222,7 @@
 #'          to import multiple files from the same folder path using any instrument.
 #' @seealso Import functions for individual instruments:
 #'          \code{\link[goFlux]{import.DX4015}},
+#'          \code{\link[goFlux]{import.eosMX12}},
 #'          \code{\link[goFlux]{import.EGM5}},
 #'          \code{\link[goFlux]{import.G2201i}},
 #'          \code{\link[goFlux]{import.G2508}},
@@ -359,7 +363,7 @@
 #'              inst1 = "LI-7810", gas1 = c("CO2_DRY", "CH4_DRY", "H2O"),
 #'              prec1 = c(3.5, 0.6, 45), SWC.col = "SWC_1", Tsoil.col = "TS_1")
 #'
-#' # with the SkyLine2D system (Earth Bound Scientific)
+#' # with the SkyLine2D system (EarthBound Scientific)
 #' # with this instrument, "keep_all" is not a valid argument.
 #' file.path <- system.file("extdata/skyline", package = "goFlux")
 #' import2RData(path = file.path, instrument = "skyline", date.format = "ymd",
@@ -388,6 +392,10 @@
 #' import2RData(path = file.path, instrument = "HT8850",
 #'              date.format = "ymd", prec = c(0.5, 3, 0.5, 10))
 #'
+#' # with the Eosense eosMX 12-Channel Multiplexer
+#' file.path <- system.file("extdata/eosMX12", package = "goFlux")
+#' import2RData(path = file.path, instrument = "eosMX12")
+#'
 #' @export
 
 import2RData <- function(path, instrument, date.format, timezone = "UTC",
@@ -415,12 +423,12 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                 c("DX4015", "UGGA", "G2201i", "G2508", "G4301", "GAIA", "LI-6400",
                   "EGM5", "LI-7810", "LI-7820", "LI-8100", "LI-8150", "LI-8200",
                   "N2OM1", "N2Oi2", "uCH4", "uN2O", "GasmetPD", "GT5000", "LI-8250",
-                  "skyline", "HT8850")))){
+                  "skyline", "HT8850", "eosMX12")))){
     stop(paste("'instrument' must be of class character and one of the following:",
-               "'DX4015', 'EGM5', 'G2201i', 'G2508', 'G4301', 'GAIA', 'GasmetPD',",
-               "'GT5000', 'HT8850', 'LI-6400', 'LI-7810', 'LI-7820', 'LI-8100',",
-               "'LI-8150', 'LI-8200', 'LI-8250', 'UGGA', 'N2OM1', 'N2Oi2', 'skyline',",
-               "'uCH4', 'uN2O'"))}
+               "'DX4015', 'eosMX12' 'EGM5', 'G2201i', 'G2508', 'G4301', 'GAIA',",
+               "'GasmetPD', 'GT5000', 'HT8850', 'LI-6400', 'LI-7810', 'LI-7820',",
+               "'LI-8100', 'LI-8150', 'LI-8200', 'LI-8250', 'UGGA', 'N2OM1',",
+               "'N2Oi2', 'skyline', 'uCH4', 'uN2O'"))}
   if(!missing(date.format)){
     if(length(date.format) != 1) stop("'date.format' must be of length 1")
     if (!is.character(date.format)) stop("'date.format' must be of class character")
@@ -461,6 +469,41 @@ import2RData <- function(path, instrument, date.format, timezone = "UTC",
                       save = TRUE,
                       keep_all = keep_all,
                       prec = prec),
+
+        error = function(e){
+          errs <<- c(errs, conditionMessage(e))
+          invokeRestart("muffleError")
+        },
+        warning = function(w){
+          warn <<- c(warn, conditionMessage(w))
+          invokeRestart("muffleWarning")
+        },
+        message = function(m){
+          msgs <<- c(msgs, conditionMessage(m))
+          invokeRestart("muffleMessage")
+        })
+    })
+  }
+
+  # eosMX12 ####
+  if(instrument == "eosMX12"){
+
+    # List all the files contained in the specified path
+    file_list <- list.files(path = path, pattern = ".log",
+                            recursive = T, full.names = TRUE)
+
+    # Error if file_list is empty
+    if(is_empty(file_list)) stop(paste("No file with the extension .log",
+                                       "was found in the folder path", path))
+
+    # Loop through files in "file_list" and apply import functions
+    pblapply(seq_along(file_list), function(i) {
+
+      withCallingHandlers(
+
+        import.eosMX12(inputfile = file_list[i],
+                       timezone = timezone,
+                       save = TRUE),
 
         error = function(e){
           errs <<- c(errs, conditionMessage(e))

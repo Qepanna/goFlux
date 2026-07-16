@@ -2,7 +2,7 @@
 % Please edit documentation in R/import.LI8200.R
 \name{import.LI8200}
 \alias{import.LI8200}
-\title{Import function for LI-COR smart chamber (LI-8200)}
+\title{Import function for the LI-COR Smart Chamber (LI-8200)}
 \usage{
 import.LI8200(inputfile, date.format = "ymd", timezone = "UTC", save = FALSE)
 }
@@ -25,10 +25,10 @@ in a RData folder in the current working directory. If
 the Environment if assigned to an object.}
 }
 \value{
-A data frame containing raw data from the LI-COR Smart Chamber LI-8200.
+A data frame containing raw data from the LI-COR Smart Chamber (LI-8200).
 }
 \description{
-Imports single raw data files from the LI-COR smart chamber (LI-8200)
+Imports single raw data files from the LI-COR Smart Chamber (LI-8200)
 }
 \details{
 In \code{date.format}, the date format refers to a date found in the raw data
@@ -80,6 +80,7 @@ Use the wrapper function \code{\link[goFlux]{import2RData}}
 
 See also, import functions for other instruments:
          \code{\link[goFlux]{import.DX4015}},
+         \code{\link[goFlux]{import.eosMX12}},
          \code{\link[goFlux]{import.EGM5}},
          \code{\link[goFlux]{import.G2201i}},
          \code{\link[goFlux]{import.G2508}},

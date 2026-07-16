@@ -4,7 +4,7 @@
 \alias{g.factor}
 \title{G-factor}
 \usage{
-g.factor(HM.flux, LM.flux)
+g.factor(HM.flux, LM.flux, eps = .Machine$double.eps^0.5)
 }
 \arguments{
 \item{HM.flux}{a numerical value; flux estimate from a non-linear

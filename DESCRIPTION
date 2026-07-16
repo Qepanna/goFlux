@@ -1,9 +1,11 @@
 Package: goFlux
 Type: Package
 Title: User-Friendly Chamber Data Processing, Flux Estimation, and Diagnostics
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: c(person("Karelle", "Rheault", email = "karh@ign.ku.dk", role = c("cre", "aut")),
 			 person("Camille", "Minaudo", email = "camille.minaudo@ub.edu", role = c("aut")),
+Version: 0.2.1
+Authors@R: c(person("Karelle", "Rheault", email = "karh@ign.ku.dk", role = c("cre", "aut", "dtc")),
              person("Klaus", "Steenberg Larsen", email = "ksl@ign.ku.dk", role = c("aut", "ths")))
 Maintainer: Karelle Rheault <karh@ign.ku.dk>
 Description: Import raw chamber data into R for flux calculation, quality check 
@@ -23,10 +25,12 @@ Collate:
     'HM.flux.R'
     'LM.flux.R'
     'MDF.R'
+    'auto.deadband.R'
     'autoID.R'
     'best.flux.R'
     'click.peak2.R'
     'find.bubbles.R'
+    'crop.meas.R'
     'flux.plot.R'
     'flux.plot.aqua.R'
     'flux.term.R'
@@ -38,6 +42,7 @@ Collate:
     'k.max.R'
     'goFlux.R'
     'goAquaFlux.R'
+    'imp.G2508-data.R'
     'imp.LI6400-data.R'
     'imp.LI7820-data.R'
     'imp.LI8200-data.R'
@@ -61,6 +66,7 @@ Collate:
     'import.N2OM1.R'
     'import.N2Oi2.R'
     'import.UGGA.R'
+    'import.eosMX12.R'
     'import.skyline.R'
     'import.uCH4.R'
     'import.uN2O.R'

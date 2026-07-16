@@ -2,7 +2,7 @@
 % Please edit documentation in R/import.LI8250.R
 \name{import.LI8250}
 \alias{import.LI8250}
-\title{Import function for LI-COR Multiplexer (LI-8250)}
+\title{Import function for the LI-COR Multiplexer (LI-8250)}
 \usage{
 import.LI8250(
   inputfile,
@@ -70,7 +70,7 @@ example, the column "CO2_DRY" will become "CO2dry_ppm".}
 that fit the corresponding parameter.}
 }
 \value{
-A data frame containing raw data from the LI-COR Multiplexer LI-8250.
+A data frame containing raw data from the LI-COR Multiplexer (LI-8250).
 }
 \description{
 Imports single raw data files from the LI-COR Multiplexer (LI-8250)
@@ -135,6 +135,7 @@ Use the wrapper function \code{\link[goFlux]{import2RData}}
 
 See also, import functions for other instruments:
          \code{\link[goFlux]{import.DX4015}},
+         \code{\link[goFlux]{import.eosMX12}},
          \code{\link[goFlux]{import.EGM5}},
          \code{\link[goFlux]{import.G2201i}},
          \code{\link[goFlux]{import.G2508}},
