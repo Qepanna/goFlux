@@ -1,0 +1,7 @@
+/* Rd-derived reference pages: make R's help markup sit nicely in Quarto. */
+table[summary="R argblock"] { width: 100%; margin-bottom: 1rem; }
+table[summary="R argblock"] td:first-child {
+  white-space: nowrap; vertical-align: top; padding-right: 1rem;
+  font-family: var(--bs-font-monospace); font-weight: 600;
+}
+table[summary="R argblock"] td { vertical-align: top; padding-bottom: .5rem; }

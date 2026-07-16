@@ -1,0 +1,63 @@
+---
+title: "goAquaFlux"
+subtitle: "Diffusive and ebullitive GHG flux partitioning for aquatic floating chambers"
+toc: false
+---
+
+## Overview
+
+**aquaGHG** extends the [goFlux](https://github.com/Qepanna/goFlux) R package
+(Rheault et al., 2024) to aquatic floating-chamber measurements, where methane
+reaches the atmosphere by two pathways with very different behaviour:
+
+- **Diffusion** — a smooth, near-linear accumulation in the chamber headspace.
+- **Ebullition** — bubbles, appearing as abrupt *steps* in concentration.
+
+Standard chamber-flux software models a single smooth signal, so a naive fit
+either discards bubble-affected incubations or silently folds ebullition into a
+biased "diffusive" estimate. aquaGHG detects the steps, fits the diffusive flux
+on a bubble-free window using goFlux's validated LM/HM models and QA/QC, and
+returns a partitioned total.
+
+## Installation
+
+```{r}
+#| eval: false
+# install.packages("remotes")
+remotes::install_github("Qepanna/goFlux")          # the parent package
+remotes::install_github("Qepanna/goFlux@aquaghg")    # this fork + aqua extension
+```
+
+## Quick start
+
+```{r}
+#| eval: false
+library(goFlux)
+
+fluxres <- goAquaFlux(
+  dataframe            = IDed,          # output of goFlux::autoID()
+  gastype              = "CH4dry_ppb",
+  use_bubble_detection = TRUE
+)
+
+flux.plot.aqua(fluxres, IDed, gastype = "CH4dry_ppb",
+               plot.display = c("diffusive.window", "ebullition.events"))
+```
+
+## Where to go next
+
+- [Getting started](articles/getting-started.qmd) — a full worked example.
+- [Bubble detection](articles/bubble-detection.qmd) — how `find.bubbles()` works and how to tune it.
+- [The partitioning workflow](articles/partitioning-workflow.qmd) — what happens between detection and the final flux.
+- [Reference](reference/index.qmd) — every function, argument by argument.
+
+## Citation
+
+If you use aquaGHG, please cite both the parent package and the aquatic
+extension:
+
+> Rheault, K., Christiansen, J. R., & Larsen, K. S. (2024). goFlux: A
+> user-friendly way to calculate GHG fluxes yourself, regardless of user
+> experience. *Journal of Open Source Software*, 9(96), 6393.
+
+> *[Add your aquaGHG reference once the MEE paper is submitted.]*

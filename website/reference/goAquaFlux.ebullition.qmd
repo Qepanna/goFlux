@@ -1,0 +1,137 @@
+---
+title: "goAquaFlux.ebullition"
+subtitle: "Estimate ebullitive gas flux from detected bubbling events"
+---
+
+::: {.callout-note appearance='simple' collapse='true'}
+## Where this page comes from
+Generated automatically from the roxygen documentation of `goAquaFlux.ebullition`.
+Edit the roxygen block in the R source and re-render -- do not edit this page.
+:::
+
+
+<h2>Description</h2>
+
+<p>Computes the ebullitive component of a gas flux during an aquatic chamber
+incubation, using bubbling events detected by <code>find.bubbles</code>.
+The ebullitive flux is estimated from the summed concentration steps
+attributed to individual bubbling events, divided by the effective incubation
+time and scaled by the flux conversion term. An independent two-point
+(endpoint) estimate of the total flux is also returned for diagnostic
+comparison, together with several consistency checks.
+</p>
+
+
+<h2>Usage</h2>
+
+<pre><code class='language-R'>goAquaFlux.ebullition(
+  df,
+  gastype,
+  bubbles,
+  flux.term,
+  final_window.min = 30,
+  window_C0Cf = 10
+)
+</code></pre>
+
+
+<h2>Arguments</h2>
+
+<table role = "presentation">
+<tr><td><code id="df">df</code></td>
+<td>
+<p>A data.frame for a single incubation. Must contain an <code>Etime</code>
+column (elapsed time, seconds, starting at 0) and the gas concentration
+column named by <code>gastype</code>. Rows are assumed to be sorted by
+<code>Etime</code>.</p>
+</td></tr>
+<tr><td><code id="gastype">gastype</code></td>
+<td>
+<p>Character; name of the gas concentration column
+(e.g. <code>"CH4dry_ppb"</code>).</p>
+</td></tr>
+<tr><td><code id="bubbles">bubbles</code></td>
+<td>
+<p>Data.frame of bubbling events from <code>find.bubbles</code>
+(or <code>NULL</code>). Must contain <code>start</code>, <code>end</code> and <code>magnitude</code>;
+an optional <code>SE</code> column enables error propagation.</p>
+</td></tr>
+<tr><td><code id="flux.term">flux.term</code></td>
+<td>
+<p>Numeric; conversion factor turning a concentration change
+per unit time into flux units (from <code>flux.term</code>).</p>
+</td></tr>
+<tr><td><code id="final_window.min">final_window.min</code></td>
+<td>
+<p>Numeric; minimum time (seconds) that must remain
+after the last bubble for the full deployment length to be used as the
+incubation time. If less time remains, the incubation time is truncated to
+the start of the last bubbling event. Default <code>30</code>.</p>
+</td></tr>
+<tr><td><code id="window_C0Cf">window_C0Cf</code></td>
+<td>
+<p>Numeric; duration (seconds) of the initial and final
+windows used to compute mean start and end concentrations for the two-point
+endpoint estimate. Default <code>10</code>.</p>
+</td></tr>
+</table>
+
+
+<h2>Details</h2>
+
+<p>Ebullitive flux:
+</p>
+<p style="text-align: center;"><code class="reqn">F_E = \frac{\sum \Delta C_{bubble}}{t_{inc}} \times K</code>
+</p>
+
+<p>with <code class="reqn">K</code> the flux conversion term and <code class="reqn">t_{inc}</code> the effective
+incubation time. Standard errors are propagated assuming independent bubble
+magnitude estimates:
+</p>
+<p style="text-align: center;"><code class="reqn">SE(F_E) = \frac{K}{t_{inc}} \sqrt{\sum SE_{bubble}^2}</code>
+</p>
+
+
+
+<h2>Value</h2>
+
+<p>A named list, always with the same fields:
+</p>
+
+<dl>
+<dt>flux</dt><dd><p>Ebullitive flux (0 when no bubbles, <code>NA</code> when magnitudes
+are unavailable).</p>
+</dd>
+<dt>SE</dt><dd><p>Standard error of the ebullitive flux (<code>NA</code> if <code>bubbles</code>
+has no <code>SE</code> column).</p>
+</dd>
+<dt>F_tot2pts</dt><dd><p>Two-point endpoint estimate of the total flux.</p>
+</dd>
+<dt>F_tot2pts.SE</dt><dd><p>Standard error of the endpoint estimate.</p>
+</dd>
+<dt>n_bubbles</dt><dd><p>Number of bubbling events used.</p>
+</dd>
+<dt>deltaC_bubbles</dt><dd><p>Summed concentration increase attributed to bubbles.</p>
+</dd>
+<dt>deltaC_total</dt><dd><p>Observed endpoint concentration change (Cf - C0).</p>
+</dd>
+<dt>bubble_ratio</dt><dd><p><code>deltaC_bubbles / deltaC_total</code>.</p>
+</dd>
+<dt>flag_inconsistent</dt><dd><p>Logical; <code>TRUE</code> when summed bubble magnitudes
+exceed the observed endpoint change.</p>
+</dd>
+<dt>message</dt><dd><p>Diagnostic message (<code>NA</code> when nothing to report).</p>
+</dd>
+</dl>
+
+
+
+<h2>See Also</h2>
+
+<p><code>find.bubbles</code>, <code>goAquaFlux.diffusive</code>,
+<code>goAquaFlux.total</code>
+</p>
+
+<hr><div style="text-align: center;">[Package <em>goFlux</em> version 0.2.0 ]</div></main>
+
+</div>

@@ -1,0 +1,99 @@
+---
+title: "flux.plot.aqua"
+subtitle: "Plot aquatic chamber incubations with diffusive and ebullitive components"
+---
+
+::: {.callout-note appearance='simple' collapse='true'}
+## Where this page comes from
+Generated automatically from the roxygen documentation of `flux.plot.aqua`.
+Edit the roxygen block in the R source and re-render -- do not edit this page.
+:::
+
+
+<h2>Description</h2>
+
+<p>Produces one diagnostic plot per incubation from the output of
+<code>goAquaFlux</code>: the measured concentration time series, the
+diffusive window (shaded), the detected bubbling events, and a compact legend
+of the total / diffusive / ebullitive flux estimates.
+</p>
+
+
+<h2>Usage</h2>
+
+<pre><code class='language-R'>flux.plot.aqua(
+  flux.results.ls,
+  dataframe,
+  gastype,
+  shoulder = 30,
+  plot.display = c("diffusive.window", "ebullition.events"),
+  flux.unit = NULL,
+  quality.check = FALSE,
+  conversion.factor = 1
+)
+</code></pre>
+
+
+<h2>Arguments</h2>
+
+<table role = "presentation">
+<tr><td><code id="flux.results.ls">flux.results.ls</code></td>
+<td>
+<p>The list returned by <code>goAquaFlux</code> (with
+<code>return_df = TRUE</code>), i.e. a list with <code>flux_summary</code>,
+<code>bubbles</code> and <code>diffusive</code>. For backwards compatibility, a plain
+<code>best.flux</code>-style data.frame may also be supplied, in which case the
+function delegates to <code>flux.plot</code> (diffusion only).</p>
+</td></tr>
+<tr><td><code id="dataframe">dataframe</code></td>
+<td>
+<p>The data.frame of measurements used by
+<code>goAquaFlux</code> (with <code>Etime</code>, <code>flag</code> and the gas column).</p>
+</td></tr>
+<tr><td><code id="gastype">gastype</code></td>
+<td>
+<p>Character; gas column to plot (e.g. <code>"CH4dry_ppb"</code>).</p>
+</td></tr>
+<tr><td><code id="shoulder">shoulder</code></td>
+<td>
+<p>Numeric; padding (seconds) added before/after the measurement
+on the x-axis. Default <code>30</code>.</p>
+</td></tr>
+<tr><td><code id="plot.display">plot.display</code></td>
+<td>
+<p>Character vector of elements to overlay. Currently
+supported: <code>"diffusive.window"</code> and <code>"ebullition.events"</code>.
+Default <code>c("diffusive.window", "ebullition.events")</code>.</p>
+</td></tr>
+<tr><td><code id="flux.unit">flux.unit</code></td>
+<td>
+<p>Character or <code>NULL</code>; flux-unit label. If <code>NULL</code>, a
+sensible default is chosen from <code>gastype</code>.</p>
+</td></tr>
+<tr><td><code id="quality.check">quality.check</code></td>
+<td>
+<p>Logical; reserved for quality-check annotations.
+Default <code>FALSE</code>.</p>
+</td></tr>
+<tr><td><code id="conversion.factor">conversion.factor</code></td>
+<td>
+<p>Numeric &gt; 0; multiplies displayed flux values.
+Default <code>1</code>.</p>
+</td></tr>
+</table>
+
+
+<h2>Value</h2>
+
+<p>A list of <code>ggplot</code> objects, one per <code>UniqueID</code>.
+</p>
+
+
+<h2>See Also</h2>
+
+<p><code>goAquaFlux</code>, <code>flux.plot</code>
+</p>
+
+<hr><div style="text-align: center;">[Package <em>goFlux</em> version 0.2.0 ]</div></main>
+
+</div>

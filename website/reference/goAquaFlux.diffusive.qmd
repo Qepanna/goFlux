@@ -1,0 +1,128 @@
+---
+title: "goAquaFlux.diffusive"
+subtitle: "Estimate diffusive gas flux from a chamber incubation time series"
+---
+
+::: {.callout-note appearance='simple' collapse='true'}
+## Where this page comes from
+Generated automatically from the roxygen documentation of `goAquaFlux.diffusive`.
+Edit the roxygen block in the R source and re-render -- do not edit this page.
+:::
+
+
+<h2>Description</h2>
+
+<p>Computes the diffusive component of a gas flux for a single aquatic chamber
+incubation. When bubbling events are present, only the portion of the time
+series that precedes ebullition is used, so that abrupt bubble-driven steps
+do not contaminate the diffusive slope. The retained window is then passed to
+the <code>goFlux</code> / <code>best.flux</code> machinery,
+which fits the linear (LM) and Hutchinson-Mosier (HM) models and selects the
+best one according to <code>criteria</code>.
+</p>
+
+
+<h2>Usage</h2>
+
+<pre><code class='language-R'>goAquaFlux.diffusive(
+  df,
+  gastype,
+  criteria = c("MAE", "RMSE", "AICc", "SE", "g.factor", "kappa", "MDF", "nb.obs",
+    "intercept", "p-value"),
+  bubble_gas = "CH4dry_ppb",
+  bubbles = NULL,
+  minimum_window = 30,
+  abrupt.window = 30,
+  abrupt.min.points = 10,
+  abrupt.threshold = 0.5
+)
+</code></pre>
+
+
+<h2>Arguments</h2>
+
+<table role = "presentation">
+<tr><td><code id="df">df</code></td>
+<td>
+<p>A data.frame for a single incubation, as prepared by
+<code>goAquaFlux</code>. Must contain <code>Etime</code> (starting at 0),
+<code>flag</code>, the gas column named by <code>gastype</code>, the instrument
+precision column (<code>*_prec</code>), <code>Vtot</code>, <code>Area</code>, <code>Pcham</code>,
+<code>Tcham</code>, and (for non-water gases) <code>H2O_mol</code> and/or <code>H2O_ppm</code>.</p>
+</td></tr>
+<tr><td><code id="gastype">gastype</code></td>
+<td>
+<p>Character; name of the gas concentration column.</p>
+</td></tr>
+<tr><td><code id="criteria">criteria</code></td>
+<td>
+<p>Character vector of model-selection criteria passed to
+<code>best.flux</code>. Defaults to the full goFlux criteria set.</p>
+</td></tr>
+<tr><td><code id="bubble_gas">bubble_gas</code></td>
+<td>
+<p>Character; the gas used to detect bubbles (typically
+<code>"CH4dry_ppb"</code>). When <code>gastype == bubble_gas</code> the diffusive window
+is always truncated at the first detected bubble. For other gases the
+window is only truncated if a bubble coincides with an abrupt change in
+that gas (see Details).</p>
+</td></tr>
+<tr><td><code id="bubbles">bubbles</code></td>
+<td>
+<p>Data.frame of bubbling events from <code>find.bubbles</code>
+(or <code>NULL</code>). Must contain a <code>start</code> column.</p>
+</td></tr>
+<tr><td><code id="minimum_window">minimum_window</code></td>
+<td>
+<p>Integer; minimum number of observations required in the
+diffusive window. If fewer are available the function returns <code>NA</code>.</p>
+</td></tr>
+<tr><td><code id="abrupt.window">abrupt.window</code></td>
+<td>
+<p>Numeric; half-width (seconds) of the window used on each
+side of a candidate bubble time when testing for an abrupt slope change
+(non-bubble gases only). Default <code>30</code>.</p>
+</td></tr>
+<tr><td><code id="abrupt.min.points">abrupt.min.points</code></td>
+<td>
+<p>Integer; minimum points required on each side of the
+candidate time to run the abrupt-change test. Default <code>10</code>.</p>
+</td></tr>
+<tr><td><code id="abrupt.threshold">abrupt.threshold</code></td>
+<td>
+<p>Numeric; relative slope-change threshold above which a
+bubble is deemed to perturb the gas. Default <code>0.5</code> (i.e. 50%).</p>
+</td></tr>
+</table>
+
+
+<h2>Details</h2>
+
+<p>For the bubble gas itself, ebullition by definition perturbs the signal, so
+the diffusive window ends at the first detected bubble. For other gases a
+bubble does not necessarily perturb the concentration; the window is only cut
+at the first bubble time that is accompanied by an abrupt change in local
+slope (the ratio of the post- to pre-bubble slope exceeds
+<code>abrupt.threshold</code>). If no such change is found, the full series is used.
+</p>
+
+
+<h2>Value</h2>
+
+<p>A list with <code>flux</code>, <code>SE</code>, <code>n_used</code>,
+<code>first_bubble_time</code> (the start of the first detected bubble, or
+<code>NA</code>), <code>best.flux.output</code> (the full <code>best.flux</code> row) and,
+when flux cannot be computed, a <code>message</code>.
+</p>
+
+
+<h2>See Also</h2>
+
+<p><code>find.bubbles</code>, <code>goFlux</code>,
+<code>best.flux</code>, <code>goAquaFlux.ebullition</code>,
+<code>goAquaFlux.total</code>
+</p>
+
+<hr><div style="text-align: center;">[Package <em>goFlux</em> version 0.2.0 ]</div></main>
+
+</div>
