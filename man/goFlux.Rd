@@ -31,12 +31,13 @@ and the following columns: \code{UniqueID}, \code{Etime},
 
 \item{gastype}{character string; specifies which column should be used for the
 flux calculations. Must be one of the following: "CO2dry_ppm",
-"CH4dry_ppb", "COdry_ppb", "N2Odry_ppb", "NH3dry_ppb", "NO_ppb",
-"NO2_ppb" or "H2O_ppm".}
+"CH4dry_ppb", "COdry_ppb", "N2Odry_ppb", "NH3dry_ppb",
+"NOdry_ppb", "NO2dry_ppb" or "H2O_ppm".}
 
 \item{H2O_col}{character string; specifies which column should be used to
 subtract the effect of water vapor in the chamber space.
-Default is \code{H2O_col = "H2O_ppm"}.}
+Default is \code{H2O_col = "H2O_ppm"}. If water vapor was not
+measured, set to \code{H2O_col = NULL}.}
 
 \item{prec}{numerical value; precision of the instruments. Units must be the
 same as \code{gastype}. With the default \code{prec = NULL},
@@ -56,28 +57,27 @@ in \code{dataframe} if \code{offset} is different between samples.
 \item{Vtot}{numerical value; total volume inside the chamber, tubes, instruments,
 etc. (L). Alternatively, provide the column \code{Vtot} in
 \code{dataframe} if \code{Vtot} is different between samples. If
-\code{Vtot} is missing, the function will calculate it from
-\code{Area}, \code{Vcham} and \code{offset}.}
+\code{Vtot} is missing, the function will calculate it as
+\code{Vcham + Area*offset/1000}.}
 
 \item{Vcham}{(optional) numerical value; volume inside the chamber, tubes and
 instruments (L). Alternatively, provide the column \code{Vcham}
 in \code{dataframe} if \code{Vcham} is different between samples.
-\code{Vhcam} is only used if \code{Vtot} is missing.}
+\code{Vcham} is only used if \code{Vtot} is missing.}
 
 \item{Pcham}{numerical value; pressure inside the chamber (kPa).
 Alternatively, provide the column \code{Pcham} in \code{dataframe}
 if \code{Pcham} is different between samples. If \code{Pcham} is
 not provided, normal atmospheric pressure (101.325 kPa) is used.}
 
-\item{Tcham}{numerical value; temperature inside the chamber (Celsius).
+\item{Tcham}{numerical value; temperature inside the chamber (°C).
 Alternatively, provide the column \code{Tcham} in \code{dataframe}
 if \code{Tcham} is different between samples. If \code{Tcham} is
 not provided, 15°C is used as default.}
 
 \item{k.mult}{numerical value; a multiplier for the allowed kappa-max.
 Default setting is no multiplier (\code{k.mult = 1}).
-\code{k.mult} cannot be negative and must be smaller or
-equal to 10.}
+\code{k.mult} must be > 0 and =< 10.}
 
 \item{warn.length}{numerical value; limit under which a measurement is
 flagged for being too short (\code{nb.obs < warn.length}).}
@@ -86,7 +86,7 @@ flagged for being too short (\code{nb.obs < warn.length}).}
 Default is \code{k.min = 0}}
 }
 \value{
-Returns a data frame with 28 columns: a \code{UniqueID} per
+Returns a data frame with 32 columns: a \code{UniqueID} per
 measurement, 11 columns for the linear model results (linear flux estimate
 (\code{\link[goFlux]{LM.flux}}), initial gas concentration
 (\code{LM.C0}), final gas concentration (\code{LM.Ct}), slope of linear
@@ -102,23 +102,23 @@ constant gas source below the surface (\code{HM.Ci}), slope at \code{t=0}
 (\code{HM.RMSE}), Akaike's information criterion corrected for small sample
 size (\code{HM.AICc}), standard error (\code{HM.SE}), relative standard error
 (\code{HM.se.rel}), coefficient of determination (\code{HM.r2}), and curvature
-(kappa; \code{HM.k}), as well as the minimal detectable flux
+(kappa; \code{HM.k})), as well as the minimal detectable flux
 (\code{\link[goFlux]{MDF}}), the precision of the instrument
 (\code{prec}), the flux term (\code{\link[goFlux]{flux.term}}),
-kappa-max (\code{\link[goFlux]{k.max}}), the g factor (g.fact;
-\code{\link[goFlux]{g.factor}}), the number of observations used
-(\code{nb.obs}) and the true initial gas concentration (\code{C0}) and final
-gas concentration (\code{Ct}).
+kappa-max (\code{\link[goFlux]{k.max}}) and its multiplier (\code{k.mult}),
+the g-factor (g.fact; \code{\link[goFlux]{g.factor}}), the number of
+observations used (\code{nb.obs}) and the true initial gas concentration
+(\code{C0}) and final gas concentration (\code{Ct}).
 }
 \description{
 A wrapper function to calculate GHG fluxes from static chamber measurements.
 Calculates linear (\code{\link[goFlux]{LM.flux}}) and non-linear
 fluxes (Hutchinson and Mosier model; \code{\link[goFlux]{HM.flux}}),
-from a variety of greenhouse gasses (
+from a variety of greenhouse gases (
 \ifelse{html}{\out{CO<sub>2</sub>}}{\eqn{CO[2]}{ASCII}},
 \ifelse{html}{\out{CH<sub>4</sub>}}{\eqn{CH[4]}{ASCII}},
 \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}},
-\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{NO[2]}{ASCII}}, NO,
+\ifelse{html}{\out{NO<sub>2</sub>}}{\eqn{NO[2]}{ASCII}}, NO,
 \ifelse{html}{\out{NH<sub>3</sub>}}{\eqn{NH[3]}{ASCII}}, CO, and
 \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}}).
 }
@@ -142,28 +142,29 @@ estimate cannot exceed this maximum curvature. Inversely, one can set a
 minimal threshold for kappa: to allow for a log-like curvature, set
 \code{k.min} below 0 (ex. -1).
 
-All flux estimates, including the \code{\link[goFlux]{MDF}}, are
-obtained from the multiplication of the slope and the
-\code{\link[goFlux]{flux.term}}, which is used to correct the
-pressure inside the chamber (due to water vapor), as well as convert the
-units to obtain a term in nmol or
+Flux estimates and the \code{\link[goFlux]{MDF}} are calculated from
+\code{Etime} (in seconds). Make sure that chamber closure is indicated by
+\code{Etime == 0} and the first instance of \code{flag == 1} per UniqueID.
+
+All flux estimates, including the \code{\link[goFlux]{MDF}}, are obtained
+from the multiplication of the slope and the \code{\link[goFlux]{flux.term}},
+which is used to correct for the dilution effect of water vapor and convert
+the flux units to obtain a term in nmol or
 \ifelse{html}{\out{µmol m<sup>-2</sup>s<sup>-1</sup>}}{\eqn{µmol m^{-2}s^{-1}}{ASCII}}.
 
 The argument \code{Area} is in \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}},
 but the output units from \code{\link[goFlux]{goFlux}} are in
-\ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This is due to the
-conversion from \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}
-to \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}} within the
-function. This means that there is a factor of 10,000 to convert from
-\ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}}
-to \ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This is important
+\ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}. This means that
+there is a factor of 10,000 to convert from
+\ifelse{html}{\out{cm<sup>2</sup>}}{\eqn{cm^2}{ASCII}}
+to \ifelse{html}{\out{m<sup>2</sup>}}{\eqn{m^2}{ASCII}}. This is important
 to take into account if one would provide something else than an \code{Area}
 in \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to the function.
 For example, with incubated soil samples, one may provide an amount of soil
 (kg) instead of an area in the column \code{Area}. To get the right units in
 that case, multiply the kilograms of soil by 10,000 to remove the conversion
-from \ifelse{html}{\out{(cm<sup>2</sup>)}}{\eqn{(cm^2)}{ASCII}} to
-\ifelse{html}{\out{(m<sup>2</sup>)}}{\eqn{(m^2)}{ASCII}}.
+from \ifelse{html}{\out{cm<sup>2</sup>}}{\eqn{cm^2}{ASCII}} to
+\ifelse{html}{\out{m<sup>2</sup>}}{\eqn{m^2}{ASCII}}.
 
 In \code{gastype}, the gas species listed are the ones for which this package
 has been adapted. Please write to the maintainer of this package for
@@ -201,21 +202,4 @@ Look up the functions \code{\link[goFlux]{MDF}},
          \code{\link[goFlux]{HM.flux}} and
          \code{\link[goFlux]{LM.flux}} of this package for more
          information about these parameters.
-
-See also the import functions to find the
-         default instrument precision for each instrument:
-         \code{\link[goFlux]{import.DX4015}},
-         \code{\link[goFlux]{import.EGM5}},
-         \code{\link[goFlux]{import.G2508}},
-         \code{\link[goFlux]{import.G4301}},
-         \code{\link[goFlux]{import.GAIA}},
-         \code{\link[goFlux]{import.LI6400}},
-         \code{\link[goFlux]{import.LI7810}},
-         \code{\link[goFlux]{import.LI7820}},
-         \code{\link[goFlux]{import.LI8100}},
-         \code{\link[goFlux]{import.LI8200}},
-         \code{\link[goFlux]{import.N2OM1}},
-         \code{\link[goFlux]{import.uCH4}},
-         \code{\link[goFlux]{import.uN2O}},
-         \code{\link[goFlux]{import.UGGA}}
 }
