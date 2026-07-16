@@ -2,8 +2,8 @@ Package: goFlux
 Type: Package
 Title: User-Friendly Chamber Data Processing, Flux Estimation, and Diagnostics
 Version: 0.2.0
-Authors@R: c(person("Camille", "Minaudo", email = "camille.minaudo@ub.edu", role = c("cre", "aut")),
-             person("Karelle", "Rheault", email = "karh@ign.ku.dk", role = c("aut","dtc")),
+Authors@R: c(person("Karelle", "Rheault", email = "karh@ign.ku.dk", role = c("cre", "aut")),
+			 person("Camille", "Minaudo", email = "camille.minaudo@ub.edu", role = c("aut")),
              person("Klaus", "Steenberg Larsen", email = "ksl@ign.ku.dk", role = c("aut", "ths")))
 Maintainer: Karelle Rheault <karh@ign.ku.dk>
 Description: Import raw chamber data into R for flux calculation, quality check 
