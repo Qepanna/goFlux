@@ -346,9 +346,8 @@ autoID <- function(inputfile, auxfile = NULL, obs.length = NULL,
     mutate(obs.length = as.numeric(end.time - start.time, units = "secs")) %>%
     # Add arguments
     mutate(deadband = deadband, crop.end = crop.end, shoulder = shoulder) %>%
-    # Ensure first flagged observation has Etime = 0
     group_by(UniqueID) %>%
-    mutate(Etime_offset = min(Etime[flag == 1], na.rm = TRUE)) %>%
+    mutate(Etime_offset = if (any(flag == 1)) min(Etime[flag == 1], na.rm = TRUE) else 0) %>%
     mutate(Etime = Etime - Etime_offset) %>%
     select(-Etime_offset) %>%
     ungroup()
