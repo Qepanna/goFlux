@@ -3,9 +3,9 @@
 #' Identifies bubbling events in a gas concentration time series by analysing
 #' rolling dispersion within a moving window. Dispersion can be quantified from
 #' the rolling median absolute deviation (\code{"mad"}), the rolling variance
-#' (\code{"variance"}), or the rolling MAD of the first differences
+#' (\code{"variance"}), or the rolling variance of the first differences
 #' (\code{"diff"}). Contiguous periods where dispersion exceeds an adaptive
-#' threshold are flagged as candidate bubbling events. For each event the size
+#' threshold are flagged as candidate bubbling events.
 #' of the concentration step is then estimated with a local step-dummy
 #' regression that separates the abrupt bubble step from the underlying
 #' diffusive trend.
