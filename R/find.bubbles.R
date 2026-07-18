@@ -24,10 +24,9 @@
 #'   signal is interpolated onto before rolling statistics. Default \code{1}.
 #'
 #' @param method Character; dispersion metric. One of \code{"mad"} (default),
-#'   \code{"variance"} or \code{"diff"}. \code{"diff"} applies the rolling MAD to
-#'   the first differences of the signal and is largely insensitive to a linear
-#'   diffusive trend, so it is recommended when diffusion is strong (see
-#'   Details).
+#'   \code{"variance"} or \code{"diff"}. \code{"diff"} computes rolling variance
+#'   of the first differences and is largely insensitive to a linear diffusive
+#'   trend, so it is recommended when diffusion is strong (see Details).
 #'
 #' @param var.quantile Numeric in (0, 1); empirical quantile of the rolling
 #'   dispersion distribution used in the adaptive threshold. Default \code{0.7}.
