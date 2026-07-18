@@ -85,7 +85,7 @@
 #'   \code{\link{find.bubbles}} (e.g. \code{list(k = 5, min_magnitude = 10)}).
 #'   Values here override the defaults for advanced tuning.
 #'
-#' @param ebullition.final_window_min Minimum time window (minutes) required
+#' @param ebullition.final_window_min Minimum time window (seconds) required
 #'   after the last bubble event to define the incubation end for ebullition
 #'   flux calculation.
 #'
