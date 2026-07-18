@@ -89,7 +89,7 @@
 #'   after the last bubble event to define the incubation end for ebullition
 #'   flux calculation.
 #'
-#' @param ebullition.window_C0Cf Time window (minutes) used to compute
+#' @param ebullition.window_C0Cf Time window (seconds) used to compute
 #'   initial and final concentrations for the endpoint flux estimate.
 #'
 #' @param diffusion.minimum_window Minimum number of observations required
