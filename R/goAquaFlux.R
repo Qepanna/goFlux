@@ -80,8 +80,7 @@
 #'
 #' @param bubble.method Character; dispersion metric passed to
 #'   \code{\link{find.bubbles}}: \code{"mad"} (default), \code{"variance"} or
-#'   \code{"diff"} (rolling MAD of increments, robust to a diffusive trend).
-#'
+#'   \code{"diff"} (rolling variance of increments, robust to a diffusive trend).
 #' @param bubble.args Named list of additional arguments forwarded to
 #'   \code{\link{find.bubbles}} (e.g. \code{list(k = 5, min_magnitude = 10)}).
 #'   Values here override the defaults for advanced tuning.
