@@ -112,9 +112,11 @@ goAquaFlux.ebullition <- function(df,
 
   deltaC_total <- Cf - C0
 
-  F_tot2pts <- deltaC_total / end_limit * flux.term
+  F_tot2pts <- if (!is.na(end_limit) && end_limit > 0) (deltaC_total / end_limit) * flux.term else NA_real_
   ## NOTE: SE requires >= 2 obs in each window; otherwise var() is NA -> SE NA.
-  F_tot2pts.SE <- (flux.term / end_limit) * sqrt((s0 / n0) + (sf / nf))
+  F_tot2pts.SE <- if (!is.na(end_limit) && end_limit > 0 && n0 > 1 && nf > 1 && !is.na(s0) && !is.na(sf)) {
+    (flux.term / end_limit) * sqrt((s0 / n0) + (sf / nf))
+  } else NA_real_
 
   # ---- No bubbles ----------------------------------------------------------
   if (is.null(bubbles) || nrow(bubbles) == 0) {
