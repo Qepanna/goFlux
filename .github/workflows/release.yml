@@ -37,7 +37,7 @@ jobs:
           echo "Last reachable goFlux tag: $last_tag"
 
           # Commit subjects since baseline tag
-          messages="$(git log "${last_tag}..HEAD" --pretty=format:%s || true)"
+          messages="$(git log "${last_tag}..HEAD" --pretty=format:%s%b || true)"
 
           # Conventional Commits: feat/fix, optional scope, optional !
           if LC_ALL=C echo "$messages" | grep -Eiq '^(feat|fix)(\([^)]+\))?(!)?:[[:space:]]'; then
