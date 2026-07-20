@@ -397,8 +397,8 @@ best.flux <- function(flux.result,
       # Update LM.diagnose
       mutate(LM.diagnose = if_else(
         round(LM.RMSE, nb.decimal(prec)) > round(RMSE.lim, nb.decimal(prec)), ifelse(
-            LM.diagnose == "", RMSE.LM.diagnostic,
-            paste(LM.diagnose, RMSE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
+          LM.diagnose == "", RMSE.LM.diagnostic,
+          paste(LM.diagnose, RMSE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
       # Update HM.diagnose
       mutate(HM.diagnose = if_else(
         round(HM.RMSE, nb.decimal(prec)) > round(RMSE.lim, nb.decimal(prec)), ifelse(
@@ -438,8 +438,8 @@ best.flux <- function(flux.result,
       # Update LM.diagnose
       mutate(LM.diagnose = if_else(
         round(LM.MAE, nb.decimal(prec)) > round(MAE.lim, nb.decimal(prec)), ifelse(
-            LM.diagnose == "", MAE.LM.diagnostic,
-            paste(LM.diagnose, MAE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
+          LM.diagnose == "", MAE.LM.diagnostic,
+          paste(LM.diagnose, MAE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
       # Update HM.diagnose
       mutate(HM.diagnose = if_else(
         round(HM.MAE, nb.decimal(prec)) > round(MAE.lim, nb.decimal(prec)), ifelse(
@@ -481,8 +481,8 @@ best.flux <- function(flux.result,
       # Update LM.diagnose
       mutate(LM.diagnose = if_else(
         round(LM.SE, nb.decimal(prec)) > round(SE.lim, nb.decimal(prec)), ifelse(
-            LM.diagnose == "", SE.LM.diagnostic,
-            paste(LM.diagnose, SE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
+          LM.diagnose == "", SE.LM.diagnostic,
+          paste(LM.diagnose, SE.LM.diagnostic, sep = " | ")), LM.diagnose)) %>%
       # Update HM.diagnose
       mutate(HM.diagnose = if_else(
         round(HM.SE, nb.decimal(prec)) > round(SE.lim, nb.decimal(prec)), ifelse(
@@ -516,7 +516,7 @@ best.flux <- function(flux.result,
 
   ## Choose best model based on HM and LM scores ####
   if(any(grepl(paste(c("\\<MAE\\>", "\\<RMSE\\>", "\\<AICc\\>", "\\<SE\\>"),
-                    collapse = "|"), criteria))){
+                     collapse = "|"), criteria))){
 
     best.flux.df <- best.flux.df %>%
       mutate(best.flux = if_else(HM.score > LM.score, LM.flux, best.flux),

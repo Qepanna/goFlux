@@ -292,34 +292,65 @@ autoID <- function(inputfile, auxfile = NULL, obs.length = NULL,
     mutate(error = if_else(deadband+crop.end > obs.length, "error", NA))
 
   # Create a window of observation for each measurement
+  # time_range <- aux.data %>%
+  #   filter(!is.na(start.time), !is.na(obs.length)) %>%
+  #   group_by(UniqueID) %>%
+  #   reframe(cham.close = start.time,
+  #           cham.open = start.time + obs.length,
+  #           time_min = cham.close - shoulder,
+  #           time_max = cham.open + shoulder)
+
   time_range <- aux.data %>%
-    filter(!is.na(start.time)) %>%
+    filter(!is.na(start.time), !is.na(obs.length)) %>%
     group_by(UniqueID) %>%
-    reframe(cham.close = start.time,
-            cham.open = start.time + obs.length,
-            time_min = cham.close - shoulder,
-            time_max = cham.open + shoulder)
+    summarise(
+      start.time = first(start.time),
+      obs.length = first(obs.length),
+      .groups = 'drop'
+    ) %>%
+    mutate(
+      cham.close = start.time,
+      cham.open = start.time + obs.length,
+      time_min = cham.close - shoulder,
+      time_max = cham.open + shoulder
+    ) %>%
+    select(UniqueID, cham.close, cham.open, time_min, time_max)
+
 
   time_filter.ls <- list()
   for (i in 1:nrow(time_range)) {
-    time_filter.ls[[i]] <- cbind.data.frame(
-      UniqueID = time_range$UniqueID[[i]],
-      cham.close = time_range$cham.close[[i]],
-      cham.open = time_range$cham.open[[i]],
-      start.time = time_range$cham.close[[i]] + deadband,
-      end.time = time_range$cham.open[[i]] - crop.end,
-      POSIX.time = seq(from = time_range$time_min[[i]],
-                       to = time_range$time_max[[i]],
-                       by = 'sec'))
+    tryCatch({
+      time_filter.ls[[i]] <- cbind.data.frame(
+        UniqueID = time_range$UniqueID[[i]],
+        cham.close = time_range$cham.close[[i]],
+        cham.open = time_range$cham.open[[i]],
+        start.time = time_range$cham.close[[i]] + deadband,
+        end.time = time_range$cham.open[[i]] - crop.end,
+        POSIX.time = seq(from = time_range$time_min[[i]],
+                         to = time_range$time_max[[i]],
+                         by = 'sec'))
+    }, error = function(e) {
+      warning(paste("Error creating time sequence for UniqueID",
+                    time_range$UniqueID[[i]], ":", e$message))
+    })
   }
 
+  # Remove NULL entries
+  time_filter.ls <- Filter(Negate(is.null), time_filter.ls)
+
+
   time_filter <- map_df(time_filter.ls, ~as.data.frame(.x)) %>%
-    # Calculate Etime and flag
+    # Calculate Etime relative to measurement start (after deadband)
     mutate(Etime = as.numeric(POSIX.time - start.time, units = "secs")) %>%
     mutate(flag = if_else(between(POSIX.time, start.time, end.time), 1, 0)) %>%
     mutate(obs.length = as.numeric(end.time - start.time, units = "secs")) %>%
     # Add arguments
-    mutate(deadband = deadband, crop.end = crop.end, shoulder = shoulder)
+    mutate(deadband = deadband, crop.end = crop.end, shoulder = shoulder) %>%
+    group_by(UniqueID) %>%
+    mutate(Etime_offset = if (any(flag == 1)) min(Etime[flag == 1], na.rm = TRUE) else 0) %>%
+    mutate(Etime = Etime - Etime_offset) %>%
+    select(-Etime_offset) %>%
+    ungroup()
 
   # Remove from inputfile columns that are also present in time_filter,
   # except POSIX.time, before combining them
