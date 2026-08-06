@@ -11,7 +11,24 @@ editor: visual
 source("scripts/autodoc.R")
 ```
 
-Aside from the typical workflow of flux calculation, one may wish to estimate other parameters from gas measurements. Currently, this page only contains one additional function. To request more complementary functions, [open an issue on GitHub](https://github.com/Qepanna/goFlux/issues) or contact the maintainer of this package, Karelle Rheault ([karh\@ign.ku.dk](mailto:karh@ign.ku.dk){.email}), directly.
+Aside from the typical workflow of flux calculation, one may wish to estimate other parameters from gas measurements. Currently, this page only contains a handful functions. To request more complementary functions, [open an issue on GitHub](https://github.com/Qepanna/goFlux/issues) or contact the maintainer of this package, Karelle Rheault ([karh\@ign.ku.dk](mailto:karh@ign.ku.dk){.email}), directly.
+
+### `crop.meas` for additional modifications of the observation window {#crop.meas}
+
+Crop measurements from the start, from the end, or adjust the deadband. Individual parameters can be provided for each measurement, in an auxiliary file, or the same parameters can be applied to all measurements.
+
+```{r}
+#| echo: false
+#| results: asis
+cat(autodoc("crop.meas", level = 4))
+```
+
+### `auto.deadband` for for an automatic selection of deadband per measurement
+```{r}
+#| echo: false
+#| results: asis
+cat(autodoc("auto.deadband", level = 4))
+```
 
 ### `iso.comp` for isotopic composition determination
 
