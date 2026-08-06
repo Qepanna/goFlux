@@ -22,7 +22,7 @@ In addition, the `best.flux` function can flag measurements that are below detec
 
 By default, all criteria are included: `criteria = c("MAE", "RMSE", "AICc", "SE", "g.factor", "kappa", "MDF", "nb.obs", "p-value", "intercept")`
 
-## **Criteria for flux estimate selection and flagging**
+## Criteria for flux estimate selection and flagging
 
 ### Assumed non-linearity
 
@@ -130,7 +130,7 @@ This criteria is only applicable to the linear flux. Under a defined *p-value*, 
 
 Limit below which a measurement is flagged for being too short (`nb.obs < warn.length`). Portable greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore, for the default setting of `warn.length = 60`, the chamber closure time should be approximately one minute (60 seconds). If the number of observations is smaller than the threshold, a warning is issued in the column `quality.check`.
 
-## **Usage**
+#### Usage
 
 ::: callout-note
 Code chunks under **Usage** sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.
@@ -151,7 +151,7 @@ best.flux(
 )
 ```
 
-### Arguments
+#### Arguments
 
 |  |  |
 |------------------------------------|------------------------------------|
@@ -163,7 +163,7 @@ best.flux(
 | `k.ratio` | numerical value; maximal limit of the ratio between kappa and the kappa-max. Default is `k.ratio = 1`. |
 | `warn.length` | numerical value; limit under which a measurement is flagged for being too short (`nb.obs < warn.length`). |
 
-### Details
+#### Details
 
 In `criteria`, the indices of model fit "MAE", "RMSE" and "SE" all have a threshold. For MAE and RMSE, the threshold is instrument precision (1σ). For SE, the threshold is the instrument accuracy (1σ/n​). These indices also compare the two models (linear, LM, and non-linear, HM). The selection of the best model based on indices of model fit ("MAE", "RMSE", "AICc" and "SE") is based on a scoring system. Both models start with a score of 0. For each criteria, whichever model performs worst is given +1. After all selected criteria have been evaluated, the model with the lowest score wins. In case of a tie, the non-linear flux estimate is always chosen by default, as non-linearity is assumed. The score is printed in the output data frame in the columns `HM.score` and `LM.score`.
 
@@ -179,11 +179,11 @@ The argument `p.val` is only applicable to the linear flux. Under the defined *p
 
 `warn.length` is the limit under which a measurement is flagged for being too short (`nb.obs < warn.length`). With nowadays' portable greenhouse gas analyzers, the frequency of measurement is usually one observation per second. Therefore, for the default setting of `warn.length = 60`, the chamber closure time should be approximately one minute (60 seconds). If the number of observations is smaller than the threshold, a warning is issued in the column `quality.check`.
 
-### Value
+#### Value
 
 The function returns a data.frame identical to the input `flux.result` (output from the function `goFlux`) with the additional columns `HM.diagnose`, `LM.diagnose`, `best.flux`, `model` and `quality.check`. For each criteria selected, an additional column is also added to specify the limits used for those criteria (e.g. `RMSE.lim`, `p.val.lim`, etc.)
 
-### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -192,7 +192,7 @@ CO2_flux <- goFlux(manID.UGGA, "CO2dry_ppm")
 CO2_best <- best.flux(CO2_flux, criteria = c("MAE", "AICc", "g.factor", "MDF"))
 ```
 
-## Save results {#sec-save}
+#### Save results {#sec-save}
 
 RData results can be saved as RData, or any data frame can be saved as an Excel sheet following this procedure:
 

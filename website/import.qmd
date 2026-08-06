@@ -27,7 +27,7 @@ There are two ways to import raw data files into R:
 -   [Import all files](import.qmd#sec-import2RData) contained in a folder using the function `import2RData`.
 -   [Import single files](import.qmd#sec-single) using a function unique to each instrument.
 
-# import2RData {#sec-import2RData}
+## import2RData {#sec-import2RData}
 
 Import all raw gas measurement files contained in a folder (and all its sub-folders) using the function `import2RData`. Adapted to multiple greenhouse gas analyzers and other instruments:
 
@@ -42,7 +42,7 @@ Import all raw gas measurement files contained in a folder (and all its sub-fold
 -   [**Healthy Photon**](import.qmd#sec-import2RData-HealthyPhoton): HT8850
 -   [**GasmetPD**](import.qmd#sec-import2RData-GasmetPD): Custom multiplexer from the University of Padova, Italy
 
-## Usage
+### Usage
 
 ::: callout-note
 Code chunks under **Usage** sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.
@@ -63,7 +63,7 @@ import2RData(
 )
 ```
 
-## Arguments
+### Arguments
 
 |  |  |
 |----------------------|--------------------------------------------------|
@@ -94,7 +94,7 @@ import2RData(
 | `sum` | logical; if `sum = TRUE` (default), the arguments `CH4` and `CO2` are ignored and, instead, both fractions (carbon isotope 12 and 13) of each gas, are summed after correction for water vapor, to obtain the total gas concentration. See the argument `range` for the selection between the HP or the HR measurement of CH~4~ concentration. Used with `instrument = "G2201i"` only. |
 | `range` | numerical value; at which threshold should the function select between high precision (HP) and high resolution (HR) of CH~4~ concentration? The default is `range = 10`. If the methane concentration recorded in the column `HP_12CH4_dry` is above 10 ppm, the concentration from the columns `HR_12CH4_dry` and `HR_13CH4` are used for the sum instead of HP. Used with `instrument = "G2201i"` only. |
 
-## Details
+### Details
 
 In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For most instruments, the date is one of the columns in the raw data file:
 
@@ -132,7 +132,7 @@ The arguments `CH.clo.col`, `sensor1`, `sensor2`, `inst` and `dry` are used with
 
 The argument `gas` is used with the functions [`import.GasmetPD`](#sec-single-GasmetPD) and [`import.skyline`](#sec-single-skyline).
 
-## Examples
+### Examples
 
 All files contained in the folder path specified are saved in a newly created folder "RData" in your working directory.
 
@@ -147,7 +147,7 @@ import2RData(path = "your_raw_data_folder", instrument = "DX4015",
 :::
 
 ::: callout-note
-## Files in sub-folders
+### Files in sub-folders
 
 Note that all files with the right extension (i.e., .dat, .txt, etc.) will be converted to RData when there are sub-folders within the folder specified in the `path` argument of the function.
 
@@ -157,7 +157,7 @@ See [the example from the instrument G2201-i from Picarro](#sec-import2RData-Pic
 :::
 
 ::: callout-tip
-## Load and merge files after import
+### Load and merge files after import
 
 If you wish to combine saved RData files after import, use the function `list.files` to retrieve all files within the RData folder with the pattern "imp.RData". Indeed, all files converted to RData with the import functions of the `goFlux` R package contain the pattern "imp" before the .RData extension. The argument `full.names = TRUE` allows for retrieval of files within sub-folders.
 
@@ -174,7 +174,7 @@ Alternatively, use the argument `merge = TRUE` in the function `import2Rdata` to
 Note that data frames can only be merged if they contain the same columns.
 :::
 
-### LI-COR {#sec-import2RData-LICOR}
+#### LI-COR {#sec-import2RData-LICOR}
 
 #### LI-6400 {#sec-import2RData-LICOR-LI6400}
 
@@ -256,7 +256,7 @@ import2RData(path = file.path, instrument = "LI-8250", date.format = "ymd",
              prec1 = c(3.5, 0.6, 45), SWC.col = "SWC_1", Tsoil.col = "TS_1")
 ```
 
-### LGR {#sec-import2RData-LGR}
+#### LGR {#sec-import2RData-LGR}
 
 #### UGGA (GLA132 series) {#sec-import2RData-LGR-UGGA}
 
@@ -302,7 +302,7 @@ import2RData(path = file.path, instrument = "N2Oi2",
              date.format = "dmy", prec = c(0.05, 50))
 ```
 
-### GAIA2TECH {#sec-import2RData-GAIA}
+#### GAIA2TECH {#sec-import2RData-GAIA}
 
 #### Automated chamber ECOFlux
 
@@ -349,7 +349,7 @@ import2RData(path = file.path, instrument = "skyline", date.format = "ymd",
              prec = c(0.24, 0.3, 5, 500))
 ```
 
-### Gasmet {#sec-import2RData-Gasmet}
+#### Gasmet {#sec-import2RData-Gasmet}
 
 #### DX4015 {#sec-import2RData-Gasmet-DX4015}
 
@@ -373,7 +373,7 @@ import2RData(path = file.path, instrument = "GT5000",
              date.format = "ymd", prec = c(1.6, 23, 13, 2, 23, 33))
 ```
 
-### Picarro {#sec-import2RData-Picarro}
+#### Picarro {#sec-import2RData-Picarro}
 
 #### G2201-i {#sec-import2RData-Picarro-G2201i}
 
@@ -410,7 +410,7 @@ import2RData(path = file.path, instrument = "G4301",
              date.format = "ymd", prec = c(0.025, 0.1, 10))
 ```
 
-### PP-Systems {#sec-import2RData-PP-System}
+#### PP-Systems {#sec-import2RData-PP-System}
 
 #### EGM-5 {#sec-import2RData-PP-System-EGM5}
 
@@ -426,7 +426,7 @@ import2RData(path = file.path, instrument = "EGM5",
              date.format = "dmy", prec = c(3, 1, 500), proc.data.field = 2)
 ```
 
-### Aeris Technologies {#sec-import2RData-Aeris}
+#### Aeris Technologies {#sec-import2RData-Aeris}
 
 #### MIRA Ultra CH~4~/ C~2~H~6~ analyzer {#sec-import2RData-Aeris-uCH4}
 
@@ -450,7 +450,7 @@ import2RData(path = file.path, instrument = "uN2O",
              date.format = "mdy", prec = c(0.2, 0.2, 15))
 ```
 
-### Healthy Photon {#sec-import2RData-HealthyPhoton}
+#### Healthy Photon {#sec-import2RData-HealthyPhoton}
 
 #### HT8850 all-in-one GHG analyzer {#sec-import2RData-HealthyPhoton-HT8850}
 
@@ -463,7 +463,7 @@ import2RData(path = file.path, instrument = "HT8850",
              date.format = "ymd", prec = c(0.5, 3, 0.5, 10))
 ```
 
-### GasmetPD {#sec-import2RData-GasmetPD}
+#### GasmetPD {#sec-import2RData-GasmetPD}
 
 #### Custom made multiplexer linked with the Gasmet DX4015
 
@@ -477,7 +477,7 @@ import2RData(path = file.path, instrument = "GasmetPD",
              date.format = "ymd", prec = c(1.6, 13, 2, 23, 33))
 ```
 
-# Single file import {#sec-single}
+## Single file import {#sec-single}
 
 Each instrument has a unique function for single file import. The advantage of using this function is that a file can be saved in the environment in an object instead of being saved as an .RData file in the working directory. Just like the `import2RData` function, there is a function adapted to multiple greenhouse gas analyzers and other instruments:
 
@@ -492,7 +492,7 @@ Each instrument has a unique function for single file import. The advantage of u
 -   [**Healthy Photon**](import.qmd#sec-single-HealthyPhoton): HT8850
 -   [**GasmetPD**](import.qmd#sec-single-GasmetPD): Custom multiplexer from the University of Padova, Italy
 
-## LI-COR {#sec-single-LICOR}
+### LI-COR {#sec-single-LICOR}
 
 ### LI-6400 {#sec-single-LICOR-LI6400}
 
@@ -541,7 +541,7 @@ If your LI-COR LI-6400 uses different units, either convert the units after impo
 
 The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (11-2023).
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -601,7 +601,7 @@ If your LI-COR LI-7810 uses different units, either convert the units after impo
 
 The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://www.licor.com/env/products/trace-gas/LI-7810) for the latest model of this instrument available at the time of the creation of this function (11-2023).
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -661,7 +661,7 @@ If your LI-COR LI-7820 uses different units, either convert the units after impo
 
 The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for H~2~O, or 1 ppb for N~2~O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://www.licor.com/env/products/trace-gas/LI-7820) for the latest model of this instrument available at the time of the creation of this function (11-2023).
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -720,7 +720,7 @@ If your LI-COR LI-8100 uses different units, either convert the units after impo
 
 The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (11-2023).
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -779,7 +779,7 @@ If your LI-COR LI-8100A uses different units, either convert the units after imp
 
 The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://www.licor.com/support/LI-8100A/topics/specifications.html#Specific) for the latest model of this instrument available at the time of the creation of this function (01-2026).
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -834,7 +834,7 @@ In addition, soil temperature and moisture are read with a HydraProbe connected 
 
 As opposed to the other import functions, there is no option to "keep_all" with the Smart Chamber. If you would like to import additional data using this function, please contact the maintainer of this package for support.
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -911,7 +911,7 @@ The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlu
 
 According to the data dictionary of the LI-8250 Multiplexer [online](https://www.licor.com/env/support/LI-8250/topics/files-page.html#Datadictionary), the column STATE indicates the chamber state, where, for example, 1 = closing and 5 = closed.
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -932,7 +932,7 @@ import.LI8250(inputfile = file.path, save = TRUE, inst1 = "LI-7810",
               Tsoil.col = "TS_1")
 ```
 
-## LGR {#sec-single-LGR}
+### LGR {#sec-single-LGR}
 
 ### UGGA and MGGA {#sec-single-LGR-UGGA}
 
@@ -1054,7 +1054,7 @@ If your LGR N2OM1 instrument uses different units, either convert the units afte
 
 The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for H~2~O, or 1 ppb for N~2~O and CH~4~) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers/lgr-icos-qc-portable-gas-analyzers-gla151-series/lgr-icos-portable-analyzers-gla151-n2om1-919) for the latest model of this instrument available at the time of the creation of this function (12-2023).
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -1113,7 +1113,7 @@ If your LGR N2Oi2 instrument uses different units, either convert the units afte
 
 The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for H~2~O, or 1 ppb for N~2~O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/oa-icos-enhanced-performance-benchtop-analyzers/lgr-icos-ultrahigh-performance-qc-benchtop-analyzers-gla451-series) for the latest model of this instrument available at the time of the creation of this function (06-2025).
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -1128,7 +1128,7 @@ imp.N2Oi2 <- import.N2Oi2(inputfile = file.path, prec = c(0.05, 50))
 import.N2Oi2(inputfile = file.path, prec = c(0.05, 50), save = TRUE)
 ```
 
-## GAIA2TECH {#sec-single-GAIA}
+### GAIA2TECH {#sec-single-GAIA}
 
 ### Automated chamber ECOFlux
 
@@ -1220,7 +1220,7 @@ As opposed to the other import functions, there is no option to "keep_all" with 
 
 The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~ and N~2~O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found online for the latest models of the [LI-7810](https://www.licor.com/env/products/trace-gas/LI-7810) and [LI-7820](https://www.licor.com/env/products/trace-gas/LI-7820), available at the time of the creation of this function (11-2023).
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -1295,7 +1295,7 @@ As opposed to the other import functions, there is no option to "keep_all" with 
 
 The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~ and N~2~O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found online for the latest models of the [Picarro G2508](https://www.picarro.com/environmental/products/g2508_gas_concentration_analyzer), available at the time of the creation of this function (10-2025).
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -1310,7 +1310,7 @@ imp.skyline <- import.skyline(inputfile = file.path)
 import.skyline(inputfile = file.path, save = TRUE)
 ```
 
-## Gasmet {#sec-single-Gasmet}
+### Gasmet {#sec-single-Gasmet}
 
 ### DX4015 {#sec-single-Gasmet-DX4015}
 
@@ -1357,7 +1357,7 @@ If your Gasmet DX4015 uses different units, either convert the units after impor
 
 The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~, CO N~2~O and NH~3~) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (11-2023).
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -1417,7 +1417,7 @@ If your Gasmet GT5000 uses different units, either convert the units after impor
 
 The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~, CO N~2~O and NH~3~) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (08-2024).
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -1432,7 +1432,7 @@ imp.GT5000 <- import.GT5000(inputfile = file.path)
 import.GT5000(inputfile = file.path, save = TRUE)
 ```
 
-## Picarro {#sec-single-Picarro}
+### Picarro {#sec-single-Picarro}
 
 ### G2201-i {#sec-single-Picarro-G2201i}
 
@@ -1505,7 +1505,7 @@ If your Picarro G2201-i uses different units, either convert the units after imp
 
 The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://www.picarro.com/environmental/products/g2201i_isotopic_analyzer) for the latest model of this instrument, available at the time of the creation of this function (05-2025).
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -1566,7 +1566,7 @@ If your Picarro G2508 uses different units, either convert the units after impor
 
 The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~, N~2~O and NH~3~) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://www.picarro.com/g2508_gas_concentration_analyzer) for the latest model of this instrument, available at the time of the creation of this function (11-2023).
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -1627,7 +1627,7 @@ If your Picarro G4301 uses different units, either convert the units after impor
 
 The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://www.picarro.com/products/gas-scouter-g4301) for the latest model of this instrument, available at the time of the creation of this function (11-2023).
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -1696,7 +1696,7 @@ Look up the [EGM-5 Operation Manual](https://ppsystems.com/download/technical_ma
 
 Note that the default file extension for this instrument is .TXT, however, it is also possible to use with a .csv file format.
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -1711,7 +1711,7 @@ imp.EGM5 <- import.EGM5(inputfile = file.path)
 import.EGM5(inputfile = file.path, save = TRUE)
 ```
 
-## Aeris Technologies {#sec-single-Aeris}
+### Aeris Technologies {#sec-single-Aeris}
 
 ### MIRA Ultra CH~4~/ C~2~H~6~ analyzer {#sec-single-Aeris-uCH4}
 
@@ -1875,7 +1875,7 @@ If your instrument uses different units, either convert the units after import, 
 
 The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~ and N~2~O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://en.healthyphoton.com/gongye/products/45.html) for the latest model of this instrument available at the time of the creation of this function (01-2026).
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -1890,7 +1890,7 @@ imp.HT8850 <- import.HT8850(inputfile = file.path)
 import.HT8850(inputfile = file.path, save = TRUE)
 ```
 
-## GasmetPD {#sec-single-GasmetPD}
+### GasmetPD {#sec-single-GasmetPD}
 
 ### Custom made multiplexer linked with the Gasmet DX4015
 
@@ -1938,7 +1938,7 @@ The function converts ambient pressure to kPa (Pcham), water vapor to ppm, and C
 
 The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~, N~2~O and NH~3~) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (07-2024).
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false

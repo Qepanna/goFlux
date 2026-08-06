@@ -8,6 +8,7 @@ bibliography: references.bib
 csl: apa-no-initials.csl
 editor: visual
 ---
+### `goFlux`
 
 The function `goFlux` calculates fluxes from a variety of greenhouse gases (CO~2~, CH~4~, N~2~O, NO~2~, NO, NH~3~, CO, and H~2~O) using both linear (LM) and non-linear (HM) [@hutchinson1981] flux calculation methods. The HM model for the chamber concentration $C_t$ at time $t > 0$ after deployment is given by:
 
@@ -61,7 +62,7 @@ $$ {#eq-6}
 
 For a more detailed demonstration of how these equations were obtained, refer to the LI-COR support documentations of the LI-8100A instrument ([Support \> LI-8100A \> Operating Instructions \> Deriving the Flux Equation: The Model](https://www.licor.com/support/LI-8100A/topics/deriving-the-flux-equation.html#fc)).
 
-## **Usage**
+#### Usage
 
 ::: callout-note
 Code chunks under **Usage** sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.
@@ -87,7 +88,7 @@ goFlux(
 )
 ```
 
-### Arguments
+#### Arguments
 
 |  |  |
 |----|----|
@@ -105,7 +106,7 @@ goFlux(
 | `warn.length` | numerical value; limit under which a measurement is flagged for being too short (`nb.obs < warn.length`). |
 | `k.min` | numerical value; a lower boundary value for kappa in the HM model. Default is `k.min = 10^-8` |
 
-### Details
+#### Details
 
 Flux estimate units are µmol m^-2^s^-1^ (if initial concentration is ppm, e.g. CO2dry_ppm) and nmol m^-2^s^-1^ (if initial concentration is ppb, e.g. CH4dry_ppb).
 
@@ -119,11 +120,11 @@ In `gastype`, the gas species listed are the ones for which this package has bee
 
 `warn.length` is the limit below which the chamber closure time is flagged for being too short (`nb.obs < warn.length`). Portable greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore, for the default setting of `warn.length = 60`, the chamber closure time should be approximately one minute (60 seconds). If the number of observations is smaller than the threshold, a warning is printed: e.g. "Low number of observations: UniqueID X has 59 observations".
 
-### Value
+#### Value
 
 The function returns a data frame with 28 columns: a `UniqueID` per measurement, 11 columns for the linear model results (linear flux estimate (`LM.flux`), initial gas concentration (`LM.C0`), final gas concentration (`LM.Ct`), slope of linear regression (`LM.slope`), mean absolute error (`LM.MAE`), root mean square error (`LM.RMSE`), Akaike's information criterion corrected for small sample size (`LM.AICc`), standard error (`LM.SE`), relative standard error (`LM.se.rel`), coefficient of determination (`LM.r2`), and *p-value* (`LM.p.val`)), 11 columns for the non-linear model results (non-linear flux estimate (`HM.flux`), initial gas concentration (`HM.C0`), the assumed concentration of constant gas source below the surface (`HM.Ci`), slope at `t=0` (`HM.slope`), mean absolute error (`HM.MAE`), root mean square error (`HM.RMSE`), Akaike's information criterion corrected for small sample size (`HM.AICc`), standard error (`HM.SE`), relative standard error (`HM.se.rel`), coefficient of determination (`HM.r2`), and curvature (kappa; `HM.k`), as well as the minimal detectable flux (`MDF`), the precision of the instrument (`prec`), the flux term (`flux.term`), kappa-max (`k.max`), the g factor (g.fact; `g.factor`), the number of observations used (`nb.obs`) and the true initial gas concentration (`C0`) and final gas concentration (`Ct`).
 
-### Example
+#### Examples
 
 ```{r}
 #| eval: false

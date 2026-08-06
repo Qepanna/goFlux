@@ -42,7 +42,7 @@ iso.comp(
 | `N2Odry_ppb`, `delta_15N`, `delta_18O` | character string; specifies which columns should be used for N~2~O measurements, the delta 15N and the delta 18O, respectively. |
 | `save.plots` | character string; a file path with the extension .pdf to save Keeling plots. By default plots are not saved. |
 
-#### Example
+#### Examples
 
 ```{r}
 #| eval: false

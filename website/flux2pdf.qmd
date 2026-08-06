@@ -6,9 +6,9 @@ editor: visual
 
 Finally, after finding the best flux estimates, the user can plot the results and visually inspect the measurements using the function `flux.plot` and save the plots as pdf using `flux2pdf`.
 
-## **flux.plot**
+### `flux.plot`
 
-### Usage
+#### Usage
 
 ::: callout-note
 Code chunks under **Usage** sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.
@@ -33,7 +33,7 @@ flux.plot(
 )
 ```
 
-### Arguments
+#### Arguments
 
 +------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | `flux.results`   | a data.frame; output from the function `best.flux`                                                                                                                                                                                                                                                                                                                                                                                  |
@@ -63,7 +63,7 @@ flux.plot(
 | `side`           | character string; choose a side to display C~0~ and C~i~ values. By default, they are displayed on the left side of the plot.                                                                                                                                                                                                                                                                                                       |
 +------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
-### Details
+#### Details
 
 In `plot.legend`, one may choose to display up to 5 additional parameters in a legend above the plots. Some parameters are displayed for both the linear model (`LM.flux`) and the non-linear model (`HM.flux`): Mean Absolute Error (`MAE`), Root Mean Square Error (`RMSE`), Aikaike's Information Criterion corrected for small sample size (`LM.AICc`), Standard Error (`SE`), relative Standard Error (`SErel`), and coefficient of determination (`r2`). The *p-value* (`LM.p.val`) is displayed for the linear model only. The kappa (`HM.k`), kappa-max (`k.max`), kappa ratio (`k.ratio`) and g-factor (`g.factor`) are displayed for the Hutchinson and Mosier model only. One may choose to display no additional parameter with `plot.legend = NULL`.
 
@@ -73,11 +73,11 @@ In `flux.unit`, remember to multiply the flux results with an appropriate factor
 
 In `p.val.disp`, if `p.val.disp = "star"`, the *p-values* will be displayed as star symbols (asterisks) as follows: \*\*\*, \*\* or \* for *p-values* of p \< 0.001, p \< 0.01 and p \< 0.05, respectively. If `p.val.disp = "round"`, the *p-values* are rounded to p \< 0.001, p \< 0.01 and p \< 0.05. If `p.val.disp = "value"`, the actual values are displayed, rounded to two significant numbers.
 
-### Value
+#### Value
 
 The function returns a list of plots, one per `UniqueID`, drawn from flux results (output from the functions `goFlux` and `best.flux`).
 
-### Example
+#### Examples
 
 ```{r}
 #| eval: false
@@ -138,11 +138,11 @@ plot.list <- c(CO2_plots, CH4_plots)
 ```
 :::
 
-## **flux2pdf**
+### `flux2pdf`
 
 The list of plots created with `flux.plot` can now be saved as a pdf using the function `flux2pdf`.
 
-### Usage
+#### Usage
 
 ```{r}
 #| eval: false
@@ -150,7 +150,7 @@ The list of plots created with `flux.plot` can now be saved as a pdf using the f
 flux2pdf(plot.list, outfile = NULL, width = 11.6, height = 8.2)
 ```
 
-### Arguments
+#### Arguments
 
 +-------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | `plot.list` | a list of plots; output from the function `flux.plot`.                                                                                                                        |
@@ -162,7 +162,7 @@ flux2pdf(plot.list, outfile = NULL, width = 11.6, height = 8.2)
 | `height`    | numerical value; height of the pdf page. Default is 8.2 inches.                                                                                                               |
 +-------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
-### Example
+#### Examples
 
 ```{r}
 #| eval: false
