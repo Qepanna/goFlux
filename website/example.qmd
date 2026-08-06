@@ -1,0 +1,58 @@
+---
+title: "Complete downloadable examples"
+format: 
+  html: 
+    css: styles.css
+engine: knitr
+editor: visual
+---
+
+Once you have been through the rest of this website and understood the purpose of each function, you can download these example scripts and modify them to your needs.
+
+Follow the **simple workflow** if you have few raw files and measurements, or follow the **divided workflow** if you have multiple instruments and large amounts of raw files and measurements.
+
+Both workflows are using the ultra-portable GHG analyzer from Los Gatos Research with an auxiliary file as an example.
+
+#### Create an auxiliary file
+
+To help you create an auxiliary file (used for the [manual identification of measurements](manualID.qmd#sec-manID)), you can {{< downloadthis docs/example_auxfile.xlsx label="download" dname=example_auxfile id=auxfile-btn >}} this example Excel spreadsheet.
+
+#### Simple workflow {#sec-simple}
+
+This simple workflow is contained in one script and goes through all steps, from import to producing plots with `flux2pdf`. It works best with few raw files and measurements.
+
+```{r}
+#| echo: false
+#| output: false
+library(downloadthis)
+```
+
+```{r}
+#| echo: false
+download_file(
+  path = "scripts/simple workflow.zip",
+  output_name = "goFlux simple workflow",
+  button_label = " Simple workflow",
+  button_type = "success",
+  has_icon = TRUE,
+  icon = "fa fa-save",
+  self_contained = FALSE
+)
+```
+
+#### Divided workflow {#sec-divided}
+
+All steps of the workflow are divided into one script per step. This is especially useful when adaptations are required after each step. Short scripts are better than one long messy script.
+
+```{r}
+#| echo: false
+download_file(
+  path = "scripts/divided workflow.zip",
+  output_name = "goFlux divided workflow",
+  button_label = " Divided workflow",
+  button_type = "success",
+  has_icon = TRUE,
+  icon = "fa fa-save",
+  self_contained = FALSE
+)
+```
