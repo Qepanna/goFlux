@@ -113,14 +113,89 @@ render_arguments <- function(args_tag) {
   }, character(1))
   c("| Argument | Description |", "|---|---|", rows)
 }
-
+# The Details section: prose from \details, one paragraph per block
+render_details <- function(details_tag) {
+  # Take the rendered text and reformat it into a clean paragraph:
+  #  1) flatten every run of whitespace (line breaks + the fragments parse_Rd
+  #     inserts) into a single space,
+  #  2) drop spaces that landed before punctuation (e.g. "`mov.win` )"),
+  #  3) re-wrap into readable ~80-char lines.
+  txt <- rd_to_md(details_tag, inline = TRUE)
+  txt <- gsub("[[:space:]]+", " ", txt)
+  txt <- gsub("[[:space:]]+([.,;:!?)\\]])", "\\1", txt)
+  txt <- strwrap(txt, width = 80)
+  paste(txt, collapse = "\n")
+}
+# The Examples section: R code from \examples, as a code block.
+# \dontrun / \donttest blocks are shown; \dontshow / \testonly are hidden.
+render_examples <- function(examples_tag) {
+  parts <- vapply(examples_tag, function(el) {
+    tag <- attr(el, "Rd_tag")
+    if (identical(tag, "\\dontshow") || identical(tag, "\\testonly")) return("")
+    body <- rd_to_md(el, inline = FALSE)
+    if (identical(tag, "\\dontrun")) body <- paste0("# Not run:\n", body)
+    body
+  }, character(1))
+  txt <- paste(parts, collapse = "")      # was "\n" -- elements already carry newlines
+  txt <- gsub("[ \t]+\n", "\n", txt)      # trim trailing spaces per line
+  txt <- gsub("\n{3,}", "\n\n", txt)      # collapse excess blank lines
+  trimws(txt)
+}
+# Extract the raw source of a top-level Rd section (e.g. \references{...})
+# from an .Rd file; returns the content between the braces, or NULL.
+rd_section_source <- function(rd_path, tag) {
+  txt <- paste(readLines(rd_path, warn = FALSE), collapse = "\n")
+  m <- regexpr(paste0("\\\\", tag, "\\s*\\{"), txt)
+  if (m < 0L) return(NULL)
+  start <- m + attr(m, "match.length")
+  chars <- strsplit(substr(txt, start, nchar(txt)), "")[[1]]
+  depth <- 0L; end <- 0L
+  for (i in seq_along(chars)) {
+    if (chars[i] == "{") depth <- depth + 1L
+    if (chars[i] == "}") {
+      depth <- depth - 1L
+      if (depth == 0L) { end <- i; break }
+    }
+  }
+  if (end == 0L) return(NULL)
+  substr(txt, start, start + end - 2L)
+}
+# The References section: entries from \references as a bullet list
+render_references <- function(ref_tag, rd_path = NULL) {
+  # Render each reference as its own paragraph, like the site's bottom
+  # bibliography. Split on the real blank lines in the raw \references source.
+  entries <- NULL
+  if (!is.null(rd_path)) {
+    raw <- rd_section_source(rd_path, "references")
+    if (!is.null(raw)) {
+      entries <- strsplit(raw, "\n[[:space:]]*\n")[[1]]
+      entries <- vapply(entries, function(e) {
+        mini <- paste0("\\name{x}\n\\alias{x}\n\\title{t}\n\\references{", e, "}")
+        rd <- tools::parse_Rd(textConnection(mini))
+        txt <- rd_to_md(rd_child(rd, "\\references"), inline = TRUE)
+        txt <- gsub("[[:space:]]+", " ", txt)
+        txt <- gsub("[[:space:]]+([.,;:!?)\\]])", "\\1", txt)
+        trimws(txt)
+      }, character(1))
+    }
+  }
+  if (is.null(entries)) {
+    entries <- gsub("[[:space:]]+", " ",
+                    paste(vapply(ref_tag, rd_to_md, character(1), inline = TRUE),
+                          collapse = " "))
+  }
+  entries <- entries[nzchar(entries)]
+  if (!length(entries)) return("")
+  paste(entries, collapse = "\n\n")
+}
 # Main entry point -----------------------------------------------------------
 # autodoc(fn, level) -> the Usage + Arguments block as a markdown string.
 #   fn    : function name, must match man/<fn>.Rd
 #   level : heading level of the generated "Usage" / "Arguments" headings
 #           (4 for most blocks, 3 for import2RData / autoID)
 #   man_dir: where man/ lives; auto-detected if NULL
-autodoc <- function(fn, level = 4, man_dir = NULL) {
+autodoc <- function(fn, level = 4, man_dir = NULL,
+                    details = TRUE, examples = TRUE, references = TRUE) {
   if (is.null(man_dir)) {
     cands <- c("../man", "man", "website/man", "website/../man")
     hit <- cands[file.exists(file.path(cands, paste0(fn, ".Rd")))]
@@ -133,12 +208,15 @@ autodoc <- function(fn, level = 4, man_dir = NULL) {
   rd    <- tools::parse_Rd(rd_path)
   usage <- rd_child(rd, "\\usage")
   args  <- rd_child(rd, "\\arguments")
+  det   <- rd_child(rd, "\\details")
+  exm   <- rd_child(rd, "\\examples")
+  ref   <- rd_child(rd, "\\references")
   if (is.null(usage)) stop(fn, ".Rd has no \\usage section")
   if (is.null(args))  stop(fn, ".Rd has no \\arguments section")
 
   h <- function(txt) paste0(strrep("#", level), " ", txt)
 
-  paste(c(
+  block <- c(
     h("Usage"),
     "",
     "::: callout-note",
@@ -152,5 +230,17 @@ autodoc <- function(fn, level = 4, man_dir = NULL) {
     h("Arguments"),
     "",
     render_arguments(args)
-  ), collapse = "\n")
+  )
+
+  if (details && !is.null(det)) {
+    block <- c(block, "", h("Details"), "", render_details(det))
+  }
+  if (examples && !is.null(exm)) {
+    block <- c(block, "", h("Examples"), "", "```r", render_examples(exm), "```")
+  }
+  if (references && !is.null(ref)) {
+    block <- c(block, "", h("References"), "", render_references(ref, rd_path))
+  }
+
+  paste(block, collapse = "\n")
 }

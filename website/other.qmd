@@ -23,13 +23,6 @@ Crop measurements from the start, from the end, or adjust the deadband. Individu
 cat(autodoc("crop.meas", level = 4))
 ```
 
-### `auto.deadband` for for an automatic selection of deadband per measurement
-```{r}
-#| echo: false
-#| results: asis
-cat(autodoc("auto.deadband", level = 4))
-```
-
 ### `iso.comp` for isotopic composition determination
 
 Extracts the y-intercept of the regression between the isotope ratios (13C, 15N or 18O) plotted againts the inverse of the gas concentration (CO~2~ or N~2~O).
@@ -40,10 +33,9 @@ Extracts the y-intercept of the regression between the isotope ratios (13C, 15N 
 cat(autodoc("iso.comp", level = 4))
 ```
 
-#### Examples
-
+### `auto.deadband` for an automatic selection of deadband per measurement {#auto.deadband}
 ```{r}
-#| eval: false
-data(manID.G2201i)
-my.iso.comp <- iso.comp(manID.G2201i)
+#| echo: false
+#| results: asis
+cat(autodoc("auto.deadband", level = 4))
 ```
