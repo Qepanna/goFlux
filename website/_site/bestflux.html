@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Automatic selection of the best flux estimate – goFlux</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./flux2pdf.html" rel="next">
+<link href="./goFlux.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-83d522e71e0bec575eb4a0fda8c9e229.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="custom.scss">
+</head>
+
+<body class="nav-sidebar docked quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./bestflux.html">best.flux</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+      <a href="./index.html" class="sidebar-logo-link">
+      <img src="./images/goFlux.png" alt="" class="sidebar-logo light-content py-0 d-lg-inline d-none">
+      <img src="./images/goFlux.png" alt="" class="sidebar-logo dark-content py-0 d-lg-inline d-none">
+      </a>
+      <div class="sidebar-tools-main">
+    <a href="https://twitter.com/KarelleRheault" title="" class="quarto-navigation-tool px-1" aria-label="" target="_blank"><i class="bi bi-twitter"></i></a>
+    <div class="dropdown">
+      <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label=""><i class="bi bi-github"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://github.com/Qepanna/goFlux/tree/master/R">
+            Source code
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://github.com/Qepanna/goFlux/issues">
+            Report a Bug
+            </a>
+          </li>
+      </ul>
+    </div>
+</div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">About</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./install.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Installation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./import.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Import</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./manualID.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Measurement ID</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./goFlux.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">goFlux</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./bestflux.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">best.flux</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./flux2pdf.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Plots</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./other.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Other functions</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./example.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Examples</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./troubleshoot.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Troubleshoot</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="1">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#criteria-for-flux-estimate-selection-and-flagging" id="toc-criteria-for-flux-estimate-selection-and-flagging" class="nav-link active" data-scroll-target="#criteria-for-flux-estimate-selection-and-flagging">Criteria for flux estimate selection and flagging</a>
+  <ul>
+  <li><a href="#assumed-non-linearity" id="toc-assumed-non-linearity" class="nav-link" data-scroll-target="#assumed-non-linearity">Assumed non-linearity</a></li>
+  <li><a href="#g.factor" id="toc-g.factor" class="nav-link" data-scroll-target="#g.factor">g.factor</a></li>
+  <li><a href="#minimal-detectable-flux" id="toc-minimal-detectable-flux" class="nav-link" data-scroll-target="#minimal-detectable-flux">Minimal Detectable Flux (MDF)</a></li>
+  <li><a href="#kappa-ratio" id="toc-kappa-ratio" class="nav-link" data-scroll-target="#kappa-ratio">Kappa ratio</a></li>
+  <li><a href="#indices-of-model-fit" id="toc-indices-of-model-fit" class="nav-link" data-scroll-target="#indices-of-model-fit">Indices of model fit</a>
+  <ul class="collapse">
+  <li><a href="#mean-absolute-error-mae-and-root-mean-square-error-rmse" id="toc-mean-absolute-error-mae-and-root-mean-square-error-rmse" class="nav-link" data-scroll-target="#mean-absolute-error-mae-and-root-mean-square-error-rmse">Mean Absolute Error (MAE) and Root Mean Square Error (RMSE)</a></li>
+  <li><a href="#standard-error" id="toc-standard-error" class="nav-link" data-scroll-target="#standard-error">Standard Error</a></li>
+  <li><a href="#akaike-information-criterion-corrected-for-small-sample-size-aicc" id="toc-akaike-information-criterion-corrected-for-small-sample-size-aicc" class="nav-link" data-scroll-target="#akaike-information-criterion-corrected-for-small-sample-size-aicc">Akaike Information Criterion corrected for small sample size (AICc)</a></li>
+  </ul></li>
+  <li><a href="#intercept" id="toc-intercept" class="nav-link" data-scroll-target="#intercept">Intercept</a></li>
+  <li><a href="#statistically-significant-flux-p-value" id="toc-statistically-significant-flux-p-value" class="nav-link" data-scroll-target="#statistically-significant-flux-p-value">Statistically significant flux (<em>p-value</em>)</a></li>
+  <li><a href="#number-of-observations" id="toc-number-of-observations" class="nav-link" data-scroll-target="#number-of-observations">Number of observations</a>
+  <ul class="collapse">
+  <li><a href="#usage" id="toc-usage" class="nav-link" data-scroll-target="#usage">Usage</a></li>
+  <li><a href="#arguments" id="toc-arguments" class="nav-link" data-scroll-target="#arguments">Arguments</a></li>
+  <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
+  <li><a href="#value" id="toc-value" class="nav-link" data-scroll-target="#value">Value</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  <li><a href="#sec-save" id="toc-sec-save" class="nav-link" data-scroll-target="#sec-save">Save results</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Automatic selection of the best flux estimate</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Following flux calculation, the user can select the best flux estimate (LM or HM) based on objective criteria, using the <code>best.flux</code> function:</p>
+<ul>
+<li><strong>Assumed non-linearity</strong>: If all criteria are met, the best flux estimate is assumed to be the non-linear estimate from the Hutchinson and Mosier model.</li>
+<li><strong>g.factor</strong>: the ratio between a non-linear flux estimate (e.g.&nbsp;Hutchinson and Mosier; HM) and a linear flux estimate.</li>
+<li><strong>Kappa ratio</strong>: maximal limit of the ratio between kappa and kappa-max (<span class="math inline">\(k.max\)</span>).</li>
+<li><strong>Indices of model fit</strong>: the best model can be selected based on a selection of indices of model fit: MAE, RMSE, SE and AICc. In addition to the automatic selection of the best flux estimate based on these indices of model fit, measurements can be flagged “noisy” using these criteria.</li>
+</ul>
+<p>In addition, the <code>best.flux</code> function can flag measurements that are below detection limit (MDF and <em>p-value</em>), out of bounds (intercept), or too short (number of observations).</p>
+<ul>
+<li><strong>Minimal Detectable Flux (MDF)</strong>: limit under which a flux estimate is considered below the detection limit.</li>
+<li><strong>Statistically significant flux (<em>p-value</em>)</strong>: limit under which a flux estimate is considered statistically non-significant, and below the detection limit.</li>
+<li><strong>Intercept</strong>: inferior and superior limits of the intercept (initial concentration; <span class="math inline">\(C_0\)</span>).</li>
+<li><strong>Number of observations</strong>: limit under which a measurement is flagged for being too short.</li>
+</ul>
+<p>By default, all criteria are included: <code>criteria = c("MAE", "RMSE", "AICc", "SE", "g.factor", "kappa", "MDF", "nb.obs", "p-value", "intercept")</code></p>
+<section id="criteria-for-flux-estimate-selection-and-flagging" class="level2">
+<h2 class="anchored" data-anchor-id="criteria-for-flux-estimate-selection-and-flagging">Criteria for flux estimate selection and flagging</h2>
+<section id="assumed-non-linearity" class="level3">
+<h3 class="anchored" data-anchor-id="assumed-non-linearity">Assumed non-linearity</h3>
+<p>Although linear models have predominantly been used in past NSS chamber applications, the true exchange rate is only linear at the moment of chamber deployment. Indeed, molecular diffusion theory states that chamber feedback leads to declining gradients of the relationship between concentration and time <span class="citation" data-cites="livingston2006 hutchinson1981">(<a href="#ref-hutchinson1981" role="doc-biblioref">Hutchinson &amp; Mosier, 1981</a>; <a href="#ref-livingston2006" role="doc-biblioref">Gerald P. Livingston et al., 2006</a>)</span>. The consequence of using a linear model is that the flux estimate will always underestimate the true flux <span class="citation" data-cites="matthias1978 jury1982 hüppi2018 livingston2005 livingston2006 anthony1995 hutchinson2003">(<a href="#ref-anthony1995" role="doc-biblioref">Anthony et al., 1995</a>; <a href="#ref-hüppi2018" role="doc-biblioref">Hüppi et al., 2018</a>; <a href="#ref-hutchinson2003" role="doc-biblioref">Hutchinson &amp; Rochette, 2003</a>; <a href="#ref-jury1982" role="doc-biblioref">Jury et al., 1982</a>; <a href="#ref-livingston2005" role="doc-biblioref">Gerald P. Livingston et al., 2005</a>, <a href="#ref-livingston2006" role="doc-biblioref">2006</a>; <a href="#ref-matthias1978" role="doc-biblioref">Matthias et al., 1978</a>)</span>.</p>
+<p>The underestimation in the flux estimate when applying a linear model to inherently non-linear measurements has long been assumed negligible when measurements appear to be linear <span class="citation" data-cites="livingston1995enclosure davidson2002">(<a href="#ref-davidson2002" role="doc-biblioref">Davidson et al., 2002</a>; <a href="#ref-livingston1995enclosure" role="doc-biblioref">GP Livingston &amp; Hutchinson, 1995</a>)</span>, however, this error is not negligible and thus pre-deployment emission rates estimated with linear models have been systematically and often substantially underestimated in nearly all NSS chamber applications <span class="citation" data-cites="matthias1978 jury1982 anthony1995 hutchinson2003 livingston2005">(<a href="#ref-anthony1995" role="doc-biblioref">Anthony et al., 1995</a>; <a href="#ref-hutchinson2003" role="doc-biblioref">Hutchinson &amp; Rochette, 2003</a>; <a href="#ref-jury1982" role="doc-biblioref">Jury et al., 1982</a>; <a href="#ref-livingston2005" role="doc-biblioref">Gerald P. Livingston et al., 2005</a>; <a href="#ref-matthias1978" role="doc-biblioref">Matthias et al., 1978</a>)</span>.</p>
+<p>One could argue that using a non-linear model is only valid if one can be sure that there is no physical disturbances caused by the chamber at the moment of deployment, e.g.&nbsp;pressure fluctuations <span class="citation" data-cites="conen1998">(<a href="#ref-conen1998" role="doc-biblioref">CONEN &amp; SMITH, 1998</a>)</span>, gas leakage <span class="citation" data-cites="livingston2006">(<a href="#ref-livingston2006" role="doc-biblioref">Gerald P. Livingston et al., 2006</a>)</span> or turbulence <span class="citation" data-cites="hutchinson2015">(<a href="#ref-hutchinson2015" role="doc-biblioref">Hutchinson &amp; Livingston, 2015</a>)</span>. These artefacts may cause a pronounced concentration increase in the chamber at the beginning of the measurement, leading to an overestimation of the flux estimate <span class="citation" data-cites="forbrich2010">(<a href="#ref-forbrich2010" role="doc-biblioref">Forbrich et al., 2010</a>)</span>. However, we argue that poor quality measurements can easily be identified and dealt with, either by modifying the window of observation or removing the measurement. In cases where measurements have an especially poor quality, the <code>best.flux</code> function will automatically flag these measurements for quality filtering and select the linear model as the flux best estimate.</p>
+</section>
+<section id="g.factor" class="level3">
+<h3 class="anchored" data-anchor-id="g.factor">g.factor</h3>
+<p>The g.factor is the ratio between a non-linear flux estimate (e.g.&nbsp;Hutchinson and Mosier; HM) and a linear flux estimate <span class="citation" data-cites="hüppi2018">(<a href="#ref-hüppi2018" role="doc-biblioref">Hüppi et al., 2018</a>)</span>:</p>
+<p><span class="math display">\[\mathbf{Eqn~7}~~~~~~g.factor = \frac{HM.flux}{LM.flux}\]</span></p>
+<p>With the <code>best.flux</code> function, one can choose a limit at which the HM model is deemed to overestimate (<em>f</em><sub>0</sub>). We recommend the following thresholds for the g.factor: &lt;4 for a relaxed threshold, &lt;2 for a intermediate threshold, or &lt;1.25 for a more conservative threshold. The default threshold is <code>g.limit = 2</code>. If the g.factor is above the specified threshold, the best flux estimate will switch to LM instead of HM. If <code>HM.flux/LM.flux</code> is larger than <code>g.limit</code>, a warning is given in the columns <code>HM.diagnose</code> and <code>quality.check</code>.</p>
+<p>In the case where the linear flux estimate is larger than the HM flux estimate, the inverse of the g.factor is used as a threshold.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>For measurements where a large curvature is expected, the g.factor is most likely not a good criteria. Indeed, measurements with a large curvature (e.g.&nbsp;water vapor fluxes) will always have a much larger HM flux estimate than the LM flux estimate.</p>
+</div>
+</div>
+</section>
+<section id="minimal-detectable-flux" class="level3">
+<h3 class="anchored" data-anchor-id="minimal-detectable-flux">Minimal Detectable Flux (MDF)</h3>
+<p>The minimal detectable flux (<span class="math inline">\(MDF\)</span>) is based on instrument precision (<span class="math inline">\(prec\)</span>) and measurement time (<span class="math inline">\(t\)</span>) <span class="citation" data-cites="christiansen2015">(<a href="#ref-christiansen2015" role="doc-biblioref">Christiansen et al., 2015</a>)</span>.</p>
+<p><span class="math display">\[\mathbf{Eqn~8}~~~~~~MDF = \frac{prec}{t}~\times~flux.term\]</span></p>
+<p>Where the instrument precision is in the same units as the measured gas (ppm or ppb) and the measurement time is in seconds.</p>
+<p>Below the MDF, the flux estimate is considered under the detection limit, but not null. Therefore, the function will not return a 0. There will simply be a warning in the columns <code>quality.check</code>, <code>LM.diagnose</code> or <code>HM.diagnose</code> to warn of a flux estimate under the detectable limit. No best flux estimate is chosen based on MDF.</p>
+</section>
+<section id="kappa-ratio" class="level3">
+<h3 class="anchored" data-anchor-id="kappa-ratio">Kappa ratio</h3>
+<p>The parameter kappa determines the curvature of the non-linear regression in the Hutchinson and Mosier model, as shown in <a href="./goFlux.html#eq-HM">equation 1</a>. The limit of kappa-max, as calculated in <a href="./goFlux.html#eq-k.max">equation 2</a>, is included in the <code>goFlux</code> function, so that the non-linear flux estimate cannot exceed this maximum curvature.</p>
+<p>In the function <code>best.flux</code>, one can choose the linear flux estimate over the non-linear flux estimate based on the ratio between kappa and kappa-max (<code>k.ratio</code>). A value of 1 indicates <code>HM.k = k.max</code>, and a value of e.g.&nbsp;0.5 indicates <code>HM.k = 0.5*k.max</code>. The default setting is <code>k.ratio = 1</code>. If <code>HM.k/k.max</code> is larger than <code>k.ratio</code>, a warning is issued in the columns <code>HM.diagnose</code> and <code>quality.check</code>. The ratio is expressed as a percentage of kappa-max in the plots.</p>
+</section>
+<section id="indices-of-model-fit" class="level3">
+<h3 class="anchored" data-anchor-id="indices-of-model-fit">Indices of model fit</h3>
+<p>In the <code>best.flux</code> function, we included multiple choices of indices of model fit, described below. One can choose to include however many of them in the function. If multiple of them are included, the selection of the best model will be made based on a scoring system. Both models start with a score of 0. For each criteria, whichever model performs worst is given +1. After all selected criteria have been evaluated, the model with the lowest score wins. In case of a tie, the non-linear flux estimate is always chosen by default, as non-linearity is assumed. The score is printed in the output data frame in the columns <code>HM.score</code> and <code>LM.score</code>.</p>
+<section id="mean-absolute-error-mae-and-root-mean-square-error-rmse" class="level4">
+<h4 class="anchored" data-anchor-id="mean-absolute-error-mae-and-root-mean-square-error-rmse">Mean Absolute Error (MAE) and Root Mean Square Error (RMSE)</h4>
+<p>The mean absolute error (MAE) is the arithmetic mean of the absolute residuals of a model, calculated as follows:</p>
+<p><span class="math display">\[ \mathbf{Eqn~9}~~~~~~MAE = \frac{1}{n} \sum_{i = 1}^{n}{\lvert{y_i-\hat{y_i}}\rvert} \]</span></p>
+<p>Where <span class="math inline">\(y_i\)</span> is the measured value, <span class="math inline">\(\hat{y_i}\)</span> is the predicted value and <span class="math inline">\(n\)</span> is the number of observations.</p>
+<p>The root mean square error (RMSE) is very similar to the MAE. Instead of using absolute errors, it uses squared errors, and the mean of the squared errors is then rooted as follows:</p>
+<p><span class="math display">\[ \mathbf{Eqn~10}~~~~~~RMSE = \sqrt{\frac{1}{n} \sum_{i = 1}^{n}{({y_i-\hat{y_i}})^2}} \]</span></p>
+<p>Because of the squared errors, RMSE is sensitive to outliers. Indeed, a few large errors will have a significant impact on the RMSE. Therefore, RMSE will always be larger than or equal to MAE <span class="citation" data-cites="pontius2007">(<a href="#ref-pontius2007" role="doc-biblioref">Pontius et al., 2007</a>)</span>.</p>
+<p>Mathematically, RMSE is equivalent to the standard deviation of the residuals. Indeed, for a constant gas concentration, the standard deviation is expressed as follows:</p>
+<p><span class="math display">\[ \mathbf{Eqn~11}~~~~~~\sigma = \sqrt{\frac{1}{N} \sum_{i = 1}^{N}{({x_i-\mu})^2}} \]</span></p>
+<p>Where <span class="math inline">\(x_i\)</span> is the measured value, <span class="math inline">\(N\)</span> is the size of the population and <span class="math inline">\(\mu\)</span> is the population mean. The standard deviation is used to calculate the precision of an instrument. In that case, <span class="math inline">\(\mu\)</span> is a known constant gas concentration and <span class="math inline">\(N\)</span> is the number of observations.</p>
+<p>Considering all of the above, MAE, RMSE and the standard deviation are all measures of how much the data points are scattered around the true mean or the regression. Therefore, MAE and RMSE can be compared to the instrument precision to determine if a measurement is noisy. For a MAE or RMSE larger than the instrument precision, the measurement is considered to have more noise than normally expected.</p>
+<p>If MAE is chosen as a criteria in <code>best.flux</code>, the model with the smallest MAE is chosen. If both models have a MAE smaller than the instrument precision, the non-linear flux estimate is always chosen by default, as non-linearity is assumed. When MAE is larger than the instrument precision, a warning is given in the columns <code>quality.check</code>, <code>LM.diagnose</code> or <code>HM.diagnose</code> to warn of a noisy measurement. RMSE functions exactly the same was as MAE in the <code>best.flux</code> function.</p>
+</section>
+<section id="standard-error" class="level4">
+<h4 class="anchored" data-anchor-id="standard-error">Standard Error</h4>
+<p>While the standard deviation describes how the data points are scattered around the true mean (precision), the standard error of a measurement tells how much that measurement deviates from the true population mean (accuracy) <span class="citation" data-cites="altman2005">(<a href="#ref-altman2005" role="doc-biblioref">Altman &amp; Bland, 2005</a>)</span>. If considering the standard deviation as used to calculate instrument precision (equation 11), the instrument standard error (instrument accuracy) can be defined as the standard deviation divided by the square root of the number of observations:</p>
+<p><span class="math display">\[\mathbf{Eqn~12}~~~~~~\sigma_\bar{x} = \frac{\sigma}{\sqrt{n}}\]</span></p>
+<p>Practically, this means that the accuracy increases with the sample size of a measurement. In other words, if an instrument is imprecise and the measurement has a lot of noise, it is still possible to get a more accurate estimate of the true mean by increasing the number of observations. With high-frequency GHG analyzers, that means increasing the chamber closure time.</p>
+<p>To calculate the standard error of a regression, one can use the delta method (<code>deltamethod</code> from the <code>msm</code> package), which propagates the total error of the flux calculation for each parameter included in the formula. The delta method approximates the standard error of a regression <span class="math inline">\(g(X)\)</span> of a random variable <span class="math inline">\(X = (x_1, x_2, ...)\)</span>, given estimates of the mean and covariance matrix of <span class="math inline">\(X\)</span> <span class="citation" data-cites="mandel2013 oehlert1992">(<a href="#ref-mandel2013" role="doc-biblioref">Mandel, 2013</a>; <a href="#ref-oehlert1992" role="doc-biblioref">Oehlert, 1992</a>)</span>.</p>
+<p>In the function <code>best.flux</code>, the standard error (SE) of the measurements can be compared to the standard error of the instrument (<span class="math inline">\(\sigma_\bar{x}\)</span>). If SE is chosen as a criteria in <code>best.flux</code>, the model with the smallest SE is chosen. If both models have a SE smaller than the instrument precision, the non-linear flux estimate is always chosen by default, as non-linearity is assumed. When SE is larger than the instrument accuracy (<span class="math inline">\(\sigma_\bar{x}\)</span>), a warning is given in the columns <code>quality.check</code>, <code>LM.diagnose</code> or <code>HM.diagnose</code> to warn of a noisy measurement.</p>
+</section>
+<section id="akaike-information-criterion-corrected-for-small-sample-size-aicc" class="level4">
+<h4 class="anchored" data-anchor-id="akaike-information-criterion-corrected-for-small-sample-size-aicc">Akaike Information Criterion corrected for small sample size (AICc)</h4>
+<p>The AIC estimates the relative quality of a statistical model and is used to compare the fitting of different models to a set of data <span class="citation" data-cites="akaike1974">(<a href="#ref-akaike1974" role="doc-biblioref">Akaike, 1974</a>)</span>. Consider the formula for AIC:</p>
+<p><span class="math display">\[\mathbf{Eqn~13}~~~~~~AIC = 2k - 2ln(\hat{L})\]</span></p>
+<p>Where <span class="math inline">\(k\)</span> is the number of parameters in the model and <span class="math inline">\(\hat{L}\)</span> is the maximized value of the likelihood function for the model. AIC deals with the trade-off between the goodness of fit of a model and the simplicity of the model. In other words, the AIC is a score that deals with both the risk of underfitting and the risk of overfitting, and the model with the lowest score has the best model fit.</p>
+<p>In flux calculation, the linear model contains two parameters: the slope and the intercept (<span class="math inline">\(C_0\)</span>), whereas the Hutchinson and Mosier model (<a href="./goFlux.html#eq-HM">equation 1</a>) contains three parameters: the assumed concentration of constant gas source below the surface (<span class="math inline">\(\varphi\)</span>), the concentration in the chamber at the moment of chamber closure (<span class="math inline">\(C_0\)</span>) and the curvature, kappa (<span class="math inline">\(\kappa\)</span>). If both models have a very similar fit (maximum likelihood), then the linear model would win because it has less parameters. However, when the sample size is small (&lt;40 observations per parameter; i.e.&nbsp;&lt;120 observations when calculating HM), there is an increased risk that AIC selects a model with too many parameters. To address this risk of overfitting, AICc was developed <span class="citation" data-cites="sugiura1978">(<a href="#ref-sugiura1978" role="doc-biblioref">Sugiura, 1978</a>)</span>:</p>
+<p><span class="math display">\[\mathbf{Eqn~14}~~~~~~AICc = AIC + \frac{2k^2 + 2k}{n - k - 1}\]</span></p>
+<p>Where <span class="math inline">\(n\)</span> denotes the number of observations and <span class="math inline">\(k\)</span> the number of parameters in the model.</p>
+<p>If AICc is selected as a criteria in the <code>best.flux</code> function, the model with the lowest AICc wins.</p>
+</section>
+</section>
+<section id="intercept" class="level3">
+<h3 class="anchored" data-anchor-id="intercept">Intercept</h3>
+<p>If the initial gas concentration (<em>C<sub>0</sub></em>) calculated for the flux estimates (<code>HM.C0</code> and <code>LM.C0</code>) deviates from the true <em>C<sub>0</sub></em> (measured concentration at <span class="math inline">\(t = 0\)</span>) by more or less than 10% of the difference between <em>C<sub>0</sub></em> and the final gas concentration at the end of the measurement (<em>C<sub>t</sub></em>), a warning is issued in the columns <code>quality.check</code>, <code>LM.diagnose</code> or <code>HM.diagnose</code> to warn of an intercept out of bounds. Alternatively, one can provide boundaries for the intercept, for example: <code>intercept.lim = c(380, 420)</code> for a true <em>C<sub>0</sub></em> of 400 ppm.</p>
+</section>
+<section id="statistically-significant-flux-p-value" class="level3">
+<h3 class="anchored" data-anchor-id="statistically-significant-flux-p-value">Statistically significant flux (<em>p-value</em>)</h3>
+<p>This criteria is only applicable to the linear flux. Under a defined <em>p-value</em>, the linear flux estimate is deemed non-significant, i. e., flux under the detectable limit. The default threshold is <code>p.val = 0.05</code>. No best flux estimate is chosen based on <em>p-value</em>. If <code>LM.p.val &lt; p.val</code>, a warning is given in the columns <code>quality.check</code> and <code>LM.diagnose</code> to warn of an estimated flux below the detection limit.</p>
+</section>
+<section id="number-of-observations" class="level3">
+<h3 class="anchored" data-anchor-id="number-of-observations">Number of observations</h3>
+<p>Limit below which a measurement is flagged for being too short (<code>nb.obs &lt; warn.length</code>). Portable greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore, for the default setting of <code>warn.length = 60</code>, the chamber closure time should be approximately one minute (60 seconds). If the number of observations is smaller than the threshold, a warning is issued in the column <code>quality.check</code>.</p>
+<section id="usage" class="level4">
+<h4 class="anchored" data-anchor-id="usage">Usage</h4>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Code chunks under <strong>Usage</strong> sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.</p>
+</div>
+</div>
+<div class="cell" data-code-copy="false">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">best.flux</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  flux.result,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">criteria =</span> <span class="fu">c</span>(<span class="st">"MAE"</span>, <span class="st">"RMSE"</span>, <span class="st">"AICc"</span>, <span class="st">"SE"</span>, <span class="st">"g.factor"</span>, <span class="st">"kappa"</span>, <span class="st">"MDF"</span>, <span class="st">"nb.obs"</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"intercept"</span>, <span class="st">"p-value"</span>),</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">intercept.lim =</span> <span class="cn">NULL</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">g.limit =</span> <span class="dv">2</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">p.val =</span> <span class="fl">0.05</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">k.ratio =</span> <span class="dv">1</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">warn.length =</span> <span class="dv">60</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="arguments" class="level4">
+<h4 class="anchored" data-anchor-id="arguments">Arguments</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><code>flux.result</code></td>
+<td>data.frame; output from the function <code>goFlux</code>.</td>
+</tr>
+<tr class="even">
+<td><code>criteria</code></td>
+<td>character vector; criteria used to assess the goodness of fit of the linear and non-linear flux estimates. Must be at least one the following: “MAE”, “RMSE”, “AICc”, “SE”, “g.factor”, “kappa”, “MDF”, “nb.obs”, “p-value”, or “intercept”. The default is all of them.</td>
+</tr>
+<tr class="odd">
+<td><code>intercept.lim</code></td>
+<td>numerical vector of length 2; inferior and superior limits of the intercept (initial concentration; C<sub>0</sub>). Must be the same units as <code>gastype</code> in the <code>goFlux</code> function. If <code>intercept.lim = NULL</code>, the limits are calculated from the true values of C<sub>0</sub> and C<sub>t</sub> for each measurement.</td>
+</tr>
+<tr class="even">
+<td><code>g.limit</code></td>
+<td>numerical value; maximal limit of the g.factor (ratio between <code>HM.flux</code> and <code>LM.flux</code>). Recommended thresholds for the g.factor are 4 (flexible), 2 (medium), or 1.25 (conservative). The default limit is <code>g.limit = 2</code>.</td>
+</tr>
+<tr class="odd">
+<td><code>p.val</code></td>
+<td>numerical value; a limit for a statistically detectable flux. The default threshold is <em>p-value</em> &lt; 0.05.</td>
+</tr>
+<tr class="even">
+<td><code>k.ratio</code></td>
+<td>numerical value; maximal limit of the ratio between kappa and the kappa-max. Default is <code>k.ratio = 1</code>.</td>
+</tr>
+<tr class="odd">
+<td><code>warn.length</code></td>
+<td>numerical value; limit under which a measurement is flagged for being too short (<code>nb.obs &lt; warn.length</code>).</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="details" class="level4">
+<h4 class="anchored" data-anchor-id="details">Details</h4>
+<p>In <code>criteria</code>, the indices of model fit “MAE”, “RMSE” and “SE” all have a threshold. For MAE and RMSE, the threshold is instrument precision (1σ). For SE, the threshold is the instrument accuracy (1σ/n​). These indices also compare the two models (linear, LM, and non-linear, HM). The selection of the best model based on indices of model fit (“MAE”, “RMSE”, “AICc” and “SE”) is based on a scoring system. Both models start with a score of 0. For each criteria, whichever model performs worst is given +1. After all selected criteria have been evaluated, the model with the lowest score wins. In case of a tie, the non-linear flux estimate is always chosen by default, as non-linearity is assumed. The score is printed in the output data frame in the columns <code>HM.score</code> and <code>LM.score</code>.</p>
+<p>The <code>g.limit</code> indicates a threshold for the <code>g.factor</code>, which is the ratio between a non-linear flux estimate and a linear flux estimate. With the <code>best.flux</code> function, one can choose a limit at which the HM model is deemed to overestimate f<sub>0</sub>. Recommended thresholds for the g.factor are &lt;4 for a flexible threshold, &lt;2 for a medium threshold, or &lt;1.25 for a more conservative threshold. The default threshold is <code>g.limit = 2</code>. If the g.factor is above the specified threshold, the best flux estimate will switch to LM instead of HM and give a warning in the columns <code>quality.check</code> and <code>HM.diagnose</code>.</p>
+<p>The minimal detectable flux (<code>MDF</code>) is calculated from the instrument precision, the measurement time and the <code>flux.term</code>. Below the MDF, the flux estimate is considered under the detection limit, but not null. Therefore, the function will not return a 0. There will simply be a warning in the columns <code>quality.check</code>, <code>LM.diagnose</code> or <code>HM.diagnose</code> to warn of a flux estimate under the detection limit. No best flux estimate is chosen based on MDF.</p>
+<p>The parameter kappa determines the curvature of the non-linear regression in the Hutchinson and Mosier model. A maximal limit of kappa, <code>k.max</code> is included in the <code>goFlux</code> function, so that the non-linear flux estimate cannot exceed this maximum curvature. In the function <code>best.flux</code>, one can choose the linear flux estimate over the non-linear flux estimate based on the ratio between kappa and kappa-max (<code>k.ratio</code>). The ratio is expressed as a percentage, where 1 indicates <code>HM.k = k.max</code>, and 0.5 indicates <code>HM.k = 0.5*k.max</code>. The default setting is <code>k.ratio = 1</code>. If <code>HM.k/k.max</code> is larger than <code>k.ratio</code>, a warning is issued in the columns <code>HM.diagnose</code> and <code>quality.check</code>.</p>
+<p>If the initial gas concentration (C<sub>0</sub>) calculated for the flux estimates are more or less than 10% of the difference between C<sub>0</sub> and the final gas concentration at the end of the measurement (C<sub>t</sub>), a warning is issued in the columns <code>quality.check</code>, <code>LM.diagnose</code> or <code>HM.diagnose</code> to warn of an intercept out of bounds. Alternatively, one can provide boundaries for the intercept, for example: <code>intercept.lim = c(380, 420)</code> for a true C<sub>0</sub> of 400 ppm.</p>
+<p>The argument <code>p.val</code> is only applicable to the linear flux. Under the defined <em>p-value</em>, the linear flux estimate is deemed non-significant, i. e., flux under the detection limit. The default threshold is <code>p.val = 0.05</code>. No best flux estimate is chosen based on <em>p-value</em>. If <code>LM.p.val &lt; p.val</code>, a warning is given in the columns <code>quality.check</code> and <code>LM.diagnose</code> to warn of an estimated flux under the detection limit.</p>
+<p><code>warn.length</code> is the limit under which a measurement is flagged for being too short (<code>nb.obs &lt; warn.length</code>). With nowadays’ portable greenhouse gas analyzers, the frequency of measurement is usually one observation per second. Therefore, for the default setting of <code>warn.length = 60</code>, the chamber closure time should be approximately one minute (60 seconds). If the number of observations is smaller than the threshold, a warning is issued in the column <code>quality.check</code>.</p>
+</section>
+<section id="value" class="level4">
+<h4 class="anchored" data-anchor-id="value">Value</h4>
+<p>The function returns a data.frame identical to the input <code>flux.result</code> (output from the function <code>goFlux</code>) with the additional columns <code>HM.diagnose</code>, <code>LM.diagnose</code>, <code>best.flux</code>, <code>model</code> and <code>quality.check</code>. For each criteria selected, an additional column is also added to specify the limits used for those criteria (e.g.&nbsp;<code>RMSE.lim</code>, <code>p.val.lim</code>, etc.)</p>
+</section>
+<section id="examples" class="level4">
+<h4 class="anchored" data-anchor-id="examples">Examples</h4>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(manID.UGGA)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>CO2_flux <span class="ot">&lt;-</span> <span class="fu">goFlux</span>(manID.UGGA, <span class="st">"CO2dry_ppm"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>CO2_best <span class="ot">&lt;-</span> <span class="fu">best.flux</span>(CO2_flux, <span class="at">criteria =</span> <span class="fu">c</span>(<span class="st">"MAE"</span>, <span class="st">"AICc"</span>, <span class="st">"g.factor"</span>, <span class="st">"MDF"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="sec-save" class="level4">
+<h4 class="anchored" data-anchor-id="sec-save">Save results</h4>
+<p>RData results can be saved as RData, or any data frame can be saved as an Excel sheet following this procedure:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save RData</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(CO2_best, <span class="at">file =</span> <span class="st">"CO2_result.RData"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Save to Excel</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">write.xlsx</span>(CO2_best, <span class="at">file =</span> <span class="st">"CO2_result.xlsx"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+
+
+</section>
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-akaike1974" class="csl-entry" role="listitem">
+Akaike, H. (1974). A new look at the statistical model identification. <em>IEEE Transactions on Automatic Control</em>, <em>19</em>(6), 716–723. <a href="https://doi.org/10.1109/tac.1974.1100705">https://doi.org/10.1109/tac.1974.1100705</a>
+</div>
+<div id="ref-altman2005" class="csl-entry" role="listitem">
+Altman, Douglas G., &amp; Bland, J. Martin. (2005). Standard deviations and standard errors. <em>BMJ</em>, <em>331</em>(7521), 903. <a href="https://doi.org/10.1136/bmj.331.7521.903">https://doi.org/10.1136/bmj.331.7521.903</a>
+</div>
+<div id="ref-anthony1995" class="csl-entry" role="listitem">
+Anthony, W. H., Hutchinson, G. L., &amp; Livingston, G. P. (1995). Chamber measurement of soil<span>-</span>atmosphere gas exchange: Linear vs. Diffusion<span>-</span>based flux models. <em>Soil Science Society of America Journal</em>, <em>59</em>(5), 1308–1310. <a href="https://doi.org/10.2136/sssaj1995.03615995005900050015x">https://doi.org/10.2136/sssaj1995.03615995005900050015x</a>
+</div>
+<div id="ref-christiansen2015" class="csl-entry" role="listitem">
+Christiansen, Jesper Riis, Outhwaite, Josh, &amp; Smukler, Sean M. (2015). Comparison of CO2, CH4 and N2O soil-atmosphere exchange measured in static chambers with cavity ring-down spectroscopy and gas chromatography. <em>Agricultural and Forest Meteorology</em>, <em>211-212</em>, 48–57. <a href="https://doi.org/10.1016/j.agrformet.2015.06.004">https://doi.org/10.1016/j.agrformet.2015.06.004</a>
+</div>
+<div id="ref-conen1998" class="csl-entry" role="listitem">
+CONEN, F., &amp; SMITH, K. A. (1998). A re<span>-</span>examination of closed flux chamber methods for the measurement of trace gas emissions from soils to the atmosphere. <em>European Journal of Soil Science</em>, <em>49</em>(4), 701–707. <a href="https://doi.org/10.1046/j.1365-2389.1998.4940701.x">https://doi.org/10.1046/j.1365-2389.1998.4940701.x</a>
+</div>
+<div id="ref-davidson2002" class="csl-entry" role="listitem">
+Davidson, E. A., Savage, K., Verchot, L. V., &amp; Navarro, Rosa. (2002). Minimizing artifacts and biases in chamber-based measurements of soil respiration. <em>Agricultural and Forest Meteorology</em>, <em>113</em>(1-4), 21–37. <a href="https://doi.org/10.1016/s0168-1923(02)00100-4">https://doi.org/10.1016/s0168-1923(02)00100-4</a>
+</div>
+<div id="ref-forbrich2010" class="csl-entry" role="listitem">
+Forbrich, Inke, Kutzbach, Lars, Hormann, Annabell, &amp; Wilmking, Martin. (2010). A comparison of linear and exponential regression for estimating diffusive CH4 fluxes by closed-chambers in peatlands. <em>Soil Biology and Biochemistry</em>, <em>42</em>(3), 507–515. <a href="https://doi.org/10.1016/j.soilbio.2009.12.004">https://doi.org/10.1016/j.soilbio.2009.12.004</a>
+</div>
+<div id="ref-hüppi2018" class="csl-entry" role="listitem">
+Hüppi, Roman, Felber, Raphael, Krauss, Maike, Six, Johan, Leifeld, Jens, &amp; Fuß, Roland. (2018). Restricting the nonlinearity parameter in soil greenhouse gas flux calculation for more reliable flux estimates. <em>PLOS ONE</em>, <em>13</em>(7), e0200876. <a href="https://doi.org/10.1371/journal.pone.0200876">https://doi.org/10.1371/journal.pone.0200876</a>
+</div>
+<div id="ref-hutchinson2015" class="csl-entry" role="listitem">
+Hutchinson, G. L., &amp; Livingston, G. P. (2015). <em>Use of chamber systems to measure trace gas fluxes</em> (pp. 63–78). American Society of Agronomy, Crop Science Society of America,; Soil Science Society of America. <a href="https://doi.org/10.2134/asaspecpub55.c4">https://doi.org/10.2134/asaspecpub55.c4</a>
+</div>
+<div id="ref-hutchinson1981" class="csl-entry" role="listitem">
+Hutchinson, G. L., &amp; Mosier, A. R. (1981). Improved soil cover method for field measurement of nitrous oxide fluxes. <em>Soil Science Society of America Journal</em>, <em>45</em>(2), 311–316. <a href="https://doi.org/10.2136/sssaj1981.03615995004500020017x">https://doi.org/10.2136/sssaj1981.03615995004500020017x</a>
+</div>
+<div id="ref-hutchinson2003" class="csl-entry" role="listitem">
+Hutchinson, G. L., &amp; Rochette, P. (2003). Non<span>-</span>flow<span>-</span>through steady<span>-</span>state chambers for measuring soil respiration. <em>Soil Science Society of America Journal</em>, <em>67</em>(1), 166–180. <a href="https://doi.org/10.2136/sssaj2003.1660">https://doi.org/10.2136/sssaj2003.1660</a>
+</div>
+<div id="ref-jury1982" class="csl-entry" role="listitem">
+Jury, W. A., Letey, J., &amp; Collins, Tim. (1982). Analysis of chamber methods used for measuring nitrous oxide production in the field. <em>Soil Science Society of America Journal</em>, <em>46</em>(2), 250–256. <a href="https://doi.org/10.2136/sssaj1982.03615995004600020007x">https://doi.org/10.2136/sssaj1982.03615995004600020007x</a>
+</div>
+<div id="ref-livingston2005" class="csl-entry" role="listitem">
+Livingston, Gerald P., Hutchinson, Gordon L., &amp; Spartalian, Kevork. (2005). Diffusion theory improves chamber<span>-</span>based measurements of trace gas emissions. <em>Geophysical Research Letters</em>, <em>32</em>(24). <a href="https://doi.org/10.1029/2005gl024744">https://doi.org/10.1029/2005gl024744</a>
+</div>
+<div id="ref-livingston2006" class="csl-entry" role="listitem">
+Livingston, Gerald P., Hutchinson, Gordon L., &amp; Spartalian, Kevork. (2006). Trace gas emission in chambers. <em>Soil Science Society of America Journal</em>, <em>70</em>(5), 1459–1469. <a href="https://doi.org/10.2136/sssaj2005.0322">https://doi.org/10.2136/sssaj2005.0322</a>
+</div>
+<div id="ref-livingston1995enclosure" class="csl-entry" role="listitem">
+Livingston, GP, &amp; Hutchinson, GL. (1995). Enclosure-based measurement of trace gas exchange: Applications and sources of error. <em>Biogenic Trace Gases: Measuring Emissions from Soil and Water</em>, <em>51</em>, 14–51.
+</div>
+<div id="ref-mandel2013" class="csl-entry" role="listitem">
+Mandel, Micha. (2013). Simulation-based confidence intervals for functions with complicated derivatives. <em>The American Statistician</em>, <em>67</em>(2), 76–81. <a href="https://doi.org/10.1080/00031305.2013.783880">https://doi.org/10.1080/00031305.2013.783880</a>
+</div>
+<div id="ref-matthias1978" class="csl-entry" role="listitem">
+Matthias, Allan D., Yarger, Douglas N., &amp; Weinbeck, Robert S. (1978). A numerical evaluation of chamber methods for determining gas fluxes. <em>Geophysical Research Letters</em>, <em>5</em>(9), 765–768. <a href="https://doi.org/10.1029/gl005i009p00765">https://doi.org/10.1029/gl005i009p00765</a>
+</div>
+<div id="ref-oehlert1992" class="csl-entry" role="listitem">
+Oehlert, Gary W. (1992). A note on the delta method. <em>The American Statistician</em>, <em>46</em>(1), 27. <a href="https://doi.org/10.2307/2684406">https://doi.org/10.2307/2684406</a>
+</div>
+<div id="ref-pontius2007" class="csl-entry" role="listitem">
+Pontius, Robert Gilmore, Thontteh, Olufunmilayo, &amp; Chen, Hao. (2007). Components of information for multiple resolution comparison between maps that share a real variable. <em>Environmental and Ecological Statistics</em>, <em>15</em>(2), 111–142. <a href="https://doi.org/10.1007/s10651-007-0043-y">https://doi.org/10.1007/s10651-007-0043-y</a>
+</div>
+<div id="ref-sugiura1978" class="csl-entry" role="listitem">
+Sugiura, Nariaki. (1978). Further analysis of the data by akaike’s information criterion and the finite corrections. <em>Communications in Statistics - Theory and Methods</em>, <em>7</em>(1), 13–26. <a href="https://doi.org/10.1080/03610927808827599">https://doi.org/10.1080/03610927808827599</a>
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("^(?:http:|https:)\/\/(?:www\.)*(qepanna\.quarto\.pub)\/.*$");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./goFlux.html" class="pagination-link" aria-label="goFlux">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">goFlux</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./flux2pdf.html" class="pagination-link" aria-label="Plots">
+        <span class="nav-page-text">Plots</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -6,6 +6,10 @@ format:
 engine: knitr
 editor: visual
 ---
+```{r}
+#| include: false
+source("scripts/autodoc.R")
+```
 
 Aside from the typical workflow of flux calculation, one may wish to estimate other parameters from gas measurements. Currently, this page only contains one additional function. To request more complementary functions, [open an issue on GitHub](https://github.com/Qepanna/goFlux/issues) or contact the maintainer of this package, Karelle Rheault ([karh\@ign.ku.dk](mailto:karh@ign.ku.dk){.email}), directly.
 
@@ -13,34 +17,11 @@ Aside from the typical workflow of flux calculation, one may wish to estimate ot
 
 Extracts the y-intercept of the regression between the isotope ratios (13C, 15N or 18O) plotted againts the inverse of the gas concentration (CO~2~ or N~2~O).
 
-#### Usage
-
-::: callout-note
-Code chunks under **Usage** sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.
-:::
-
 ```{r}
-#| eval: false
-#| code-copy: false
-iso.comp(
-  dataframe,
-  CO2dry_ppm = "CO2dry_ppm",
-  delta_13C = "Delta_Raw_iCO2",
-  N2Odry_ppb = "N2Odry_ppb",
-  delta_15N = "d15N",
-  delta_18O = "d18O",
-  save.plots
-)
+#| echo: false
+#| results: asis
+cat(autodoc("iso.comp", level = 4))
 ```
-
-#### Arguments
-
-|  |  |
-|----|----|
-| `dataframe` | a data.frame containing measurements of isotopic fractions of CO~2~ or N~2~O and a `UniqueID` (or `chamID`) per measurements. |
-| `CO2dry_ppm`, `delta_13C` | character string; specifies which columns should be used for CO~2~ measurements, and the delta 13C, respectively. |
-| `N2Odry_ppb`, `delta_15N`, `delta_18O` | character string; specifies which columns should be used for N~2~O measurements, the delta 15N and the delta 18O, respectively. |
-| `save.plots` | character string; a file path with the extension .pdf to save Keeling plots. By default plots are not saved. |
 
 #### Examples
 
