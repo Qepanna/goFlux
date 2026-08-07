@@ -132,6 +132,11 @@
 #' which evaluates multiple regression models and selects the best model
 #' according to user-defined criteria.
 #'
+#' @references
+#' Rheault, K., Christiansen, J. R., & Larsen, K. S. (2024). goFlux: A
+#' user-friendly way to calculate GHG fluxes yourself, regardless of user
+#' experience. *Journal of Open Source Software*, 9(96), 6393.
+#'
 #' @include goFlux-package.R
 #' @include flux.term.R
 #' @include MDF.R

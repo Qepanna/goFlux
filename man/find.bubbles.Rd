@@ -37,10 +37,9 @@ steps) used to compute rolling dispersion. Default \code{15}.}
 signal is interpolated onto before rolling statistics. Default \code{1}.}
 
 \item{method}{Character; dispersion metric. One of \code{"mad"} (default),
-\code{"variance"} or \code{"diff"}. \code{"diff"} applies the rolling MAD to
-the first differences of the signal and is largely insensitive to a linear
-diffusive trend, so it is recommended when diffusion is strong (see
-Details).}
+\code{"variance"} or \code{"diff"}. \code{"diff"} computes rolling variance
+of the first differences and is largely insensitive to a linear diffusive
+trend, so it is recommended when diffusion is strong (see Details).}
 
 \item{var.quantile}{Numeric in (0, 1); empirical quantile of the rolling
 dispersion distribution used in the adaptive threshold. Default \code{0.7}.}
@@ -84,9 +83,9 @@ A data.frame with one row per retained bubbling event and columns
 Identifies bubbling events in a gas concentration time series by analysing
 rolling dispersion within a moving window. Dispersion can be quantified from
 the rolling median absolute deviation (\code{"mad"}), the rolling variance
-(\code{"variance"}), or the rolling MAD of the first differences
+(\code{"variance"}), or the rolling variance of the first differences
 (\code{"diff"}). Contiguous periods where dispersion exceeds an adaptive
-threshold are flagged as candidate bubbling events. For each event the size
+threshold are flagged as candidate bubbling events.
 of the concentration step is then estimated with a local step-dummy
 regression that separates the abrupt bubble step from the underlying
 diffusive trend.

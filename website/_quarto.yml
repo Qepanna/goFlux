@@ -47,6 +47,8 @@ website:
         text: "best.flux"
       - file: flux2pdf.qmd
         text: "Plots"
+      - file: goAquaFlux.qmd
+        text: "goAquaFlux"
       - file: other.qmd
         text: "Other functions"
       - file: example.qmd

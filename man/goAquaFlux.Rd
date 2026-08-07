@@ -88,17 +88,17 @@ bubbling events. Default is \code{"CH4dry_ppb"}.}
 
 \item{bubble.method}{Character; dispersion metric passed to
 \code{\link{find.bubbles}}: \code{"mad"} (default), \code{"variance"} or
-\code{"diff"} (rolling MAD of increments, robust to a diffusive trend).}
+\code{"diff"} (rolling variance of increments, robust to a diffusive trend).}
 
 \item{bubble.args}{Named list of additional arguments forwarded to
 \code{\link{find.bubbles}} (e.g. \code{list(k = 5, min_magnitude = 10)}).
 Values here override the defaults for advanced tuning.}
 
-\item{ebullition.final_window_min}{Minimum time window (minutes) required
+\item{ebullition.final_window_min}{Minimum time window (seconds) required
 after the last bubble event to define the incubation end for ebullition
 flux calculation.}
 
-\item{ebullition.window_C0Cf}{Time window (minutes) used to compute
+\item{ebullition.window_C0Cf}{Time window (seconds) used to compute
 initial and final concentrations for the endpoint flux estimate.}
 
 \item{diffusion.minimum_window}{Minimum number of observations required
@@ -172,6 +172,11 @@ results <- goAquaFlux(
 )
 }
 
+}
+\references{
+Rheault, K., Christiansen, J. R., & Larsen, K. S. (2024). goFlux: A
+user-friendly way to calculate GHG fluxes yourself, regardless of user
+experience. *Journal of Open Source Software*, 9(96), 6393.
 }
 \seealso{
 \code{\link{find.bubbles}},
