@@ -1,0 +1,66 @@
+name: goFlux website
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'R/**'
+      - 'man/**'
+      - 'website/**'
+      - 'DESCRIPTION'
+      - 'NAMESPACE'
+      - '.github/workflows/docs.yaml'
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: docs
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: 1.4.553
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::devtools
+            any::downloadthis
+            any::dplyr
+            any::purrr
+            any::readxl
+            any::openxlsx
+            any::knitr
+            any::rmarkdown
+          cache: true
+
+      - name: Check man/ is in sync with R/ (document and diff)
+        run: |
+          Rscript -e 'devtools::document()'
+          git diff --exit-code -- man NAMESPACE
+
+      - name: Autodetect audit (fail if a documented function has no autodoc block)
+        run: Rscript website/scripts/audit_functions.R
+
+      - name: Render website
+        run: quarto render website
+
+      - uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: website/_site
+          branch: gh-pages
+          clean: true
