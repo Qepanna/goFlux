@@ -2,7 +2,6 @@ project:
   type: website
   output-dir: _site
 
-site-url: "https://gracebarbacias.github.io/goFlux_G_fork/"
 
 format:
   html:
@@ -13,7 +12,8 @@ format:
     link-external-icon: false
     link-external-newwindow: true
     #link-external-filter: '^mailto:karh@ign.ku.dk|(?:http:|https:)\/\/(?:www\.)*(qepanna\.quarto\.pub|ign\.ku\.dk|novonordiskfonden\.dk|doi\.org|twitter\.com)\/.*$'
-    link-external-filter: '^(?:http:|https:)\/\/(?:www\.)*(qepanna\.quarto\.pub)\/.*$'
+    # link-external-filter: '^(?:http:|https:)\/\/(?:www\.)*(qepanna\.quarto\.pub)\/.*$'
+    link-external-filter: '^(?:http:|https:)\/\/(?:www\.)*(qepanna\.quarto\.pub|gracebarbacias\.github\.io)\/.*$'
     theme:
       - custom.scss
 
