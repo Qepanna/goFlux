@@ -123,12 +123,19 @@ render_usage <- function(usage_tag) {
 render_arguments <- function(args_tag) {
   items <- Filter(function(el) identical(attr(el, "Rd_tag"), "\\item"), args_tag)
   if (!length(items)) return("")
-  rows <- vapply(items, function(it) {
-    arg  <- trimws(rd_to_md(it[[1]]))
-    desc <- gsub("[[:space:]]+", " ", trimws(rd_to_md(it[[2]])))
-    paste0("| `", arg, "` | ", desc, " |")
+  arg_names <- vapply(items, function(it) trimws(rd_to_md(it[[1]])), character(1))
+  rows <- vapply(seq_along(items), function(i) {
+    desc <- gsub("[[:space:]]+", " ", trimws(rd_to_md(items[[i]][[2]])))
+    paste0("| `", arg_names[i], "` | ", desc, " |")
   }, character(1))
-  c("| Argument | Description |", "|---|---|", rows)
+  # pandoc/Quarto sets pipe-table column widths from the relative dash count
+  # in the separator row (verified: "|---|---|" -> 50%/50%). Make the
+  # Argument column narrow -- proportional to the longest argument name,
+  # capped -- so short names don't leave a big empty gap before Description.
+  max_arg <- max(nchar(arg_names))
+  arg_dashes <- max(6L, min(30L, max_arg + 4L))
+  sep <- paste0("|", strrep("-", arg_dashes), "|", strrep("-", 80L), "|")
+  c("| Argument | Description |", sep, rows)
 }
 # The Details section: prose from \details, one paragraph per block
 render_details <- function(details_tag) {

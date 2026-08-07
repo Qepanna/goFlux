@@ -264,16 +264,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </ul></li>
   <li><a href="#sec-step2" id="toc-sec-step2" class="nav-link" data-scroll-target="#sec-step2">2. Define a window of observation for each measurement</a>
   <ul class="collapse">
-  <li><a href="#sec-obs.win" id="toc-sec-obs.win" class="nav-link" data-scroll-target="#sec-obs.win">Usage</a></li>
+  <li><a href="#usage-1" id="toc-usage-1" class="nav-link" data-scroll-target="#usage-1">Usage</a></li>
   <li><a href="#arguments-1" id="toc-arguments-1" class="nav-link" data-scroll-target="#arguments-1">Arguments</a></li>
-  <li><a href="#details-1" id="toc-details-1" class="nav-link" data-scroll-target="#details-1">Details</a></li>
   <li><a href="#examples-1" id="toc-examples-1" class="nav-link" data-scroll-target="#examples-1">Examples</a></li>
   </ul></li>
   <li><a href="#sec-step3" id="toc-sec-step3" class="nav-link" data-scroll-target="#sec-step3">3. Click on a scatter plot to identify start and end times</a>
   <ul class="collapse">
-  <li><a href="#usage-1" id="toc-usage-1" class="nav-link" data-scroll-target="#usage-1">Usage</a></li>
+  <li><a href="#usage-2" id="toc-usage-2" class="nav-link" data-scroll-target="#usage-2">Usage</a></li>
   <li><a href="#arguments-2" id="toc-arguments-2" class="nav-link" data-scroll-target="#arguments-2">Arguments</a></li>
-  <li><a href="#details-2" id="toc-details-2" class="nav-link" data-scroll-target="#details-2">Details</a></li>
+  <li><a href="#details-1" id="toc-details-1" class="nav-link" data-scroll-target="#details-1">Details</a></li>
   <li><a href="#value" id="toc-value" class="nav-link" data-scroll-target="#value">Value</a></li>
   <li><a href="#examples-2" id="toc-examples-2" class="nav-link" data-scroll-target="#examples-2">Examples</a></li>
   <li><a href="#sec-aux" id="toc-sec-aux" class="nav-link" data-scroll-target="#sec-aux">Additional auxiliary parameters</a></li>
@@ -352,8 +351,7 @@ Note
 <p>Code chunks under <strong>Usage</strong> sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.</p>
 </div>
 </div>
-<div class="cell" data-code-copy="false">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoID</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoID</span>(</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  inputfile,</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">auxfile =</span> <span class="cn">NULL</span>,</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">obs.length =</span> <span class="cn">NULL</span>,</span>
@@ -362,15 +360,20 @@ Note
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">shoulder =</span> <span class="dv">60</span>,</span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">drop =</span> <span class="cn">TRUE</span></span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
 </section>
 <section id="arguments" class="level3">
 <h3 class="anchored" data-anchor-id="arguments">Arguments</h3>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 3%">
-<col style="width: 96%">
+<col style="width: 14%">
+<col style="width: 85%">
 </colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
 <tbody>
 <tr class="odd">
 <td><code>inputfile</code></td>
@@ -618,25 +621,42 @@ Note
 <h3 class="anchored" data-anchor-id="sec-step2">2. Define a window of observation for each measurement</h3>
 <p>In the next step (3), you must click on the start point and the end point of each measurement in a scatter plot to identify the <code>start.time</code> and the <code>end.time</code>, using the function <code>click.peak2</code>. Before that, you must create a list of data frame containing one data frame per <code>UniqueID</code> using the function <code>obs.win</code>. In this example, this step will separate the file <code>imp.UGGA</code> into a list of 6 data frames.</p>
 <p>The purpose of this step is to zoom in on each measurement in the file to help you identify the start and end time more easily. In order to correctly zoom in on each measurement, you must know the <code>start.time</code> (defined in step 1) and the observation length (<code>obs.length</code>) of each measurement. In addition, you can define some buffer time around each measurement in case the defined <code>start.time</code> is not exact. If the observation length is different for each measurement, use the longest one.</p>
-<section id="sec-obs.win" class="level4">
-<h4 class="anchored" data-anchor-id="sec-obs.win">Usage</h4>
-<div class="cell" data-code-copy="false">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">obs.win</span>(</span>
+<section id="usage-1" class="level4">
+<h4 class="anchored" data-anchor-id="usage-1">Usage</h4>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Code chunks under <strong>Usage</strong> sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.</p>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">obs.win</span>(</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  inputfile,</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">auxfile =</span> <span class="cn">NULL</span>,</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">gastype =</span> <span class="st">"CO2dry_ppm"</span>,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">gastype =</span> <span class="fu">deprecated</span>(),</span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">obs.length =</span> <span class="cn">NULL</span>,</span>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">shoulder =</span> <span class="dv">120</span></span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
 </section>
 <section id="arguments-1" class="level4">
 <h4 class="anchored" data-anchor-id="arguments-1">Arguments</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 3%">
-<col style="width: 96%">
+<col style="width: 14%">
+<col style="width: 85%">
 </colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
 <tbody>
 <tr class="odd">
 <td><code>inputfile</code></td>
@@ -648,7 +668,7 @@ Note
 </tr>
 <tr class="odd">
 <td><code>gastype</code></td>
-<td>character string; specifies which gas should be displayed on the plot to manually select start time and end time of measurements. Must be one of the following: “CO2dry_ppm”, “COdry_ppb”, “CH4dry_ppb”, “N2Odry_ppb”, “NH3dry_ppb” or “H2O_ppm”. Default is “CO2dry_ppm”.</td>
+<td>deprecated</td>
 </tr>
 <tr class="even">
 <td><code>obs.length</code></td>
@@ -660,10 +680,6 @@ Note
 </tr>
 </tbody>
 </table>
-</section>
-<section id="details-1" class="level4">
-<h4 class="anchored" data-anchor-id="details-1">Details</h4>
-<p>In <code>gastype</code>, the gas species listed are the ones for which this package has been adapted. Please write to the maintainer of this package for adaptation of additional gases.</p>
 </section>
 <section id="examples-1" class="level4">
 <h4 class="anchored" data-anchor-id="examples-1">Examples</h4>
@@ -787,10 +803,22 @@ You should split the next step into at least 2 loops.</code></pre>
 <section id="sec-step3" class="level3">
 <h3 class="anchored" data-anchor-id="sec-step3">3. Click on a scatter plot to identify start and end times</h3>
 <p>When running the function <code>click.peak2</code>, for each measurement, a window will open, in which you must click on the start point and the end point. The observation window is based on the <code>start.time</code> given in the <code>auxfile</code>, the length of the measurement (<code>obs.length</code>), and a <code>shoulder</code> before <code>start.time</code> and after <code>start.time + obs.length</code>.</p>
-<section id="usage-1" class="level4">
-<h4 class="anchored" data-anchor-id="usage-1">Usage</h4>
-<div class="cell" data-code-copy="false">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">click.peak2</span>(</span>
+<section id="usage-2" class="level4">
+<h4 class="anchored" data-anchor-id="usage-2">Usage</h4>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Code chunks under <strong>Usage</strong> sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.</p>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">click.peak2</span>(</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  ow.list,</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">gastype =</span> <span class="st">"CO2dry_ppm"</span>,</span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">sleep =</span> <span class="dv">3</span>,</span>
@@ -803,15 +831,24 @@ You should split the next step into at least 2 loops.</code></pre>
 <span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">abline =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">abline_corr =</span> <span class="cn">TRUE</span></span>
 <span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
 </section>
 <section id="arguments-2" class="level4">
 <h4 class="anchored" data-anchor-id="arguments-2">Arguments</h4>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 84%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
 <tbody>
 <tr class="odd">
 <td><code>ow.list</code></td>
-<td>list of data.frame; output from the function <a href="./manualID.html#sec-obs.win"><code>obs.win</code></a>. Must contain the columns <code>gastype</code> (see below), <code>POSIX.time</code> and <code>UniqueID</code>.</td>
+<td>list of data.frame; output from the function <code>obs.win</code>. Must contain the columns <code>gastype</code> (see below), <code>POSIX.time</code> and <code>UniqueID</code>.</td>
 </tr>
 <tr class="even">
 <td><code>gastype</code></td>
@@ -856,21 +893,9 @@ You should split the next step into at least 2 loops.</code></pre>
 </tbody>
 </table>
 </section>
-<section id="details-2" class="level4">
-<h4 class="anchored" data-anchor-id="details-2">Details</h4>
-<p>The argument <code>plot.lim</code> is used to remove any data points below and above the plot limits for a better view of the scatter plot. If the gas measurements are larger than the minimum or smaller than the maximum plot limit values, then the plot will automatically zoom in and adjust to those values. The default plot limits are set for a typical gas measurement of “CO2dry_ppm” from a soil respiration measurement: <code>plot.lim = c(380,1000)</code>, where 380 ppm is the minimum plotted concentration, which should be close to atmospheric concentration, and 1000 ppm is the maximum plotted concentration, which correspond to a maximal accumulated concentration in the chamber before considering it an outlier (e.g.&nbsp;caused by breath or gas bubble). For other gasses, the user must specify the plot limits themselves. Here are some suggestions of plot limits for the other gases:</p>
-<ul>
-<li>“CH4dry_ppb”: <code>plot.lim = c(2200, 1800)</code></li>
-<li>“N2Odry_ppb”: <code>plot.lim = c(250, 500)</code></li>
-<li>“NH3dry_ppb”: <code>plot.lim = c(0, 200)</code></li>
-<li>“COdry_ppb”: <code>plot.lim = c(0, 200)</code></li>
-<li>“H2O_ppm”: <code>plot.lim = c(10000, 20000)</code></li>
-</ul>
-<p>These values will vary depending on ecosystem type and chamber application scheme.</p>
-<p>The argument <code>seq</code> is used to select a subset of data frame from the list of data frames in <code>ow.list</code>. For example, to apply the function on the first measurement in the list, set <code>seq = 1</code>, or <code>seq = seq(1,10)</code> for the first 10 measurements.</p>
-<p><code>warn.length</code> is the limit below which the chamber closure time is flagged for being too short (<code>nb.obs &lt; warn.length</code>). Portable greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore, for the default setting of <code>warn.length = 60</code>, the chamber closure time should be approximately one minute (60 seconds). If the number of observations is smaller than the threshold, a warning is printed: “Number of observations for UniqueID: ‘UniqueID’ is X observations”.</p>
-<p>In <code>gastype</code>, the gas species listed are the ones for which this package has been adapted. Please write to the maintainer of this package for adaptation of additional gases.</p>
-<p>The arguments <code>width</code> and <code>heigth</code> are used with the function <code>dev.new</code> to define the dimensions of the pop-up window.</p>
+<section id="details-1" class="level4">
+<h4 class="anchored" data-anchor-id="details-1">Details</h4>
+<p>The argument <code>plot.lim</code> is used to remove any data points below and above the plot limits for a better view of the scatter plot. If the gas measurements are larger than the minimum or smaller than the maximum plot limit values, then the plot will automatically zoom in and adjust to those values. The default plot limits are set for a typical gas measurement of “CO2dry_ppm” from a soil respiration measurement: <code>plot.lim = c(380,1000)</code>, where 380 ppm is the minimum plotted concentration, which should be close to atmospheric concentration, and 1000 ppm is the maximum plotted concentration, which correspond to a maximal accumulated concentration in the chamber before considering it an outlier (e.g. caused by breath or gas bubble). For other gasses, the user must specify the plot limits themselves. Here are some suggestions of plot limits for the other gases: - “CH4dry_ppb”: <code>plot.lim = c(2200, 1800)</code> - “N2Odry_ppb”: <code>plot.lim = c(250, 500)</code> - “NH3dry_ppb”: <code>plot.lim = c(0, 200)</code> - “COdry_ppb”: <code>plot.lim = c(0, 200)</code> - “H2O_ppm”: <code>plot.lim = c(10000, 20000)</code> These values will vary depending on ecosystem type and chamber application scheme. IMPORTANT! This function makes use of the function <code>identify</code> which is only supported on screen devices such as X11, windows and quartz. It is therefore essential to verify that your system options are compatible with this function before running it, to avoid errors. Use the function <code>getOption("device")</code> to find which device your system uses. The argument <code>seq</code> is used to select a subset of data frame from the list of data frames in <code>ow.list</code>. For example, to apply the function on the first measurement in the list, set <code>seq = 1</code>, or <code>seq = seq(1,10)</code> for the first 10 measurements. <code>warn.length</code> is the limit below which the chamber closure time is flagged for being too short (<code>nb.obs &lt; warn.length</code>). Portable greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore, for the default setting of <code>warn.length = 60</code>, the chamber closure time should be approximately one minute (60 seconds). If the number of observations is smaller than the threshold, a warning is printed: “Number of observations for UniqueID: ‘UniqueID’ is X observations”. In <code>gastype</code>, the gas species listed are the ones for which this package has been adapted. Please write to the maintainer of this package for adaptation of additional gases. The arguments <code>width</code> and <code>heigth</code> are used with the function <code>dev.new</code> to define the dimensions of the pop-up window.</p>
 </section>
 <section id="value" class="level4">
 <h4 class="anchored" data-anchor-id="value">Value</h4>

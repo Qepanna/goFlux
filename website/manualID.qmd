@@ -14,6 +14,7 @@ library(dplyr)
 library(purrr)
 library(readxl)
 library(goFlux)
+source("scripts/autodoc.R")
 ```
 
 After import, the user can choose from two methods to define the start and end points of each measurement and assign a UniqueID:
@@ -52,47 +53,11 @@ In such cases, you can choose from two options:
 
 Both methods rely on an auxiliary file, such as field notes or the recordings of the LI-COR Smart Chamber. Alternatively, a gas measurement file containing all necessary columns (e.g., `start.time` and `UniqueID`) does not require an auxiliary file.
 
-### Usage
-
-::: callout-note
-Code chunks under **Usage** sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.
-:::
-
 ```{r}
-#| eval: false
-#| code-copy: false
-autoID(
-  inputfile,
-  auxfile = NULL,
-  obs.length = NULL,
-  deadband = 0,
-  crop.end = 0,
-  shoulder = 60,
-  drop = TRUE
-)
+#| echo: false
+#| results: asis
+cat(autodoc("autoID", level = 3, examples = FALSE))
 ```
-
-### Arguments
-
-+--------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `inputfile`  | data.frame; output from import or align functions.                                                                                                                                                                                                                                                                                                                                                                                                  |
-+--------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `auxfile`    | data.frame; auxiliary data frame containing the columns `start.time` and `UniqueID`. `start.time` must contain a date and be in POSIXct format. The time zone must be the same as the POSIX.time in `inputfile`. The default time zone for the import functions is "UTC". A data frame from the Smart Chamber (LI-8200) can be used as an auxiliary file. In that case, `chamID` will be used instead of `UniqueID`, if `UniqueID` cannot be found. |
-+--------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `obs.length` | numerical; chamber closure time (seconds). Default is NULL. If `obs.length` is not provided, a column `obs.length` should be contained in `auxfile` or `inputfile`. Alternatively, `obs.length` will be calculated from `start.time` and `cham.open` or `end.time` if found in `auxfile` or `inputfile`.                                                                                                                                            |
-+--------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `deadband`   | numerical; time (seconds) at the start of the measurement, after chamber closure, to be removed from the time stamps used to estimate the flux.                                                                                                                                                                                                                                                                                                     |
-+--------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `crop.end`   | numerical; time (seconds) at the end of the measurement, before chamber opening, to be removed from the time stamps used to estimate the flux.                                                                                                                                                                                                                                                                                                      |
-+--------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `shoulder`   | numerical; time before and after measurement in observation window (seconds). Default is 60 seconds. If the time between two measurements is smaller than `shoulder`, the time stamps are duplicated.                                                                                                                                                                                                                                               |
-+--------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `drop`       | logical; if `drop = TRUE` (default), time stamps without an assigned `UniqueID` are removed from the final data frame.                                                                                                                                                                                                                                                                                                                              |
-+--------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-
-### Details
-
-Note that, if the time between two measurements is smaller than `shoulder`, the time stamps are duplicated, which can result in an output data frame larger (more rows) than the `inputfile`. Conversely, if `drop = TRUE`, time stamps without an assigned `UniqueID` are removed from the final data frame, which can result in an output data frame smaller (less rows) than the `inputfile`.
 
 ### Examples
 
@@ -245,37 +210,11 @@ In the next step (3), you must click on the start point and the end point of eac
 
 The purpose of this step is to zoom in on each measurement in the file to help you identify the start and end time more easily. In order to correctly zoom in on each measurement, you must know the `start.time` (defined in step 1) and the observation length (`obs.length`) of each measurement. In addition, you can define some buffer time around each measurement in case the defined `start.time` is not exact. If the observation length is different for each measurement, use the longest one.
 
-#### Usage {#sec-obs.win}
-
 ```{r}
-#| eval: false
-#| code-copy: false
-obs.win(
-  inputfile,
-  auxfile = NULL,
-  gastype = "CO2dry_ppm",
-  obs.length = NULL,
-  shoulder = 120
-)
+#| echo: false
+#| results: asis
+cat(autodoc("obs.win", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-+--------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `inputfile`  | data.frame; output from import or align functions.                                                                                                                                                                                                                                                                                                                                                                                                  |
-+--------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `auxfile`    | data.frame; auxiliary data frame containing the columns `start.time` and `UniqueID`. `start.time` must contain a date and be in POSIXct format. The time zone must be the same as the POSIX.time in `inputfile`. The default time zone for the import functions is "UTC". A data frame from the Smart Chamber (LI-8200) can be used as an auxiliary file. In that case, `chamID` will be used instead of `UniqueID`, if `UniqueID` cannot be found. |
-+--------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `gastype`    | character string; specifies which gas should be displayed on the plot to manually select start time and end time of measurements. Must be one of the following: "CO2dry_ppm", "COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" or "H2O_ppm". Default is "CO2dry_ppm".                                                                                                                                                                          |
-+--------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `obs.length` | numerical; chamber closure time (seconds). Default is NULL. If `obs.length` is not provided, a column `obs.length` should be contained in `auxfile` or `inputfile`. Alternatively, `obs.length` will be calculated from `start.time` and `cham.open` or `end.time` if found in `auxfile` or `inputfile`.                                                                                                                                            |
-+--------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `shoulder`   | numerical; time before and after measurement in observation window (seconds). Default is 120 seconds.                                                                                                                                                                                                                                                                                                                                               |
-+--------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-
-#### Details
-
-In `gastype`, the gas species listed are the ones for which this package has been adapted. Please write to the maintainer of this package for adaptation of additional gases.
 
 #### Examples
 
@@ -332,71 +271,11 @@ In such a case, follow [this tip](manualID.qmd#tip-click.peak.loop) with the fun
 
 When running the function `click.peak2`, for each measurement, a window will open, in which you must click on the start point and the end point. The observation window is based on the `start.time` given in the `auxfile`, the length of the measurement (`obs.length`), and a `shoulder` before `start.time` and after `start.time + obs.length`.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-click.peak2(
-  ow.list,
-  gastype = "CO2dry_ppm",
-  sleep = 3,
-  plot.lim = c(380, 1000),
-  seq = NULL,
-  warn.length = 60,
-  save.plots = NULL,
-  width = 14,
-  height = 8,
-  abline = TRUE,
-  abline_corr = TRUE
-)
+#| echo: false
+#| results: asis
+cat(autodoc("click.peak2", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-+---------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `ow.list`     | list of data.frame; output from the function [`obs.win`](manualID.qmd#sec-obs.win). Must contain the columns `gastype` (see below), `POSIX.time` and `UniqueID`.                                                                                                                                      |
-+---------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `gastype`     | character string; specifies which gas should be displayed on the plot to manually select start time and end time of measurements. Must be one of the following: "CO2dry_ppm", "COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NO2dry_ppb", "NOdry_ppb", "NH3dry_ppb" or "H2O_ppm". Default is "CO2dry_ppm". |
-+---------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `sleep`       | numerical value; delay before closing the resulting plot. Grants a delay between measurements to visually inspect the output before processing the next measurement. Sleep must be shorter than 10 seconds. If `sleep = NULL`, the plots will not close.                                              |
-+---------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `plot.lim`    | numerical vector of length 2; sets the Y axis limits in the plots. Default values are set for a typical gas measurement of "CO2dry_ppm" from soils: `plot.lim = c(380,1000)`.                                                                                                                         |
-+---------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `seq`         | a numerical sequence that indicates objects in a list. By default, `seq = NULL` and the function loops through all data frames in `ow.list`.                                                                                                                                                          |
-+---------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `warn.length` | numerical value; limit under which a measurement is flagged for being too short (`nb.obs < warn.length`). Default value is `warn.length = 60`.                                                                                                                                                        |
-+---------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `save.plots`  | character string; a file path with the extension .pdf to save the plots produced with click.peak2. By default, `save.plot = NULL` and plots are not saved.                                                                                                                                            |
-+---------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `width`       | numerical value; width of the pop-up window.                                                                                                                                                                                                                                                          |
-+---------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `height`      | numerical value; height of the pop-up window.                                                                                                                                                                                                                                                         |
-+---------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `abline`      | logical; if TRUE (default), blue vertical lines indicate `start.time` and `end.time` on both plots.                                                                                                                                                                                                   |
-+---------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| `abline_corr` | logical; if TRUE (default), red vertical lines indicate `start.time_corr` and `end.time_corr` on validation plot.                                                                                                                                                                                     |
-+---------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-
-#### Details
-
-The argument `plot.lim` is used to remove any data points below and above the plot limits for a better view of the scatter plot. If the gas measurements are larger than the minimum or smaller than the maximum plot limit values, then the plot will automatically zoom in and adjust to those values. The default plot limits are set for a typical gas measurement of "CO2dry_ppm" from a soil respiration measurement: `plot.lim = c(380,1000)`, where 380 ppm is the minimum plotted concentration, which should be close to atmospheric concentration, and 1000 ppm is the maximum plotted concentration, which correspond to a maximal accumulated concentration in the chamber before considering it an outlier (e.g. caused by breath or gas bubble). For other gasses, the user must specify the plot limits themselves. Here are some suggestions of plot limits for the other gases:
-
--   "CH4dry_ppb": `plot.lim = c(2200, 1800)`
--   "N2Odry_ppb": `plot.lim = c(250, 500)`
--   "NH3dry_ppb": `plot.lim = c(0, 200)`
--   "COdry_ppb": `plot.lim = c(0, 200)`
--   "H2O_ppm": `plot.lim = c(10000, 20000)`
-
-These values will vary depending on ecosystem type and chamber application scheme.
-
-The argument `seq` is used to select a subset of data frame from the list of data frames in `ow.list`. For example, to apply the function on the first measurement in the list, set `seq = 1`, or `seq = seq(1,10)` for the first 10 measurements.
-
-`warn.length` is the limit below which the chamber closure time is flagged for being too short (`nb.obs < warn.length`). Portable greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore, for the default setting of `warn.length = 60`, the chamber closure time should be approximately one minute (60 seconds). If the number of observations is smaller than the threshold, a warning is printed: "Number of observations for UniqueID: 'UniqueID' is X observations".
-
-In `gastype`, the gas species listed are the ones for which this package has been adapted. Please write to the maintainer of this package for adaptation of additional gases.
-
-The arguments `width` and `heigth` are used with the function `dev.new` to define the dimensions of the pop-up window.
 
 #### Value
 
