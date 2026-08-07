@@ -302,6 +302,7 @@ window.Quarto = {
   <li><a href="#arguments" id="toc-arguments" class="nav-link" data-scroll-target="#arguments">Arguments</a></li>
   <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
   <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  <li><a href="#usage-tips" id="toc-usage-tips" class="nav-link" data-scroll-target="#usage-tips">Usage tips</a></li>
   <li><a href="#value" id="toc-value" class="nav-link" data-scroll-target="#value">Value</a></li>
   </ul></li>
   </ul>
@@ -491,17 +492,8 @@ Note
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>CH4_flux <span class="ot">&lt;-</span> <span class="fu">goFlux</span>(manID.UGGA, <span class="st">"CH4dry_ppb"</span>)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>H2O_flux <span class="ot">&lt;-</span> <span class="fu">goFlux</span>(manID.UGGA, <span class="st">"H2O_ppm"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="value" class="level4">
-<h4 class="anchored" data-anchor-id="value">Value</h4>
-<p>The function returns a data frame with 28 columns: a <code>UniqueID</code> per measurement, 11 columns for the linear model results (linear flux estimate (<code>LM.flux</code>), initial gas concentration (<code>LM.C0</code>), final gas concentration (<code>LM.Ct</code>), slope of linear regression (<code>LM.slope</code>), mean absolute error (<code>LM.MAE</code>), root mean square error (<code>LM.RMSE</code>), Akaike’s information criterion corrected for small sample size (<code>LM.AICc</code>), standard error (<code>LM.SE</code>), relative standard error (<code>LM.se.rel</code>), coefficient of determination (<code>LM.r2</code>), and <em>p-value</em> (<code>LM.p.val</code>)), 11 columns for the non-linear model results (non-linear flux estimate (<code>HM.flux</code>), initial gas concentration (<code>HM.C0</code>), the assumed concentration of constant gas source below the surface (<code>HM.Ci</code>), slope at <code>t=0</code> (<code>HM.slope</code>), mean absolute error (<code>HM.MAE</code>), root mean square error (<code>HM.RMSE</code>), Akaike’s information criterion corrected for small sample size (<code>HM.AICc</code>), standard error (<code>HM.SE</code>), relative standard error (<code>HM.se.rel</code>), coefficient of determination (<code>HM.r2</code>), and curvature (kappa; <code>HM.k</code>), as well as the minimal detectable flux (<code>MDF</code>), the precision of the instrument (<code>prec</code>), the flux term (<code>flux.term</code>), kappa-max (<code>k.max</code>), the g factor (g.fact; <code>g.factor</code>), the number of observations used (<code>nb.obs</code>) and the true initial gas concentration (<code>C0</code>) and final gas concentration (<code>Ct</code>).</p>
-<p>To load multiple RData files at once in your environment and store them all in one object, use the function <code>map_df</code> from the package <code>purrr</code>.</p>
-<p>Use the argument <code>pattern</code> to load only the files that match a pattern.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>my.files <span class="ot">&lt;-</span> <span class="fu">list.files</span>(<span class="at">path =</span> <span class="st">"RData"</span>, <span class="at">pattern =</span> <span class="st">"imp.RData"</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map_df</span>(<span class="sc">~</span> <span class="fu">get</span>(<span class="fu">load</span>(.x)))</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>CO2_flux <span class="ot">&lt;-</span> <span class="fu">goFlux</span>(my.files, <span class="st">"CO2dry_ppm"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
+<section id="usage-tips" class="level4">
+<h4 class="anchored" data-anchor-id="usage-tips">Usage tips</h4>
 <div class="callout callout-style-default callout-tip callout-empty-content callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -515,6 +507,18 @@ Note
 
 </div>
 </div>
+<p>To load multiple RData files at once in your environment and store them all in one object, use the function <code>map_df</code> from the package <code>purrr</code>.</p>
+<p>Use the argument <code>pattern</code> to load only the files that match a pattern.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>my.files <span class="ot">&lt;-</span> <span class="fu">list.files</span>(<span class="at">path =</span> <span class="st">"RData"</span>, <span class="at">pattern =</span> <span class="st">"imp.RData"</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map_df</span>(<span class="sc">~</span> <span class="fu">get</span>(<span class="fu">load</span>(.x)))</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>CO2_flux <span class="ot">&lt;-</span> <span class="fu">goFlux</span>(my.files, <span class="st">"CO2dry_ppm"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="value" class="level4">
+<h4 class="anchored" data-anchor-id="value">Value</h4>
+<p>The function returns a data frame with 28 columns: a <code>UniqueID</code> per measurement, 11 columns for the linear model results (linear flux estimate (<code>LM.flux</code>), initial gas concentration (<code>LM.C0</code>), final gas concentration (<code>LM.Ct</code>), slope of linear regression (<code>LM.slope</code>), mean absolute error (<code>LM.MAE</code>), root mean square error (<code>LM.RMSE</code>), Akaike’s information criterion corrected for small sample size (<code>LM.AICc</code>), standard error (<code>LM.SE</code>), relative standard error (<code>LM.se.rel</code>), coefficient of determination (<code>LM.r2</code>), and <em>p-value</em> (<code>LM.p.val</code>)), 11 columns for the non-linear model results (non-linear flux estimate (<code>HM.flux</code>), initial gas concentration (<code>HM.C0</code>), the assumed concentration of constant gas source below the surface (<code>HM.Ci</code>), slope at <code>t=0</code> (<code>HM.slope</code>), mean absolute error (<code>HM.MAE</code>), root mean square error (<code>HM.RMSE</code>), Akaike’s information criterion corrected for small sample size (<code>HM.AICc</code>), standard error (<code>HM.SE</code>), relative standard error (<code>HM.se.rel</code>), coefficient of determination (<code>HM.r2</code>), and curvature (kappa; <code>HM.k</code>), as well as the minimal detectable flux (<code>MDF</code>), the precision of the instrument (<code>prec</code>), the flux term (<code>flux.term</code>), kappa-max (<code>k.max</code>), the g factor (g.fact; <code>g.factor</code>), the number of observations used (<code>nb.obs</code>) and the true initial gas concentration (<code>C0</code>) and final gas concentration (<code>Ct</code>).</p>
 
 
 

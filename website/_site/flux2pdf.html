@@ -249,8 +249,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#usage" id="toc-usage" class="nav-link" data-scroll-target="#usage">Usage</a></li>
   <li><a href="#arguments" id="toc-arguments" class="nav-link" data-scroll-target="#arguments">Arguments</a></li>
   <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
-  <li><a href="#value" id="toc-value" class="nav-link" data-scroll-target="#value">Value</a></li>
   <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  <li><a href="#usage-tips" id="toc-usage-tips" class="nav-link" data-scroll-target="#usage-tips">Usage tips</a></li>
+  <li><a href="#value" id="toc-value" class="nav-link" data-scroll-target="#value">Value</a></li>
   </ul></li>
   <li><a href="#flux2pdf" id="toc-flux2pdf" class="nav-link" data-scroll-target="#flux2pdf"><code>flux2pdf</code></a>
   <ul>
@@ -301,8 +302,7 @@ Note
 <p>Code chunks under <strong>Usage</strong> sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.</p>
 </div>
 </div>
-<div class="cell" data-code-copy="false">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">flux.plot</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">flux.plot</span>(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  flux.results,</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  dataframe,</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  gastype,</span>
@@ -314,17 +314,23 @@ Note
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">flux.term.unit =</span> <span class="cn">NULL</span>,</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">best.model =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">p.val.disp =</span> <span class="st">"round"</span>,</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">side =</span> <span class="st">"left"</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">side =</span> <span class="st">"left"</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">conversion.factor =</span> <span class="dv">1</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="arguments" class="level4">
 <h4 class="anchored" data-anchor-id="arguments">Arguments</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 4%">
-<col style="width: 95%">
+<col style="width: 50%">
+<col style="width: 50%">
 </colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
 <tbody>
 <tr class="odd">
 <td><code>flux.results</code></td>
@@ -332,11 +338,11 @@ Note
 </tr>
 <tr class="even">
 <td><code>dataframe</code></td>
-<td>a data.frame containing gas measurements (see <code>gastype</code> below) and the following columns: <code>UniqueID</code>, <code>Etime</code> and <code>flag</code> (same <code>dataframe</code> as used with the function <code>goFlux</code>).</td>
+<td>a data.frame containing gas measurements (see <code>gastype</code> below) and the following columns: <code>UniqueID</code>, <code>Etime</code> and <code>flag</code> (same <code>dataframe</code> as used with the function <code>goFlux</code>). <code>chamID</code> may be used instead of <code>UniqueID</code>.</td>
 </tr>
 <tr class="odd">
 <td><code>gastype</code></td>
-<td>character string; specifies which column was used for the flux calculations. Must be one of the following: “CO2dry_ppm”, “COdry_ppb”, “CH4dry_ppb”, “N2Odry_ppb”, “NH3dry_ppb” or “H2O_ppm”.</td>
+<td>character string; specifies which column was used for the flux calculations. Must be one of the following: “CO2dry_ppm”, “COdry_ppb”, “CH4dry_ppb”, “N2Odry_ppb”, “NO2dry_ppb”, “NOdry_ppb”, “NH3dry_ppb” or “H2O_ppm”.</td>
 </tr>
 <tr class="even">
 <td><code>shoulder</code></td>
@@ -356,9 +362,7 @@ Note
 </tr>
 <tr class="even">
 <td><code>flux.unit</code></td>
-<td>character string; flux units to be displayed on the plots. By default, the units are µmol m<sup>-2</sup>s<sup>-1</sup> (if initial concentration is ppm, e.g.&nbsp;CO2dry_ppm) and nmol m<sup>-2</sup>s<sup>-1</sup> (if initial concentration is ppb, e.g.&nbsp;CH4dry_ppb).<br>
-<br>
-For example, one may want to use nmol kg<sup>-1</sup>h<sup>-1</sup> for incubated soil samples. In such a case, write <code>flux.unit = "nmol~kg^-1*h^-1"</code>.</td>
+<td>character string; flux units to be displayed on the plots. By default, the units are µmol m<sup>-2</sup>s<sup>-1</sup> (if initial concentration is ppm, e.g.&nbsp;CO2dry_ppm) and nmol m<sup>-2</sup>s<sup>-1</sup> (if initial concentration is ppb, e.g.&nbsp;CH4dry_ppb). For example, one may want to use nmol kg<sup>-1</sup>h<sup>-1</sup> for incubated soil samples. In such a case, write <code>flux.unit = "nmol~kg^-1*h^-1"</code>.</td>
 </tr>
 <tr class="odd">
 <td><code>flux.term.unit</code></td>
@@ -370,47 +374,37 @@ For example, one may want to use nmol kg<sup>-1</sup>h<sup>-1</sup> for incubate
 </tr>
 <tr class="odd">
 <td><code>p.val.disp</code></td>
-<td>character string; how should the <em>p-value</em> be displayed in the legend above the plot. Choose one of the following: “star”, “round”, “value”.</td>
+<td>character string; indicates how the <em>p-value</em> should be displayed in the legend above the plot. Choose one of the following: “star”, “round”, “value”.</td>
 </tr>
 <tr class="even">
 <td><code>side</code></td>
 <td>character string; choose a side to display C<sub>0</sub> and C<sub>i</sub> values. By default, they are displayed on the left side of the plot.</td>
+</tr>
+<tr class="odd">
+<td><code>conversion.factor</code></td>
+<td>numerical value; factor to multiply flux values by for unit conversion. Default is 1 (no conversion). For example, use 3600 to convert from per-second to per-hour. When using a conversion factor other than 1, you should also specify <code>flux.unit</code> and <code>flux.term.unit</code> to match the converted units, so that both the flux and flux term labels are correct in the plots.</td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="details" class="level4">
 <h4 class="anchored" data-anchor-id="details">Details</h4>
-<p>In <code>plot.legend</code>, one may choose to display up to 5 additional parameters in a legend above the plots. Some parameters are displayed for both the linear model (<code>LM.flux</code>) and the non-linear model (<code>HM.flux</code>): Mean Absolute Error (<code>MAE</code>), Root Mean Square Error (<code>RMSE</code>), Aikaike’s Information Criterion corrected for small sample size (<code>LM.AICc</code>), Standard Error (<code>SE</code>), relative Standard Error (<code>SErel</code>), and coefficient of determination (<code>r2</code>). The <em>p-value</em> (<code>LM.p.val</code>) is displayed for the linear model only. The kappa (<code>HM.k</code>), kappa-max (<code>k.max</code>), kappa ratio (<code>k.ratio</code>) and g-factor (<code>g.factor</code>) are displayed for the Hutchinson and Mosier model only. One may choose to display no additional parameter with <code>plot.legend = NULL</code>.</p>
-<p>In <code>plot.display</code>, one may chose to display some parameters on the plot: The initial gas concentration (<code>C0</code>) for both models, the assumed concentration of constant gas source below the surface (<code>Ci</code>) calculated from the Hutchinson and Mosier model, the number of observations (<code>nb.obs</code>) flagged, the Minimal Detectable Flux (<code>MDF</code>), the flux term (<code>flux.term</code>), the instrument precision (<code>prec</code>), the chamber closure (<code>cham.close</code>) and opening (<code>cham.open</code>) (indicated with a green star), and the data points between chamber closure and opening that have been removed (<code>crop</code>) (indicated in light red). For manual chamber measurements, because there is no automatic chamber closure and opening, no green stars can be displayed. In addition, <code>crop</code> is only relevant if data points have been removed with the function <code>crop.meas</code> (this function is not available yet). One may choose to display none of these parameters with <code>plot.display = NULL</code>. The order in which <code>prec</code>, <code>flux.term</code>, <code>MDF</code> and <code>nb.obs</code> are put in <code>plot.display = c</code> decides the order in which they are displayed at the bottom of the plot.</p>
-<p>In <code>flux.unit</code>, remember to multiply the flux results with an appropriate factor to convert the results from a unit to another. If kilograms of soil were used to calculate the fluxes (see the details section of the function <code>goFlux</code>), the units would be µmol kg<sup>-1</sup>s<sup>-1</sup>. To convert the units to µmol kg<sup>-1</sup>h<sup>-1</sup> instead, one would need to multiply the flux results by 3600 to convert from seconds to hours. To print non-ASCII characters use Unicode. For example, to print the Greek letter “mu” (µ), use the Unicode <code>\u03BC</code>: <code>flux.unit = "\u03BCmol~kg^-1*h^-1"</code>.</p>
-<p>In <code>p.val.disp</code>, if <code>p.val.disp = "star"</code>, the <em>p-values</em> will be displayed as star symbols (asterisks) as follows: ***, ** or * for <em>p-values</em> of p &lt; 0.001, p &lt; 0.01 and p &lt; 0.05, respectively. If <code>p.val.disp = "round"</code>, the <em>p-values</em> are rounded to p &lt; 0.001, p &lt; 0.01 and p &lt; 0.05. If <code>p.val.disp = "value"</code>, the actual values are displayed, rounded to two significant numbers.</p>
-</section>
-<section id="value" class="level4">
-<h4 class="anchored" data-anchor-id="value">Value</h4>
-<p>The function returns a list of plots, one per <code>UniqueID</code>, drawn from flux results (output from the functions <code>goFlux</code> and <code>best.flux</code>).</p>
+<p>In <code>flux.results</code>, one may choose to use the output from the <code>goFlux</code> function instead. However, in that case, any element produced by the function <code>best.flux</code> cannot be displayed on the plots. In <code>plot.legend</code>, one may choose to display up to five additional parameters in a legend above the plots. Some parameters are displayed for both the linear model (<code>LM.flux</code>) and the non-linear model (<code>HM.flux</code>): Mean Absolute Error (<code>MAE</code>), Root Mean Square Error (<code>RMSE</code>), Aikaike’s Information Criterion corrected for small sample size (<code>LM.AICc</code>), Standard Error (<code>SE</code>), relative Standard Error (<code>SErel</code>), and coefficient of determination (<code>r2</code>). The <em>p-value</em> (<code>LM.p.val</code>) is displayed for the linear model only. The kappa (<code>HM.k</code>), kappa-max (<code>k.max</code>), kappa ratio (<code>k.ratio</code>) and g-factor (<code>g.factor</code>) are displayed for the Hutchinson and Mosier model only. One may choose to display no additional parameter with <code>plot.legend = NULL</code>. In <code>plot.display</code>, one may chose to display some parameters on the plot: The initial gas concentration (<code>C0</code>) for both models, the assumed concentration of constant gas source below the surface (<code>Ci</code>) calculated from the Hutchinson and Mosier model, the number of observations (<code>nb.obs</code>) flagged, the Minimal Detectable Flux (<code>MDF</code>), the flux term (<code>flux.term</code>), the instrument precision (<code>prec</code>), the chamber closure (<code>cham.close</code>) and opening (<code>cham.open</code>) (indicated with a green star), and the data points between chamber closure and opening that have been removed (<code>crop</code>) (indicated in light red). For manual chamber measurements, because there is no automatic chamber closure and opening, no green stars can be displayed. In addition, <code>crop</code> is only relevant if data points have been removed with the function <code>crop.meas()</code> (this function is not available yet). One may choose to display none of these parameters with <code>plot.display = NULL</code>. The order in which <code>prec</code>, <code>flux.term</code>, <code>MDF</code> and <code>nb.obs</code> are put in <code>plot.display = c()</code> decides the order in which they are displayed at the bottom of the plot. In <code>flux.unit</code>, remember to multiply the flux results with an appropriate factor to convert the results from a unit to another. If kilograms of soil were used to calculate the fluxes (see the details section of the function <code>goFlux</code>), the units would be µmol kg<sup>-1</sup>s<sup>-1</sup>. To convert the units to µmol kg<sup>-1</sup>h<sup>-1</sup> instead, one would need to multiply the flux results by 3600 to convert from seconds to hours. To print non-ASCII characters use Unicode. For example, to print the Greek letter “mu” (µ), use the Unicode <code>\u00B5</code>: <code>flux.unit = "\u00B5mol~kg^-1*h^-1"</code>. In <code>p.val.disp</code>, if <code>p.val.disp = "star"</code>, the <em>p-values</em> will be displayed as star symbols (asterisks) as follows: <em><strong>, </strong> or </em> for <em>p-values</em> of p &lt; 0.001, p &lt; 0.01 and p &lt; 0.05, respectively. If <code>p.val.disp = "round"</code>, the <em>p-values</em> are rounded to p &lt; 0.001, p &lt; 0.01 and p &lt; 0.05. If <code>p.val.disp = "value"</code>, the actual values are displayed, rounded to two significant numbers. In <code>gastype</code>, the gas species listed are the ones for which this package has been adapted. Please write to the maintainer of this package for adaptation of additional gases.</p>
 </section>
 <section id="examples" class="level4">
 <h4 class="anchored" data-anchor-id="examples">Examples</h4>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(manID.UGGA)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># CO2</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>CO2_flux <span class="ot">&lt;-</span> <span class="fu">goFlux</span>(manID.UGGA, <span class="st">"CO2dry_ppm"</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>CO2_best <span class="ot">&lt;-</span> <span class="fu">best.flux</span>(CO2_flux, <span class="at">criteria =</span> <span class="fu">c</span>(<span class="st">"MAE"</span>, <span class="st">"AICc"</span>, <span class="st">"g.factor"</span>, <span class="st">"MDF"</span>))</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>CO2_plots <span class="ot">&lt;-</span> <span class="fu">flux.plot</span>(CO2_best, manID.UGGA, <span class="st">"CO2dry_ppm"</span>, <span class="at">shoulder=</span><span class="dv">20</span>,</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                       <span class="at">plot.legend =</span> <span class="fu">c</span>(<span class="st">"MAE"</span>, <span class="st">"RMSE"</span>, <span class="st">"AICc"</span>, <span class="st">"k.ratio"</span>, <span class="st">"g.factor"</span>), </span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                       <span class="at">plot.display =</span> <span class="fu">c</span>(<span class="st">"MDF"</span>, <span class="st">"prec"</span>, <span class="st">"nb.obs"</span>, <span class="st">"flux.term"</span>), </span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>                       <span class="at">quality.check =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># CH4</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>CH4_flux <span class="ot">&lt;-</span> <span class="fu">goFlux</span>(manID.UGGA, <span class="st">"CH4dry_ppb"</span>)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>CH4_best <span class="ot">&lt;-</span> <span class="fu">best.flux</span>(CH4_flux, <span class="at">criteria =</span> <span class="fu">c</span>(<span class="st">"MAE"</span>, <span class="st">"AICc"</span>, <span class="st">"g.factor"</span>, <span class="st">"MDF"</span>))</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>CH4_plots <span class="ot">&lt;-</span> <span class="fu">flux.plot</span>(CH4_best, manID.UGGA, <span class="st">"CH4dry_ppb"</span>, <span class="at">shoulder=</span><span class="dv">20</span>,</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>                       <span class="at">plot.legend =</span> <span class="fu">c</span>(<span class="st">"MAE"</span>, <span class="st">"RMSE"</span>, <span class="st">"AICc"</span>, <span class="st">"k.ratio"</span>, <span class="st">"g.factor"</span>), </span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>                       <span class="at">plot.display =</span> <span class="fu">c</span>(<span class="st">"MDF"</span>, <span class="st">"prec"</span>, <span class="st">"nb.obs"</span>, <span class="st">"flux.term"</span>), </span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>                       <span class="at">quality.check =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(manID.UGGA)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>CO2_flux <span class="ot">&lt;-</span> <span class="fu">goFlux</span>(manID.UGGA, <span class="st">"CO2dry_ppm"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>criteria <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"MAE"</span>, <span class="st">"AICc"</span>, <span class="st">"g.factor"</span>, <span class="st">"MDF"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>CO2_best <span class="ot">&lt;-</span> <span class="fu">best.flux</span>(CO2_flux, criteria)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>CO2_plots <span class="ot">&lt;-</span> <span class="fu">flux.plot</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">flux.results =</span> CO2_best, <span class="at">dataframe =</span> manID.UGGA,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">gastype =</span> <span class="st">"CO2dry_ppm"</span>, <span class="at">quality.check =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot.legend =</span> <span class="fu">c</span>(<span class="st">"MAE"</span>, <span class="st">"AICc"</span>, <span class="st">"k.ratio"</span>, <span class="st">"g.factor"</span>),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot.display =</span> <span class="fu">c</span>(<span class="st">"Ci"</span>, <span class="st">"C0"</span>, <span class="st">"MDF"</span>, <span class="st">"prec"</span>, <span class="st">"nb.obs"</span>, <span class="st">"flux.term"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="usage-tips" class="level4">
+<h4 class="anchored" data-anchor-id="usage-tips">Usage tips</h4>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -460,23 +454,44 @@ Tip
 </div>
 </div>
 </section>
+<section id="value" class="level4">
+<h4 class="anchored" data-anchor-id="value">Value</h4>
+<p>The function returns a list of plots, one per <code>UniqueID</code>, drawn from flux results (output from the functions <code>goFlux</code> and <code>best.flux</code>).</p>
+</section>
 </section>
 <section id="flux2pdf" class="level3">
 <h3 class="anchored" data-anchor-id="flux2pdf"><code>flux2pdf</code></h3>
 <p>The list of plots created with <code>flux.plot</code> can now be saved as a pdf using the function <code>flux2pdf</code>.</p>
 <section id="usage-1" class="level4">
 <h4 class="anchored" data-anchor-id="usage-1">Usage</h4>
-<div class="cell" data-code-copy="false">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">flux2pdf</span>(plot.list, <span class="at">outfile =</span> <span class="cn">NULL</span>, <span class="at">width =</span> <span class="fl">11.6</span>, <span class="at">height =</span> <span class="fl">8.2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Code chunks under <strong>Usage</strong> sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.</p>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">flux2pdf</span>(plot.list, <span class="at">outfile =</span> <span class="cn">NULL</span>, <span class="at">width =</span> <span class="fl">11.6</span>, <span class="at">height =</span> <span class="fl">8.2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="arguments-1" class="level4">
 <h4 class="anchored" data-anchor-id="arguments-1">Arguments</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 7%">
-<col style="width: 92%">
+<col style="width: 50%">
+<col style="width: 50%">
 </colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
 <tbody>
 <tr class="odd">
 <td><code>plot.list</code></td>
@@ -484,7 +499,7 @@ Tip
 </tr>
 <tr class="even">
 <td><code>outfile</code></td>
-<td>a character string indicating the full name of the pdf output file (including the path). Default is to save the pdf in the working directory, with the name of the plot.list.</td>
+<td>a character string indicating the full name of the pdf output file (including the path and ‘.pdf’ extension). If <code>outfile</code> is not provided, it will be saved in R’s temporary directory (<code>tempdir()</code>), with the name of the <code>plot.list</code>.</td>
 </tr>
 <tr class="odd">
 <td><code>width</code></td>
@@ -499,10 +514,17 @@ Tip
 </section>
 <section id="examples-1" class="level4">
 <h4 class="anchored" data-anchor-id="examples-1">Examples</h4>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save plots to pdf</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">flux2pdf</span>(plot.list, <span class="at">outfile =</span> <span class="st">"demo.results.pdf"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(manID.UGGA)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>CO2_flux <span class="ot">&lt;-</span> <span class="fu">goFlux</span>(manID.UGGA, <span class="st">"CO2dry_ppm"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>criteria <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"MAE"</span>, <span class="st">"g.factor"</span>, <span class="st">"MDF"</span>, <span class="st">"SErel"</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>CO2_best <span class="ot">&lt;-</span> <span class="fu">best.flux</span>(CO2_flux, criteria)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>CO2_plots <span class="ot">&lt;-</span> <span class="fu">flux.plot</span>(</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">flux.results =</span> CO2_best, <span class="at">dataframe =</span> manID.UGGA,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">gastype =</span> <span class="st">"CO2dry_ppm"</span>, <span class="at">quality.check =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot.legend =</span> <span class="fu">c</span>(<span class="st">"MAE"</span>, <span class="st">"RMSE"</span>, <span class="st">"k.ratio"</span>, <span class="st">"g.factor"</span>, <span class="st">"SErel"</span>),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot.display =</span> <span class="fu">c</span>(<span class="st">"Ci"</span>, <span class="st">"C0"</span>, <span class="st">"MDF"</span>, <span class="st">"prec"</span>, <span class="st">"nb.obs"</span>, <span class="st">"flux.term"</span>))</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="fu">flux2pdf</span>(CO2_plots)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Here is an example of how the plots are saved as pdf:</p>
 <div id="fig-flux2pdf" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
