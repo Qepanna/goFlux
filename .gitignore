@@ -6,3 +6,6 @@ docs
 .Ruserdata
 README.Rmd
 /_site/
+.DS_Store
+.Rapp.history
+sandbox/
