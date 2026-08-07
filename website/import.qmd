@@ -1,7 +1,12 @@
 ---
 title: "Import raw data"
+engine: knitr
 editor: visual
 ---
+```{r}
+#| include: false
+source("scripts/autodoc.R")
+```
 
 The package contains a wide range of functions that let the user import raw data from a variety of instruments:
 
@@ -42,96 +47,11 @@ Import all raw gas measurement files contained in a folder (and all its sub-fold
 -   [**Healthy Photon**](import.qmd#sec-import2RData-HealthyPhoton): HT8850
 -   [**GasmetPD**](import.qmd#sec-import2RData-GasmetPD): Custom multiplexer from the University of Padova, Italy
 
-### Usage
-
-::: callout-note
-Code chunks under **Usage** sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.
-:::
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import2RData(
-  path,
-  instrument,
-  date.format,
-  timezone = "UTC",
-  keep_all,
-  prec,
-  merge,
-  ...
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import2RData", level = 3, examples = FALSE))
 ```
-
-### Arguments
-
-|  |  |
-|----------------------|--------------------------------------------------|
-| `path` | character string; a folder path containing all files to be imported. Ideally, to avoid any errors, the folder should only contain the files to be imported. |
-| `instrument` | character string; specifies which instrument was used to generate the files contained in the folder path. Choose one of the following: "DX4015", "EGM5", "G2201i", "G2508", "G4301", "GAIA", "GasmetPD", "GT5000", "HT8850", "LI-6400", "LI-7810", "LI-7820", "LI-8100", "LI-8150", "LI-8200", "LI-8250", "N2OM1", "N2Oi2", "skyline", "uCH4", "uN2O", "UGGA". For more information about an instrument, see the section "See Also" below. |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `prec`, `prec1`, `prec2`, `prec3` | numerical vector; the precision of the instrument for each gas. Look at the examples below, or the help for each import function of each instrument, to know what values to use. |
-| `merge` | logical; if TRUE, merge all files as one data frame and return it in the Console, or load it in the Environment if assigned to an object. |
-| `proc.data.field` | numeric value; select the process data field used with the EGM-5. See [`import.EGM5`](#sec-single-PP-System) for more details. |
-| `pivot` | character string; either "long" or "wide". If `pivot = "long"`, each column containing information about `Tsoil`, `Tcham`, `SWC`, `PAR` and operating status (`Op.stat`) will be saved in a single column per parameter. If `pivot = "wide"`, the default display of one column per chamber per parameter will be used. Used with `instrument = "GAIA"` only. |
-| `active` | logical; if `active = TRUE`, preserve data for active chambers only. Used with `instrument = "GAIA"` only. |
-| `flag` | numeric vector; indicates the operating status that should be used for the flux calculation. Default is `flag = c(7,11)`, where 7 indicates "Chamber Idle Closed Clear" and 11 indicates "Chamber Idle Closed Dark". Used with `instrument = "GAIA"` only. |
-| `background` | logical; if `background = FALSE`, removes all data from opened chambers. Used with `instrument = "GAIA"` only. |
-| `deadband` | numerical; define a deadband at the start of measurements (seconds). Used with `instrument = "skyline"` only. |
-| `shoulder` | numerical; include background data points before and after the measurement (seconds). Used with `instrument = "skyline"` only. |
-| `CH.clo.col`, `Op.stat.col`, `PAR.col`, `Tcham.col`, `Tsoil.col`, `SWC.col`, `WTD.col`, `CH.col` | character vector; a pattern to match the columns that fit the corresponding parameter. See [`import.GAIA`](#sec-single-GAIA), [`import.LI8250`](#sec-single-LI8250), or [`import.skyline`](#sec-single-skyline) for more details. |
-| `sensor1`, `sensor2` | character strings; a pattern to match the columns containing the name of each sensor. By default, `sensor1 = "Analog Sensor1"`, `sensor2 = "Analog Sensor2"`, to match the example data file provided with the package. Set to NULL to ignore these columns. Used with `instrument = "skyline"` only. |
-| `inst`, `inst1`, `inst2`, `inst3` | character strings; a pattern to match the columns containing the name of each instrument. See [`import.GAIA`](#sec-single-GAIA), [`import.LI8250`](#sec-single-LI8250) or [`import.skyline`](#sec-single-skyline) for more details. |
-| `gas`, `gas1`, `gas2`, `gas3` | character vectors; a pattern to match the columns containing each gas measurement. See [`import.GAIA`](#sec-single-GAIA), [`import.LI8250`](#sec-single-LI8250), [`import.GasmetPD`](#sec-single-GasmetPD) or [`import.skyline`](#sec-single-skyline) for more details. |
-| `dry`, `dry1`, `dry2`, `dry3` | logical; are the gas measurements compensated for water vapor (dry fraction)? If `dryX = TRUE` (default), the gases are compensated for water vapor, and will be named accordingly. See [`import.GAIA`](#sec-single-GAIA), [`import.LI8250`](#sec-single-LI8250) or [`import.skyline`](#sec-single-skyline) for more details. |
-| `manual` | logical; indicates if measurements were made manually and there are no records of chamber identification, sequence, etc. If `TRUE`, the arguments `Op.stat.col`, `CH.col`, `active`, `background`, `flag`, and `pivot` are ignored. Used with `instrument = "GAIA"` only. |
-| `sep` | character string defining the field separator character. Values on each line of the file are separated by this character. By default, `sep = "\t"` for tabulation. Used with `instrument = "GAIA"` only. |
-| `skip` | integer; the number of lines of the data file to skip before beginning to read data. By default, `skip = 1`. Used with `instrument = "GAIA"` only. |
-| `CH4` | character string; which column should be used for CH~4~ concentration. By default, `CH4 = "HP_12CH4_dry"`. Used with `instrument = "G2201i"` only. |
-| `CO2` | character string; which column should be used for CO~2~ concentration. By default, `CO2 = "12CO2_dry"`.Used with `instrument = "G2201i"` only. |
-| `sum` | logical; if `sum = TRUE` (default), the arguments `CH4` and `CO2` are ignored and, instead, both fractions (carbon isotope 12 and 13) of each gas, are summed after correction for water vapor, to obtain the total gas concentration. See the argument `range` for the selection between the HP or the HR measurement of CH~4~ concentration. Used with `instrument = "G2201i"` only. |
-| `range` | numerical value; at which threshold should the function select between high precision (HP) and high resolution (HR) of CH~4~ concentration? The default is `range = 10`. If the methane concentration recorded in the column `HP_12CH4_dry` is above 10 ppm, the concentration from the columns `HR_12CH4_dry` and `HR_13CH4` are used for the sum instead of HP. Used with `instrument = "G2201i"` only. |
-
-### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For most instruments, the date is one of the columns in the raw data file:
-
--   DX4015: column Date
--   EGM5: column Date
--   G2201i: column DATE
--   G2508: column DATE
--   G4301: column DATE
--   GAIA: column Titles:
--   GasmetPD: column Date
--   GT5000: column Date
--   HT8850: column time
--   LI-6400: (see comment below)
--   LI-7810: column DATE
--   LI-7820: column DATE
--   LI-8100: column Date
--   LI-8150: column Date
--   LI-8200: (see comment below)
--   N2OM1: column Time
--   N2Oi2: column Time
--   SkyLine: column Titles:
--   uCH4: column Time Stamp
--   uN2O: column Time Stamp
--   UGGA: column Time
-
-For the instrument LI-6400, the date is found in one of the first lines in a format containing abbreviations, for example "Thr Aug 6 2020", which would be the date format "mdy". For the instrument LI-8200, the date is found under one of the measurements, next to '"Date":'. For the instrument LI-8250, the date format is in the file name.
-
-The argument `proc.data.field` is used with the PP-Sytems EGM-5 instrument only. Look up the [EGM-5 Operation Manual](https://ppsystems.com/download/technical_manuals/80109-1-EGM-5_Operation_V103.pdf) at page 90 for more details about the different Process Data Fields (`proc.data.field`).
-
-The arguments `active`, `pivot`, `flag`, `background`, `CH.col`, `PAR.col`, `Tcham.col`, `WTD.col`, `Op.stat.col`, `inst3`, `gas3`, `prec3`, `dry3`, `sep` and `skip` are used with the function [`import.GAIA`](#sec-single-GAIA) only. The arguments `Tsoil.col`, `SWC.col`, `inst1`, `inst2`, `gas1`, `gas2`, `prec1`, `prec2`, `dry1`, `dry2`, are used with both the function [`import.GAIA`](#sec-single-GAIA) and the function [`import.LI8250`](#sec-single-LI8250).
-
-The arguments `CH4`, `CO2`, `sum` and `range` are used with the function [`import.G2201i`](#sec-single-Picarro-G2201i) only.
-
-The arguments `CH.clo.col`, `sensor1`, `sensor2`, `inst` and `dry` are used with the function [`import.skyline`](#sec-single-skyline) only.
-
-The argument `gas` is used with the functions [`import.GasmetPD`](#sec-single-GasmetPD) and [`import.skyline`](#sec-single-skyline).
-
 ### Examples
 
 All files contained in the folder path specified are saved in a newly created folder "RData" in your working directory.
@@ -498,49 +418,11 @@ Each instrument has a unique function for single file import. The advantage of u
 
 Import single raw gas measurement files from the LI-COR 6400 (CO~2~ and H~2~O GHG analyzer) with the function `import.LI6400`.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.LI6400(
-  inputfile,
-  date.format = "mdy",
-  timezone = "UTC",
-  save = FALSE,
-  keep_all = FALSE,
-  prec = c(0.15, 20)
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.LI6400", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|--------------------------|----------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .txt |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "mdy", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm" and H2O_ppm". The default is `prec = c(0.15, 20)`. |
-
-#### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument LI-6400, the date is found in one of the first lines in a format containing abbreviations, for example "Thr Aug 6 2020", which would be the date format "mdy".
-
-Note that this function was designed for the following units in the raw file:
-
--   ppm for CO~2~
--   mmol/mol for H~2~O
--   kPa for pressure
--   cm^3^ for volumes
--   Celsius for temperature
--   µmol photons m^-2^s^-1^ for PAR
-
-If your LI-COR LI-6400 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (11-2023).
-
 #### Examples
 
 ```{r}
@@ -560,47 +442,11 @@ import.LI6400(inputfile = file.path, save = TRUE)
 
 Import single raw gas measurement files from the LI-COR 7810 (CO~2~, CH~4~ and H~2~O GHG analyzer) with the function `import.LI7810`.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.LI7810(
-  inputfile,
-  date.format = "ymd",
-  timezone = "UTC",
-  save = FALSE,
-  keep_all = FALSE,
-  prec = c(3.5, 0.6, 45)
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.LI7810", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|--------------------------|----------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .data |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", CH4dry_ppb" and H2O_ppm". The default is `prec = c(3.5, 0.6, 45)`. |
-
-#### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument LI-7810, the date is found in the column "DATE".
-
-Note that this function was designed for the following units in the raw file:
-
--   ppm for CO~2~ and H~2~O
--   ppb for CH~4~
--   kPa for pressure
--   Celsius for temperature
-
-If your LI-COR LI-7810 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://www.licor.com/env/products/trace-gas/LI-7810) for the latest model of this instrument available at the time of the creation of this function (11-2023).
-
 #### Examples
 
 ```{r}
@@ -620,47 +466,11 @@ import.LI7810(inputfile = file.path, save = TRUE)
 
 Import single raw gas measurement files from the LI-COR 7820 (N~2~O and H~2~O GHG analyzer) with the function `import.LI7820`.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.LI7820(
-  inputfile,
-  date.format = "ymd",
-  timezone = "UTC",
-  save = FALSE,
-  keep_all = FALSE,
-  prec = c(0.4, 45)
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.LI7820", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|--------------------------|----------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .data |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "N2Odry_ppb" and H2O_ppm". The default is `prec = c(0.4, 45)`. |
-
-#### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument LI-7820, the date is found in the column "DATE".
-
-Note that this function was designed for the following units in the raw file:
-
--   ppb for N~2~O
--   ppm for H~2~O
--   kPa for pressure
--   Celsius for temperature
-
-If your LI-COR LI-7820 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for H~2~O, or 1 ppb for N~2~O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://www.licor.com/env/products/trace-gas/LI-7820) for the latest model of this instrument available at the time of the creation of this function (11-2023).
-
 #### Examples
 
 ```{r}
@@ -680,46 +490,11 @@ import.LI7820(inputfile = file.path, save = TRUE)
 
 Import single raw gas measurement files from the LI-COR 8100 (CO~2~ and H~2~O GHG analyzer) with the function `import.LI8100`.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.LI8100(
-  inputfile,
-  date.format = "ymd",
-  timezone = "UTC",
-  save = FALSE,
-  keep_all = FALSE,
-  prec = c(1, 10)
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.LI8100", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|--------------------------|----------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .81x |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm" and H2O_ppm". The default is `prec = c(1, 10)`. |
-
-#### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument LI-8100, the date is found in the column "Date".
-
-Note that this function was designed for the following units in the raw file:
-
--   ppm for CO~2~
--   mmol/mol for H~2~O
--   Celsius for temperature
-
-If your LI-COR LI-8100 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (11-2023).
-
 #### Examples
 
 ```{r}
@@ -739,46 +514,11 @@ import.LI8100(inputfile = file.path, save = TRUE)
 
 Import single raw gas measurement files from the LI-COR Multiplexer LI-8150 connected with up to 16 chambers and the LI-8100A gas analyzer (CO~2~ and H~2~O) with the function `import.LI8150`.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.LI8150(
-  inputfile,
-  date.format = "ymd",
-  timezone = "UTC",
-  save = FALSE,
-  keep_all = FALSE,
-  prec = c(1, 10)
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.LI8150", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|--------------------------|----------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .81x |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm" and H2O_ppm". The default is `prec = c(1, 10)`. |
-
-#### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument LI-8100A, the date is found in the column "Date".
-
-Note that this function was designed for the following units in the raw file:
-
--   ppm for CO~2~
--   mmol/mol for H~2~O
--   Celsius for temperature
-
-If your LI-COR LI-8100A uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://www.licor.com/support/LI-8100A/topics/specifications.html#Specific) for the latest model of this instrument available at the time of the creation of this function (01-2026).
-
 #### Examples
 
 ```{r}
@@ -798,42 +538,11 @@ import.LI8150(inputfile = file.path, save = TRUE)
 
 Import single raw data files from the LI-COR smart chamber (LI-8200) with the function `import.LI8200`.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.LI8200(inputfile, date.format = "ymd", timezone = "UTC", save = FALSE)
+#| echo: false
+#| results: asis
+cat(autodoc("import.LI8200", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|--------------------------|----------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .json |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-
-#### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument LI-8200, the date is found under one of the measurements, next to '"Date":'.
-
-Note that this function was designed for the following units in the raw file:
-
--   seconds for DeadBand
--   cm for Area and Offset
--   mmol/mol for H~2~O
--   litters for volumes
--   kPa for pressure
--   Celsius for temperature
-
-If your Smart Chamber uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
-
-In addition, soil temperature and moisture are read with a HydraProbe connected to the Smart Chamber. If you are using a different setup, please contact the maintainer of this package for support.
-
-As opposed to the other import functions, there is no option to "keep_all" with the Smart Chamber. If you would like to import additional data using this function, please contact the maintainer of this package for support.
-
 #### Examples
 
 ```{r}
@@ -853,64 +562,11 @@ import.LI8200(inputfile = file.path, save = TRUE)
 
 Import single raw data files from the LI-COR Multiplexer (LI-8250) with the function `import.LI8250`.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.LI8250(
-  inputfile,
-  date.format = "ymd",
-  timezone = "UTC",
-  save = FALSE,
-  keep_all = FALSE,
-  inst1,
-  inst2 = NULL,
-  gas1,
-  gas2 = NULL,
-  prec1,
-  prec2 = NULL,
-  dry1 = T,
-  dry2 = T,
-  SWC.col,
-  Tsoil.col
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.LI8250", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|--------------------------|----------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .82z |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `inst1`, `inst2` | character strings; a pattern to match the columns containing the name of each instrument. For example, with a LI-COR LI-7810, `inst1 = "LI-7810"` and `inst2 = NULL`, which matches the example data file provided with the package. |
-| `gas1`, `gas2` | character vectors; a pattern to match the columns containing each gas measurement. For example, with a LI-COR LI-7810 `gas1 = c("CO2_DRY", "CH4_DRY", "H2O")` and `gas2 = NULL`, which matches the example data file provided with the package. |
-| `prec1`, `prec2` | numerical vectors; the precision of the instrument for each gas mentioned in `gas1` and `gas2`. For example, with a LI-COR LI-7810, `prec1 = c(3.5, 0.6, 45)` and `prec2 = NULL`, which matches the example data file provided with the package. Note that the order in the arguments `precX` must match the order of the arguments in `gasX`. |
-| `dry1`, `dry2` | logical; are the gas measurements compensated for water vapor (dry fraction)? If `dryX = TRUE` (default), the gases are compensated for water vapor, and will be named accordingly. For example, the column "CO2_DRY" will become "CO2dry_ppm". |
-| `Tsoil.col`, `SWC.col` | character string; a pattern to match the columns that fit the corresponding parameter. |
-
-#### Details
-
-Files with the format .82z are zip archives that include all measurements that occurred at a given port for one observation. Each .82z file includes two files: a data.csv file and a metadata.json file. Raw files names for .82z files are formatted with the instrument serial number and a time stamp (serial-number-YYYYMMDDHHMMSS.82z). In `date.format`, the date format refers to the date format in the file name. Alternatively, the date format can be found in the data.csv file extracted from the .82z file, under the column "Date".
-
-Note that this function was designed for the following units in the raw file, according to the data dictionary of the LI-8250 Multiplexer [online](https://www.licor.com/env/support/LI-8250/topics/files-page.html#Datadictionary).
-
--   \% v/v for soil water content (SWC)
--   litters for volumes
--   kPa for pressure
--   Celsius for temperature
-
-For each gas, the units are taken from the third row in the data.csv file. Currently, the function is adapted for use with LI-COR instruments (LI-870 CO~2~/ H~2~O Analyzer or LI-78xx Trace Gas Analyzers). If you are using the function with a non-LI-COR instrument, please contact the maintainer of this package for support.
-
-Regarding the parameters `dryX`, in case of uncertainty, either contact your technical support or assume that gases are compensated for water vapor, which is normally the case.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~, or 1 ppb for CH~4~) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved.
-
-According to the data dictionary of the LI-8250 Multiplexer [online](https://www.licor.com/env/support/LI-8250/topics/files-page.html#Datadictionary), the column STATE indicates the chamber state, where, for example, 1 = closing and 5 = closed.
-
 #### Examples
 
 ```{r}
@@ -938,46 +594,11 @@ import.LI8250(inputfile = file.path, save = TRUE, inst1 = "LI-7810",
 
 Import single raw gas measurement files from the ultra-portable GHG analyzers (GLA132-UGGA and GLA131-MGGA) from Los Gatos Research (CO~2~, CH~4~ and H~2~O) with the function `import.UGGA`.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.UGGA(
-  inputfile,
-  date.format = "dmy",
-  timezone = "UTC",
-  save = FALSE,
-  keep_all = FALSE,
-  prec = c(0.2, 1.4, 50)
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.UGGA", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|--------------------------|----------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .txt |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "dmy", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", CH4dry_ppb" and H2O_ppm". The default is `prec = c(0.2, 1.4, 50)`, which corresponds to the ultra-portable GGA (GLA132 series). For the micro ultra-portable GGA (GLA131 series), use `prec = c(0.35, 0.9, 200)`. |
-
-#### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For these instruments, the date is found in the column "Time".
-
-Note that this function was designed for the following units in the raw file:
-
--   ppm for CO~2~, CH~4~ and H~2~O
--   Torr for pressure
--   Celsius for temperature
-
-If your LGR instrument (UGGA or MGGA) uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers/lgr-icos-ultraportable-analyzers-gla132-series) for the latest model of this instrument available at the time of the creation of this function (11-2023).
-
 #### Examples
 
 ##### UGGA (GLA132 series)
@@ -1014,46 +635,11 @@ import.UGGA(inputfile = file.path, prec = c(0.35, 0.9, 200), save = TRUE)
 
 Import single raw gas measurement files from the N2OM1 GHG analyzers (GLA151 series) from Los Gatos Research (N~2~O, CH~4~ and H~2~O) with the function `import.N2OM1`.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.N2OM1(
-  inputfile,
-  date.format = "dmy",
-  timezone = "UTC",
-  save = FALSE,
-  keep_all = FALSE,
-  prec = c(0.5, 2, 50)
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.N2OM1", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|--------------------------|----------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .txt |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "dmy", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "N2Odry_ppb", CH4dry_ppb" and H2O_ppm". The default is `prec = c(0.5, 2, 50)`. |
-
-#### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument N2OM1, the date is found in the column "Time".
-
-Note that this function was designed for the following units in the raw file:
-
--   ppm for N~2~O, CH~4~ and H~2~O
--   Torr for pressure
--   Celsius for temperature
-
-If your LGR N2OM1 instrument uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for H~2~O, or 1 ppb for N~2~O and CH~4~) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers/lgr-icos-qc-portable-gas-analyzers-gla151-series/lgr-icos-portable-analyzers-gla151-n2om1-919) for the latest model of this instrument available at the time of the creation of this function (12-2023).
-
 #### Examples
 
 ```{r}
@@ -1073,46 +659,11 @@ import.N2OM1(inputfile = file.path, prec = c(0.5, 2, 50), save = TRUE)
 
 Import single raw gas measurement files from the Isotopic N~2~O analyzer (GLA451 series) from Los Gatos Research (N~2~O and site-specific isotopic ratios of N and O) with the function `import.N2Oi2`.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.N2Oi2(
-  inputfile,
-  date.format = "dmy",
-  timezone = "UTC",
-  save = FALSE,
-  keep_all = FALSE,
-  prec = c(0.05, 50)
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.N2Oi2", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|--------------------------|----------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .txt |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "dmy", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "N2Odry_ppb", and "H2O_ppm". The default is `prec = c(0.05, 50)`. |
-
-#### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument N2OM1, the date is found in the column "Time".
-
-Note that this function was designed for the following units in the raw file:
-
--   ppm for N~2~O and H~2~O
--   Torr for pressure
--   Celsius for temperature
-
-If your LGR N2Oi2 instrument uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for H~2~O, or 1 ppb for N~2~O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/oa-icos-enhanced-performance-benchtop-analyzers/lgr-icos-ultrahigh-performance-qc-benchtop-analyzers-gla451-series) for the latest model of this instrument available at the time of the creation of this function (06-2025).
-
 #### Examples
 
 ```{r}
@@ -1134,92 +685,11 @@ import.N2Oi2(inputfile = file.path, prec = c(0.05, 50), save = TRUE)
 
 With the function `import.GAIA`, import single raw gas measurement files from the automated chamber ECOFlux (GAIA2TECH) linked with up to three gas analyzers. Default settings are set for two LI-COR instruments: LI-7810 (CO~2~, CH~4~ and H~2~O) and LI7820 (N~2~O and H~2~O), to match the example data file provided with the package.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.GAIA(
-  inputfile,
-  date.format = "ymd",
-  timezone = "UTC",
-  pivot = "long",
-  active = TRUE,
-  flag = c(7, 11),
-  background = FALSE,
-  save = FALSE,
-  CH.col = "COM5A0",
-  SWC.col = "1C08_Soil Moisture",
-  Tsoil.col = "1C07_Soil Temperature",
-  Tcham.col = "2C07_Chamber Temperature",
-  PAR.col = "3C07_Sunlight",
-  WTD.col = NULL,
-  Op.stat.col = "0C06_OperatingStatus",
-  inst1 = "XT2C00_Instrument",
-  inst2 = "XT3C00_Instrument",
-  inst3 = NULL,
-  gas1 = c("XT2C04_CH4", "XT2C05_CO2", "XT2C06_H2O"),
-  gas2 = c("XT3C04_N2O", "XT3C05_H2O"),
-  gas3 = NULL,
-  prec1 = c(0.6, 3.5, 45),
-  prec2 = c(0.4, 45),
-  prec3 = NULL,
-  dry1 = T,
-  dry2 = T,
-  dry3 = NULL,
-  manual = FALSE,
-  sep = "\t",
-  skip = 1
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.GAIA", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|--------------------------|----------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .csv |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `pivot` | character string; either "long" or "wide". If `pivot = "long"`, each column containing information about `Tsoil`, `Tcham`, `SWC`, `PAR` and operating status (`Op.stat`) will be saved in a single column per parameter. If `pivot = "wide"`, the default display of one column per chamber per parameter will be used. |
-| `active` | logical; if `active = TRUE`, preserve data for active chambers only. |
-| `flag` | numeric vector; indicates the operating status that should be used for the flux calculation. Default is `flag = c(7,11)`, where 7 indicates "Chamber Idle Closed Clear" and 11 indicates "Chamber Idle Closed Dark". |
-| `background` | logical; if `background = FALSE`, removes all data from `activ.cham == "Background"`. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `PAR.col`, `Tcham.col`, `Tsoil.col`, `SWC.col`, `WTD.col` | character vector; a vector of patterns to match all columns that fit the corresponding parameters. See details below for more information. |
-| `Op.stat.col`, `CH.col` | character string; a pattern to match columns that fit the corresponding parameters: see details below. |
-| `inst1`, `inst2`, `inst3` | character strings; a pattern to match the columns containing the name of each instrument. By default, `inst1 = "XT2C00_Instrument"`, `inst2 = "XT3C00_Instrument"`, and `inst3 = NULL`, to match the example data file provided with the package. |
-| `gas1`, `gas2`, `gas3` | character vectors; a pattern to match the columns containing each gas measurement. By default, `gas1 = c("XT2C04_CH4", "XT2C05_CO2", "XT2C06_H2O")`, `gas2 = c("XT3C04_N2O", "XT3C05_H2O")`, and `gas3 = NULL`, to match the example data file provided with the package. |
-| `prec1`, `prec2`, `prec3` | numerical vectors; the precision of the instrument for each gas mentioned in `gas1`, `gas2` and `gas3`. By default, `prec1 = c(0.6, 3.5, 45)`, `prec2 = c(0.4, 45)`, and `prec3 = NULL`, to match the example data file provided with the package. Note that the order in the arguments `precX` must match the order of the arguments in `gasX`. |
-| `dry1`, `dry2`, `dry3` | logical; are the gas measurements compensated for water vapor (dry fraction)? If `dryX = TRUE` (default), the gases are compensated for water vapor, and will be named accordingly. For example, the column "XT2C05_CO2" will become "CO2dry_ppm". |
-| `manual` | logical; indicates if measurements were made manually and there are no records of chamber identification, sequence, etc. If `TRUE`, the arguments `Op.stat.col`, `CH.col`, `active`, `background`, `flag`, and `pivot` are ignored. |
-| `sep` | character string defining the field separator character. Values on each line of the file are separated by this character. By default, `sep = "\t"` for tabulation. |
-| `skip` | integer; the number of lines of the data file to skip before beginning to read data. By default, `skip = 1`. |
-
-#### Details
-
-This function has been designed for the automated chamber ECOFlux (GAIA2TECH) synced with up to 9 chambers and two GHG analyzers from LI-COR (LI-7810: CO~2~, CH~4~ and H~2~O / LI7820: N~2~O and H~2~O). If this function could be useful for you, but does not meet your needs, please contact the maintainer of this package for potential adaptations.
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument GAIA the date is found in the column "Titles:".
-
-The arguments `PAR.col`, `Tcham.col`, `Tsoil.col`, `SWC.col`, and `WTD.col` correspond to different types of probes linked to the ECOFlux chamber: PAR (sunlight), chamber temperature, soil temperature, soil water content and water table depth, respectively. All columns containing the patterns specified in these arguments will be selected and renamed with the corresponding argument. For example, if `PAR = "3C07_Sunlight"`, all columns containing the pattern "3C07_Sunlight" will be renamed with the pattern "\_PAR". Then, if `pivot = "long"`, all columns with the pattern "\_PAR" will be merged together. If `PAR = c("3C07_Sunlight1", "3C07_Sunlight2")`, these patterns will be renamed to PAR1 and PAR2.
-
-The argument `Op.stat.col` corresponds to the columns Operating Status of each chamber. The argument `CH.col` indicates a character string preceding the chamber number for each column of the raw data. For example, the column "COM5A010C06_OperatingStatus" in the raw data file contains the Operating Status for the chamber 1 if `CH.col = "COM5A0"` and `Op.stat.col = "0C06_OperatingStatus"`. If these columns are absent from the raw data, set arguments to NULL.
-
-Note that this function was designed for the following units in the raw file:
-
--   kPa for pressure
--   volumetric water content (%) for soil moisture
--   Celsius for air temperature
--   µmol photons m^-2^s^-1^ for PAR
-
-For each gas, the units are taken from the second row in the raw file (Units:). If your instruments use different units, either convert the units after import, change the settings on your instruments, or contact the maintainer of this package for support.
-
-Regarding the parameters `dryX`, in case of uncertainty, either contact your technical support or assume that gases are compensated for water vapor, which is normally the case.
-
-As opposed to the other import functions, there is no option to "keep_all" with this instrument. If you would like to import additional data using this function, please contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~ and N~2~O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found online for the latest models of the [LI-7810](https://www.licor.com/env/products/trace-gas/LI-7810) and [LI-7820](https://www.licor.com/env/products/trace-gas/LI-7820), available at the time of the creation of this function (11-2023).
-
 #### Examples
 
 ```{r}
@@ -1239,62 +709,11 @@ import.GAIA(inputfile = file.path, save = TRUE)
 
 Imports single raw gas measurement files from the SkyLine2D system from Earth Bound Scientific from the datalog file created by GAIA2TECH. Default settings are set for the Picarro G2508 (CO~2~, CH~4~, N~2~O and H~2~O), to match the example data file provided with the package.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.skyline(
-  inputfile,
-  date.format = "ymd",
-  timezone = "UTC",
-  save = FALSE,
-  keep_all = FALSE,
-  background = FALSE,
-  CH.col = "CH ID",
-  CH.clo.col = "Chamber closed",
-  sensor1 = "Analog Sensor1",
-  sensor2 = "Analog Sensor2",
-  inst = "Instrument",
-  gas = c("CO2", "CH4 Dry", "N2O Dry", "H2O"),
-  prec = c(0.24, 0.3, 5, 500),
-  dry = T
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.skyline", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|---------------------|---------------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .csv |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `background` | logical; if `background = FALSE`, removes all data from the opened chamber. |
-| `CH.clo.col`, `CH.col` | character string; a pattern to match columns that fit the corresponding parameters: `CH.col = "CH ID"` and `CH.clo.col = "Chamber closed"`. |
-| `sensor1`, `sensor2` | character strings; a pattern to match the columns containing the name of each sensor. By default, `sensor1 = "Analog Sensor1"`, `sensor2 = "Analog Sensor2"`, to match the example data file provided with the package. Set to NULL to ignore these columns. |
-| `inst` | character string; a pattern to match the column containing the name of the GHG analyzer: `inst = "Instrument"`. |
-| `gas` | character vector; a pattern to match the columns containing each gas measurement. By default, `gas = c("CO2", "CH4 Dry", "N2O Dry", "H2O")`, to match the example data file provided with the package. |
-| `prec` | numerical vector; the precision of the instrument for each gas mentioned in `gas`. By default, `prec = c(0.24, 0.3, 5, 500)`, to match the example data file provided with the package. Note that the order in the arguments `prec` must match the order of the arguments in `gas`. |
-| `dry` | logical; are the gas measurements compensated for water vapor (dry fraction)? If `dry = TRUE` (default), the gases are already compensated for water vapor. Otherwise, the gases will be converted to a dry fraction. |
-
-#### Details
-
-This function has been designed for the SkyLine2D system file generated by GAIA2TECH synced with the Picarro G2508 (CO~2~, CH~4~, N~2~O and H~2~O)). If this function could be useful for you, but does not meet your needs, please contact the maintainer of this package for potential adaptations.
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For the SkyLine2D system, the date is found in the column "Titles:". Be mindful that when you open a .csv file in Excel, the software often changes date formats. To avoid any discrepancy, open the file in a text file.
-
-The argument `CH.clo.col` corresponds to the column "Chamber closed". Any number above 0 in that column indicate that the chamber is closed. The argument `CH.col` corresponds to the column "CH ID" indicating which chamber is active.
-
-For each gas, the units are taken from the second row in the raw file (Units:). If your instrument uses different units, either convert the units after import, change the settings on your instruments, or contact the maintainer of this package for support.
-
-Regarding the parameters `dry`, in case of uncertainty, either contact your technical support or assume that gases are compensated for water vapor, which is normally the case.
-
-As opposed to the other import functions, there is no option to "keep_all" with this instrument. If you would like to import additional data using this function, please contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~ and N~2~O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found online for the latest models of the [Picarro G2508](https://www.picarro.com/environmental/products/g2508_gas_concentration_analyzer), available at the time of the creation of this function (10-2025).
-
 #### Examples
 
 ```{r}
@@ -1316,47 +735,11 @@ import.skyline(inputfile = file.path, save = TRUE)
 
 Import single raw gas measurement files from the Gasmet DX4015 gas analyzer (CO, CO~2~, CH~4~, N~2~O, NH~3~ and H~2~O) with the function `import.DX4015`.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.DX4015(
-  inputfile,
-  date.format = "ymd",
-  timezone = "UTC",
-  save = FALSE,
-  keep_all = FALSE,
-  prec = c(1.6, 23, 13, 2, 23, 33)
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.DX4015", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|--------------------------|----------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .TXT |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", "COdry_ppb", CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" and H2O_ppm". The default is `prec = c(1.6, 23, 13, 2, 23, 33)`. |
-
-#### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument DX4015, the date is found in the column "Date".
-
-Note that this function was designed for the following units in the raw file:
-
--   ppm for CO~2~, CO, CH~4~, N~2~O and NH~3~
--   vol-% for H~2~O
--   mbar for pressure
--   Celsius for temperature
-
-If your Gasmet DX4015 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~, CO N~2~O and NH~3~) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (11-2023).
-
 #### Examples
 
 ```{r}
@@ -1376,47 +759,11 @@ import.DX4015(inputfile = file.path, save = TRUE)
 
 Import single raw gas measurement files from the Gasmet GT5000 gas analyzer (CO, CO~2~, CH~4~, N~2~O, NH~3~ and H~2~O) with the function `import.GT5000`.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.GT5000(
-  inputfile,
-  date.format = "ymd",
-  timezone = "UTC",
-  save = FALSE,
-  keep_all = FALSE,
-  prec = c(1.6, 23, 13, 2, 23, 33)
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.GT5000", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|--------------------------|----------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .TXT |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", "COdry_ppb", "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" and "H2O_ppm". The default is `prec = c(1.6, 23, 13, 2, 23, 33)`. |
-
-#### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument GT5000, the date is found in the column "Date".
-
-Note that this function was designed for the following units in the raw file:
-
--   ppm for CO~2~, CO, CH~4~, N~2~O and NH~3~
--   vol-% for H~2~O
--   mbar for pressure
--   Celsius for temperature
-
-If your Gasmet GT5000 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~, CO N~2~O and NH~3~) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (08-2024).
-
 #### Examples
 
 ```{r}
@@ -1438,73 +785,11 @@ import.GT5000(inputfile = file.path, save = TRUE)
 
 Import single raw gas measurement files from the Picarro G2201-*i* (CO~2~ and CH~4~ isotopic analyzer) with the function `import.G2201i`.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.G2201i(
-  inputfile,
-  date.format = "ymd",
-  timezone = "UTC",
-  save = FALSE,
-  keep_all = FALSE,
-  prec = c(0.2, 50, 100),
-  CH4 = "HP_12CH4_dry",
-  CO2 = "12CO2_dry",
-  sum = TRUE,
-  range = 10
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.G2201i", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|--------------------------|----------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .dat |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", "CH4dry_ppb" and "H2O_ppm". The default is `prec = c(0.2, 50, 100)`. |
-| `CH4` | character string; which column should be used for CH~4~ concentration. By default, `CH4 = "HP_12CH4_dry"`. |
-| `CO2` | character string; which column should be used for CO~2~ concentration. By default, `CO2 = "12CO2_dry"`. |
-| `sum` | logical; if `sum = TRUE` (default), the arguments `CH4` and `CO2` are ignored and, instead, both fractions (carbon isotope 12 and 13) of each gas, are summed after correction for water vapor, to obtain the total gas concentration. See the argument `range` for the selection between the HP or the HR measurement of CH~4~ concentration. |
-| `range` | numerical value; at which threshold should the function select between high precision (HP) and high resolution (HR) of CH~4~ concentration? The default is `range = 10`. If the methane concentration recorded in the column `HP_12CH4_dry` is above 10 ppm, the concentration from the columns `HR_12CH4_dry` and `HR_13CH4` are used for the sum instead of HP. |
-
-#### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument G2201-i, the date is found in the column "DATE".
-
-The arguments `CH4` and `CO2` require the user to specify which columns contain the two gases of interest among the following for `CH4`:
-
--   HP_12CH4
--   HP_12CH4_dry
--   HP_13CH4
--   HR_12CH4
--   HR_12CH4_dry
--   HR_13CH4
-
-And among the following for `CO2`:
-
--   12CO2
--   12CO2_dry
--   13CO2
--   13CO2_dry
-
-Note that, HP stands for CH~4~ concentration measured with strong line for high precision but limited range and HR stands for CH~4~ concentration measured with high range (between 10 and 1000 ppm). In addition, \_dry stands for dry mole fraction of gases, corrected for water vapor. Finally, 12 and 13 indicate each carbon isotope contained in each gas. If one selects one of the non-dry mole fraction, it will be corrected for water vapor during the import process.
-
-Note that this function was designed for the following units in the raw file:
-
--   ppm for CO~2~ and CH~4~
--   percent (%) for H~2~O
--   Torr for pressure
--   Celsius for temperature
-
-If your Picarro G2201-i uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://www.picarro.com/environmental/products/g2201i_isotopic_analyzer) for the latest model of this instrument, available at the time of the creation of this function (05-2025).
-
 #### Examples
 
 ```{r}
@@ -1524,48 +809,11 @@ import.G2201i(inputfile = file.path, save = TRUE)
 
 Import single raw gas measurement files from the Picarro G2508 (CO~2~, CH~4~, N~2~O, NH~3~, and H~2~O GHG analyzer) with the function `import.G2508`.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.G2508(
-  inputfile,
-  date.format = "ymd",
-  timezone = "UTC",
-  save = FALSE,
-  keep_all = FALSE,
-  prec = c(0.24, 0.3, 5, 0.16, 500)
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.G2508", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|--------------------------|----------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .dat |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb" and H2O_ppm". The default is `prec = c(0.24, 0.3, 5, 0.16, 500)`. |
-
-#### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument G2508, the date is found in the column "DATE".
-
-Note that this function was designed for the following units in the raw file:
-
--   ppm for CO~2~
--   ppb for CH~4~, N~2~O and NH~3~
--   mmol/mol for H~2~O
--   Torr for pressure
--   Celsius for temperature
-
-If your Picarro G2508 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~, N~2~O and NH~3~) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://www.picarro.com/g2508_gas_concentration_analyzer) for the latest model of this instrument, available at the time of the creation of this function (11-2023).
-
 #### Examples
 
 ```{r}
@@ -1585,48 +833,11 @@ import.G2508(inputfile = file.path, save = TRUE)
 
 Import single raw gas measurement files from the Picarro G4301 (CO~2~, CH~4~ and H~2~O GHG analyzer) with the function `import.G4301`.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.G4301(
-  inputfile,
-  date.format = "ymd",
-  timezone = "UTC",
-  save = FALSE,
-  keep_all = FALSE,
-  prec = c(0.025, 0.1, 10)
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.G4301", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|--------------------------|----------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .dat |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", CH4dry_ppb" and H2O_ppm". The default is `prec = c(0.025, 0.1, 10)`. |
-
-#### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument G4301, the date is found in the column "DATE".
-
-Note that this function was designed for the following units in the raw file:
-
--   ppm for CO~2~
--   ppb for CH~4~
--   mmol/mol for H~2~O
--   Torr for pressure
--   Celsius for temperature
-
-If your Picarro G4301 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://www.picarro.com/products/gas-scouter-g4301) for the latest model of this instrument, available at the time of the creation of this function (11-2023).
-
 #### Examples
 
 ```{r}
@@ -1648,54 +859,11 @@ import.G4301(inputfile = file.path, save = TRUE)
 
 Import single raw gas measurement files from the PP-Systems EGM-5 Portable CO~2~ Gas Analyzer, with the function `import.EGM5`.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.EGM5(
-  inputfile,
-  date.format = "dmy",
-  timezone = "UTC",
-  save = FALSE,
-  keep_all = FALSE,
-  prec = c(3, 1, 500),
-  proc.data.field = NULL
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.EGM5", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|--------------------------|----------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .TXT |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "dmy", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", "O2dry_pct" and H2O_ppm". The default is `prec = c(3, 1, 500)`. |
-| `proc.data.field` | numeric value; select the process data field used with the EGM-5. There are 5 different modes available: (1) Measure mode; (2) SRC or Custom mode; (3) CPY mode; (4) Injection mode; or (5) Static mode. If no value is specified, the parameters will be named "param1", "param2", "param3", "param4" and "param5". |
-
-#### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument EGM5, the date is found in the column "Date".
-
-Note that this function was designed for the following units in the raw file:
-
--   ppm for CO~2~
--   \% for O~2~ (pct)
--   mb for H~2~O
--   mb for pressure
--   Celsius for temperature
-
-If your PP-Systems EGM-5 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1% for O~2~) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (11-2023).
-
-Look up the [EGM-5 Operation Manual](https://ppsystems.com/download/technical_manuals/80109-1-EGM-5_Operation_V103.pdf) at page 90 for more details about the different Process Data Fields (`proc.data.field`).
-
-Note that the default file extension for this instrument is .TXT, however, it is also possible to use with a .csv file format.
-
 #### Examples
 
 ```{r}
@@ -1717,47 +885,11 @@ import.EGM5(inputfile = file.path, save = TRUE)
 
 Import single raw data files from the MIRA Ultra CH~4~/ C~2~H~6~ Natural Gas Leak Detection System (with GPS) from Aeris Technologies with the function `import.uCH4`.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.uCH4(
-  inputfile,
-  date.format = "mdy",
-  timezone = "UTC",
-  save = FALSE,
-  keep_all = FALSE,
-  prec = c(1, 0.5, 15)
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.uCH4", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|--------------------------|----------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .txt |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "mdy", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CH4_ppb", "C2H6dry_ppb" and "H2O_ppm". The default is `prec = c(1, 0.5, 15)`. The precision for water vapor is currently unknown, and a default of 1 ppm is used. |
-
-#### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For these instruments, the date is found in the column "Time Stamp".
-
-Note that this function was designed for the following units in the raw file:
-
--   ppm for CH~4~ and H~2~O
--   ppb for C~2~H~6~
--   mbars for pressure
--   Celsius for temperature
-
-If your Aeris instrument (MIRA Ultra CH~4~/ C~2~H~6~ analyzer) uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for C~2~H~6~ and CH~4~, or 1 ppb for H~2~O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://aerissensors.com/mira-pico-mobile-lds/s) for the latest model of this instrument available at the time of the creation of this function (01-2024). The precision for water vapor is currently unknown, and a default of 1 ppm is used.
-
 #### Examples
 
 ```{r}
@@ -1777,46 +909,11 @@ import.uCH4(inputfile = file.path, save = TRUE)
 
 Import single raw data files from the MIRA Ultra N~2~O/ CO~2~ High Accuracy Analyzer (with GPS) from Aeris Technologies with the function `import.uN2O`.
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.uN2O(
-  inputfile,
-  date.format = "mdy",
-  timezone = "UTC",
-  save = FALSE,
-  keep_all = FALSE,
-  prec = c(0.2, 0.2, 15)
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.uN2O", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|--------------------------|----------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .txt |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "mdy", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", "N2O_ppb" and "H2O_ppm". The default is `prec = c(0.2, 0.2, 15)`. |
-
-#### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For these instruments, the date is found in the column "Time Stamp".
-
-Note that this function was designed for the following units in the raw file:
-
--   ppm for CO~2~, N~2~O and H~2~O
--   mbars for pressure
--   Celsius for temperature
-
-If your Aeris instrument (MIRA Ultra N~2~O/ CO~2~ analyzer) uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and N~2~O, or 1 ppb for H~2~O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://aerissensors.com/ultimate-precision-for-your-ghgs-measurementsthe-mira-co2-n2o/) for the latest model of this instrument available at the time of the creation of this function (01-2024). The precision for water vapor is currently unknown, and a default of 1 ppm is used.
-
 #### Examples
 
 ```{r}
@@ -1838,43 +935,11 @@ import.uN2O(inputfile = file.path, save = TRUE)
 
 Imports single raw gas measurement files from the all-in-one GHG analyzer HT8850 from Healthy Photon (CO~2~, CH~4~, N~2~O and H~2~O)
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.HT8850(
-  inputfile,
-  date.format = "ymd",
-  timezone = "UTC",
-  save = FALSE,
-  prec = c(0.5, 3, 0.5, 10)
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.HT8850", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|------------------|------------------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .txt |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `prec` | numerical vector; the precision of the instrument for each gas, in the following order: "CO2dry_ppm", "CH4dry_ppb", "N2O_ppb" and "H2O_ppm". The default is `prec = c(0.5, 3, 0.5, 10)`. |
-
-#### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For this instrument, the date is found in the column "time".
-
-Note that this function was designed for the following units in the raw file:
-
--   ppm for CO~2~, CH~4~ and H~2~O
--   ppb for N~2~O
-
-If your instrument uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~ and N~2~O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found [online](https://en.healthyphoton.com/gongye/products/45.html) for the latest model of this instrument available at the time of the creation of this function (01-2026).
-
 #### Examples
 
 ```{r}
@@ -1896,48 +961,11 @@ import.HT8850(inputfile = file.path, save = TRUE)
 
 Imports single raw gas measurement files from the GasmetPD, a custom made multiplexer linked with the Gasmet DX4015 (CO~2~, CH~4~, N~2~O, NO~2~, NO, NH~3~ and H~2~O)
 
-#### Usage
-
 ```{r}
-#| eval: false
-#| code-copy: false
-import.GasmetPD(
-  inputfile,
-  date.format = "ymd",
-  timezone = "UTC",
-  save = FALSE,
-  keep_all = FALSE,
-  gas = c("CO2_ppm", "CH4_ppm", "N2O_ppm", "NH3_ppm", "H2O_pct"),
-  prec = c(1.6, 13, 2, 23, 33)
-)
+#| echo: false
+#| results: asis
+cat(autodoc("import.GasmetPD", level = 4, examples = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|-----------------------|-------------------------------------------------|
-| `inputfile` | character string; the name of a file with the extension .txt |
-| `date.format` | character string; specifies the date format found in the raw data file. Choose one of the following: "dmy", "ymd", or "mdy". Default is "ymd", as it is the date format from the example data file provided. |
-| `timezone` | character string; a time zone in which to import the data to POSIXct format. Default is "UTC". Note about time zone: it is recommended to use the time zone "UTC" to avoid any issue related to summer time and winter time changes. |
-| `save` | logical; if `save = TRUE`, saves the file as an .RData file in a RData folder in the current working directory. If `save = FALSE`, returns the file in the Console, or load in the Environment if assigned to an object. |
-| `keep_all` | logical; if `keep_all = TRUE`, keep all columns from the raw file. The default is `keep_all = FALSE`, and columns that are not necessary for gas flux calculation are removed. |
-| `gas` | character vector; a pattern to match the columns containing each gas measurement. Choose from: "CO2dry_ppm", "CH4dry_ppb", "N2Odry_ppb", "NH3dry_ppb", "NO2_ppm", "NO_ppm" and "H2O_ppm". |
-| `prec` | numerical vector; the precision of the instrument for each gas. Note that the order in the arguments `prec` must match the order of the arguments in `gas`. |
-
-#### Details
-
-In `date.format`, the date format refers to a date found in the raw data file, not the date format in the file name. For this instrument, the date is found in the column "Date".
-
-Note that this function was designed for the following units in the raw file:
-
--   ppm for CO~2~, CH~4~, N~2~O and NH~3~
--   percent (%) for H~2~O
--   mbar for pressure
-
-The function converts ambient pressure to kPa (Pcham), water vapor to ppm, and CH~4~, N~2~O and NH~3~ to ppb. If your instrument uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.
-
-The precision of the instrument is needed to restrict kappa-max ([`k.max`](goFlux.qmd#eq-k.max)) in the non-linear flux calculation ([`HM.flux`](goFlux.qmd#eq-HM)). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for CO~2~ and H~2~O, or 1 ppb for CH~4~, N~2~O and NH~3~) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (07-2024).
-
 #### Examples
 
 ```{r}
@@ -1951,4 +979,14 @@ imp.GasmetPD <- import.GasmetPD(inputfile = file.path, prec = c(1.6, 13, 2, 23, 
 
 # Or save in a RData folder in the working directory
 import.GasmetPD(inputfile = file.path, prec = c(1.6, 13, 2, 23, 33), save = TRUE)
+```
+
+### eosMX12 12-Channel Multiplexer {#sec-single-eosMX12}
+
+Import single raw data files from the Eosense eosMX12 12-channel multiplexer with the function `import.eosMX12`.
+
+```{r}
+#| echo: false
+#| results: asis
+cat(autodoc("import.eosMX12", level = 4))
 ```
