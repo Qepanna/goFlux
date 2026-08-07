@@ -133,3 +133,55 @@ Don't stress about commit formatting yet! You can use informal messages while ex
 - Check recent goFlux pulls and releases: https://github.com/Qepanna/goFlux/releases
 - Review the `CHANGELOG.md` to see how past changes were documented
 - Ask in a GitHub issue if unsure about commit formatting 
+
+## Website & automated documentation
+
+The website (in `website/`) is built by GitHub Actions from `man/*.Rd` on
+push to `master` (paths: `R/`, `man/`, `website/`, `DESCRIPTION`, `NAMESPACE`),
+on `workflow_dispatch`, and on every published release.
+
+Each function's **Usage / Arguments / Details / Examples / References** are
+auto-generated at build time from its `.Rd` file by `website/scripts/autodoc.R`.
+The narrative, equations, callouts, and worked Examples are hand-written in the
+`.qmd` pages. Never edit `website/_site/` (generated) or `man/*.Rd` by hand.
+
+### Two CI gates (a red X here blocks the deploy)
+1. **man/ freshness** — CI runs `devtools::document()` and fails if `man/` or
+   `NAMESPACE` change. Fix: run `devtools::document()` locally and commit the
+   regenerated `man/` + `NAMESPACE`.
+2. **Autodetect audit** — CI runs `Rscript website/scripts/audit_functions.R`
+   and fails on MISSING / MISPLACED / STALE blocks (it maps every documented
+   function to a page, and lists instruments without an entry on `import.qmd`).
+
+### Adding a new function
+1. Write the function + roxygen in `R/<fn>.R`.
+2. For an import function, add `@instrumentlink Manufacturer|ID|Name|URL`
+   (the audit uses it to list the instrument on the site).
+3. `devtools::document()` → commit the new `man/<fn>.Rd` + `NAMESPACE`.
+4. Add an `autodoc("fn", level = N)` block to the right `.qmd` page:
+   `### \`fn\` for <desc> {#fn}` heading + a chunk
+   `cat(autodoc("fn", level = 4))` (`level = 3` for `import2RData`/`autoID`).
+   Import functions get a section on `import.qmd`.
+5. `Rscript website/scripts/audit_functions.R` → expect `Problems to fix: 0`
+   and no `NEW INSTRUMENTS`.
+6. `quarto render website` to preview. Commit with `feat:` (new function →
+   release → site rebuild) or `docs:`.
+
+### Hand-writing a section instead of auto-generating it
+By default the `autodoc()` block renders **Usage, Arguments, Details, Examples,
+and References** from the `.Rd`. Authors can opt out of any of these and write
+them by hand in the `.qmd` instead, by passing the matching flag: `details = FALSE`,
+`examples = FALSE`, `references = FALSE`. For example,
+`cat(autodoc("fn", level = 4, references = FALSE))` renders everything except
+References, which you then hand-write (handy when the page already has its own
+bibliography).
+
+### Editing documentation content
+Edit the `.qmd` narrative freely; the auto-generated sections refresh from
+`man/` on the next render. Preview with `quarto render website`.
+
+### If CI fails
+- "Check man/ is in sync" → run `devtools::document()` and commit.
+- Audit shows MISSING → add the missing `autodoc()` block.
+- Render "no package called X" → add `any::X` to `extra-packages` in
+  `.github/workflows/docs.yaml`.
