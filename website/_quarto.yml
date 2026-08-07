@@ -2,6 +2,8 @@ project:
   type: website
   output-dir: _site
 
+site-url: "https://gracebarbacias.github.io/goFlux_G_fork/"
+
 format:
   html:
     css: custom.scss
