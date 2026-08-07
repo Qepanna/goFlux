@@ -38,6 +38,7 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: |
+            local::.
             any::devtools
             any::downloadthis
             any::dplyr
@@ -57,7 +58,8 @@ jobs:
         run: Rscript website/scripts/audit_functions.R
 
       - name: Render website
-        run: quarto render website
+        run: quarto render
+        working-directory: website
 
       - uses: JamesIves/github-pages-deploy-action@v4
         with:
