@@ -69,7 +69,7 @@ For a more detailed demonstration of how these equations were obtained, refer to
 ```{r}
 #| echo: false
 #| results: asis
-cat(autodoc("goFlux", level = 4))
+cat(autodoc("goFlux", level = 4, references=FALSE))
 ```
 
 #### Value

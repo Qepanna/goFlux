@@ -83,9 +83,26 @@ rd_to_md <- function(x, inline = TRUE) {
 
 # \itemize / \enumerate -> markdown bullet / numbered list
 list_md <- function(x, bullet) {
-  items <- Filter(function(el) identical(attr(el, "Rd_tag"), "\\item"), x)
-  out <- vapply(items, function(it) paste0(bullet, " ", rd_to_md(it)), character(1))
-  paste(out, collapse = "\n")
+  # parse_Rd stores \itemize/\enumerate item TEXT as a SIBLING of the bare
+  # \item marker (unlike \describe/\arguments, where it's \item's argument).
+  # Emit the bullet at each marker, then attach the following text to it.
+  parts <- character(0)
+  cur   <- character(0)
+  open  <- FALSE
+  for (el in x) {
+    if (identical(attr(el, "Rd_tag"), "\\item")) {
+      if (open) {
+        parts <- c(parts, paste0(bullet, " ", trimws(paste(cur, collapse = " "))))
+      }
+      cur <- character(0)
+      open <- TRUE
+    } else {
+      txt <- rd_to_md(el, inline = TRUE)
+      if (nzchar(trimws(txt))) cur <- c(cur, txt)
+    }
+  }
+  if (open) parts <- c(parts, paste0(bullet, " ", trimws(paste(cur, collapse = " "))))
+  paste(parts, collapse = "\n")
 }
 
 # \describe{ \item{term}{desc} ... } -> markdown definition list
@@ -170,13 +187,18 @@ render_references <- function(ref_tag, rd_path = NULL) {
     if (!is.null(raw)) {
       entries <- strsplit(raw, "\n[[:space:]]*\n")[[1]]
       entries <- vapply(entries, function(e) {
-        mini <- paste0("\\name{x}\n\\alias{x}\n\\title{t}\n\\references{", e, "}")
-        rd <- tools::parse_Rd(textConnection(mini))
-        txt <- rd_to_md(rd_child(rd, "\\references"), inline = TRUE)
+        txt <- tryCatch({
+            mini <- paste0("\\name{x}\n\\alias{x}\n\\title{t}\n\\references{", e, "}")
+            rd <- tools::parse_Rd(textConnection(mini))
+            rd_to_md(rd_child(rd, "\\references"), inline = TRUE)
+        }, warning = function(w) NULL, error = function(err) NULL)
+        if (is.null(txt) || !nzchar(trimws(txt))) {
+            txt <- e   # graceful fallback: use the raw entry text as-is
+        }
         txt <- gsub("[[:space:]]+", " ", txt)
         txt <- gsub("[[:space:]]+([.,;:!?)\\]])", "\\1", txt)
         trimws(txt)
-      }, character(1))
+        }, character(1))
     }
   }
   if (is.null(entries)) {

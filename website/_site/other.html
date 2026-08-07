@@ -463,8 +463,6 @@ Note
 </section>
 <section id="auto.deadband" class="level3">
 <h3 class="anchored" data-anchor-id="auto.deadband"><code>auto.deadband</code> for an automatic selection of deadband per measurement</h3>
-<pre><code>Warning in tools::parse_Rd(textConnection(mini)): &lt;connection&gt;:9: unexpected END_OF_INPUT '
-'</code></pre>
 <section id="usage-2" class="level4">
 <h4 class="anchored" data-anchor-id="usage-2">Usage</h4>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -480,15 +478,15 @@ Note
 <p>Code chunks under <strong>Usage</strong> sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.</p>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">auto.deadband</span>(</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  dataframe,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  gastype,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">db.min =</span> <span class="dv">0</span>,</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">db.max =</span> <span class="dv">60</span>,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">obs.win =</span> <span class="dv">90</span>,</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">mov.win =</span> <span class="dv">10</span>,</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">min.r2 =</span> <span class="dv">0</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">auto.deadband</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  dataframe,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  gastype,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">db.min =</span> <span class="dv">0</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">db.max =</span> <span class="dv">60</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">obs.win =</span> <span class="dv">90</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">mov.win =</span> <span class="dv">10</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">min.r2 =</span> <span class="dv">0</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="arguments-2" class="level4">
 <h4 class="anchored" data-anchor-id="arguments-2">Arguments</h4>
@@ -541,13 +539,13 @@ Note
 </section>
 <section id="examples-2" class="level4">
 <h4 class="anchored" data-anchor-id="examples-2">Examples</h4>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"manID.UGGA"</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>auto_db <span class="ot">&lt;-</span> <span class="fu">auto.deadband</span>(manID.UGGA, <span class="st">"CO2dry_ppm"</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>crop_UGGA <span class="ot">&lt;-</span> <span class="fu">crop.meas</span>(manID.UGGA, auto_db, <span class="at">deadband =</span> <span class="st">"aux"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"manID.UGGA"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>auto_db <span class="ot">&lt;-</span> <span class="fu">auto.deadband</span>(manID.UGGA, <span class="st">"CO2dry_ppm"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>crop_UGGA <span class="ot">&lt;-</span> <span class="fu">crop.meas</span>(manID.UGGA, auto_db, <span class="at">deadband =</span> <span class="st">"aux"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="references" class="level4">
 <h4 class="anchored" data-anchor-id="references">References</h4>
-<p>Johannesson, C. F., Nordén, J., Lange, H., Silvennoinen, H., &amp; Larsen, K. S. (2024). Optimizing the closure period for improved accuracy of chamber-based greenhouse gas flux estimates. <em>Agricultural and Forest Meteorology</em></p>
+<p>Johannesson, C. F., Nordén, J., Lange, H., Silvennoinen, H., &amp; Larsen, K. S. (2024). Optimizing the closure period for improved accuracy of chamber-based greenhouse gas flux estimates. \emph{Agricultural and Forest Meteorology</p>
 
 
 </section>

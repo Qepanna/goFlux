@@ -6,6 +6,11 @@ csl: apa-no-initials.csl
 editor: visual
 ---
 
+```{r}
+#| include: false
+source("scripts/autodoc.R")
+```
+
 Following flux calculation, the user can select the best flux estimate (LM or HM) based on objective criteria, using the `best.flux` function:
 
 -   **Assumed non-linearity**: If all criteria are met, the best flux estimate is assumed to be the non-linear estimate from the Hutchinson and Mosier model.
@@ -130,67 +135,15 @@ This criteria is only applicable to the linear flux. Under a defined *p-value*, 
 
 Limit below which a measurement is flagged for being too short (`nb.obs < warn.length`). Portable greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore, for the default setting of `warn.length = 60`, the chamber closure time should be approximately one minute (60 seconds). If the number of observations is smaller than the threshold, a warning is issued in the column `quality.check`.
 
-#### Usage
-
-::: callout-note
-Code chunks under **Usage** sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.
-:::
-
 ```{r}
-#| eval: false
-#| code-copy: false
-best.flux(
-  flux.result,
-  criteria = c("MAE", "RMSE", "AICc", "SE", "g.factor", "kappa", "MDF", "nb.obs",
-    "intercept", "p-value"),
-  intercept.lim = NULL,
-  g.limit = 2,
-  p.val = 0.05,
-  k.ratio = 1,
-  warn.length = 60
-)
+#| echo: false
+#| results: asis
+cat(autodoc("best.flux", level = 4, references = FALSE))
 ```
-
-#### Arguments
-
-|  |  |
-|------------------------------------|------------------------------------|
-| `flux.result` | data.frame; output from the function `goFlux`. |
-| `criteria` | character vector; criteria used to assess the goodness of fit of the linear and non-linear flux estimates. Must be at least one the following: "MAE", "RMSE", "AICc", "SE", "g.factor", "kappa", "MDF", "nb.obs", "p-value", or "intercept". The default is all of them. |
-| `intercept.lim` | numerical vector of length 2; inferior and superior limits of the intercept (initial concentration; C~0~). Must be the same units as `gastype` in the `goFlux` function. If `intercept.lim = NULL`, the limits are calculated from the true values of C~0~ and C~t~ for each measurement. |
-| `g.limit` | numerical value; maximal limit of the g.factor (ratio between `HM.flux` and `LM.flux`). Recommended thresholds for the g.factor are 4 (flexible), 2 (medium), or 1.25 (conservative). The default limit is `g.limit = 2`. |
-| `p.val` | numerical value; a limit for a statistically detectable flux. The default threshold is *p-value* \< 0.05. |
-| `k.ratio` | numerical value; maximal limit of the ratio between kappa and the kappa-max. Default is `k.ratio = 1`. |
-| `warn.length` | numerical value; limit under which a measurement is flagged for being too short (`nb.obs < warn.length`). |
-
-#### Details
-
-In `criteria`, the indices of model fit "MAE", "RMSE" and "SE" all have a threshold. For MAE and RMSE, the threshold is instrument precision (1σ). For SE, the threshold is the instrument accuracy (1σ/n​). These indices also compare the two models (linear, LM, and non-linear, HM). The selection of the best model based on indices of model fit ("MAE", "RMSE", "AICc" and "SE") is based on a scoring system. Both models start with a score of 0. For each criteria, whichever model performs worst is given +1. After all selected criteria have been evaluated, the model with the lowest score wins. In case of a tie, the non-linear flux estimate is always chosen by default, as non-linearity is assumed. The score is printed in the output data frame in the columns `HM.score` and `LM.score`.
-
-The `g.limit` indicates a threshold for the `g.factor`, which is the ratio between a non-linear flux estimate and a linear flux estimate. With the `best.flux` function, one can choose a limit at which the HM model is deemed to overestimate f~0~. Recommended thresholds for the g.factor are \<4 for a flexible threshold, \<2 for a medium threshold, or \<1.25 for a more conservative threshold. The default threshold is `g.limit = 2`. If the g.factor is above the specified threshold, the best flux estimate will switch to LM instead of HM and give a warning in the columns `quality.check` and `HM.diagnose`.
-
-The minimal detectable flux (`MDF`) is calculated from the instrument precision, the measurement time and the `flux.term`. Below the MDF, the flux estimate is considered under the detection limit, but not null. Therefore, the function will not return a 0. There will simply be a warning in the columns `quality.check`, `LM.diagnose` or `HM.diagnose` to warn of a flux estimate under the detection limit. No best flux estimate is chosen based on MDF.
-
-The parameter kappa determines the curvature of the non-linear regression in the Hutchinson and Mosier model. A maximal limit of kappa, `k.max` is included in the `goFlux` function, so that the non-linear flux estimate cannot exceed this maximum curvature. In the function `best.flux`, one can choose the linear flux estimate over the non-linear flux estimate based on the ratio between kappa and kappa-max (`k.ratio`). The ratio is expressed as a percentage, where 1 indicates `HM.k = k.max`, and 0.5 indicates `HM.k = 0.5*k.max`. The default setting is `k.ratio = 1`. If `HM.k/k.max` is larger than `k.ratio`, a warning is issued in the columns `HM.diagnose` and `quality.check`.
-
-If the initial gas concentration (C~0~) calculated for the flux estimates are more or less than 10% of the difference between C~0~ and the final gas concentration at the end of the measurement (C~t~), a warning is issued in the columns `quality.check`, `LM.diagnose` or `HM.diagnose` to warn of an intercept out of bounds. Alternatively, one can provide boundaries for the intercept, for example: `intercept.lim = c(380, 420)` for a true C~0~ of 400 ppm.
-
-The argument `p.val` is only applicable to the linear flux. Under the defined *p-value*, the linear flux estimate is deemed non-significant, i. e., flux under the detection limit. The default threshold is `p.val = 0.05`. No best flux estimate is chosen based on *p-value*. If `LM.p.val < p.val`, a warning is given in the columns `quality.check` and `LM.diagnose` to warn of an estimated flux under the detection limit.
-
-`warn.length` is the limit under which a measurement is flagged for being too short (`nb.obs < warn.length`). With nowadays' portable greenhouse gas analyzers, the frequency of measurement is usually one observation per second. Therefore, for the default setting of `warn.length = 60`, the chamber closure time should be approximately one minute (60 seconds). If the number of observations is smaller than the threshold, a warning is issued in the column `quality.check`.
 
 #### Value
 
 The function returns a data.frame identical to the input `flux.result` (output from the function `goFlux`) with the additional columns `HM.diagnose`, `LM.diagnose`, `best.flux`, `model` and `quality.check`. For each criteria selected, an additional column is also added to specify the limits used for those criteria (e.g. `RMSE.lim`, `p.val.lim`, etc.)
-
-#### Examples
-
-```{r}
-#| eval: false
-data(manID.UGGA)
-CO2_flux <- goFlux(manID.UGGA, "CO2dry_ppm")
-CO2_best <- best.flux(CO2_flux, criteria = c("MAE", "AICc", "g.factor", "MDF"))
-```
 
 #### Save results {#sec-save}
 

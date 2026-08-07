@@ -312,8 +312,8 @@ window.Quarto = {
   <li><a href="#usage" id="toc-usage" class="nav-link" data-scroll-target="#usage">Usage</a></li>
   <li><a href="#arguments" id="toc-arguments" class="nav-link" data-scroll-target="#arguments">Arguments</a></li>
   <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
-  <li><a href="#value" id="toc-value" class="nav-link" data-scroll-target="#value">Value</a></li>
   <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  <li><a href="#value" id="toc-value" class="nav-link" data-scroll-target="#value">Value</a></li>
   <li><a href="#sec-save" id="toc-sec-save" class="nav-link" data-scroll-target="#sec-save">Save results</a></li>
   </ul></li>
   </ul></li>
@@ -459,8 +459,7 @@ Note
 <p>Code chunks under <strong>Usage</strong> sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.</p>
 </div>
 </div>
-<div class="cell" data-code-copy="false">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">best.flux</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">best.flux</span>(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  flux.result,</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">criteria =</span> <span class="fu">c</span>(<span class="st">"MAE"</span>, <span class="st">"RMSE"</span>, <span class="st">"AICc"</span>, <span class="st">"SE"</span>, <span class="st">"g.factor"</span>, <span class="st">"kappa"</span>, <span class="st">"MDF"</span>, <span class="st">"nb.obs"</span>,</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"intercept"</span>, <span class="st">"p-value"</span>),</span>
@@ -470,7 +469,6 @@ Note
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">k.ratio =</span> <span class="dv">1</span>,</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">warn.length =</span> <span class="dv">60</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
 </section>
 <section id="arguments" class="level4">
 <h4 class="anchored" data-anchor-id="arguments">Arguments</h4>
@@ -479,6 +477,12 @@ Note
 <col style="width: 50%">
 <col style="width: 50%">
 </colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
 <tbody>
 <tr class="odd">
 <td><code>flux.result</code></td>
@@ -486,7 +490,7 @@ Note
 </tr>
 <tr class="even">
 <td><code>criteria</code></td>
-<td>character vector; criteria used to assess the goodness of fit of the linear and non-linear flux estimates. Must be at least one the following: “MAE”, “RMSE”, “AICc”, “SE”, “g.factor”, “kappa”, “MDF”, “nb.obs”, “p-value”, or “intercept”. The default is all of them.</td>
+<td>character vector; criteria used to assess the goodness of fit of the LM or HM flux estimates. Must be at least one the following: “MAE”, “RMSE”, “AICc”, “SE”, “g.factor”, “kappa”, “MDF”, “nb.obs”, “p-value”, or “intercept”. The default is all of them.</td>
 </tr>
 <tr class="odd">
 <td><code>intercept.lim</code></td>
@@ -494,15 +498,15 @@ Note
 </tr>
 <tr class="even">
 <td><code>g.limit</code></td>
-<td>numerical value; maximal limit of the g.factor (ratio between <code>HM.flux</code> and <code>LM.flux</code>). Recommended thresholds for the g.factor are 4 (flexible), 2 (medium), or 1.25 (conservative). The default limit is <code>g.limit = 2</code>.</td>
+<td>numerical value; maximum limit of the g-factor (ratio between <code>HM.flux</code> and <code>LM.flux</code>). Recommended thresholds for the g-factor are 4 (flexible), 2 (medium), or 1.25 (conservative). The default limit is <code>g.limit = 2</code>.</td>
 </tr>
 <tr class="odd">
 <td><code>p.val</code></td>
-<td>numerical value; a limit for a statistically detectable flux. The default threshold is <em>p-value</em> &lt; 0.05.</td>
+<td>numerical value; the minimal limit to indicate a slope significantly larger than zero. The default threshold is <em>p-value</em> &lt; 0.05.</td>
 </tr>
 <tr class="even">
 <td><code>k.ratio</code></td>
-<td>numerical value; maximal limit of the ratio between kappa and the kappa-max. Default is <code>k.ratio = 1</code>.</td>
+<td>numerical value; maximum limit of the ratio between kappa and the kappa-max. Default is <code>k.ratio = 1</code>.</td>
 </tr>
 <tr class="odd">
 <td><code>warn.length</code></td>
@@ -513,25 +517,17 @@ Note
 </section>
 <section id="details" class="level4">
 <h4 class="anchored" data-anchor-id="details">Details</h4>
-<p>In <code>criteria</code>, the indices of model fit “MAE”, “RMSE” and “SE” all have a threshold. For MAE and RMSE, the threshold is instrument precision (1σ). For SE, the threshold is the instrument accuracy (1σ/n​). These indices also compare the two models (linear, LM, and non-linear, HM). The selection of the best model based on indices of model fit (“MAE”, “RMSE”, “AICc” and “SE”) is based on a scoring system. Both models start with a score of 0. For each criteria, whichever model performs worst is given +1. After all selected criteria have been evaluated, the model with the lowest score wins. In case of a tie, the non-linear flux estimate is always chosen by default, as non-linearity is assumed. The score is printed in the output data frame in the columns <code>HM.score</code> and <code>LM.score</code>.</p>
-<p>The <code>g.limit</code> indicates a threshold for the <code>g.factor</code>, which is the ratio between a non-linear flux estimate and a linear flux estimate. With the <code>best.flux</code> function, one can choose a limit at which the HM model is deemed to overestimate f<sub>0</sub>. Recommended thresholds for the g.factor are &lt;4 for a flexible threshold, &lt;2 for a medium threshold, or &lt;1.25 for a more conservative threshold. The default threshold is <code>g.limit = 2</code>. If the g.factor is above the specified threshold, the best flux estimate will switch to LM instead of HM and give a warning in the columns <code>quality.check</code> and <code>HM.diagnose</code>.</p>
-<p>The minimal detectable flux (<code>MDF</code>) is calculated from the instrument precision, the measurement time and the <code>flux.term</code>. Below the MDF, the flux estimate is considered under the detection limit, but not null. Therefore, the function will not return a 0. There will simply be a warning in the columns <code>quality.check</code>, <code>LM.diagnose</code> or <code>HM.diagnose</code> to warn of a flux estimate under the detection limit. No best flux estimate is chosen based on MDF.</p>
-<p>The parameter kappa determines the curvature of the non-linear regression in the Hutchinson and Mosier model. A maximal limit of kappa, <code>k.max</code> is included in the <code>goFlux</code> function, so that the non-linear flux estimate cannot exceed this maximum curvature. In the function <code>best.flux</code>, one can choose the linear flux estimate over the non-linear flux estimate based on the ratio between kappa and kappa-max (<code>k.ratio</code>). The ratio is expressed as a percentage, where 1 indicates <code>HM.k = k.max</code>, and 0.5 indicates <code>HM.k = 0.5*k.max</code>. The default setting is <code>k.ratio = 1</code>. If <code>HM.k/k.max</code> is larger than <code>k.ratio</code>, a warning is issued in the columns <code>HM.diagnose</code> and <code>quality.check</code>.</p>
-<p>If the initial gas concentration (C<sub>0</sub>) calculated for the flux estimates are more or less than 10% of the difference between C<sub>0</sub> and the final gas concentration at the end of the measurement (C<sub>t</sub>), a warning is issued in the columns <code>quality.check</code>, <code>LM.diagnose</code> or <code>HM.diagnose</code> to warn of an intercept out of bounds. Alternatively, one can provide boundaries for the intercept, for example: <code>intercept.lim = c(380, 420)</code> for a true C<sub>0</sub> of 400 ppm.</p>
-<p>The argument <code>p.val</code> is only applicable to the linear flux. Under the defined <em>p-value</em>, the linear flux estimate is deemed non-significant, i. e., flux under the detection limit. The default threshold is <code>p.val = 0.05</code>. No best flux estimate is chosen based on <em>p-value</em>. If <code>LM.p.val &lt; p.val</code>, a warning is given in the columns <code>quality.check</code> and <code>LM.diagnose</code> to warn of an estimated flux under the detection limit.</p>
-<p><code>warn.length</code> is the limit under which a measurement is flagged for being too short (<code>nb.obs &lt; warn.length</code>). With nowadays’ portable greenhouse gas analyzers, the frequency of measurement is usually one observation per second. Therefore, for the default setting of <code>warn.length = 60</code>, the chamber closure time should be approximately one minute (60 seconds). If the number of observations is smaller than the threshold, a warning is issued in the column <code>quality.check</code>.</p>
+<p>In <code>criteria</code>, the indices of model fit “MAE”, “RMSE” and “SE” all have a threshold. For MAE and RMSE, the threshold is instrument precision (1). For SE, the threshold is the instrument accuracy (1/). These indices also compare the two models (linear, LM, and non-linear, HM). The selection of the best model based on indices of model fit (“MAE”, “RMSE”, “AICc” and “SE”) is based on a scoring system. Both models start with a score of 0. For each criteria, whichever model performs worst is given +1. After all selected criteria have been evaluated, the model with the lowest score wins. In case of a tie, the HM flux estimate is always chosen by default, as non-linearity is assumed. The score is printed in the columns HM.score and LM.score. The <code>g.limit</code> indicates a threshold for the <code>g.factor</code>, which is the ratio between a non-linear flux estimate and a linear flux estimate. With the <code>best.flux</code> function, one can choose a limit at which the HM model is deemed to overestimate f<sub>0</sub>. Recommended thresholds for the g-factor are &lt;4 for a flexible threshold, &lt;2 for a medium threshold, or &lt;1.25 for a more conservative threshold. The default threshold is <code>g.limit = 2</code>. If the g-factor is above the specified threshold, the best flux estimate will switch to LM instead of HM and give a warning in the columns <code>quality.check</code> and <code>HM.diagnose</code>. The minimal detectable flux (<code>MDF</code>) is calculated from the instrument precision, the measurement time and the flux.term. Flux estimates below the MDF are considered under the detection limit, but not null. Therefore, the function will not return a 0. There will simply be a warning in the columns <code>quality.check</code>, <code>LM.diagnose</code> or <code>HM.diagnose</code> to warn of a flux estimate under the detection limit. No best flux estimate is chosen based on MDF. The parameter kappa determines the curvature of the non-linear regression in the Hutchinson and Mosier model. A maximum value of kappa, <code>k.max</code> is included in the <code>goFlux</code> function, so that the HM regression cannot exceed this maximum curvature. In the function <code>best.flux</code>, one can choose the linear flux estimate over the HM flux estimate based on the ratio between kappa and kappa-max (<code>k.ratio</code>). The ratio is expressed as a percentage, where 1 indicates <code>HM.k = k.max</code>, and 0.5 indicates <code>HM.k = 0.5*k.max</code>. The default setting is <code>k.ratio = 1</code>. If <code>HM.k/k.max</code> is larger than <code>k.ratio</code>, a warning is issued in the columns <code>HM.diagnose</code> and <code>quality.check</code>. If the initial gas concentration (C<sub>0</sub>) calculated for the flux estimates (<code>HM.C0</code> and <code>LM.C0</code>) deviates from the true (C<sub>0</sub>) by more or less than 10% of the difference between C<sub>0</sub> and the final gas concentration at the end of the measurement (C<sub>t</sub>), a warning is issued in the columns <code>quality.check</code>, <code>LM.diagnose</code> or <code>HM.diagnose</code> to warn of an intercept out of bounds. Alternatively, one can provide boundaries for the intercept, for example: <code>intercept.lim = c(380, 420)</code> for a true C<sub>0</sub> of 400 ppm. The argument <code>p.val</code> is only applicable to the linear flux. Under the defined <em>p-value</em>, the slope of the linear flux estimate is deemed non-significant, i. e., flux under the detection limit. The default threshold is <code>p.val = 0.05</code>. No best flux estimate is chosen based on <em>p-value</em>. If <code>LM.p.val &lt; p.val</code>, a warning is given in the columns <code>quality.check</code> and <code>LM.diagnose</code> to warn of an estimated flux below the detection limit. <code>warn.length</code> is the limit below which the chamber closure time is flagged for being too short (<code>nb.obs &lt; warn.length</code>). Portable greenhouse gas analyzers typically measure at a frequency of 1 Hz. Therefore, for the default setting of <code>warn.length = 60</code>, the chamber closure time should be approximately one minute (60 seconds). If the number of observations is smaller than the threshold, a warning is issued in the column <code>quality.check</code>.</p>
+</section>
+<section id="examples" class="level4">
+<h4 class="anchored" data-anchor-id="examples">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(manID.UGGA)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>CO2_flux <span class="ot">&lt;-</span> <span class="fu">goFlux</span>(manID.UGGA, <span class="st">"CO2dry_ppm"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>CO2_best <span class="ot">&lt;-</span> <span class="fu">best.flux</span>(CO2_flux)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="value" class="level4">
 <h4 class="anchored" data-anchor-id="value">Value</h4>
 <p>The function returns a data.frame identical to the input <code>flux.result</code> (output from the function <code>goFlux</code>) with the additional columns <code>HM.diagnose</code>, <code>LM.diagnose</code>, <code>best.flux</code>, <code>model</code> and <code>quality.check</code>. For each criteria selected, an additional column is also added to specify the limits used for those criteria (e.g.&nbsp;<code>RMSE.lim</code>, <code>p.val.lim</code>, etc.)</p>
-</section>
-<section id="examples" class="level4">
-<h4 class="anchored" data-anchor-id="examples">Examples</h4>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(manID.UGGA)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>CO2_flux <span class="ot">&lt;-</span> <span class="fu">goFlux</span>(manID.UGGA, <span class="st">"CO2dry_ppm"</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>CO2_best <span class="ot">&lt;-</span> <span class="fu">best.flux</span>(CO2_flux, <span class="at">criteria =</span> <span class="fu">c</span>(<span class="st">"MAE"</span>, <span class="st">"AICc"</span>, <span class="st">"g.factor"</span>, <span class="st">"MDF"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
 </section>
 <section id="sec-save" class="level4">
 <h4 class="anchored" data-anchor-id="sec-save">Save results</h4>
