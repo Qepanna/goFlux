@@ -12,3 +12,4 @@
 ^LICENSE$
 ^RData$
 ^website$
+^\.release-please-manifest\.json$
