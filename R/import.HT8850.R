@@ -7,7 +7,7 @@
 #' \ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 #'
-#' @instrumentlink Healthy Photon|HT8850|HT8850 All-in-one Portable GHG Analyzer|https://www.gasmet.com/products/category/portable-gas-analyzers/gt5000-terra/
+#' @instrumentlink Healthy Photon|HT8850|HT8850 All-in-one Portable GHG Analyzer|https://en.healthyphoton.com/gongye/products/45.html
 #' @param inputfile character string; the name of a file with the extension .txt
 #' @param date.format character string; specifies the date format found in the
 #'                    raw data file. Choose one of the following: "dmy", "ymd",

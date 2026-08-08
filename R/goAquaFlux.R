@@ -7,15 +7,12 @@
 #' (typically CH4), after which the time series is separated into
 #' diffusive and ebullitive segments.
 #'
-#' The workflow includes:
-#' \enumerate{
-#'   \item Data validation and cleaning
-#'   \item Calculation of auxiliary variables (flux conversion term and MDF)
-#'   \item Bubble detection (typically using CH4 concentration)
-#'   \item Estimation of ebullition flux based on detected bubble magnitudes
-#'   \item Estimation of diffusive flux using model selection
-#'   \item Combination of diffusive and ebullitive components into total flux
-#' }
+##' The workflow includes: (1) data validation and cleaning; (2) calculation of
+#' auxiliary variables (flux conversion term and MDF); (3) bubble detection
+#' (typically using CH4 concentration); (4) estimation of ebullition flux based
+#' on detected bubble magnitudes; (5) estimation of diffusive flux using model
+#' selection; and (6) combination of the diffusive and ebullitive components
+#' into a total flux.
 #'
 #' The function operates on datasets containing multiple chamber
 #' incubations, which are automatically split using the \code{UniqueID}
@@ -131,6 +128,11 @@
 #' Diffusive fluxes are calculated using the \code{goFlux} framework,
 #' which evaluates multiple regression models and selects the best model
 #' according to user-defined criteria.
+#'
+#' @references
+#' Rheault, K., Christiansen, J. R., & Larsen, K. S. (2024). goFlux: A
+#' user-friendly way to calculate GHG fluxes yourself, regardless of user
+#' experience. *Journal of Open Source Software*, 9(96), 6393.
 #'
 #' @include goFlux-package.R
 #' @include flux.term.R

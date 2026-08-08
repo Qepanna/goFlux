@@ -1,0 +1,129 @@
+---
+title: "Troubleshoot"
+format: 
+  html: 
+    css: styles.css
+engine: knitr
+editor: visual
+---
+
+## Update, update, update
+
+Before trying to Google your way through some incomprehensible error messages, try some of these basic fixes:
+
+1.  **Have you tried turning it off and on again?** Yes, that's right. Even R needs a little reboot once in a while. Many problems can occur especially because of conflicts between packages. To solve this issue, restart your session and load only necessary packages. To do so, click on the "Session" tab, and click "Restart R". Then, load only [required packages](install.qmd#sec-packages).
+2.  **Update goFlux**. The package is constantly being updated with new functions or de-bugging. Make sure you have the latest version by using [this script](install.qmd#sec-installgoflux).
+3.  **Update other required packages**. Some errors may occur due to outdated packages. When installing the package `goFlux` for the first time, it will ask you if you want to update the already installed dependencies. You should always choose to update these packages. If your are using RStudio, there is a chance that the program fails to install some of the packages because it is not allowed to delete the previous version. To solve this issue, manually delete the packages you want to update (click on the little x in the "Packages" tab) before re-installing them.
+4.  **Update R**. Most packages are being updated to work with the latest version of R, and errors can occur if your software is outdated. Make sure you have the latest version of R installed.
+
+## Troubleshoot problems with `install_github()`
+
+### Warning: package is in use and will not be installed {data-link="Warning: package is in use and will not be installed"}
+
+If you get this warning while trying to install an R package from GitHub:
+
+```{r}
+#| echo: false
+message("Warning: package ‘goFlux’ is in use and will not be installed")
+```
+
+This error means that the package is loaded. Before re-installing the package, you must first detach it:
+
+```{r}
+#| eval: false
+detach("package:goFlux", unload = TRUE)
+```
+
+If this does not solve the problem, restart your session and try again.
+
+------------------------------------------------------------------------
+
+### Error: API rate limit exceeded {data-link="Error: API rate limit exceeded"}
+
+If you get this error while trying to install an R package from GitHub:
+
+```{r}
+#| eval: false
+message("Error: Failed to install 'goFlux' from GitHub:
+  HTTP error 403.
+  API rate limit exceeded for xxx.xxx.xxx.x (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)
+
+  Rate limit remaining: 0/60
+  Rate limit reset at: 2023-10-16 09:08:07 UTC
+
+  To increase your GitHub API rate limit
+  - Use `usethis::create_github_token()` to create a Personal Access Token.
+  - Use `usethis::edit_r_environ()` and add the token as `GITHUB_PAT`.")
+```
+
+This error can occur when a user tries to install R packages too many times in the same day. To avoid this error, only update the package when necessary. To increase your API rate limit, follow the steps below.
+
+#### Step 1: Set up a GitHub account
+
+**Go to <https://github.com/join> .**
+
+1.  Type a user name, your email address, and a password.
+
+2.  Choose Sign up for GitHub, and then follow the instructions.
+
+#### Step 2: Create a GitHub token
+
+Run in R:
+
+```{r}
+#| eval: false
+usethis::create_github_token()
+```
+
+On pop-up website, generate and copy your token.
+
+#### Step 3: Set your GitHub PAT from R
+
+Run in R with your own token generated in step 2:
+
+```{r}
+#| eval: false
+credentials::set_github_pat("YourTokeninStep2")
+```
+
+## click.peak based on UniqueID {#sec-click.peak}
+
+How to re-run `click.peak2` on one measurement at a time and replace previous click.
+
+Here is an example with the UniqueID 733a_C_C from the example data provided with the package.
+
+First, we must find in which position is this UniqueID located in the list of data frames created with the function `obs.win` ([Step 2](manualID.qmd#sec-step2) of the Manual Identification of Measurements workflow).
+
+```{r}
+#| eval: false
+# Create a data frame UniqueID.position that lists the position of each UniqueID
+# in the object ow.UGGA
+UniqueID.position <- cbind.data.frame(position = seq(1, length(ow.UGGA))) 
+for (i in 1:length(ow.UGGA)){
+  UniqueID.position$UniqueID[[i]] <- first(ow.UGGA[[i]]$UniqueID)}
+
+# Find the UniqueID 733a_C_C in that data frame
+filter(UniqueID.position, UniqueID == "733a_C_C")
+```
+
+Then, run a normal `click.peak2` on the position found:
+
+```{r}
+#| eval: false
+new.click <- click.peak2(ow.UGGA, seq = 2)
+```
+
+Load previously saved results, replace this UniqueID, and save the modified file.
+
+```{r}
+#| eval: false
+load("RData/manID.UGGA.RData")
+
+manID.UGGA <- manID.UGGA %>% 
+  # Remove the previous click
+  filter(UniqueID != "733a_C_C") %>% 
+  # Add the new click
+  rbind(new.click)
+
+save(manID.UGGA, file = "RData/manID.UGGA.RData")
+```

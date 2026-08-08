@@ -1,0 +1,83 @@
+---
+title: "goFlux, For User-Friendly Chamber Data Processing, Flux Estimation, and Diagnostics"
+editor: visual
+format:
+  html:
+    toc: false
+author: Karelle Rheault
+bibliography: references.bib
+csl: apa-numeric-superscript-brackets.csl
+---
+
+::: {.callout-warning icon="false"}
+## Your contribution
+
+The package is ready to use and fully functional, but errors may still occur. To report any issues, suggest improvements or ask for new features, [open an issue on GitHub](https://github.com/Qepanna/goFlux/issues). Alternatively, contact directly the maintainer, Karelle Rheault ([karh\@ign.ku.dk](mailto:karh@ign.ku.dk){.email}), including script and raw data if necessary. Thank you for helping me in the development of this tool! 🙏
+:::
+
+## One Package to rule them all
+
+Non-steady state (static) chambers are widely used for measuring soil greenhouse gas (GHG) fluxes, such as CO~2~, CH~4~, N~2~O, NH~3~, CO, and water vapor (H~2~O). While linear regression (LM) is commonly used to estimate GHG fluxes, this method tends to underestimate the pre-deployment flux (*f*~0~). Indeed, non-linearity is expected when the gas concentration increases or decreases inside a closed chamber, due to changes in gas gradients between the soil and the air inside the chamber. In addition, lateral gas flow and leakage contribute to non-linearity. Many alternative to LM have been developed to try to provide a more accurate estimation of *f*~0~, for instance the method of Hutchinson and Mosier @hutchinson1981 (HM), which was implemented in the [`HMR`](https://cran.r-project.org/package=HMR) package by Pedersen et al. (2010) @pedersen2010. However, non-linear models have a tendency to largely overestimate some flux measurements, due to an exaggerated curvature. Therefore, the user is expected to decide which method is more appropriate for each flux estimate. With the advent of portable greenhouse gas analyzers (e.g. [Los Gatos Research (ABB) laser gas analyzers](https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers)), soil GHG fluxes have become much easier to measure, and more efficient ways to calculate these flux estimates are needed in order to process large amounts of data. A recent approach was developed by Hüppi et al. (2018) @hüppi2018 to restrict the curvature in the HM model for a more reliable flux estimate. In the HM model, the curvature is controlled by the kappa parameter, $\kappa$. Hüppi et al. @hüppi2018 suggest the use of the `KAPPA.MAX` to limit the maximal curvature allowed in the model (see their R package [`gasfluxes`](https://cran.r-project.org/package=gasfluxes), available on the CRAN). This procedure introduces less arbitrary decisions in the flux estimation process.
+
+Previous software developed to calculate GHG fluxes are limited in many aspects that the goFlux package is meant to overcome. Most are limited to the linear regression approach (e.g. [Flux Puppy](https://www.sciencedirect.com/science/article/pii/S0168192319301522), and the R packages [`flux`](https://cran.r-project.org/package=flux) and [`FluxCalR`](https://github.com/junbinzhao/FluxCalR)), others do not include data pre-processing (e.g. the R packages [`HMR`](https://cran.r-project.org/package=HMR), [`flux`](https://cran.r-project.org/package=flux) and [`gasfluxes`](https://cran.r-project.org/package=gasfluxes)), or if they do, they are compatible with only a few designated systems (e.g. [Flux Puppy](https://www.sciencedirect.com/science/article/pii/S0168192319301522) and [`FluxCalR`](https://github.com/junbinzhao/FluxCalR)), and none include an automatic selection of the best flux estimate (LM or HM) based on objective criteria, except the R packages [`gasfluxes`](https://cran.r-project.org/package=gasfluxes) and [`HMR`](https://cran.r-project.org/package=HMR).
+
+This new R package, `goFlux` is meant to be "student proof", meaning that no extensive knowledge or experience is needed to import raw data into R, choose the best model to calculate fluxes (LM or HM), quality check the results objectively and obtain high quality flux estimates. The package contains a wide range of functions that allows the user to import raw data from a variety of instruments (LI-COR, LGR, GAIA2TECH, Gasmet, Picarro, Aeris and PP-Systems); calculate fluxes from a variety of GHG (CO~2~, CH~4~, N~2~O, NH~3~, CO and H~2~O) with both linear (LM) and non-linear (HM) flux calculation methods; align instruments clocks after data import; interactively identify measurements (start and end time) if there are no automatic chamber recordings (e.g. LI-COR smart chamber); plot measurements for easy visual inspection; and quality check the measurements based on objective criteria.
+
+> *Three R packages for the Elven-kings under the CRAN,\
+> Seven for the Dwarf-lords in their halls of open software,\
+> Nine for Mortal Men doomed to write scripts themselves,\
+> One for the Dark Lady on her dark throne\
+> In the Land of GitHub where the Shadows lie.\
+> One Package to rule them all, One Package to find them,\
+> One Package to bring them all and in the darkness bind them\
+> In the Land of GitHub where the Shadows lie.*
+
+## Analysis workflow
+
+This package will help you import raw data into R, identify measurements, calculate fluxes, select the best flux estimate (LM or HM), save the results as RData or Excel spreadsheet, and visually inspect the results on plots that can be saved as pdf.
+
+Click on the tabs on the sidebar to navigate through each step, or follow the links in the table of contents below.
+
+1.  [Install the package](install.qmd)
+2.  [Import raw data into R](import.qmd)
+3.  [Identify start and end points of measurements](manualID.qmd)
+4.  [Calculate GHG flux estimates (LM and HM)](goFlux.qmd)
+5.  [Automatically select the best flux estimate](bestflux.qmd)
+6.  [Save results as RData or Excel](bestflux.qmd#sec-save)
+7.  [Plot results and save as pdf](flux2pdf.qmd)
+
+## How to cite
+
+Please cite this R package using this publication in JOSS:\
+\
+Rheault et al., (2024). goFlux: A user-friendly way to calculate GHG fluxes yourself, regardless of user experience. Journal of Open Source Software, 9(96), 6393, <https://doi.org/10.21105/joss.06393>
+
+## JOSSCast
+
+Wanna know more about how goFlux came to be?
+
+Watch my interview on JOSSCast with [Abigail Cabunoc Mayes](https://www.linkedin.com/in/abbycabs/) & [Arfon Smith](https://www.linkedin.com/in/arfon/), from the [Journal of Open Source Software](https://joss.theoj.org/), on [Spotify](https://podcasters.spotify.com/pod/show/josscast/episodes/Greenhouse-Gas-Flux-Analysis-Made-Easy--Karelle-Rheault-on-goFlux-e2munf9), [Youtube](https://www.youtube.com/watch?v=x_n5oLhFSUw) or [Apple Podcasts](https://podcasts.apple.com/ca/podcast/greenhouse-gas-flux-analysis-made-easy-karelle-rheault/id1725931379?i=1000664688023) 👇
+
+[![](images/JOSSCast teaser.mp4)](https://www.youtube.com/watch?v=x_n5oLhFSUw)
+
+Episode highlights:
+
+-   \[02:03\] - Karelle's Journey to Creating goFlux
+-   \[02:56\] - Understanding Greenhouse Gas Fluxes
+-   \[05:19\] - Measurement Techniques and Tools
+-   \[09:30\] - Challenges and Advantages of goFlux
+-   \[20:20\] - Open Source Contributions and Community Support
+-   \[23:57\] - Karelle's Experience with JOSS
+-   \[27:00\] - Future Plans and Contributions
+-   \[28:59\] - Organizing the Community and Setting Standards
+-   \[31:27\] - Conclusion and Farewell
+
+## Acknowledgements
+
+This software development was supported by the SilvaNova project funded by the NOVO Nordisk Foundation (grant no. NNF20OC0059948).
+
+::: {layout="[[45,-10,45]]"}
+[![](images/Silva%20Nova%20logo.jpg){width="200" fig-align="right" height="120"}](https://ign.ku.dk/english/silvanova/)
+
+[![](images/Novo%20Nordisk%20fonden%20logo.png){fig-align="left" width="128"}](https://novonordiskfonden.dk/en/)
+:::

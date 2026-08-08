@@ -5,3 +5,6 @@ docs
 .RDataTmp
 .Ruserdata
 README.Rmd
+/_site/
+.DS_Store
+.Rapp.history

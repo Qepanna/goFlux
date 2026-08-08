@@ -1,0 +1,146 @@
+---
+title: "goAquaFlux"
+subtitle: "Diffusive and ebullitive GHG flux partitioning for aquatic floating chambers"
+engine: knitr
+editor: visual
+---
+
+```{r}
+#| include: false
+source("scripts/autodoc.R")
+```
+
+## Overview
+
+**goAquaFlux** extends the [goFlux](https://github.com/Qepanna/goFlux) R package
+(Rheault et al., 2024) to aquatic floating-chamber measurements, where methane
+reaches the atmosphere by two pathways with very different behaviour:
+
+- **Diffusion** — a smooth, near-linear accumulation in the chamber headspace.
+- **Ebullition** — bubbles, appearing as abrupt *steps* in concentration.
+
+Standard chamber-flux software models a single smooth signal, so a naive fit
+either discards bubble-affected incubations or silently folds ebullition into a
+biased "diffusive" estimate. goAquaFlux detects the steps, fits the diffusive
+flux on a bubble-free window using goFlux's validated LM/HM models and QA/QC,
+and returns a partitioned total.
+
+## How it works
+
+The workflow is a pipeline of four steps, one function each, coordinated by
+`goAquaFlux()` across all incubations in a dataset (split by `UniqueID`):
+
+1. **Detect the bubbles.** `find.bubbles()` scans the concentration series
+   (typically `CH4dry_ppb`) with a rolling dispersion metric — MAD,
+   variance, or the MAD of first differences (`"diff"`, robust to a diffusive
+   trend) — and flags contiguous supra-threshold periods as bubbling events.
+   Each event's size is then estimated as a local step on top of the
+   diffusive trend.
+2. **Fit the diffusive flux.** `goAquaFlux.diffusive()` fits the diffusive
+   component on the bubble-free window (truncated at the first event) using
+   goFlux's linear (LM) and non-linear (HM) models and the model-selection
+   criteria. For non-bubble gases, the window is only cut at a bubble that
+   coincides with an abrupt slope change.
+3. **Compute the ebullitive flux.** `goAquaFlux.ebullition()` converts the
+   summed bubble magnitudes into a flux,
+   $F_E = \frac{\sum \Delta C_{\text{bubble}}}{t_{inc}} \times K$,
+   with standard errors propagated from the per-event magnitudes, and returns
+   an independent two-point endpoint estimate for diagnosis.
+4. **Combine and check.** `goAquaFlux.total()` adds the two components,
+   $F_T = F_E + F_D$, propagates the error assuming independence
+   ($SE_T = \sqrt{SE_E^2 + SE_D^2}$), and flags results that are suspiciously
+   larger than the endpoint estimate (e.g. a diffusive ramp mistaken for a
+   bubble step).
+
+`flux.plot.aqua()` then produces one diagnostic plot per incubation: the
+concentration series, the shaded diffusive window, the detected bubbling
+events, and a legend of the total / diffusive / ebullitive fluxes.
+
+## Installation
+
+```{r}
+#| eval: false
+# install.packages("remotes")
+remotes::install_github("Qepanna/goFlux")          # the parent package
+remotes::install_github("Qepanna/goFlux@aquaghg")    # this fork + aqua extension
+```
+
+## Quick start
+
+```{r}
+#| eval: false
+library(goFlux)
+
+fluxres <- goAquaFlux(
+  dataframe            = IDed,          # output of goFlux::autoID()
+  gastype              = "CH4dry_ppb",
+  use_bubble_detection = TRUE
+)
+
+flux.plot.aqua(fluxres, IDed, gastype = "CH4dry_ppb",
+               plot.display = c("diffusive.window", "ebullition.events"))
+```
+
+## Functions
+
+### `goAquaFlux` for computing gas fluxes from aquatic chamber measurements {#goAquaFlux}
+
+Main entry point: partitions aquatic GHG fluxes into diffusive and ebullitive
+components across many incubations.
+
+```{r}
+#| echo: false
+#| results: asis
+cat(autodoc("goAquaFlux", level = 4))
+```
+
+### `find.bubbles` for detecting ebullition events {#find.bubbles}
+
+Detects bubbling (ebullition) events as abrupt steps in a concentration
+series.
+
+```{r}
+#| echo: false
+#| results: asis
+cat(autodoc("find.bubbles", level = 4))
+```
+
+### `goAquaFlux.diffusive` for estimating diffusive gas flux {#goAquaFlux.diffusive}
+
+Diffusive flux on a bubble-free window, via goFlux's LM/HM models.
+
+```{r}
+#| echo: false
+#| results: asis
+cat(autodoc("goAquaFlux.diffusive", level = 4))
+```
+
+### `goAquaFlux.ebullition` for estimating ebullitive gas flux {#goAquaFlux.ebullition}
+
+Ebullitive flux from detected bubble magnitudes.
+
+```{r}
+#| echo: false
+#| results: asis
+cat(autodoc("goAquaFlux.ebullition", level = 4))
+```
+
+### `goAquaFlux.total` for combining diffusive and ebullitive flux {#goAquaFlux.total}
+
+Combine components with error propagation and consistency checks.
+
+```{r}
+#| echo: false
+#| results: asis
+cat(autodoc("goAquaFlux.total", level = 4))
+```
+
+### `flux.plot.aqua` for plotting aquatic chamber incubations {#flux.plot.aqua}
+
+Per-incubation diagnostic plots of the diffusive window and ebullition events.
+
+```{r}
+#| echo: false
+#| results: asis
+cat(autodoc("flux.plot.aqua", level = 4))
+```

@@ -88,17 +88,17 @@ bubbling events. Default is \code{"CH4dry_ppb"}.}
 
 \item{bubble.method}{Character; dispersion metric passed to
 \code{\link{find.bubbles}}: \code{"mad"} (default), \code{"variance"} or
-\code{"diff"} (rolling MAD of increments, robust to a diffusive trend).}
+\code{"diff"} (rolling variance of increments, robust to a diffusive trend).}
 
 \item{bubble.args}{Named list of additional arguments forwarded to
 \code{\link{find.bubbles}} (e.g. \code{list(k = 5, min_magnitude = 10)}).
 Values here override the defaults for advanced tuning.}
 
-\item{ebullition.final_window_min}{Minimum time window (minutes) required
+\item{ebullition.final_window_min}{Minimum time window (seconds) required
 after the last bubble event to define the incubation end for ebullition
 flux calculation.}
 
-\item{ebullition.window_C0Cf}{Time window (minutes) used to compute
+\item{ebullition.window_C0Cf}{Time window (seconds) used to compute
 initial and final concentrations for the endpoint flux estimate.}
 
 \item{diffusion.minimum_window}{Minimum number of observations required
@@ -140,15 +140,12 @@ events are identified using high-frequency concentration variability
 diffusive and ebullitive segments.
 }
 \details{
-The workflow includes:
-\enumerate{
-  \item Data validation and cleaning
-  \item Calculation of auxiliary variables (flux conversion term and MDF)
-  \item Bubble detection (typically using CH4 concentration)
-  \item Estimation of ebullition flux based on detected bubble magnitudes
-  \item Estimation of diffusive flux using model selection
-  \item Combination of diffusive and ebullitive components into total flux
-}
+The workflow includes: (1) data validation and cleaning; (2) calculation of
+auxiliary variables (flux conversion term and MDF); (3) bubble detection
+(typically using CH4 concentration); (4) estimation of ebullition flux based
+on detected bubble magnitudes; (5) estimation of diffusive flux using model
+selection; and (6) combination of the diffusive and ebullitive components
+into a total flux.
 
 The function operates on datasets containing multiple chamber
 incubations, which are automatically split using the \code{UniqueID}
@@ -172,6 +169,11 @@ results <- goAquaFlux(
 )
 }
 
+}
+\references{
+Rheault, K., Christiansen, J. R., & Larsen, K. S. (2024). goFlux: A
+user-friendly way to calculate GHG fluxes yourself, regardless of user
+experience. *Journal of Open Source Software*, 9(96), 6393.
 }
 \seealso{
 \code{\link{find.bubbles}},

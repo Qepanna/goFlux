@@ -139,7 +139,7 @@ chamber closure and opening that have been removed (\code{crop}) (indicated
 in light red). For manual chamber measurements, because there is no automatic
 chamber closure and opening, no green stars can be displayed. In addition,
 \code{crop} is only relevant if data points have been removed with the
-function \code{crop.meas()} (this function is not available yet).
+function \code{crop.meas()}.
 One may choose to display none of these parameters with \code{plot.display = NULL}.
 The order in which \code{prec}, \code{flux.term}, \code{MDF} and \code{nb.obs}
 are put in \code{plot.display = c()} decides the order in which they are
