@@ -29,7 +29,7 @@ jobs:
       R_KEEP_PKG_SOURCE: yes
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -47,6 +47,18 @@ jobs:
         with:
           extra-packages: any::rcmdcheck
           needs: check
+
+      # Workaround for RcppParallel 6.2.0 (published 2026-07-30) breaking the
+      # qs2 binary on macOS ARM64: RcppParallel's bundled newer oneTBB removed
+      # the legacy `tbb::task::note_affinity` symbol, but the CRAN binary of qs2
+      # (a transitive dependency) still references it, causing "Symbol not found"
+      # during goFlux lazy-loading. Rebuilding both from source on macOS makes
+      # them compile against the same current TBB, resolving the mismatch.
+      - name: Rebuild RcppParallel + qs2 from source (macOS TBB fix)
+        if: runner.os == 'macOS'
+        run: |
+          Rscript -e 'install.packages("RcppParallel", repos = "https://cloud.r-project.org", type = "source")'
+          Rscript -e 'install.packages("qs2", repos = "https://cloud.r-project.org", type = "source")'
 
       - uses: r-lib/actions/check-r-package@v2
         with:
