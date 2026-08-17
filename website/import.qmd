@@ -25,6 +25,7 @@ The package contains a wide range of functions that let the user import raw data
 -   [**PP-Systems EGM-5 Portable CO~2~ Gas Analyzer**](https://ppsystems.com/egm-5/): for CO~2~, O~2~ and H~2~O
 -   [**Aeris Technologies MIRA Ultra Gas Analyzers**](https://aerissensors.com/ultra-series/): for N~2~O, CO~2~ and H~2~O or for CH~4~, C~2~H~6~ and H~2~O
 -   [**Healthy Photon HT8850 all-in-one GHG analyzer**](https://en.healthyphoton.com/gongye/products/45.html): for CO~2~, CH~4~, N~2~O, and H~2~O
+-   [**CR1000X data logger logging data from LI7810, LI7820, and LI8100 gas analyzers**](https://www.campbellsci.com/cr1000x): for CO~2~, CH~4~, N~2~O, and H~2~O
 -   **Custom made multiplexer** from the University of Padova, Italy, which integrates data from multiple automatic chambers linked to a Gasmet DX4015.
 
 There are two ways to import raw data files into R:
@@ -411,6 +412,7 @@ Each instrument has a unique function for single file import. The advantage of u
 -   [**Aeris Technologies**](import.qmd#sec-single-Aeris): N~2~O/CO~2~ high accuracy analyzer and CH~4~/C~2~H~6~ natural gas detection system
 -   [**Healthy Photon**](import.qmd#sec-single-HealthyPhoton): HT8850
 -   [**GasmetPD**](import.qmd#sec-single-GasmetPD): Custom multiplexer from the University of Padova, Italy
+-   [**CR1000X data logger logging data from LI7810, LI7820, and LI8100 gas analyzers**](https://www.campbellsci.com/cr1000x): for CO~2~, CH~4~, N~2~O, and H~2~O
 
 ### LI-COR {#sec-single-LICOR}
 
@@ -980,7 +982,29 @@ imp.GasmetPD <- import.GasmetPD(inputfile = file.path, prec = c(1.6, 13, 2, 23, 
 # Or save in a RData folder in the working directory
 import.GasmetPD(inputfile = file.path, prec = c(1.6, 13, 2, 23, 33), save = TRUE)
 ```
+### Data logger Campbell CR1000X logging data from LI7810, LI7820, and LI8100 gas analyzers
 
+Imports single raw gas measurement files from the LI7810, LI7820, and LI8100 gas analyzers logged on the Campbell CR1000X data logger (CO~2~, CH~4~, N~2~O, and H~2~O)
+
+```{r}
+#| echo: false
+#| results: asis
+cat(autodoc("import.CR1000X", level = 4, examples = FALSE))
+```
+#### Examples
+
+```{r}
+#| eval: false
+# Retrieve file path from example file in the goFlux package
+# using the function system.file
+file.path <- system.file("extdata", "CR1000X/CR1000X.data", package = "goFlux")
+
+# Import in the environment
+imp.CR1000X <- import.CR1000X(inputfile = file.path)
+
+# Or save in a RData folder in the working directory
+import.CR1000X(inputfile = file.path, save = TRUE)
+```
 ### eosMX12 12-Channel Multiplexer {#sec-single-eosMX12}
 
 Import single raw data files from the Eosense eosMX12 12-channel multiplexer with the function `import.eosMX12`.
