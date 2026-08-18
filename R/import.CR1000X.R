@@ -114,8 +114,6 @@ import.CR1000X <- function(inputfile, timezone = "UTC",
   #  REMARK <- POSIX.warning <- import.error <- NULL
   
   # Input file name
-  library(dplyr)
-  #inputfile<-"C:/Users/au787802/OneDrive - Aarhus universitet/Desktop/Chambers-sync_Soil_flux.dat"
   inputfile.name <- gsub(".*/", "", inputfile)
   
   # Try to load data file
