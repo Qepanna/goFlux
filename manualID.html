@@ -335,8 +335,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Use the functions <code>obs.win</code> and <code>click.peak2</code> to <a href="#sec-manID">manually select the measurements’ window of observation</a>.</li>
 </ul>
 <p>Both methods rely on an auxiliary file, such as field notes or the recordings of the LI-COR Smart Chamber. Alternatively, a gas measurement file containing all necessary columns (e.g., <code>start.time</code> and <code>UniqueID</code>) does not require an auxiliary file.</p>
-<section id="usage" class="level3">
-<h3 class="anchored" data-anchor-id="usage">Usage</h3>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -347,9 +345,11 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Code chunks under <strong>Usage</strong> sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.</p>
+<p>Code chunks under <strong>Usage</strong> sections are not part of the demonstration. They are meant to show how to use the function arguments.</p>
 </div>
 </div>
+<section id="usage" class="level3">
+<h3 class="anchored" data-anchor-id="usage">Usage</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoID</span>(</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  inputfile,</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">auxfile =</span> <span class="cn">NULL</span>,</span>
@@ -614,19 +614,6 @@ Note
 <p>The purpose of this step is to zoom in on each measurement in the file to help you identify the start and end time more easily. In order to correctly zoom in on each measurement, you must know the <code>start.time</code> (defined in step 1) and the observation length (<code>obs.length</code>) of each measurement. In addition, you can define some buffer time around each measurement in case the defined <code>start.time</code> is not exact. If the observation length is different for each measurement, use the longest one.</p>
 <section id="usage-1" class="level4">
 <h4 class="anchored" data-anchor-id="usage-1">Usage</h4>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Code chunks under <strong>Usage</strong> sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.</p>
-</div>
-</div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">obs.win</span>(</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  inputfile,</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">auxfile =</span> <span class="cn">NULL</span>,</span>
@@ -796,19 +783,6 @@ You should split the next step into at least 2 loops.</code></pre>
 <p>When running the function <code>click.peak2</code>, for each measurement, a window will open, in which you must click on the start point and the end point. The observation window is based on the <code>start.time</code> given in the <code>auxfile</code>, the length of the measurement (<code>obs.length</code>), and a <code>shoulder</code> before <code>start.time</code> and after <code>start.time + obs.length</code>.</p>
 <section id="usage-2" class="level4">
 <h4 class="anchored" data-anchor-id="usage-2">Usage</h4>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Code chunks under <strong>Usage</strong> sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.</p>
-</div>
-</div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">click.peak2</span>(</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  ow.list,</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">gastype =</span> <span class="st">"CO2dry_ppm"</span>,</span>

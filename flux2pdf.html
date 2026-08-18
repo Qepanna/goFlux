@@ -287,8 +287,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Finally, after finding the best flux estimates, the user can plot the results and visually inspect the measurements using the function <code>flux.plot</code> and save the plots as pdf using <code>flux2pdf</code>.</p>
 <section id="flux.plot" class="level3">
 <h3 class="anchored" data-anchor-id="flux.plot"><code>flux.plot</code></h3>
-<section id="usage" class="level4">
-<h4 class="anchored" data-anchor-id="usage">Usage</h4>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -299,9 +297,11 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Code chunks under <strong>Usage</strong> sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.</p>
+<p>Code chunks under <strong>Usage</strong> sections are not part of the demonstration. They are meant to show how to use the function arguments.</p>
 </div>
 </div>
+<section id="usage" class="level4">
+<h4 class="anchored" data-anchor-id="usage">Usage</h4>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">flux.plot</span>(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  flux.results,</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  dataframe,</span>
@@ -464,19 +464,6 @@ Tip
 <p>The list of plots created with <code>flux.plot</code> can now be saved as a pdf using the function <code>flux2pdf</code>.</p>
 <section id="usage-1" class="level4">
 <h4 class="anchored" data-anchor-id="usage-1">Usage</h4>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Code chunks under <strong>Usage</strong> sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.</p>
-</div>
-</div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">flux2pdf</span>(plot.list, <span class="at">outfile =</span> <span class="cn">NULL</span>, <span class="at">width =</span> <span class="fl">11.6</span>, <span class="at">height =</span> <span class="fl">8.2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="arguments-1" class="level4">
