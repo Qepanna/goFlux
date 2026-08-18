@@ -33,7 +33,7 @@ jobs:
 
       - uses: quarto-dev/quarto-actions/setup@v2
         with:
-          version: 1.4.553
+          version: 1.10.18
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
@@ -59,6 +59,15 @@ jobs:
 
       - name: Render website
         run: quarto render
+        working-directory: website
+
+      - name: Strip polyfill scripts from rendered site
+        run: |
+          grep -rl "polyfill" _site --include='*.html' | xargs -r sed -i '/polyfill/d'
+          if grep -r "polyfill" _site --include='*.html'; then
+            echo "ERROR: polyfill references still present in _site" >&2
+            exit 1
+          fi
         working-directory: website
 
       - uses: JamesIves/github-pages-deploy-action@v4
