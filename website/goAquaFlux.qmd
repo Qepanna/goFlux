@@ -88,6 +88,10 @@ flux.plot.aqua(fluxres, IDed, gastype = "CH4dry_ppb",
 Main entry point: partitions aquatic GHG fluxes into diffusive and ebullitive
 components across many incubations.
 
+::: {.callout-note}
+Code chunks under **Usage** sections are not part of the demonstration. They are meant to show how to use the function arguments.
+:::
+
 ```{r}
 #| echo: false
 #| results: asis

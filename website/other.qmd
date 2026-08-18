@@ -17,6 +17,10 @@ Aside from the typical workflow of flux calculation, one may wish to estimate ot
 
 Crop measurements from the start, from the end, or adjust the deadband. Individual parameters can be provided for each measurement, in an auxiliary file, or the same parameters can be applied to all measurements.
 
+::: {.callout-note}
+Code chunks under **Usage** sections are not part of the demonstration. They are meant to show how to use the function arguments.
+:::
+
 ```{r}
 #| echo: false
 #| results: asis

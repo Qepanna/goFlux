@@ -53,6 +53,10 @@ In such cases, you can choose from two options:
 
 Both methods rely on an auxiliary file, such as field notes or the recordings of the LI-COR Smart Chamber. Alternatively, a gas measurement file containing all necessary columns (e.g., `start.time` and `UniqueID`) does not require an auxiliary file.
 
+::: {.callout-note}
+Code chunks under **Usage** sections are not part of the demonstration. They are meant to show how to use the function arguments.
+:::
+
 ```{r}
 #| echo: false
 #| results: asis

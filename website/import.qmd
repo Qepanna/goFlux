@@ -47,6 +47,10 @@ Import all raw gas measurement files contained in a folder (and all its sub-fold
 -   [**Healthy Photon**](import.qmd#sec-import2RData-HealthyPhoton): HT8850
 -   [**GasmetPD**](import.qmd#sec-import2RData-GasmetPD): Custom multiplexer from the University of Padova, Italy
 
+::: {.callout-note}
+Code chunks under **Usage** sections are not part of the demonstration. They are meant to show how to use the function arguments.
+:::
+
 ```{r}
 #| echo: false
 #| results: asis

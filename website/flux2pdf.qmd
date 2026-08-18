@@ -13,6 +13,10 @@ Finally, after finding the best flux estimates, the user can plot the results an
 
 ### `flux.plot`
 
+::: {.callout-note}
+Code chunks under **Usage** sections are not part of the demonstration. They are meant to show how to use the function arguments.
+:::
+
 ```{r}
 #| echo: false
 #| results: asis
