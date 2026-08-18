@@ -4,7 +4,11 @@ editor: visual
 format:
   html:
     toc: false
-author: Karelle Rheault
+author:
+  - name: Karelle Rheault
+  - name: Camille Minaudo
+  - name: Mary Grace Barbacias
+  - name: Katharina Jentzsch
 bibliography: references.bib
 csl: apa-numeric-superscript-brackets.csl
 ---
@@ -80,4 +84,14 @@ This software development was supported by the SilvaNova project funded by the N
 [![](images/Silva%20Nova%20logo.jpg){width="200" fig-align="right" height="120"}](https://ign.ku.dk/english/silvanova/)
 
 [![](images/Novo%20Nordisk%20fonden%20logo.png){fig-align="left" width="128"}](https://novonordiskfonden.dk/en/)
+:::
+
+With contributions and maintenance efforts from:
+
+::: {layout-ncol=3}
+[![](images/Land-CRAFT_logo.png){width=128 fig-align="center"}](https://land-craft.dk/)
+
+[![](images/Aarhus_University_logo.png){width=200 fig-align="center"}](https://www.au.dk/)
+
+[![](images/Universitat_de_Barcelona_logo.png){width=200 fig-align="center"}](https://web.ub.edu/en/)
 :::
