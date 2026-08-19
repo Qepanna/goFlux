@@ -1,3 +1,11 @@
+## 0.3.2 (2026-08-19)
+
+## What's Changed
+* fix: Revised generation of UniqueID within goFlux function by @KatharinaJentzsch in https://github.com/Qepanna/goFlux/pull/39
+
+
+**Full Changelog**: https://github.com/Qepanna/goFlux/compare/goFlux-0.3.1...goFlux-0.3.2
+
 ## 0.3.1 (2026-08-19)
 
 ## What's Changed
