@@ -61,7 +61,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -345,7 +365,7 @@ window.Quarto = {
 
 <section id="overview" class="level2">
 <h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<p><strong>goAquaFlux</strong> extends the <a href="https://github.com/Qepanna/goFlux">goFlux</a> R package (Rheault et al., 2024) to aquatic floating-chamber measurements, where methane reaches the atmosphere by two pathways with very different behaviour:</p>
+<p><strong>goAquaFlux</strong> extends the <a href="https://github.com/Qepanna/goFlux">goFlux</a> R package <span class="citation" data-cites="rheault2024">(<a href="#ref-rheault2024" role="doc-biblioref">Rheault et al., 2024</a>)</span> to aquatic floating-chamber measurements, where methane reaches the atmosphere by two pathways with very different behaviour:</p>
 <ul>
 <li><strong>Diffusion</strong> — a smooth, near-linear accumulation in the chamber headspace.</li>
 <li><strong>Ebullition</strong> — bubbles, appearing as abrupt <em>steps</em> in concentration.</li>
@@ -546,7 +566,7 @@ Note
 </section>
 <section id="references" class="level4">
 <h4 class="anchored" data-anchor-id="references">References</h4>
-<p>Rheault, K., Christiansen, J. R., &amp; Larsen, K. S. (2024). goFlux: A user-friendly way to calculate GHG fluxes yourself, regardless of user experience. <em>Journal of Open Source Software</em>, 9(96), 6393.</p>
+<p><span class="citation" data-cites="rheault2024">(<a href="#ref-rheault2024" role="doc-biblioref">Rheault et al., 2024</a>)</span></p>
 </section>
 </section>
 <section id="find.bubbles" class="level3">
@@ -913,11 +933,16 @@ Note
 </table>
 
 
+
 </section>
 </section>
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-rheault2024" class="csl-entry" role="listitem">
+Rheault, K., Christiansen, J. R., &amp; Larsen, K. S. (2024). goFlux: A user-friendly way to calculate GHG fluxes yourself, regardless of user experience. <em>Journal of Open Source Software</em>, <em>9</em>(96), 6393. <a href="https://doi.org/10.21105/joss.06393">https://doi.org/10.21105/joss.06393</a>
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";

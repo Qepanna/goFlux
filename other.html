@@ -61,7 +61,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -264,7 +284,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#arguments-2" id="toc-arguments-2" class="nav-link" data-scroll-target="#arguments-2">Arguments</a></li>
   <li><a href="#details-1" id="toc-details-1" class="nav-link" data-scroll-target="#details-1">Details</a></li>
   <li><a href="#examples-2" id="toc-examples-2" class="nav-link" data-scroll-target="#examples-2">Examples</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -517,7 +536,7 @@ Note
 <h4 class="anchored" data-anchor-id="details-1">Details</h4>
 <p>For each measurement, a sequence of observation window is defined from chamber closure (+ <code>mov.win</code>) to <code>obs.win</code>. For each observation window, a linear model is calculated, from which the R<sup>2</sup> is extracted. The ‘best’ deadband is then selected at the highest R<sup>2</sup>.</p>
 <p>In <code>db.min</code> and <code>db.max</code>, negative values are accepted. This is especially applicable in cases where <code>start.time</code> already includes a deadband after chamber closure, and <code>cham.close</code> is not provided.</p>
-<p>Note that, <code>obs.win</code> should represent the most linear part of the measurement, at the start of the measurement. For long chamber enclosures (more than a few minutes) select a longer <code>obs.win</code> more representative of your measurements. The default value of <code>obs.win = 90s</code> is based on previous observations that the most linear part of a measurement is often found within a short period (&lt;2 minutes) at the start of the measurement, for small chamber sizes (~4L) (Johannesson et al., 2024). Similarly, the argument <code>mov.win</code> could be increased for very long chamber enclosures. Using a short <code>mov.win</code> (e.g., 1s) increases computational time, and is not recommended for very large data sets. The default value of <code>db.max = 60</code> is based on dark chamber measurements on, e.g., soils. For Reco, a longer <code>db.max</code> (e.g., 90 seconds) is recommended to take into account a recovery phase of residual photosynthesis at the start of the measurement.</p>
+<p>Note that, <code>obs.win</code> should represent the most linear part of the measurement, at the start of the measurement. For long chamber enclosures (more than a few minutes) select a longer <code>obs.win</code> more representative of your measurements. The default value of <code>obs.win = 90s</code> is based on previous observations that the most linear part of a measurement is often found within a short period (&lt;2 minutes) at the start of the measurement, for small chamber sizes (~4L) <span class="citation" data-cites="johannesson2024">(<a href="#ref-johannesson2024" role="doc-biblioref">Johannesson et al., 2024</a>)</span>. Similarly, the argument <code>mov.win</code> could be increased for very long chamber enclosures. Using a short <code>mov.win</code> (e.g., 1s) increases computational time, and is not recommended for very large data sets. The default value of <code>db.max = 60</code> is based on dark chamber measurements on, e.g., soils. For Reco, a longer <code>db.max</code> (e.g., 90 seconds) is recommended to take into account a recovery phase of residual photosynthesis at the start of the measurement.</p>
 <p><code>min.r2</code> can be used to restrict longer deadbands (or minimize dropping data points). For example, if an R<sup>2</sup> of 0.990 is found with a deadband of 30 seconds, and an R<sup>2</sup> of 0.992 with a deadband of 40 seconds (considering <code>mov.win = 10</code>), the best deadband is defined at 30 seconds if <code>min.r2 = 0.005</code>. By default, the highest R<sup>2</sup> selects the best deadband (<code>min.r2 = 0</code>), but this may result in unnecessary loss of data points.</p>
 <p>In <code>gastype</code>, the gas species listed are the ones for which this package has been adapted. Please write to the maintainer of this package for adaptation of additional gases.</p>
 </section>
@@ -526,16 +545,17 @@ Note
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"manID.UGGA"</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>auto_db <span class="ot">&lt;-</span> <span class="fu">auto.deadband</span>(manID.UGGA, <span class="st">"CO2dry_ppm"</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>crop_UGGA <span class="ot">&lt;-</span> <span class="fu">crop.meas</span>(manID.UGGA, auto_db, <span class="at">deadband =</span> <span class="st">"aux"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="references" class="level4">
-<h4 class="anchored" data-anchor-id="references">References</h4>
-<p>Johannesson, C. F., Nordén, J., Lange, H., Silvennoinen, H., &amp; Larsen, K. S. (2024). Optimizing the closure period for improved accuracy of chamber-based greenhouse gas flux estimates. <em>Agricultural and Forest Meteorology</em>, 359, 110289.</p>
+
 
 
 </section>
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-johannesson2024" class="csl-entry" role="listitem">
+Johannesson, C. F., Nordén, J., Lange, H., Silvennoinen, H., &amp; Larsen, K. S. (2024). Optimizing the closure period for improved accuracy of chamber-based greenhouse gas flux estimates. <em>Agricultural and Forest Meteorology</em>, <em>359</em>, 110289. <a href="https://doi.org/10.1016/j.agrformet.2024.110289">https://doi.org/10.1016/j.agrformet.2024.110289</a>
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
