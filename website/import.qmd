@@ -2,6 +2,10 @@
 title: "Import raw data"
 engine: knitr
 editor: visual
+format:
+  html:
+    toc: true
+    toc-depth: 4
 ---
 ```{r}
 #| include: false
@@ -33,7 +37,7 @@ There are two ways to import raw data files into R:
 -   [Import all files](import.qmd#sec-import2RData) contained in a folder using the function `import2RData`.
 -   [Import single files](import.qmd#sec-single) using a function unique to each instrument.
 
-## import2RData {#sec-import2RData}
+# import2RData {#sec-import2RData}
 
 Import all raw gas measurement files contained in a folder (and all its sub-folders) using the function `import2RData`. Adapted to multiple greenhouse gas analyzers and other instruments:
 
@@ -57,7 +61,7 @@ Code chunks under **Usage** sections are not part of the demonstration. They are
 #| results: asis
 cat(autodoc("import2RData", level = 3, examples = FALSE))
 ```
-### Examples
+## Examples
 
 All files contained in the folder path specified are saved in a newly created folder "RData" in your working directory.
 
@@ -99,7 +103,7 @@ Alternatively, use the argument `merge = TRUE` in the function `import2Rdata` to
 Note that data frames can only be merged if they contain the same columns.
 :::
 
-#### LI-COR {#sec-import2RData-LICOR}
+### LI-COR {#sec-import2RData-LICOR}
 
 #### LI-6400 {#sec-import2RData-LICOR-LI6400}
 
@@ -181,7 +185,7 @@ import2RData(path = file.path, instrument = "LI-8250", date.format = "ymd",
              prec1 = c(3.5, 0.6, 45), SWC.col = "SWC_1", Tsoil.col = "TS_1")
 ```
 
-#### LGR {#sec-import2RData-LGR}
+### LGR {#sec-import2RData-LGR}
 
 #### UGGA (GLA132 series) {#sec-import2RData-LGR-UGGA}
 
@@ -227,7 +231,7 @@ import2RData(path = file.path, instrument = "N2Oi2",
              date.format = "dmy", prec = c(0.05, 50))
 ```
 
-#### GAIA2TECH {#sec-import2RData-GAIA}
+### GAIA2TECH {#sec-import2RData-GAIA}
 
 #### Automated chamber ECOFlux
 
@@ -274,7 +278,7 @@ import2RData(path = file.path, instrument = "skyline", date.format = "ymd",
              prec = c(0.24, 0.3, 5, 500))
 ```
 
-#### Gasmet {#sec-import2RData-Gasmet}
+### Gasmet {#sec-import2RData-Gasmet}
 
 #### DX4015 {#sec-import2RData-Gasmet-DX4015}
 
@@ -298,7 +302,7 @@ import2RData(path = file.path, instrument = "GT5000",
              date.format = "ymd", prec = c(1.6, 23, 13, 2, 23, 33))
 ```
 
-#### Picarro {#sec-import2RData-Picarro}
+### Picarro {#sec-import2RData-Picarro}
 
 #### G2201-i {#sec-import2RData-Picarro-G2201i}
 
@@ -335,7 +339,7 @@ import2RData(path = file.path, instrument = "G4301",
              date.format = "ymd", prec = c(0.025, 0.1, 10))
 ```
 
-#### PP-Systems {#sec-import2RData-PP-System}
+### PP-Systems {#sec-import2RData-PP-System}
 
 #### EGM-5 {#sec-import2RData-PP-System-EGM5}
 
@@ -351,7 +355,7 @@ import2RData(path = file.path, instrument = "EGM5",
              date.format = "dmy", prec = c(3, 1, 500), proc.data.field = 2)
 ```
 
-#### Aeris Technologies {#sec-import2RData-Aeris}
+### Aeris Technologies {#sec-import2RData-Aeris}
 
 #### MIRA Ultra CH~4~/ C~2~H~6~ analyzer {#sec-import2RData-Aeris-uCH4}
 
@@ -375,7 +379,7 @@ import2RData(path = file.path, instrument = "uN2O",
              date.format = "mdy", prec = c(0.2, 0.2, 15))
 ```
 
-#### Healthy Photon {#sec-import2RData-HealthyPhoton}
+### Healthy Photon {#sec-import2RData-HealthyPhoton}
 
 #### HT8850 all-in-one GHG analyzer {#sec-import2RData-HealthyPhoton-HT8850}
 
@@ -388,7 +392,7 @@ import2RData(path = file.path, instrument = "HT8850",
              date.format = "ymd", prec = c(0.5, 3, 0.5, 10))
 ```
 
-#### GasmetPD {#sec-import2RData-GasmetPD}
+### GasmetPD {#sec-import2RData-GasmetPD}
 
 #### Custom made multiplexer linked with the Gasmet DX4015
 
@@ -402,7 +406,7 @@ import2RData(path = file.path, instrument = "GasmetPD",
              date.format = "ymd", prec = c(1.6, 13, 2, 23, 33))
 ```
 
-## Single file import {#sec-single}
+# Single file import {#sec-single}
 
 Each instrument has a unique function for single file import. The advantage of using this function is that a file can be saved in the environment in an object instead of being saved as an .RData file in the working directory. Just like the `import2RData` function, there is a function adapted to multiple greenhouse gas analyzers and other instruments:
 
@@ -417,7 +421,7 @@ Each instrument has a unique function for single file import. The advantage of u
 -   [**Healthy Photon**](import.qmd#sec-single-HealthyPhoton): HT8850
 -   [**GasmetPD**](import.qmd#sec-single-GasmetPD): Custom multiplexer from the University of Padova, Italy
 
-### LI-COR {#sec-single-LICOR}
+## LI-COR {#sec-single-LICOR}
 
 ### LI-6400 {#sec-single-LICOR-LI6400}
 
@@ -593,7 +597,7 @@ import.LI8250(inputfile = file.path, save = TRUE, inst1 = "LI-7810",
               Tsoil.col = "TS_1")
 ```
 
-### LGR {#sec-single-LGR}
+## LGR {#sec-single-LGR}
 
 ### UGGA and MGGA {#sec-single-LGR-UGGA}
 
@@ -684,7 +688,7 @@ imp.N2Oi2 <- import.N2Oi2(inputfile = file.path, prec = c(0.05, 50))
 import.N2Oi2(inputfile = file.path, prec = c(0.05, 50), save = TRUE)
 ```
 
-### GAIA2TECH {#sec-single-GAIA}
+## GAIA2TECH {#sec-single-GAIA}
 
 ### Automated chamber ECOFlux
 
@@ -734,7 +738,7 @@ imp.skyline <- import.skyline(inputfile = file.path)
 import.skyline(inputfile = file.path, save = TRUE)
 ```
 
-### Gasmet {#sec-single-Gasmet}
+## Gasmet {#sec-single-Gasmet}
 
 ### DX4015 {#sec-single-Gasmet-DX4015}
 
@@ -784,7 +788,7 @@ imp.GT5000 <- import.GT5000(inputfile = file.path)
 import.GT5000(inputfile = file.path, save = TRUE)
 ```
 
-### Picarro {#sec-single-Picarro}
+## Picarro {#sec-single-Picarro}
 
 ### G2201-i {#sec-single-Picarro-G2201i}
 
@@ -858,7 +862,7 @@ imp.G4301 <- import.G4301(inputfile = file.path)
 import.G4301(inputfile = file.path, save = TRUE)
 ```
 
-### PP-Systems {#sec-single-PP-System}
+## PP-Systems {#sec-single-PP-System}
 
 ### EGM-5 {#sec-single-PP-System-EGM5}
 
@@ -884,7 +888,7 @@ imp.EGM5 <- import.EGM5(inputfile = file.path)
 import.EGM5(inputfile = file.path, save = TRUE)
 ```
 
-### Aeris Technologies {#sec-single-Aeris}
+## Aeris Technologies {#sec-single-Aeris}
 
 ### MIRA Ultra CH~4~/ C~2~H~6~ analyzer {#sec-single-Aeris-uCH4}
 
@@ -934,7 +938,7 @@ imp.uN2O <- import.uN2O(inputfile = file.path)
 import.uN2O(inputfile = file.path, save = TRUE)
 ```
 
-### Healthy Photon {#sec-single-HealthyPhoton}
+## Healthy Photon {#sec-single-HealthyPhoton}
 
 ### HT8850 all-in-one GHG analyzer {#sec-single-HealthyPhoton-HT8850}
 
@@ -960,7 +964,7 @@ imp.HT8850 <- import.HT8850(inputfile = file.path)
 import.HT8850(inputfile = file.path, save = TRUE)
 ```
 
-### GasmetPD {#sec-single-GasmetPD}
+## GasmetPD {#sec-single-GasmetPD}
 
 ### Custom made multiplexer linked with the Gasmet DX4015
 
@@ -985,6 +989,8 @@ imp.GasmetPD <- import.GasmetPD(inputfile = file.path, prec = c(1.6, 13, 2, 23, 
 # Or save in a RData folder in the working directory
 import.GasmetPD(inputfile = file.path, prec = c(1.6, 13, 2, 23, 33), save = TRUE)
 ```
+
+## Eosense {#sec-single-Eosense}
 
 ### eosMX12 12-Channel Multiplexer {#sec-single-eosMX12}
 
