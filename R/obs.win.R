@@ -34,6 +34,10 @@
 #'
 #' @seealso For an automatic identification of gas measurements, see the function
 #' \code{\link[goFlux]{autoID}}.
+#' 
+#' @details In \code{gastype}, the gas species listed are the ones for which this 
+#'          package has been adapted. Please write to the maintainer of this package 
+#'          for adaptation of additional gases.
 #'
 #' @examples
 #' # How to use in multiple situations:

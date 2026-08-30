@@ -46,6 +46,11 @@ a list of data frames, split by UniqueID, merging \code{inputfile},
 Split gas data into one observation window per gas measurement
 and create a list of data frames (one data frame per UniqueID).
 }
+\details{
+In \code{gastype}, the gas species listed are the ones for which this 
+         package has been adapted. Please write to the maintainer of this package 
+         for adaptation of additional gases.
+}
 \examples{
 # How to use in multiple situations:
 library(dplyr)
