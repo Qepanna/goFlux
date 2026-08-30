@@ -529,7 +529,10 @@ Note
 </section>
 <section id="details" class="level4">
 <h4 class="anchored" data-anchor-id="details">Details</h4>
-<p>The workflow includes: (1) data validation and cleaning; (2) calculation of auxiliary variables (flux conversion term and MDF); (3) bubble detection (typically using CH4 concentration); (4) estimation of ebullition flux based on detected bubble magnitudes; (5) estimation of diffusive flux using model selection; and (6) combination of the diffusive and ebullitive components into a total flux. The function operates on datasets containing multiple chamber incubations, which are automatically split using the <code>UniqueID</code> column. Bubble detection is performed using a rolling window approach applied to concentration variability of the selected gas (typically CH4). Detected bubbling events are used to estimate ebullition fluxes and restrict the time window used for diffusive flux estimation. Diffusive fluxes are calculated using the <code>goFlux</code> framework, which evaluates multiple regression models and selects the best model according to user-defined criteria.</p>
+<p>The workflow includes: (1) data validation and cleaning; (2) calculation of auxiliary variables (flux conversion term and MDF); (3) bubble detection (typically using CH4 concentration); (4) estimation of ebullition flux based on detected bubble magnitudes; (5) estimation of diffusive flux using model selection; and (6) combination of the diffusive and ebullitive components into a total flux.</p>
+<p>The function operates on datasets containing multiple chamber incubations, which are automatically split using the <code>UniqueID</code> column.</p>
+<p>Bubble detection is performed using a rolling window approach applied to concentration variability of the selected gas (typically CH4). Detected bubbling events are used to estimate ebullition fluxes and restrict the time window used for diffusive flux estimation.</p>
+<p>Diffusive fluxes are calculated using the <code>goFlux</code> framework, which evaluates multiple regression models and selects the best model according to user-defined criteria.</p>
 </section>
 <section id="examples" class="level4">
 <h4 class="anchored" data-anchor-id="examples">Examples</h4>
@@ -542,7 +545,7 @@ Note
 </section>
 <section id="references" class="level4">
 <h4 class="anchored" data-anchor-id="references">References</h4>
-<p>Rheault, K., Christiansen, J. R., &amp; Larsen, K. S. (2024). goFlux: A user-friendly way to calculate GHG fluxes yourself, regardless of user experience. <em>Journal of Open Source Software</em>, 9(96), 6393. } \seealso{ \code{</p>
+<p>Rheault, K., Christiansen, J. R., &amp; Larsen, K. S. (2024). goFlux: A user-friendly way to calculate GHG fluxes yourself, regardless of user experience. <em>Journal of Open Source Software</em>, 9(96), 6393.</p>
 </section>
 </section>
 <section id="find.bubbles" class="level3">
@@ -647,7 +650,9 @@ Note
 </section>
 <section id="details-1" class="level4">
 <h4 class="anchored" data-anchor-id="details-1">Details</h4>
-<p>The signal is first robustly standardised (median / MAD) and interpolated onto a regular <code>dt</code>-second grid. Rolling dispersion is then computed and compared to an adaptive threshold defined as the maximum of an empirical quantile (<code>var.quantile</code>) and a robust bound (median + k MAD). Contiguous supra-threshold runs are merged (<code>min_gap</code>) and filtered by duration (<code>min_length</code>). A steep but purely diffusive rise inflates the rolling variance/MAD even in the absence of bubbles, which can produce false positives. The <code>"diff"</code> method mitigates this by operating on the increments of the signal: a genuine ebullition step produces a large positive spike in the first differences, whereas a linear diffusive trend produces roughly constant increments and therefore low differenced dispersion. Event magnitude is estimated with the local model C_t = _0 + _1 t + _2 I(t t_b) where I(t t_b) is a step dummy at the event start; _2 is the estimated magnitude. Only events with a positive magnitude are retained (ebullition adds gas to the headspace).</p>
+<p>The signal is first robustly standardised (median / MAD) and interpolated onto a regular <code>dt</code>-second grid. Rolling dispersion is then computed and compared to an adaptive threshold defined as the maximum of an empirical quantile (<code>var.quantile</code>) and a robust bound (median + k MAD). Contiguous supra-threshold runs are merged (<code>min_gap</code>) and filtered by duration (<code>min_length</code>).</p>
+<p>A steep but purely diffusive rise inflates the rolling variance/MAD even in the absence of bubbles, which can produce false positives. The <code>"diff"</code> method mitigates this by operating on the increments of the signal: a genuine ebullition step produces a large positive spike in the first differences, whereas a linear diffusive trend produces roughly constant increments and therefore low differenced dispersion.</p>
+<p>Event magnitude is estimated with the local model C_t = _0 + _1 t + _2 I(t t_b) where I(t t_b) is a step dummy at the event start; _2 is the estimated magnitude. Only events with a positive magnitude are retained (ebullition adds gas to the headspace).</p>
 </section>
 <section id="examples-1" class="level4">
 <h4 class="anchored" data-anchor-id="examples-1">Examples</h4>

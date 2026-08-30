@@ -724,7 +724,36 @@ Note
 </section>
 <section id="details" class="level3">
 <h3 class="anchored" data-anchor-id="details">Details</h3>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For most instruments, the date is one of the columns in the raw data file: - DX4015: column Date - EGM5: column Date - G2201i: column DATE - G2508: column DATE - G4301: column DATE - GAIA: column Titles: - GasmetPD: column Date - GT5000: column Date - HT8850: column time - LI-6400: (see comment below) - LI-7810: column DATE - LI-7820: column DATE - LI-8100: column Date - LI-8150: column Date - LI-8200: (see comment below) - N2OM1: column Time - N2Oi2: column Time - SkyLine: column Titles: - uCH4: column Time Stamp - uN2O: column Time Stamp - UGGA: column Time For the instrument LI-6400, the date is found in one of the first lines in a format containing abbreviations, for example “Thr Aug 6 2020”, which would be the date format “mdy”. For the instrument LI-8200, the date is found under one of the measurements, next to ‘“Date”:’. For the instrument LI-8250, the date format is in the file name. The argument <code>proc.data.field</code> is used with the PP-Sytems EGM-5 instrument only. Look up the <a href="https://ppsystems.com/download/technical_manuals/80109-1-EGM-5_Operation_V103.pdf">EGM-5 Operation Manual</a> at page 90 for more details about the different Process Data Fields (<code>proc.data.field</code>). The arguments <code>active</code>, <code>pivot</code>, <code>flag</code>, <code>PAR.col</code>, <code>Tcham.col</code>, <code>WTD.col</code>, <code>Op.stat.col</code>, <code>inst3</code>, <code>gas3</code>, <code>prec3</code>, <code>dry3</code>, <code>sep</code>, <code>manual</code> and <code>skip</code> are used with the function <code>import.GAIA</code> only. The arguments <code>Tsoil.col</code>, <code>SWC.col</code>, <code>inst1</code>, <code>inst2</code>, <code>gas1</code>, <code>gas2</code>, <code>prec1</code>, <code>prec2</code>, <code>dry1</code>, <code>dry2</code>, are used with both the function <code>import.GAIA</code> and the function <code>import.LI8250</code>. The arguments <code>CH.col</code> and <code>background</code> are used with the function <code>import.GAIA</code>. The arguments <code>CH4</code>, <code>CO2</code>, <code>sum</code> and <code>range</code> are used with the function <code>import.G2201i</code> only. The arguments <code>CH.clo.col</code>, <code>sensor1</code>, <code>sensor2</code>, <code>inst</code> and <code>dry</code> are used with the function <code>import.skyline</code> only. The argument <code>gas</code> is used with the functions <code>import.GasmetPD</code> and <code>import.skyline</code>. ## Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For most instruments, the date is one of the columns in the raw data file:</p>
+<ul>
+<li>DX4015: column Date</li>
+<li>EGM5: column Date</li>
+<li>G2201i: column DATE</li>
+<li>G2508: column DATE</li>
+<li>G4301: column DATE</li>
+<li>GAIA: column Titles:</li>
+<li>GasmetPD: column Date</li>
+<li>GT5000: column Date</li>
+<li>HT8850: column time</li>
+<li>LI-6400: (see comment below)</li>
+<li>LI-7810: column DATE</li>
+<li>LI-7820: column DATE</li>
+<li>LI-8100: column Date</li>
+<li>LI-8150: column Date</li>
+<li>LI-8200: (see comment below)</li>
+<li>N2OM1: column Time</li>
+<li>N2Oi2: column Time</li>
+<li>SkyLine: column Titles:</li>
+<li>uCH4: column Time Stamp</li>
+<li>uN2O: column Time Stamp</li>
+<li>UGGA: column Time</li>
+</ul>
+<p>For the instrument LI-6400, the date is found in one of the first lines in a format containing abbreviations, for example “Thr Aug 6 2020”, which would be the date format “mdy”. For the instrument LI-8200, the date is found under one of the measurements, next to ‘“Date”:’. For the instrument LI-8250, the date format is in the file name.</p>
+<p>The argument <code>proc.data.field</code> is used with the PP-Sytems EGM-5 instrument only. Look up the <a href="https://ppsystems.com/download/technical_manuals/80109-1-EGM-5_Operation_V103.pdf">EGM-5 Operation Manual</a> at page 90 for more details about the different Process Data Fields (<code>proc.data.field</code>).</p>
+<p>The arguments <code>active</code>, <code>pivot</code>, <code>flag</code>, <code>PAR.col</code>, <code>Tcham.col</code>, <code>WTD.col</code>, <code>Op.stat.col</code>, <code>inst3</code>, <code>gas3</code>, <code>prec3</code>, <code>dry3</code>, <code>sep</code>, <code>manual</code> and <code>skip</code> are used with the function <code>import.GAIA</code> only. The arguments <code>Tsoil.col</code>, <code>SWC.col</code>, <code>inst1</code>, <code>inst2</code>, <code>gas1</code>, <code>gas2</code>, <code>prec1</code>, <code>prec2</code>, <code>dry1</code>, <code>dry2</code>, are used with both the function <code>import.GAIA</code> and the function <code>import.LI8250</code>. The arguments <code>CH.col</code> and <code>background</code> are used with the function <code>import.GAIA</code>.</p>
+<p>The arguments <code>CH4</code>, <code>CO2</code>, <code>sum</code> and <code>range</code> are used with the function <code>import.G2201i</code> only.</p>
+<p>The arguments <code>CH.clo.col</code>, <code>sensor1</code>, <code>sensor2</code>, <code>inst</code> and <code>dry</code> are used with the function <code>import.skyline</code> only.</p>
+<p>The argument <code>gas</code> is used with the functions <code>import.GasmetPD</code> and <code>import.skyline</code>. ## Examples</p>
 <p>All files contained in the folder path specified are saved in a newly created folder “RData” in your working directory.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -1138,7 +1167,18 @@ Important
 </section>
 <section id="details-1" class="level4">
 <h4 class="anchored" data-anchor-id="details-1">Details</h4>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument LI-6400, the date is found in one of the first lines in a format containing abbreviations, for example “Thr Aug 6 2020”, which would be the date format “mdy”. Note that this function was designed for the following units in the raw file: - ppm for CO<sub>2</sub> - mmol/mol for H<sub>2</sub>O - kPa for pressure - cm<sup>3</sup> for volumes - Celsius for temperature - µmol photons m<sup>-2</sup>s<sup>-1</sup> for PAR If your LI-COR LI-6400 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (11-2023). #### Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument LI-6400, the date is found in one of the first lines in a format containing abbreviations, for example “Thr Aug 6 2020”, which would be the date format “mdy”.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>ppm for CO<sub>2</sub></li>
+<li>mmol/mol for H<sub>2</sub>O</li>
+<li>kPa for pressure</li>
+<li>cm<sup>3</sup> for volumes</li>
+<li>Celsius for temperature</li>
+<li>µmol photons m<sup>-2</sup>s<sup>-1</sup> for PAR</li>
+</ul>
+<p>If your LI-COR LI-6400 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (11-2023). #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -1209,7 +1249,16 @@ Important
 </section>
 <section id="details-2" class="level4">
 <h4 class="anchored" data-anchor-id="details-2">Details</h4>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument LI-7810, the date is found in the column “DATE”. Note that this function was designed for the following units in the raw file: - ppm for CO<sub>2</sub> and H<sub>2</sub>O - ppb for CH<sub>4</sub> - kPa for pressure - Celsius for temperature If your LI-7810 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://www.licor.com/products/trace-gas/LI-7810">online</a> for the latest model of this instrument available at the time of the creation of this function (11-2023). #### Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument LI-7810, the date is found in the column “DATE”.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>ppm for CO<sub>2</sub> and H<sub>2</sub>O</li>
+<li>ppb for CH<sub>4</sub></li>
+<li>kPa for pressure</li>
+<li>Celsius for temperature</li>
+</ul>
+<p>If your LI-7810 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://www.licor.com/products/trace-gas/LI-7810">online</a> for the latest model of this instrument available at the time of the creation of this function (11-2023). #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -1280,7 +1329,16 @@ Important
 </section>
 <section id="details-3" class="level4">
 <h4 class="anchored" data-anchor-id="details-3">Details</h4>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument LI-7820, the date is found in the column “DATE”. Note that this function was designed for the following units in the raw file: - ppb for N<sub>2</sub>O - ppm for H<sub>2</sub>O - kPa for pressure - Celsius for temperature If your LI-COR LI-7820 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for H<sub>2</sub>O, or 1 ppb for N<sub>2</sub>O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://www.licor.com/products/trace-gas/LI-7820">online</a> for the latest model of this instrument available at the time of the creation of this function (11-2023). #### Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument LI-7820, the date is found in the column “DATE”.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>ppb for N<sub>2</sub>O</li>
+<li>ppm for H<sub>2</sub>O</li>
+<li>kPa for pressure</li>
+<li>Celsius for temperature</li>
+</ul>
+<p>If your LI-COR LI-7820 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for H<sub>2</sub>O, or 1 ppb for N<sub>2</sub>O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://www.licor.com/products/trace-gas/LI-7820">online</a> for the latest model of this instrument available at the time of the creation of this function (11-2023). #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -1351,7 +1409,15 @@ Important
 </section>
 <section id="details-4" class="level4">
 <h4 class="anchored" data-anchor-id="details-4">Details</h4>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument LI-8100, the date is found in the column “Date”. Note that this function was designed for the following units in the raw file: - ppm for CO<sub>2</sub> - mmol/mol for H<sub>2</sub>O - Celsius for temperature If your LI-COR LI-8100 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (11-2023). #### Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument LI-8100, the date is found in the column “Date”.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>ppm for CO<sub>2</sub></li>
+<li>mmol/mol for H<sub>2</sub>O</li>
+<li>Celsius for temperature</li>
+</ul>
+<p>If your LI-COR LI-8100 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (11-2023). #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -1422,7 +1488,15 @@ Important
 </section>
 <section id="details-5" class="level4">
 <h4 class="anchored" data-anchor-id="details-5">Details</h4>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument LI-8100A, the date is found in the column “Date”. Note that this function was designed for the following units in the raw file: - ppm for CO<sub>2</sub> - mmol/mol for H<sub>2</sub>O - Celsius for temperature If your LI-COR LI-8100A uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://www.licor.com/support/LI-8100A/topics/specifications.html#Specific">online</a> for the latest model of this instrument available at the time of the creation of this function (01-2026). #### Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument LI-8100A, the date is found in the column “Date”.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>ppm for CO<sub>2</sub></li>
+<li>mmol/mol for H<sub>2</sub>O</li>
+<li>Celsius for temperature</li>
+</ul>
+<p>If your LI-COR LI-8100A uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://www.licor.com/support/LI-8100A/topics/specifications.html#Specific">online</a> for the latest model of this instrument available at the time of the creation of this function (01-2026). #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -1478,7 +1552,21 @@ Important
 </section>
 <section id="details-6" class="level4">
 <h4 class="anchored" data-anchor-id="details-6">Details</h4>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument LI-8200, the date is found under one of the measurements, next to ‘“Date”:’. Note that this function was designed for the following units in the raw file: - seconds for DeadBand - cm for Offset (collar height) - (cm<sup>2</sup>) for Area - (cm<sup>3</sup>) for volumes - mmol/mol for H<sub>2</sub>O - kPa for pressure - Celsius for temperature If your Smart Chamber uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support. Important note about the total volume: it is calculated from the addition of the Area x Offset and the Chamber Volume. If a chamber volume is specified (“ChamVolume” in the raw file), that value is used, otherwise, the default value is 4244.1(cm<sup>3</sup>). For more precise results, remember to add the volume inside your GHG analyzer (IRGA volume; e.g., 6.4 (cm<sup>3</sup>) for the LI-7810 and the LI-7820), plus the volume inside the tubing connecting your instruments. For more details about volume estimation, download the example auxiliary file from <a href="https://qepanna.quarto.pub/goflux/example.html#create-an-auxiliary-file">the goFlux webpage</a>. In addition, soil temperature and moisture are read with a HydraProbe connected to the Smart Chamber. If you are using a different setup, please contact the maintainer of this package for support. As opposed to the other import functions, there is no option to “keep_all” with the Smart Chamber. If you would like to import additional data using this function, please contact the maintainer of this package for support. #### Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument LI-8200, the date is found under one of the measurements, next to ‘“Date”:’.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>seconds for DeadBand</li>
+<li>cm for Offset (collar height)</li>
+<li>(cm<sup>2</sup>) for Area</li>
+<li>(cm<sup>3</sup>) for volumes</li>
+<li>mmol/mol for H<sub>2</sub>O</li>
+<li>kPa for pressure</li>
+<li>Celsius for temperature</li>
+</ul>
+<p>If your Smart Chamber uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>Important note about the total volume: it is calculated from the addition of the Area x Offset and the Chamber Volume. If a chamber volume is specified (“ChamVolume” in the raw file), that value is used, otherwise, the default value is 4244.1(cm<sup>3</sup>). For more precise results, remember to add the volume inside your GHG analyzer (IRGA volume; e.g., 6.4 (cm<sup>3</sup>) for the LI-7810 and the LI-7820), plus the volume inside the tubing connecting your instruments. For more details about volume estimation, download the example auxiliary file from <a href="https://qepanna.quarto.pub/goflux/example.html#create-an-auxiliary-file">the goFlux webpage</a>.</p>
+<p>In addition, soil temperature and moisture are read with a HydraProbe connected to the Smart Chamber. If you are using a different setup, please contact the maintainer of this package for support.</p>
+<p>As opposed to the other import functions, there is no option to “keep_all” with the Smart Chamber. If you would like to import additional data using this function, please contact the maintainer of this package for support. #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -1574,7 +1662,18 @@ Important
 </section>
 <section id="details-7" class="level4">
 <h4 class="anchored" data-anchor-id="details-7">Details</h4>
-<p>Files with the format .82z are zip archives that include all measurements that occurred at a given port for one observation. Each .82z file includes two files: a data.csv file and a metadata.json file. Raw files names for .82z files are formatted with the instrument serial number and a time stamp (serial-number-YYYYMMDDHHMMSS.82z). In <code>date.format</code>, the date format refers to the date format in the file name. Alternatively, the date format can be found in the data.csv file extracted from the .82z file, under the column “Date”. Note that this function was designed for the following units in the raw file, according to the data dictionary of the LI-8250 Multiplexer <a href="https://www.licor.com/env/support/LI-8250/topics/files-page.html#Datadictionary">online</a>. - % v/v for soil water content (SWC) - litters for volumes - kPa for pressure - Celsius for temperature For each gas, the units are taken from the third row in the data.csv file. Currently, the function is adapted for use with LI-COR instruments (LI-870 CO<sub>2</sub>/ H<sub>2</sub>O Analyzer or LI-78xx Trace Gas Analyzers). If you are using the function with a non-LI-COR instrument, please contact the maintainer of this package for support. Regarding the parameters <code>dryX</code>, in case of uncertainty, either contact your technical support or assume that gases are compensated for water vapor, which is normally the case. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub>, or 1 ppb for CH<sub>4</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. According to the data dictionary of the LI-8250 Multiplexer <a href="https://www.licor.com/env/support/LI-8250/topics/files-page.html#Datadictionary">online</a>, the column STATE indicates the chamber state, where, for example, 1 = closing and 5 = closed. #### Examples</p>
+<p>Files with the format .82z are zip archives that include all measurements that occurred at a given port for one observation. Each .82z file includes two files: a data.csv file and a metadata.json file. Raw files names for .82z files are formatted with the instrument serial number and a time stamp (serial-number-YYYYMMDDHHMMSS.82z). In <code>date.format</code>, the date format refers to the date format in the file name. Alternatively, the date format can be found in the data.csv file extracted from the .82z file, under the column “Date”.</p>
+<p>Note that this function was designed for the following units in the raw file, according to the data dictionary of the LI-8250 Multiplexer <a href="https://www.licor.com/env/support/LI-8250/topics/files-page.html#Datadictionary">online</a>.</p>
+<ul>
+<li>% v/v for soil water content (SWC)</li>
+<li>litters for volumes</li>
+<li>kPa for pressure</li>
+<li>Celsius for temperature</li>
+</ul>
+<p>For each gas, the units are taken from the third row in the data.csv file. Currently, the function is adapted for use with LI-COR instruments (LI-870 CO<sub>2</sub>/ H<sub>2</sub>O Analyzer or LI-78xx Trace Gas Analyzers). If you are using the function with a non-LI-COR instrument, please contact the maintainer of this package for support.</p>
+<p>Regarding the parameters <code>dryX</code>, in case of uncertainty, either contact your technical support or assume that gases are compensated for water vapor, which is normally the case.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub>, or 1 ppb for CH<sub>4</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved.</p>
+<p>According to the data dictionary of the LI-8250 Multiplexer <a href="https://www.licor.com/env/support/LI-8250/topics/files-page.html#Datadictionary">online</a>, the column STATE indicates the chamber state, where, for example, 1 = closing and 5 = closed. #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -1654,7 +1753,15 @@ Important
 </section>
 <section id="details-8" class="level4">
 <h4 class="anchored" data-anchor-id="details-8">Details</h4>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For these instruments, the date is found in the column “Time”. Note that this function was designed for the following units in the raw file: - ppm for CO<sub>2</sub> , CH<sub>4</sub> and H<sub>2</sub>O - Torr for pressure - Celsius for temperature If your LGR instrument (UGGA or MGGA) uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers/lgr-icos-ultraportable-analyzers-gla132-series">online</a> for the latest model of this instrument available at the time of the creation of this function (11-2023). #### Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For these instruments, the date is found in the column “Time”.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>ppm for CO<sub>2</sub> , CH<sub>4</sub> and H<sub>2</sub>O</li>
+<li>Torr for pressure</li>
+<li>Celsius for temperature</li>
+</ul>
+<p>If your LGR instrument (UGGA or MGGA) uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers/lgr-icos-ultraportable-analyzers-gla132-series">online</a> for the latest model of this instrument available at the time of the creation of this function (11-2023). #### Examples</p>
 <section id="ugga-gla132-series" class="level5">
 <h5 class="anchored" data-anchor-id="ugga-gla132-series">UGGA (GLA132 series)</h5>
 <div class="cell">
@@ -1742,7 +1849,15 @@ Important
 </section>
 <section id="details-9" class="level4">
 <h4 class="anchored" data-anchor-id="details-9">Details</h4>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument N2OM1, the date is found in the column “Time”. Note that this function was designed for the following units in the raw file: - ppm for N<sub>2</sub>O , CH<sub>4</sub> and H<sub>2</sub>O - Torr for pressure - Celsius for temperature If your LGR N2OM1 instrument uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for H<sub>2</sub>O, or 1 ppb for N<sub>2</sub>O and CH<sub>4</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers/lgr-icos-qc-portable-gas-analyzers-gla151-series/lgr-icos-portable-analyzers-gla151-n2om1-919">online</a> for the latest model of this instrument available at the time of the creation of this function (12-2023). #### Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument N2OM1, the date is found in the column “Time”.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>ppm for N<sub>2</sub>O , CH<sub>4</sub> and H<sub>2</sub>O</li>
+<li>Torr for pressure</li>
+<li>Celsius for temperature</li>
+</ul>
+<p>If your LGR N2OM1 instrument uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for H<sub>2</sub>O, or 1 ppb for N<sub>2</sub>O and CH<sub>4</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/lgr-icos-portable-analyzers/lgr-icos-qc-portable-gas-analyzers-gla151-series/lgr-icos-portable-analyzers-gla151-n2om1-919">online</a> for the latest model of this instrument available at the time of the creation of this function (12-2023). #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -1813,7 +1928,15 @@ Important
 </section>
 <section id="details-10" class="level4">
 <h4 class="anchored" data-anchor-id="details-10">Details</h4>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument N2Oi2, the date is found in the column “Time”. Note that this function was designed for the following units in the raw file: - ppm for N<sub>2</sub>O , H<sub>2</sub>O - Torr for pressure - Celsius for temperature If your LGR N2Oi2 instrument uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for H<sub>2</sub>O or 1 ppb for N<sub>2</sub>O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/oa-icos-enhanced-performance-benchtop-analyzers/lgr-icos-ultrahigh-performance-qc-benchtop-analyzers-gla451-series">online</a> for the latest model of this instrument available at the time of the creation of this function (06-2025). #### Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument N2Oi2, the date is found in the column “Time”.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>ppm for N<sub>2</sub>O , H<sub>2</sub>O</li>
+<li>Torr for pressure</li>
+<li>Celsius for temperature</li>
+</ul>
+<p>If your LGR N2Oi2 instrument uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for H<sub>2</sub>O or 1 ppb for N<sub>2</sub>O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://new.abb.com/products/measurement-products/analytical/laser-gas-analyzers/laser-analyzers/oa-icos-enhanced-performance-benchtop-analyzers/lgr-icos-ultrahigh-performance-qc-benchtop-analyzers-gla451-series">online</a> for the latest model of this instrument available at the time of the creation of this function (06-2025). #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -1955,7 +2078,21 @@ Important
 </section>
 <section id="details-11" class="level4">
 <h4 class="anchored" data-anchor-id="details-11">Details</h4>
-<p>This function has been designed for up to 9 Automated ECOFlux chambers synced with two GHG analyzers from LI-COR (LI-7810: CO<sub>2</sub>, CH<sub>4</sub> and H<sub>2</sub>O / LI7820: N<sub>2</sub>O and H<sub>2</sub>O). If this function could be useful for you, but does not meet your needs, please contact the maintainer of this package for potential adaptations. In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the Automated ECOFlux chamber, the date is found in the column “Titles:”. The arguments <code>PAR.col</code>, <code>Tcham.col</code>, <code>Tsoil.col</code>, <code>SWC.col</code>, and <code>WTD.col</code> correspond to different types of probes linked to the ECOFlux chamber: PAR (sunlight), chamber temperature, soil temperature, soil water content and water table depth, respectively. All columns containing the patterns specified in these arguments will be selected and renamed with the corresponding argument. For example, if <code>PAR = "3C07_Sunlight"</code>, all columns containing the pattern “3C07_Sunlight” will be renamed with the pattern “_PAR”. Then, if <code>pivot = "long"</code>, all columns with the pattern “_PAR” will be merged together. If <code>PAR = c("3C07_Sunlight1", "3C07_Sunlight2")</code>, these patterns will be renamed to PAR1 and PAR2. The argument <code>Op.stat.col</code> corresponds to the columns Operating Status of each chamber. The argument <code>CH.col</code> indicates a character string preceding the chamber number for each column of the raw data. For example, the column “COM5A010C06_OperatingStatus” in the raw data file contains the Operating Status for the chamber 1 if <code>CH.col = "COM5A0"</code> and <code>Op.stat.col = "0C06_OperatingStatus"</code>. If these columns are absent from the raw data, set arguments to NULL. Note that this function was designed for the following units in the raw file: - kPa for atmospheric pressure - volumetric water content (%) for soil moisture - Celsius for air temperature - µmol photons m<sup>-2</sup>s<sup>-1</sup> for PAR For each gas, the units are taken from the second row in the raw file (Units:). If your instruments use different units, either convert the units after import, change the settings on your instruments, or contact the maintainer of this package for support. Regarding the parameters <code>dryX</code>, in case of uncertainty, either contact your technical support or assume that gases are compensated for water vapor, which is normally the case. As opposed to the other import functions, there is no option to “keep_all” with this instrument. If you would like to import additional data using this function, please contact the maintainer of this package for support. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub> and N<sub>2</sub>O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found online for the latest models of the <a href="https://www.licor.com/env/products/trace-gas/LI-7810">LI-7810</a> and <a href="https://www.licor.com/env/products/trace-gas/LI-7820">LI-7820</a>, available at the time of the creation of this function (11-2023). #### Examples</p>
+<p>This function has been designed for up to 9 Automated ECOFlux chambers synced with two GHG analyzers from LI-COR (LI-7810: CO<sub>2</sub>, CH<sub>4</sub> and H<sub>2</sub>O / LI7820: N<sub>2</sub>O and H<sub>2</sub>O). If this function could be useful for you, but does not meet your needs, please contact the maintainer of this package for potential adaptations.</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the Automated ECOFlux chamber, the date is found in the column “Titles:”.</p>
+<p>The arguments <code>PAR.col</code>, <code>Tcham.col</code>, <code>Tsoil.col</code>, <code>SWC.col</code>, and <code>WTD.col</code> correspond to different types of probes linked to the ECOFlux chamber: PAR (sunlight), chamber temperature, soil temperature, soil water content and water table depth, respectively. All columns containing the patterns specified in these arguments will be selected and renamed with the corresponding argument. For example, if <code>PAR = "3C07_Sunlight"</code>, all columns containing the pattern “3C07_Sunlight” will be renamed with the pattern “_PAR”. Then, if <code>pivot = "long"</code>, all columns with the pattern “_PAR” will be merged together. If <code>PAR = c("3C07_Sunlight1", "3C07_Sunlight2")</code>, these patterns will be renamed to PAR1 and PAR2.</p>
+<p>The argument <code>Op.stat.col</code> corresponds to the columns Operating Status of each chamber. The argument <code>CH.col</code> indicates a character string preceding the chamber number for each column of the raw data. For example, the column “COM5A010C06_OperatingStatus” in the raw data file contains the Operating Status for the chamber 1 if <code>CH.col = "COM5A0"</code> and <code>Op.stat.col = "0C06_OperatingStatus"</code>. If these columns are absent from the raw data, set arguments to NULL.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>kPa for atmospheric pressure</li>
+<li>volumetric water content (%) for soil moisture</li>
+<li>Celsius for air temperature</li>
+<li>µmol photons m<sup>-2</sup>s<sup>-1</sup> for PAR</li>
+</ul>
+<p>For each gas, the units are taken from the second row in the raw file (Units:). If your instruments use different units, either convert the units after import, change the settings on your instruments, or contact the maintainer of this package for support.</p>
+<p>Regarding the parameters <code>dryX</code>, in case of uncertainty, either contact your technical support or assume that gases are compensated for water vapor, which is normally the case.</p>
+<p>As opposed to the other import functions, there is no option to “keep_all” with this instrument. If you would like to import additional data using this function, please contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub> and N<sub>2</sub>O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found online for the latest models of the <a href="https://www.licor.com/env/products/trace-gas/LI-7810">LI-7810</a> and <a href="https://www.licor.com/env/products/trace-gas/LI-7820">LI-7820</a>, available at the time of the creation of this function (11-2023). #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -2063,7 +2200,13 @@ Important
 </section>
 <section id="details-12" class="level4">
 <h4 class="anchored" data-anchor-id="details-12">Details</h4>
-<p>This function has been designed for the SkyLine2D system file generated by DMR synced with the Picarro G2508 (CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O and H<sub>2</sub>O)). If this function could be useful for you, but does not meet your needs, please contact the maintainer of this package for potential adaptations. In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the SkyLine2D system, the date is found in the column “Titles:”. Be mindful that when you open a .csv file in Excel, the software often changes date formats. To avoid any discrepancy, open the file in a text file. The argument <code>CH.clo.col</code> corresponds to the column “Chamber closed”. Any number above 0 in that column indicate that the chamber is closed. The argument <code>CH.col</code> corresponds to the column “CH ID” indicating which chamber is active. For each gas, the units are taken from the second row in the raw file (Units:). If your instrument uses different units, either convert the units after import, change the settings on your instruments, or contact the maintainer of this package for support. Regarding the parameters <code>dry</code>, in case of uncertainty, either contact your technical support or assume that gases are compensated for water vapor, which is normally the case. As opposed to the other import functions, there is no option to “keep_all” with this instrument. If you would like to import additional data using this function, please contact the maintainer of this package for support. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub> and N<sub>2</sub>O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found online for the latest models of the <a href="https://www.picarro.com/environmental/products/g2508_gas_concentration_analyzer">Picarro G2508</a>, available at the time of the creation of this function (10-2025). #### Examples</p>
+<p>This function has been designed for the SkyLine2D system file generated by DMR synced with the Picarro G2508 (CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O and H<sub>2</sub>O)). If this function could be useful for you, but does not meet your needs, please contact the maintainer of this package for potential adaptations.</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the SkyLine2D system, the date is found in the column “Titles:”. Be mindful that when you open a .csv file in Excel, the software often changes date formats. To avoid any discrepancy, open the file in a text file.</p>
+<p>The argument <code>CH.clo.col</code> corresponds to the column “Chamber closed”. Any number above 0 in that column indicate that the chamber is closed. The argument <code>CH.col</code> corresponds to the column “CH ID” indicating which chamber is active.</p>
+<p>For each gas, the units are taken from the second row in the raw file (Units:). If your instrument uses different units, either convert the units after import, change the settings on your instruments, or contact the maintainer of this package for support.</p>
+<p>Regarding the parameters <code>dry</code>, in case of uncertainty, either contact your technical support or assume that gases are compensated for water vapor, which is normally the case.</p>
+<p>As opposed to the other import functions, there is no option to “keep_all” with this instrument. If you would like to import additional data using this function, please contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub> and N<sub>2</sub>O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found online for the latest models of the <a href="https://www.picarro.com/environmental/products/g2508_gas_concentration_analyzer">Picarro G2508</a>, available at the time of the creation of this function (10-2025). #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -2137,7 +2280,16 @@ Important
 </section>
 <section id="details-13" class="level4">
 <h4 class="anchored" data-anchor-id="details-13">Details</h4>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument DX4015, the date is found in the column “Date”. Note that this function was designed for the following units in the raw file: - ppm for CO<sub>2</sub> , CO, CH<sub>4</sub> , N<sub>2</sub>O and NH<sub>3</sub> - vol-% for H<sub>2</sub>O - mbar for pressure - Celsius for temperature If your Gasmet DX4015 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub>, CO N<sub>2</sub>O and NH<sub>3</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (11-2023). #### Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument DX4015, the date is found in the column “Date”.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>ppm for CO<sub>2</sub> , CO, CH<sub>4</sub> , N<sub>2</sub>O and NH<sub>3</sub></li>
+<li>vol-% for H<sub>2</sub>O</li>
+<li>mbar for pressure</li>
+<li>Celsius for temperature</li>
+</ul>
+<p>If your Gasmet DX4015 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub>, CO N<sub>2</sub>O and NH<sub>3</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (11-2023). #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -2208,7 +2360,16 @@ Important
 </section>
 <section id="details-14" class="level4">
 <h4 class="anchored" data-anchor-id="details-14">Details</h4>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument GT5000, the date is found in the column “Date”. Note that this function was designed for the following units in the raw file: - ppm for CO<sub>2</sub> , CO, CH<sub>4</sub> , N<sub>2</sub>O and NH<sub>3</sub> - vol-% for H<sub>2</sub>O - mbar for pressure - Celsius for temperature If your Gasmet GT5000 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub>, CO N<sub>2</sub>O and NH<sub>3</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (08-2024). #### Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument GT5000, the date is found in the column “Date”.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>ppm for CO<sub>2</sub> , CO, CH<sub>4</sub> , N<sub>2</sub>O and NH<sub>3</sub></li>
+<li>vol-% for H<sub>2</sub>O</li>
+<li>mbar for pressure</li>
+<li>Celsius for temperature</li>
+</ul>
+<p>If your Gasmet GT5000 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub>, CO N<sub>2</sub>O and NH<sub>3</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (08-2024). #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -2302,7 +2463,33 @@ Important
 </section>
 <section id="details-15" class="level4">
 <h4 class="anchored" data-anchor-id="details-15">Details</h4>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument G2201-i, the date is found in the column “DATE”. The arguments <code>CH4</code> and <code>CO2</code> require the user to specify which columns contain the two gases of interest among the following for <code>CH4</code>: - HP_12CH4 - HP_12CH4_dry - HP_13CH4 - HR_12CH4 - HR_12CH4_dry - HR_13CH4 And among the following for <code>CO2</code>: - 12CO2 - 12CO2_dry - 13CO2 - 13CO2_dry Note that, HP stands for CH<sub>4</sub> concentration measured with strong line for high precision but limited range and HR stands for CH<sub>4</sub> concentration measured with high range (between 10 and 1000 ppm). In addition, _dry stands for dry mole fraction of gases, corrected for water vapor. Finally, 12 and 13 indicate each carbon isotope contained in each gas. If one selects one of the non-dry mole fraction, it will be corrected for water vapor during the import process. Note that this function was designed for the following units in the raw file: - ppm for CO<sub>2</sub> and CH<sub>4</sub> - percent (%) for H<sub>2</sub>O - Torr for pressure - Celsius for temperature If your Picarro G2201-i uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://www.picarro.com/environmental/products/g2201i_isotopic_analyzer">online</a> for the latest model of this instrument, available at the time of the creation of this function (05-2025). #### Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument G2201-i, the date is found in the column “DATE”.</p>
+<p>The arguments <code>CH4</code> and <code>CO2</code> require the user to specify which columns contain the two gases of interest among the following for <code>CH4</code>:</p>
+<ul>
+<li>HP_12CH4</li>
+<li>HP_12CH4_dry</li>
+<li>HP_13CH4</li>
+<li>HR_12CH4</li>
+<li>HR_12CH4_dry</li>
+<li>HR_13CH4</li>
+</ul>
+<p>And among the following for <code>CO2</code>:</p>
+<ul>
+<li>12CO2</li>
+<li>12CO2_dry</li>
+<li>13CO2</li>
+<li>13CO2_dry</li>
+</ul>
+<p>Note that, HP stands for CH<sub>4</sub> concentration measured with strong line for high precision but limited range and HR stands for CH<sub>4</sub> concentration measured with high range (between 10 and 1000 ppm). In addition, _dry stands for dry mole fraction of gases, corrected for water vapor. Finally, 12 and 13 indicate each carbon isotope contained in each gas. If one selects one of the non-dry mole fraction, it will be corrected for water vapor during the import process.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>ppm for CO<sub>2</sub> and CH<sub>4</sub></li>
+<li>percent (%) for H<sub>2</sub>O</li>
+<li>Torr for pressure</li>
+<li>Celsius for temperature</li>
+</ul>
+<p>If your Picarro G2201-i uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://www.picarro.com/environmental/products/g2201i_isotopic_analyzer">online</a> for the latest model of this instrument, available at the time of the creation of this function (05-2025). #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -2373,7 +2560,17 @@ Important
 </section>
 <section id="details-16" class="level4">
 <h4 class="anchored" data-anchor-id="details-16">Details</h4>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument G2508, the date is found in the column “DATE”. Note that this function was designed for the following units in the raw file: - ppm for CO<sub>2</sub> - ppb for CH<sub>4</sub> , N<sub>2</sub>O and NH<sub>3</sub> - mmol/mol for H<sub>2</sub>O - Torr for pressure - Celsius for temperature If your Picarro G2508 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub>, N<sub>2</sub>O and NH<sub>3</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://www.picarro.com/environmental/products/g2508_gas_concentration_analyzer">online</a> for the latest model of this instrument, available at the time of the creation of this function (11-2023). #### Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument G2508, the date is found in the column “DATE”.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>ppm for CO<sub>2</sub></li>
+<li>ppb for CH<sub>4</sub> , N<sub>2</sub>O and NH<sub>3</sub></li>
+<li>mmol/mol for H<sub>2</sub>O</li>
+<li>Torr for pressure</li>
+<li>Celsius for temperature</li>
+</ul>
+<p>If your Picarro G2508 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub>, N<sub>2</sub>O and NH<sub>3</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://www.picarro.com/environmental/products/g2508_gas_concentration_analyzer">online</a> for the latest model of this instrument, available at the time of the creation of this function (11-2023). #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -2444,7 +2641,17 @@ Important
 </section>
 <section id="details-17" class="level4">
 <h4 class="anchored" data-anchor-id="details-17">Details</h4>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument G4301, the date is found in the column “DATE”. Note that this function was designed for the following units in the raw file: - ppm for CO<sub>2</sub> - ppb for CH<sub>4</sub> - mmol/mol for H<sub>2</sub>O - Torr for pressure - Celsius for temperature If your Picarro G4301 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://www.picarro.com/products/gas-scouter-g4301">online</a> for the latest model of this instrument, available at the time of the creation of this function (11-2023). #### Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument G4301, the date is found in the column “DATE”.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>ppm for CO<sub>2</sub></li>
+<li>ppb for CH<sub>4</sub></li>
+<li>mmol/mol for H<sub>2</sub>O</li>
+<li>Torr for pressure</li>
+<li>Celsius for temperature</li>
+</ul>
+<p>If your Picarro G4301 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://www.picarro.com/products/gas-scouter-g4301">online</a> for the latest model of this instrument, available at the time of the creation of this function (11-2023). #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -2523,7 +2730,20 @@ Important
 </section>
 <section id="details-18" class="level4">
 <h4 class="anchored" data-anchor-id="details-18">Details</h4>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument EGM5, the date is found in the column “Date”. Note that this function was designed for the following units in the raw file: - ppm for CO<sub>2</sub> - % for O<sub>2</sub> (pct) - mb for H<sub>2</sub>O - mb for pressure - Celsius for temperature If your PP-Systems EGM-5 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support. Note that this instrument measures the “wet” fraction of CO<sub>2</sub> and O<sub>2</sub>. If water vapor is measured, the dry fraction of the gases is calculated automatically. If not, it is important to measure the ambient water vapor concentration to convert gases into their dry fraction and use those in the following steps of this package. For example, <code>CO2dry_ppm = CO2wet_ppm/(1-H2O_ppm/1000000)</code>. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1% for O<sub>2</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (11-2023). Look up the <a href="https://ppsystems.com/download/technical_manuals/80109-1-EGM-5_Operation_V103.pdf">EGM-5 Operation Manual</a> at page 90 for more details about the different Process Data Fields (<code>proc.data.field</code>). Note that the default file extension for this instrument is .TXT, however, it is also possible to use with a .csv file format. #### Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For the instrument EGM5, the date is found in the column “Date”.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>ppm for CO<sub>2</sub></li>
+<li>% for O<sub>2</sub> (pct)</li>
+<li>mb for H<sub>2</sub>O</li>
+<li>mb for pressure</li>
+<li>Celsius for temperature</li>
+</ul>
+<p>If your PP-Systems EGM-5 uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>Note that this instrument measures the “wet” fraction of CO<sub>2</sub> and O<sub>2</sub>. If water vapor is measured, the dry fraction of the gases is calculated automatically. If not, it is important to measure the ambient water vapor concentration to convert gases into their dry fraction and use those in the following steps of this package. For example, <code>CO2dry_ppm = CO2wet_ppm/(1-H2O_ppm/1000000)</code>.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1% for O<sub>2</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (11-2023).</p>
+<p>Look up the <a href="https://ppsystems.com/download/technical_manuals/80109-1-EGM-5_Operation_V103.pdf">EGM-5 Operation Manual</a> at page 90 for more details about the different Process Data Fields (<code>proc.data.field</code>).</p>
+<p>Note that the default file extension for this instrument is .TXT, however, it is also possible to use with a .csv file format. #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -2597,7 +2817,16 @@ Important
 </section>
 <section id="details-19" class="level4">
 <h4 class="anchored" data-anchor-id="details-19">Details</h4>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For these instruments, the date is found in the column “Time Stamp”. Note that this function was designed for the following units in the raw file: - ppm for CH<sub>4</sub> and H<sub>2</sub>O - ppb for C<sub>2</sub>H<sub>6</sub> - mbars for pressure - Celsius for temperature If your Aeris instrument (MIRA Ultra CH<sub>4</sub>/ C<sub>2</sub>H<sub>6</sub> analyzer) uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for C<sub>2</sub>H<sub>6</sub> and CH<sub>4</sub>, or 1 ppb for H<sub>2</sub>O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://aerissensors.com/mira-pico-mobile-lds/">online</a> for the latest model of this instrument available at the time of the creation of this function (01-2024). #### Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For these instruments, the date is found in the column “Time Stamp”.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>ppm for CH<sub>4</sub> and H<sub>2</sub>O</li>
+<li>ppb for C<sub>2</sub>H<sub>6</sub></li>
+<li>mbars for pressure</li>
+<li>Celsius for temperature</li>
+</ul>
+<p>If your Aeris instrument (MIRA Ultra CH<sub>4</sub>/ C<sub>2</sub>H<sub>6</sub> analyzer) uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for C<sub>2</sub>H<sub>6</sub> and CH<sub>4</sub>, or 1 ppb for H<sub>2</sub>O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://aerissensors.com/mira-pico-mobile-lds/">online</a> for the latest model of this instrument available at the time of the creation of this function (01-2024). #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -2668,7 +2897,15 @@ Important
 </section>
 <section id="details-20" class="level4">
 <h4 class="anchored" data-anchor-id="details-20">Details</h4>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For these instruments, the date is found in the column “Time Stamp”. Note that this function was designed for the following units in the raw file: - ppm for CO<sub>2</sub> , N<sub>2</sub>O and H<sub>2</sub>O - mbars for pressure - Celsius for temperature If your Aeris instrument (MIRA Ultra N<sub>2</sub>O/ CO<sub>2</sub> analyzer) uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and N<sub>2</sub>O, or 1 ppb for H<sub>2</sub>O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://aerissensors.com/ultimate-precision-for-your-ghgs-measurementsthe-mira-co2-n2o/">online</a> for the latest model of this instrument available at the time of the creation of this function (01-2024). The precision for water vapor is currently unknown, and a default of 1 ppm is used. #### Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For these instruments, the date is found in the column “Time Stamp”.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>ppm for CO<sub>2</sub> , N<sub>2</sub>O and H<sub>2</sub>O</li>
+<li>mbars for pressure</li>
+<li>Celsius for temperature</li>
+</ul>
+<p>If your Aeris instrument (MIRA Ultra N<sub>2</sub>O/ CO<sub>2</sub> analyzer) uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and N<sub>2</sub>O, or 1 ppb for H<sub>2</sub>O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://aerissensors.com/ultimate-precision-for-your-ghgs-measurementsthe-mira-co2-n2o/">online</a> for the latest model of this instrument available at the time of the creation of this function (01-2024). The precision for water vapor is currently unknown, and a default of 1 ppm is used. #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -2737,7 +2974,14 @@ Important
 </section>
 <section id="details-21" class="level4">
 <h4 class="anchored" data-anchor-id="details-21">Details</h4>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For these instruments, the date is found in the column “time”. Note that this function was designed for the following units in the raw file: - ppm for CO<sub>2</sub> , CH<sub>4</sub> and H<sub>2</sub>O - ppb for N<sub>2</sub>O If your instrument uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub> and N<sub>2</sub>O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://en.healthyphoton.com/gongye/products/45.html">online</a> for the latest model of this instrument available at the time of the creation of this function (01-2026). #### Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For these instruments, the date is found in the column “time”.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>ppm for CO<sub>2</sub> , CH<sub>4</sub> and H<sub>2</sub>O</li>
+<li>ppb for N<sub>2</sub>O</li>
+</ul>
+<p>If your instrument uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub> and N<sub>2</sub>O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://en.healthyphoton.com/gongye/products/45.html">online</a> for the latest model of this instrument available at the time of the creation of this function (01-2026). #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -2816,7 +3060,15 @@ Important
 </section>
 <section id="details-22" class="level4">
 <h4 class="anchored" data-anchor-id="details-22">Details</h4>
-<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For this instrument, the date is found in the column “Date”. Note that this function was designed for the following units in the raw file: - ppm for CO<sub>2</sub> , CH<sub>4</sub> , N<sub>2</sub>O , NO<sub>2</sub> , NO and NH<sub>3</sub> - percent (%) for H<sub>2</sub>O - mbar for pressure The function converts ambient pressure to kPa (Pcham), water vapor to ppm, and CH<sub>4</sub>, N<sub>2</sub>O, NO<sub>2</sub>, NO and NH<sub>3</sub> to ppb. If your instrument uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support. The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub>, N<sub>2</sub>O, NO<sub>2</sub>, NO and NH<sub>3</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (07-2024). #### Examples</p>
+<p>In <code>date.format</code>, the date format refers to a date found in the raw data file, not the date format in the file name. For this instrument, the date is found in the column “Date”.</p>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>ppm for CO<sub>2</sub> , CH<sub>4</sub> , N<sub>2</sub>O , NO<sub>2</sub> , NO and NH<sub>3</sub></li>
+<li>percent (%) for H<sub>2</sub>O</li>
+<li>mbar for pressure</li>
+</ul>
+<p>The function converts ambient pressure to kPa (Pcham), water vapor to ppm, and CH<sub>4</sub>, N<sub>2</sub>O, NO<sub>2</sub>, NO and NH<sub>3</sub> to ppb. If your instrument uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for CH<sub>4</sub>, N<sub>2</sub>O, NO<sub>2</sub>, NO and NH<sub>3</sub>) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones provided by the manufacturer upon request, for the latest model of this instrument available at the time of the creation of this function (07-2024). #### Examples</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
 <span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
@@ -2871,7 +3123,14 @@ Important
 </section>
 <section id="details-23" class="level4">
 <h4 class="anchored" data-anchor-id="details-23">Details</h4>
-<p>Note that this function was designed for the following units in the raw files: - Epoch (unix) time for <code>date.format</code> - kPa for atmospheric pressure - Voltage for temperature - Voltage for other AUX sensors If your eosMX instrument uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>Note that this function was designed for the following units in the raw files:</p>
+<ul>
+<li>Epoch (unix) time for <code>date.format</code></li>
+<li>kPa for atmospheric pressure</li>
+<li>Voltage for temperature</li>
+<li>Voltage for other AUX sensors</li>
+</ul>
+<p>If your eosMX instrument uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
 </section>
 <section id="examples" class="level4">
 <h4 class="anchored" data-anchor-id="examples">Examples</h4>
