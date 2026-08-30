@@ -2,6 +2,7 @@
 #'
 #' Imports single raw data files from the Eosense 12-Channel Autochamber Multiplexer
 #'
+#' @instrumentlink Eosense Portable Recirculating Multiplexer|eosMX 12-Channel Autochamber Multiplexer|https://eosense.com/products/fluxlink.html
 #' @param inputfile character string; the name of a file with the extension .log
 #' @param timezone character string; a time zone in which to import the data to
 #'                 POSIXct format. Default is "UTC". Note about time zone: it is
