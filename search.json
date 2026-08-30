@@ -100,6 +100,16 @@
     ]
   },
   {
+    "objectID": "import.html#sec-single-Campbell",
+    "href": "import.html#sec-single-Campbell",
+    "title": "Import raw data",
+    "section": "Campbell",
+    "text": "Campbell\n\nData logger Campbell CR1000X logging data from LI7810, LI7820, and LI8100 gas analyzers\nImports single raw gas measurement files from the LI7810, LI7820, and LI8100 gas analyzers logged on the Campbell CR1000X data logger (CO2, CH4, N2O, and H2O)\nView the import.CR1000X source code on GitHub\n\nUsage\nimport.CR1000X(inputfile, timezone = \"UTC\", save = FALSE, keep_all = FALSE)\n\n\nArguments\n\n\n\n\n\n\n\nArgument\nDescription\n\n\n\n\ninputfile\ncharacter string; the name of a file with the extension .data or .txt\n\n\ntimezone\ncharacter string; a time zone in which to import the data to POSIXct format. Default is “UTC”. Note about time zone: it is recommended to use the time zone “UTC” to avoid any issue related to summer time and winter time changes.\n\n\nsave\nlogical; if save = TRUE, saves the file as an .RData file in a RData folder in the current working directory. If save = FALSE, returns the file in the Console, or load in the Environment if assigned to an object.\n\n\nkeep_all\nlogical; if keep_all = TRUE, keep all columns from the raw file. The default is keep_all = FALSE, and columns that are not necessary for gas flux calculation are removed.\n\n\n\n\n\nDetails\nNote that this function was designed for the following units in the raw file:\n\nppm for CO2&lt;\nppb for CH4&lt;\nppb for N2O\nppm for H2O\nkPa for pressure\nCelsius for temperature\n\nIf your gas analyzers uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.\nThe precision of the instrument is needed to restrict kappa-max (k.max) in the non-linear flux calculation (HM.flux). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g. 1 ppm for #’ CO2 and H2O, or 1 ppb for #’ CH4) and N2O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found online for the latest model of this instrument available at the time of the creation of this function (11-2023). #### Examples\n\n# Retrieve file path from example file in the goFlux package\n# using the function system.file\nfile.path &lt;- system.file(\"extdata\", \"CR1000X/CR1000X.data\", package = \"goFlux\")\n\n# Import in the environment\nimp.CR1000X &lt;- import.CR1000X(inputfile = file.path)\n\n# Or save in a RData folder in the working directory\nimport.CR1000X(inputfile = file.path, save = TRUE)",
+    "crumbs": [
+      "Import"
+    ]
+  },
+  {
     "objectID": "import.html#sec-single-Eosense",
     "href": "import.html#sec-single-Eosense",
     "title": "Import raw data",

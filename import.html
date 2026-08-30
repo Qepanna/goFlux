@@ -461,13 +461,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#details-22" id="toc-details-22" class="nav-link" data-scroll-target="#details-22">Details</a></li>
   </ul></li>
   </ul></li>
-  <li><a href="#sec-single-Eosense" id="toc-sec-single-Eosense" class="nav-link" data-scroll-target="#sec-single-Eosense">Eosense</a>
+  <li><a href="#sec-single-Campbell" id="toc-sec-single-Campbell" class="nav-link" data-scroll-target="#sec-single-Campbell">Campbell</a>
   <ul class="collapse">
-  <li><a href="#sec-single-eosMX12" id="toc-sec-single-eosMX12" class="nav-link" data-scroll-target="#sec-single-eosMX12">eosMX12 12-Channel Multiplexer</a>
+  <li><a href="#sec-single-CR1000X" id="toc-sec-single-CR1000X" class="nav-link" data-scroll-target="#sec-single-CR1000X">Data logger Campbell CR1000X logging data from LI7810, LI7820, and LI8100 gas analyzers</a>
   <ul class="collapse">
   <li><a href="#usage-23" id="toc-usage-23" class="nav-link" data-scroll-target="#usage-23">Usage</a></li>
   <li><a href="#arguments-23" id="toc-arguments-23" class="nav-link" data-scroll-target="#arguments-23">Arguments</a></li>
   <li><a href="#details-23" id="toc-details-23" class="nav-link" data-scroll-target="#details-23">Details</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#sec-single-Eosense" id="toc-sec-single-Eosense" class="nav-link" data-scroll-target="#sec-single-Eosense">Eosense</a>
+  <ul class="collapse">
+  <li><a href="#sec-single-eosMX12" id="toc-sec-single-eosMX12" class="nav-link" data-scroll-target="#sec-single-eosMX12">eosMX12 12-Channel Multiplexer</a>
+  <ul class="collapse">
+  <li><a href="#usage-24" id="toc-usage-24" class="nav-link" data-scroll-target="#usage-24">Usage</a></li>
+  <li><a href="#arguments-24" id="toc-arguments-24" class="nav-link" data-scroll-target="#arguments-24">Arguments</a></li>
+  <li><a href="#details-24" id="toc-details-24" class="nav-link" data-scroll-target="#details-24">Details</a></li>
   <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
   </ul></li>
   </ul></li>
@@ -514,6 +523,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><a href="https://ppsystems.com/egm-5/"><strong>PP-Systems EGM-5 Portable CO<sub>2</sub> Gas Analyzer</strong></a>: for CO<sub>2</sub>, O<sub>2</sub> and H<sub>2</sub>O</li>
 <li><a href="https://aerissensors.com/ultra-series/"><strong>Aeris Technologies MIRA Ultra Gas Analyzers</strong></a>: for N<sub>2</sub>O, CO<sub>2</sub> and H<sub>2</sub>O or for CH<sub>4</sub>, C<sub>2</sub>H<sub>6</sub> and H<sub>2</sub>O</li>
 <li><a href="https://en.healthyphoton.com/gongye/products/45.html"><strong>Healthy Photon HT8850 all-in-one GHG analyzer</strong></a>: for CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, and H<sub>2</sub>O</li>
+<li><a href="https://www.campbellsci.com/cr1000x"><strong>CR1000X data logger logging data from LI7810, LI7820, and LI8100 gas analyzers</strong></a>: for CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, and H<sub>2</sub>O</li>
 <li><a href="https://eosense.com/products/fluxlink.html"><strong>Eosense Portable Recirculating Multiplexer</strong></a>: eosMX 12-Channel Autochamber Multiplexer</li>
 <li><strong>Custom made multiplexer</strong> from the University of Padova, Italy, which integrates data from multiple automatic chambers linked to a Gasmet DX4015.</li>
 </ul>
@@ -1108,6 +1118,7 @@ Important
 <li><a href="./import.html#sec-single-Aeris"><strong>Aeris Technologies</strong></a>: N<sub>2</sub>O/CO<sub>2</sub> high accuracy analyzer and CH<sub>4</sub>/C<sub>2</sub>H<sub>6</sub> natural gas detection system</li>
 <li><a href="./import.html#sec-single-HealthyPhoton"><strong>Healthy Photon</strong></a>: HT8850</li>
 <li><a href="./import.html#sec-single-GasmetPD"><strong>GasmetPD</strong></a>: Custom multiplexer from the University of Padova, Italy</li>
+<li><a href="https://www.campbellsci.com/cr1000x"><strong>CR1000X data logger logging data from LI7810, LI7820, and LI8100 gas analyzers</strong></a>: for CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, and H<sub>2</sub>O</li>
 </ul>
 <section id="sec-single-LICOR" class="level2">
 <h2 class="anchored" data-anchor-id="sec-single-LICOR">LI-COR</h2>
@@ -3106,18 +3117,88 @@ Important
 </section>
 </section>
 </section>
+<section id="sec-single-Campbell" class="level2">
+<h2 class="anchored" data-anchor-id="sec-single-Campbell">Campbell</h2>
+<section id="sec-single-CR1000X" class="level3">
+<h3 class="anchored" data-anchor-id="sec-single-CR1000X">Data logger Campbell CR1000X logging data from LI7810, LI7820, and LI8100 gas analyzers</h3>
+<p>Imports single raw gas measurement files from the LI7810, LI7820, and LI8100 gas analyzers logged on the Campbell CR1000X data logger (CO<sub>2</sub>, CH<sub>4</sub>, N<sub>2</sub>O, and H<sub>2</sub>O)</p>
+<p><a href="https://github.com/Qepanna/goFlux/blob/master/R/import.CR1000X.R" target="_blank">View the <code>import.CR1000X</code> source code on GitHub</a></p>
+<section id="usage-23" class="level4">
+<h4 class="anchored" data-anchor-id="usage-23">Usage</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">import.CR1000X</span>(inputfile, <span class="at">timezone =</span> <span class="st">"UTC"</span>, <span class="at">save =</span> <span class="cn">FALSE</span>, <span class="at">keep_all =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="arguments-23" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-23">Arguments</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 86%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>inputfile</code></td>
+<td>character string; the name of a file with the extension .data or .txt</td>
+</tr>
+<tr class="even">
+<td><code>timezone</code></td>
+<td>character string; a time zone in which to import the data to POSIXct format. Default is “UTC”. Note about time zone: it is recommended to use the time zone “UTC” to avoid any issue related to summer time and winter time changes.</td>
+</tr>
+<tr class="odd">
+<td><code>save</code></td>
+<td>logical; if <code>save = TRUE</code>, saves the file as an .RData file in a RData folder in the current working directory. If <code>save = FALSE</code>, returns the file in the Console, or load in the Environment if assigned to an object.</td>
+</tr>
+<tr class="even">
+<td><code>keep_all</code></td>
+<td>logical; if <code>keep_all = TRUE</code>, keep all columns from the raw file. The default is <code>keep_all = FALSE</code>, and columns that are not necessary for gas flux calculation are removed.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="details-23" class="level4">
+<h4 class="anchored" data-anchor-id="details-23">Details</h4>
+<p>Note that this function was designed for the following units in the raw file:</p>
+<ul>
+<li>ppm for CO<sub>2&lt;</sub></li>
+<li>ppb for CH<sub>4&lt;</sub></li>
+<li>ppb for N<sub>2</sub>O</li>
+<li>ppm for H<sub>2</sub>O</li>
+<li>kPa for pressure</li>
+<li>Celsius for temperature</li>
+</ul>
+<p>If your gas analyzers uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
+<p>The precision of the instrument is needed to restrict kappa-max (<code>k.max</code>) in the non-linear flux calculation (<code>HM.flux</code>). Kappa-max is inversely proportional to instrument precision. If the precision of your instrument is unknown, it is better to use a low value (e.g.&nbsp;1 ppm for #’ CO<sub>2</sub> and H<sub>2</sub>O, or 1 ppb for #’ CH<sub>4</sub>) and N<sub>2</sub>O) to allow for more curvature, especially for water vapor fluxes, or very long measurements, that are normally curved. The default values given for instrument precision are the ones found <a href="https://www.licor.com/products/trace-gas/LI-7820">online</a> for the latest model of this instrument available at the time of the creation of this function (11-2023). #### Examples</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve file path from example file in the goFlux package</span></span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using the function system.file</span></span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>file.path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">"extdata"</span>, <span class="st">"CR1000X/CR1000X.data"</span>, <span class="at">package =</span> <span class="st">"goFlux"</span>)</span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Import in the environment</span></span>
+<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a>imp.CR1000X <span class="ot">&lt;-</span> <span class="fu">import.CR1000X</span>(<span class="at">inputfile =</span> file.path)</span>
+<span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-8"><a href="#cb73-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Or save in a RData folder in the working directory</span></span>
+<span id="cb73-9"><a href="#cb73-9" aria-hidden="true" tabindex="-1"></a><span class="fu">import.CR1000X</span>(<span class="at">inputfile =</span> file.path, <span class="at">save =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+</section>
 <section id="sec-single-Eosense" class="level2">
 <h2 class="anchored" data-anchor-id="sec-single-Eosense">Eosense</h2>
 <section id="sec-single-eosMX12" class="level3">
 <h3 class="anchored" data-anchor-id="sec-single-eosMX12">eosMX12 12-Channel Multiplexer</h3>
 <p>Import single raw data files from the Eosense eosMX12 12-channel multiplexer with the function <code>import.eosMX12</code>.</p>
 <p><a href="https://github.com/Qepanna/goFlux/blob/master/R/import.eosMX12.R" target="_blank">View the <code>import.eosMX12</code> source code on GitHub</a></p>
-<section id="usage-23" class="level4">
-<h4 class="anchored" data-anchor-id="usage-23">Usage</h4>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">import.eosMX12</span>(inputfile, <span class="at">timezone =</span> <span class="st">"UTC"</span>, <span class="at">save =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="usage-24" class="level4">
+<h4 class="anchored" data-anchor-id="usage-24">Usage</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">import.eosMX12</span>(inputfile, <span class="at">timezone =</span> <span class="st">"UTC"</span>, <span class="at">save =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="arguments-23" class="level4">
-<h4 class="anchored" data-anchor-id="arguments-23">Arguments</h4>
+<section id="arguments-24" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-24">Arguments</h4>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 13%">
@@ -3145,8 +3226,8 @@ Important
 </tbody>
 </table>
 </section>
-<section id="details-23" class="level4">
-<h4 class="anchored" data-anchor-id="details-23">Details</h4>
+<section id="details-24" class="level4">
+<h4 class="anchored" data-anchor-id="details-24">Details</h4>
 <p>Note that this function was designed for the following units in the raw files:</p>
 <ul>
 <li>Epoch (unix) time for <code>date.format</code></li>
@@ -3158,15 +3239,15 @@ Important
 </section>
 <section id="examples" class="level4">
 <h4 class="anchored" data-anchor-id="examples">Examples</h4>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load file from downloaded package</span></span>
-<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>file.path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">"extdata"</span>, <span class="st">"eosMX12/eosMX12.log"</span>, <span class="at">package =</span> <span class="st">"goFlux"</span>)</span>
-<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Import FRMonitor file as auxfile</span></span>
-<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a>imp.eosMX12 <span class="ot">&lt;-</span> <span class="fu">import.eosMX12</span>(<span class="at">inputfile =</span> file.path)</span>
-<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Match the multiplexer file with gas data using the function autoID</span></span>
-<span id="cb73-8"><a href="#cb73-8" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(imp.G2508)</span>
-<span id="cb73-9"><a href="#cb73-9" aria-hidden="true" tabindex="-1"></a>autoID.eosMX12 <span class="ot">&lt;-</span> <span class="fu">autoID</span>(imp.G2508, imp.eosMX12)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load file from downloaded package</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>file.path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">"extdata"</span>, <span class="st">"eosMX12/eosMX12.log"</span>, <span class="at">package =</span> <span class="st">"goFlux"</span>)</span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Import FRMonitor file as auxfile</span></span>
+<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a>imp.eosMX12 <span class="ot">&lt;-</span> <span class="fu">import.eosMX12</span>(<span class="at">inputfile =</span> file.path)</span>
+<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-7"><a href="#cb75-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Match the multiplexer file with gas data using the function autoID</span></span>
+<span id="cb75-8"><a href="#cb75-8" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(imp.G2508)</span>
+<span id="cb75-9"><a href="#cb75-9" aria-hidden="true" tabindex="-1"></a>autoID.eosMX12 <span class="ot">&lt;-</span> <span class="fu">autoID</span>(imp.G2508, imp.eosMX12)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 </section>
