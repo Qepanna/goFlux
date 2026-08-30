@@ -265,13 +265,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#usage-1" id="toc-usage-1" class="nav-link" data-scroll-target="#usage-1">Usage</a></li>
   <li><a href="#arguments-1" id="toc-arguments-1" class="nav-link" data-scroll-target="#arguments-1">Arguments</a></li>
+  <li><a href="#details-1" id="toc-details-1" class="nav-link" data-scroll-target="#details-1">Details</a></li>
   <li><a href="#examples-1" id="toc-examples-1" class="nav-link" data-scroll-target="#examples-1">Examples</a></li>
   </ul></li>
   <li><a href="#sec-step3" id="toc-sec-step3" class="nav-link" data-scroll-target="#sec-step3">3. Click on a scatter plot to identify start and end times</a>
   <ul class="collapse">
   <li><a href="#usage-2" id="toc-usage-2" class="nav-link" data-scroll-target="#usage-2">Usage</a></li>
   <li><a href="#arguments-2" id="toc-arguments-2" class="nav-link" data-scroll-target="#arguments-2">Arguments</a></li>
-  <li><a href="#details-1" id="toc-details-1" class="nav-link" data-scroll-target="#details-1">Details</a></li>
+  <li><a href="#details-2" id="toc-details-2" class="nav-link" data-scroll-target="#details-2">Details</a></li>
   <li><a href="#value" id="toc-value" class="nav-link" data-scroll-target="#value">Value</a></li>
   <li><a href="#examples-2" id="toc-examples-2" class="nav-link" data-scroll-target="#examples-2">Examples</a></li>
   <li><a href="#sec-aux" id="toc-sec-aux" class="nav-link" data-scroll-target="#sec-aux">Additional auxiliary parameters</a></li>
@@ -659,6 +660,10 @@ Note
 </tbody>
 </table>
 </section>
+<section id="details-1" class="level4">
+<h4 class="anchored" data-anchor-id="details-1">Details</h4>
+<p>In <code>gastype</code>, the gas species listed are the ones for which this package has been adapted. Please write to the maintainer of this package for adaptation of additional gases.</p>
+</section>
 <section id="examples-1" class="level4">
 <h4 class="anchored" data-anchor-id="examples-1">Examples</h4>
 <p>In this example, the observation length was approximately three minutes (180 seconds) for each measurement. For a <code>shoulder</code> of 60 seconds, the observation window of each measurement will show 60 seconds before the <code>start.time</code> and 240 seconds after.</p>
@@ -858,8 +863,8 @@ You should split the next step into at least 2 loops.</code></pre>
 </tbody>
 </table>
 </section>
-<section id="details-1" class="level4">
-<h4 class="anchored" data-anchor-id="details-1">Details</h4>
+<section id="details-2" class="level4">
+<h4 class="anchored" data-anchor-id="details-2">Details</h4>
 <p>The argument <code>plot.lim</code> is used to remove any data points below and above the plot limits for a better view of the scatter plot. If the gas measurements are larger than the minimum or smaller than the maximum plot limit values, then the plot will automatically zoom in and adjust to those values. The default plot limits are set for a typical gas measurement of “CO2dry_ppm” from a soil respiration measurement: <code>plot.lim = c(380,1000)</code>, where 380 ppm is the minimum plotted concentration, which should be close to atmospheric concentration, and 1000 ppm is the maximum plotted concentration, which correspond to a maximal accumulated concentration in the chamber before considering it an outlier (e.g.&nbsp;caused by breath or gas bubble). For other gasses, the user must specify the plot limits themselves. Here are some suggestions of plot limits for the other gases:</p>
 <ul>
 <li>“CH4dry_ppb”: <code>plot.lim = c(2200, 1800)</code></li>
