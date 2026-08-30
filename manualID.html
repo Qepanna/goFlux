@@ -349,6 +349,7 @@ Note
 <p>Code chunks under <strong>Usage</strong> sections are not part of the demonstration. They are meant to show how to use the function arguments.</p>
 </div>
 </div>
+<p><a href="https://github.com/Qepanna/goFlux/blob/master/R/autoID.R" target="_blank">View the <code>autoID</code> source code on GitHub</a></p>
 <section id="usage" class="level3">
 <h3 class="anchored" data-anchor-id="usage">Usage</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoID</span>(</span>
@@ -613,6 +614,7 @@ Note
 <h3 class="anchored" data-anchor-id="sec-step2">2. Define a window of observation for each measurement</h3>
 <p>In the next step (3), you must click on the start point and the end point of each measurement in a scatter plot to identify the <code>start.time</code> and the <code>end.time</code>, using the function <code>click.peak2</code>. Before that, you must create a list of data frame containing one data frame per <code>UniqueID</code> using the function <code>obs.win</code>. In this example, this step will separate the file <code>imp.UGGA</code> into a list of 6 data frames.</p>
 <p>The purpose of this step is to zoom in on each measurement in the file to help you identify the start and end time more easily. In order to correctly zoom in on each measurement, you must know the <code>start.time</code> (defined in step 1) and the observation length (<code>obs.length</code>) of each measurement. In addition, you can define some buffer time around each measurement in case the defined <code>start.time</code> is not exact. If the observation length is different for each measurement, use the longest one.</p>
+<p><a href="https://github.com/Qepanna/goFlux/blob/master/R/obs.win.R" target="_blank">View the <code>obs.win</code> source code on GitHub</a></p>
 <section id="usage-1" class="level4">
 <h4 class="anchored" data-anchor-id="usage-1">Usage</h4>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">obs.win</span>(</span>
@@ -786,6 +788,7 @@ You should split the next step into at least 2 loops.</code></pre>
 <section id="sec-step3" class="level3">
 <h3 class="anchored" data-anchor-id="sec-step3">3. Click on a scatter plot to identify start and end times</h3>
 <p>When running the function <code>click.peak2</code>, for each measurement, a window will open, in which you must click on the start point and the end point. The observation window is based on the <code>start.time</code> given in the <code>auxfile</code>, the length of the measurement (<code>obs.length</code>), and a <code>shoulder</code> before <code>start.time</code> and after <code>start.time + obs.length</code>.</p>
+<p><a href="https://github.com/Qepanna/goFlux/blob/master/R/click.peak2.R" target="_blank">View the <code>click.peak2</code> source code on GitHub</a></p>
 <section id="usage-2" class="level4">
 <h4 class="anchored" data-anchor-id="usage-2">Usage</h4>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">click.peak2</span>(</span>
