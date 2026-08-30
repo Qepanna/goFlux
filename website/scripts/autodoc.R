@@ -14,6 +14,8 @@
 #   callouts) stays hand-written in the .qmd, OUTSIDE the autodoc chunk,
 #    if the user sets these arguments to FALSE.
 # ---------------------------------------------------------------------------
+GOFLUX_GITHUB_URL    <- "https://github.com/Qepanna/goFlux"
+GOFLUX_GITHUB_BRANCH <- "master"
 
 # Base-R null fallback (tiny helper, keeps the code clean)
 `%||%` <- function(a, b) if (is.null(a)) b else a
@@ -312,7 +314,7 @@ render_references <- function(ref_tag, rd_path = NULL) {
 #           (4 for most blocks, 3 for import2RData / autoID)
 #   man_dir: where man/ lives; auto-detected if NULL
 autodoc <- function(fn, level = 4, man_dir = NULL,
-                    details = TRUE, examples = TRUE, references = TRUE) {
+                    details = TRUE, examples = TRUE, references = TRUE, see_R_file=TRUE) {
   if (is.null(man_dir)) {
     cands <- c("../man", "man", "website/man", "website/../man")
     hit <- cands[file.exists(file.path(cands, paste0(fn, ".Rd")))]
@@ -353,6 +355,14 @@ autodoc <- function(fn, level = 4, man_dir = NULL,
   }
   if (references && !is.null(ref)) {
     block <- c(block, "", h("References"), "", render_references(ref, rd_path))
+  }
+  if (see_R_file) {
+    r_file <- file.path(dirname(man_dir), "R", paste0(fn, ".R"))
+    if (file.exists(r_file)) {
+      url  <- paste0(GOFLUX_GITHUB_URL, "/blob/", GOFLUX_GITHUB_BRANCH, "/R/", fn, ".R")
+      link <- paste0("[View the `", fn, "` source code on GitHub](", url, "){target=\"_blank\"}")
+      block <- c(link, "", block)
+    }
   }
 
   paste(block, collapse = "\n")
