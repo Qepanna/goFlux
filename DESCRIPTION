@@ -44,6 +44,7 @@ Collate:
     'imp.LI7820-data.R'
     'imp.LI8200-data.R'
     'imp.UGGA-data.R'
+    'import.CR1000X.R'
     'import.DX4015.R'
     'import.EGM5.R'
     'import.G2201i.R'
