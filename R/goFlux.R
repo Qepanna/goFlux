@@ -121,11 +121,11 @@
 #'
 #' @references Hüppi et al. (2018). Restricting the nonlinearity parameter in
 #' soil greenhouse gas flux calculation for more reliable flux estimates.
-#' \emph{PloS one}, 13(7), e0200876.
+#' \emph{PloS one}, 13(7), e0200876. [@hüppi2018]
 #'
 #' @references Hutchinson and Mosier (1981). Improved soil cover method for
 #' field measurement of nitrous oxide fluxes.
-#' \emph{Soil Science Society of America Journal}, 45(2), 311-316.
+#' \emph{Soil Science Society of America Journal}, 45(2), 311-316. [@hutchinson1981]
 #'
 #' @returns Returns a data frame with 32 columns: a \code{UniqueID} per
 #' measurement, 11 columns for the linear model results (linear flux estimate
@@ -292,9 +292,9 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
       !(is.character(dataframe$UniqueID) || is.factor(dataframe$UniqueID))) {
     stop("'UniqueID' in 'dataframe' must be character or factor.", call. = FALSE)}
 
-  # Construct UniqueID from chamID + DATE, if missing
-  if (!has_col("UniqueID") && has_col("chamID") && !has_col("DATE")) {
-    stop("'dataframe' must contain 'DATE' to construct 'UniqueID' from 'chamID'.",
+  # Construct UniqueID from chamID + start.time, if missing
+  if (!has_col("UniqueID") && has_col("chamID") && !has_col("start.time")) {
+    stop("'dataframe' must contain 'start.time' to construct 'UniqueID' from 'chamID'.",
          call. = FALSE)}
 
   if (has_col("chamID") && all(is.na(dataframe$chamID))) {
@@ -304,8 +304,8 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
     stop("'chamID' in 'dataframe' must be character or factor.", call. = FALSE)
   }
 
-  if (!has_col("UniqueID")){
-    dataframe$UniqueID <- paste(dataframe$chamID, dataframe$DATE, sep = "_")}
+  if (!has_col("UniqueID")) {
+    dataframe$UniqueID <- paste(dataframe$chamID, as.Date(dataframe$start.time), sep = "_")}
 
 
   ### Etime ####

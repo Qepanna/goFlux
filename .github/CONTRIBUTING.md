@@ -171,10 +171,10 @@ The narrative, equations, callouts, and worked Examples are hand-written in the
 By default the `autodoc()` block renders **Usage, Arguments, Details, Examples,
 and References** from the `.Rd`. Authors can opt out of any of these and write
 them by hand in the `.qmd` instead, by passing the matching flag: `details = FALSE`,
-`examples = FALSE`, `references = FALSE`. For example,
+`examples = FALSE`, `references = FALSE`, `see_R_file = FALSE`. For example,
 `cat(autodoc("fn", level = 4, references = FALSE))` renders everything except
 References, which you then hand-write (handy when the page already has its own
-bibliography).
+bibliography). While `cat(autodoc("fn", level = 4, see_R_file = FALSE))` turns of the one liner "View source on Github" that links to the R files in the Github repository.
 
 ### Editing documentation content
 Edit the `.qmd` narrative freely; the auto-generated sections refresh from

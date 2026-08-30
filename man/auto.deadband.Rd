@@ -64,7 +64,7 @@ measurement, at the start of the measurement. For long chamber enclosures
 of your measurements. The default value of \code{obs.win = 90s} is based on
 previous observations that the most linear part of a measurement is often
 found within a short period (<2 minutes) at the start of the measurement, for
-small chamber sizes (~4L) (Johannesson et al., 2024). Similarly, the
+small chamber sizes (~4L) [@johannesson2024]. Similarly, the
 argument \code{mov.win} could be increased for very long chamber enclosures.
 Using a short \code{mov.win} (e.g., 1s) increases computational time, and is
 not recommended for very large data sets. The default value of
@@ -97,7 +97,7 @@ crop_UGGA <- crop.meas(manID.UGGA, auto_db, deadband = "aux")
 Johannesson, C. F., Nordén, J., Lange, H., Silvennoinen, H., &
 Larsen, K. S. (2024). Optimizing the closure period for improved accuracy of
 chamber-based greenhouse gas flux estimates.
-\emph{Agricultural and Forest Meteorology}, 359, 110289.
+\emph{Agricultural and Forest Meteorology}, 359, 110289. [@johannesson2024]
 }
 \seealso{
 \code{\link[goFlux]{crop.meas}} to correct measurements based on

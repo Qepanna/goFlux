@@ -66,6 +66,10 @@ $$ {#eq-6}
 
 For a more detailed demonstration of how these equations were obtained, refer to the LI-COR support documentations of the LI-8100A instrument ([Support \> LI-8100A \> Operating Instructions \> Deriving the Flux Equation: The Model](https://www.licor.com/support/LI-8100A/topics/deriving-the-flux-equation.html#fc)).
 
+::: {.callout-note}
+Code chunks under **Usage** sections are not part of the demonstration. They are meant to show how to use the function arguments.
+:::
+
 ```{r}
 #| echo: false
 #| results: asis

@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------------------
-# autodoc.R — render a function's "Usage" + "Arguments" from its man/<fn>.Rd
+# autodoc.R — render a function's "Usage", "Arguments", "Details", "Examples"
+#             and "References" from its man/<fn>.Rd
 #
 # 
 #   The Usage (signature) and Arguments (argument table) sections of the site
@@ -9,12 +10,26 @@
 #   This helper regenerates them fresh at every `quarto render`, so they can
 #   never go stale, and nothing generated is ever committed to git.
 #
-#   Everything else on a page (Details, Value, Examples, narrative, equations,
-#   callouts) stays hand-written in the .qmd, OUTSIDE the autodoc chunk.
+#   Everything else on a page (narrative, equations,
+#   callouts) stays hand-written in the .qmd, OUTSIDE the autodoc chunk,
+#    if the user sets these arguments to FALSE.
 # ---------------------------------------------------------------------------
+GOFLUX_GITHUB_URL    <- "https://github.com/Qepanna/goFlux"
+GOFLUX_GITHUB_BRANCH <- "master"
 
 # Base-R null fallback (tiny helper, keeps the code clean)
 `%||%` <- function(a, b) if (is.null(a)) b else a
+
+# Normalize whitespace INSIDE one paragraph or list item to a clean single
+# space. This is the "template" for inline spacing: it collapses every run of
+# whitespace (source line wraps, indentation, and the space fragments
+# parse_Rd inserts around \code{} / \link{} / \ifelse{}) into one space, then
+# removes spaces that landed before punctuation (e.g. "`mov.win` )").
+normalize_inline <- function(txt) {
+  txt <- gsub("[[:space:]]+", " ", txt)
+  txt <- gsub("[[:space:]]+([.,;:!?)\\]])", "\\1", txt)
+  trimws(txt)
+}
 
 # First top-level child of a parsed Rd element with a given tag (e.g. "\usage")
 rd_child <- function(el, tag) {
@@ -92,7 +107,7 @@ list_md <- function(x, bullet) {
   for (el in x) {
     if (identical(attr(el, "Rd_tag"), "\\item")) {
       if (open) {
-        parts <- c(parts, paste0(bullet, " ", trimws(paste(cur, collapse = " "))))
+        parts <- c(parts, paste0(bullet, " ", normalize_inline(paste(cur, collapse = " "))))
       }
       cur <- character(0)
       open <- TRUE
@@ -101,7 +116,7 @@ list_md <- function(x, bullet) {
       if (nzchar(trimws(txt))) cur <- c(cur, txt)
     }
   }
-  if (open) parts <- c(parts, paste0(bullet, " ", trimws(paste(cur, collapse = " "))))
+  if (open) parts <- c(parts, paste0(bullet, " ", normalize_inline(paste(cur, collapse = " "))))
   paste(parts, collapse = "\n")
 }
 
@@ -109,7 +124,8 @@ list_md <- function(x, bullet) {
 describe_md <- function(x) {
   items <- Filter(function(el) identical(attr(el, "Rd_tag"), "\\item"), x)
   out <- vapply(items, function(it) {
-    paste0("- **", trimws(rd_to_md(it[[1]])), "**: ", trimws(rd_to_md(it[[2]])))
+    paste0("- **", normalize_inline(rd_to_md(it[[1]])), "**: ",
+           normalize_inline(rd_to_md(it[[2]])))
   }, character(1))
   paste(out, collapse = "\n")
 }
@@ -138,18 +154,92 @@ render_arguments <- function(args_tag) {
   c("| Argument | Description |", sep, rows)
 }
 # The Details section: prose from \details, one paragraph per block
-render_details <- function(details_tag) {
-  # Take the rendered text and reformat it into a clean paragraph:
-  #  1) flatten every run of whitespace (line breaks + the fragments parse_Rd
-  #     inserts) into a single space,
-  #  2) drop spaces that landed before punctuation (e.g. "`mov.win` )"),
-  #  3) re-wrap into readable ~80-char lines.
-  txt <- rd_to_md(details_tag, inline = TRUE)
-  txt <- gsub("[[:space:]]+", " ", txt)
-  txt <- gsub("[[:space:]]+([.,;:!?)\\]])", "\\1", txt)
-  txt <- strwrap(txt, width = 80)
-  paste(txt, collapse = "\n")
+# Split the raw \details source (as written by the author in roxygen) into an
+# ordered list of blocks, each list(type = ..., text = ...):
+#   type "prose" -> a plain paragraph
+#   type "\\itemize" / "\\enumerate" / "\\describe" / "\\preformatted"
+#                 -> a whole block-level markup span
+# Paragraph boundaries are the blank lines the author wrote. Block-level
+# markup is pulled out FIRST so a list sitting next to prose without a blank
+# line (e.g. "... raw file:\n\itemize{...}\nIf your LGR ...") still becomes its
+# own block instead of being glued to the surrounding prose.
+segment_details <- function(raw) {
+  block_tags <- c("\\itemize", "\\enumerate", "\\describe", "\\preformatted")
+  blocks <- list()
+  push <- function(type, text) {
+    text <- trimws(text)
+    if (nzchar(text)) blocks[[length(blocks) + 1L]] <<- list(type = type, text = text)
+  }
+  # Blank lines => paragraph breaks (the author's "new paragraph" signal).
+  chunks <- strsplit(raw, "\n[[:space:]]*\n")[[1]]
+  for (chunk in chunks) {
+    rest <- chunk
+    repeat {
+      # Find the earliest block-level tag in this chunk.
+      pos <- Inf; hit <- NA_character_
+      for (t in block_tags) {
+        m <- regexpr(paste0("\\", t, "[[:space:]]*\\{"), rest)
+        if (m > 0L && m < pos) { pos <- m; hit <- t }
+      }
+      if (!is.finite(pos)) break
+      # Prose before the block.
+      push("prose", substr(rest, 1L, pos - 1L))
+      # Brace-match the block's {...} span (handles nested/multi-line braces).
+      chars <- strsplit(substr(rest, pos, nchar(rest)), "")[[1]]
+      depth <- 0L; end <- NA_integer_
+      for (i in seq_along(chars)) {
+        if (chars[i] == "{") depth <- depth + 1L
+        if (chars[i] == "}") {
+          depth <- depth - 1L
+          if (depth == 0L) { end <- i; break }
+        }
+      }
+      if (!is.finite(end)) break          # safety: unterminated tag -> keep as prose
+      push(hit, substr(rest, pos, pos + end - 1L))
+      rest <- substr(rest, pos + end, nchar(rest))   # continue after the block
+    }
+    push("prose", rest)
+  }
+  blocks
 }
+
+# Parse a raw Rd fragment (one block of \details content) and render it to
+# markdown. Same trick as render_references: wrap the fragment in a minimal Rd
+# document so tools::parse_Rd can parse it, then reuse rd_to_md.
+mini_parse_details <- function(text) {
+  mini <- paste0("\\name{x}\n\\alias{x}\n\\title{t}\n\\details{", text, "}")
+  rd   <- tools::parse_Rd(textConnection(mini))
+  rd_to_md(rd_child(rd, "\\details"), inline = TRUE)
+}
+
+# The Details section: raw \details content from man/<fn>.Rd, split into
+# author-defined paragraphs and lists, each rendered with a fixed template:
+#   prose -> one paragraph, whitespace normalized, flowing continuously
+#   lists -> markdown bullets / definition lists (via list_md / describe_md)
+# Blocks are joined with a blank line so markdown renders them as real
+# paragraphs / lists, never merged into one blob.
+render_details <- function(rd_path) {
+  raw <- rd_section_source(rd_path, "details")
+  if (is.null(raw)) return("")
+
+  blocks <- segment_details(raw)
+
+  out <- vapply(blocks, function(b) {
+    if (identical(b$type, "prose")) {
+      txt <- tryCatch(mini_parse_details(b$text),
+                      warning = function(w) NULL, error = function(err) NULL)
+      if (is.null(txt)) txt <- normalize_inline(b$text)   # graceful fallback
+      normalize_inline(txt)
+    } else {
+      trimws(mini_parse_details(b$text))
+    }
+  }, character(1))
+
+  out <- out[nzchar(trimws(out))]
+  if (!length(out)) return("")
+  paste(out, collapse = "\n\n")
+}
+
 # The Examples section: R code from \examples, as a code block.
 # \dontrun / \donttest blocks are shown; \dontshow / \testonly are hidden.
 render_examples <- function(examples_tag) {
@@ -173,7 +263,7 @@ rd_section_source <- function(rd_path, tag) {
   if (m < 0L) return(NULL)
   start <- m + attr(m, "match.length")
   chars <- strsplit(substr(txt, start, nchar(txt)), "")[[1]]
-  depth <- 0L; end <- 0L
+  depth <- 1L; end <- 0L
   for (i in seq_along(chars)) {
     if (chars[i] == "{") depth <- depth + 1L
     if (chars[i] == "}") {
@@ -184,10 +274,34 @@ rd_section_source <- function(rd_path, tag) {
   if (end == 0L) return(NULL)
   substr(txt, start, start + end - 2L)
 }
-# The References section: entries from \references as a bullet list
+
+# BibTeX citation keys present in website/references.bib (memoized). Used by
+# render_references() to decide whether a [@key] marker in \references will
+# actually resolve to a real bibliography entry.
+bib_keys <- local({
+  cache <- NULL
+  function() {
+    if (is.null(cache)) {
+      f <- c("../references.bib", "references.bib", "website/references.bib")
+      f <- f[file.exists(f)]
+      cache <- if (!length(f)) character() else {
+        ln <- readLines(f[1], warn = FALSE)
+        k  <- regmatches(ln, regexpr("^@[A-Za-z]+\\{([^,]+),", ln))
+        sub("^@[A-Za-z]+\\{([^,]+),", "\\1", k[nzchar(k)])
+      }
+    }
+    cache
+  }
+})
+
 render_references <- function(ref_tag, rd_path = NULL) {
-  # Render each reference as its own paragraph, like the site's bottom
-  # bibliography. Split on the real blank lines in the raw \references source.
+  # Each reference renders as its own paragraph. A reference that carries a
+  # Quarto citation marker -- "text... [@key]" -- is replaced by the citation
+  # itself (e.g. "[@johannesson2024]"), which Quarto resolves against
+  # references.bib into a clickable link to the page's bottom bibliography.
+  # If the key is not in references.bib, fall back to the plain text (with any
+  # unresolved [@key] markers stripped), i.e. "references.bib first, else text".
+  keys <- bib_keys()
   entries <- NULL
   if (!is.null(rd_path)) {
     raw <- rd_section_source(rd_path, "references")
@@ -202,10 +316,17 @@ render_references <- function(ref_tag, rd_path = NULL) {
         if (is.null(txt) || !nzchar(trimws(txt))) {
             txt <- e   # graceful fallback: use the raw entry text as-is
         }
-        txt <- gsub("[[:space:]]+", " ", txt)
-        txt <- gsub("[[:space:]]+([.,;:!?)\\]])", "\\1", txt)
-        trimws(txt)
-        }, character(1))
+        cites <- regmatches(txt, gregexpr("\\[@[^]]+\\]", txt))[[1]]
+        hit   <- sub("^\\[@(.+)\\]$", "\\1", cites) %in% keys
+        if (length(cites) && any(hit)) {
+          paste(cites[hit], collapse = " ")
+        } else {
+          txt <- gsub("\\[@[^]]+\\]", "", txt)   # drop unresolved markers
+          txt <- gsub("[[:space:]]+", " ", txt)
+          txt <- gsub("[[:space:]]+([.,;:!?)\\]])", "\\1", txt)
+          trimws(txt)
+        }
+      }, character(1))
     }
   }
   if (is.null(entries)) {
@@ -224,7 +345,7 @@ render_references <- function(ref_tag, rd_path = NULL) {
 #           (4 for most blocks, 3 for import2RData / autoID)
 #   man_dir: where man/ lives; auto-detected if NULL
 autodoc <- function(fn, level = 4, man_dir = NULL,
-                    details = TRUE, examples = TRUE, references = TRUE) {
+                    details = TRUE, examples = TRUE, references = TRUE, see_R_file=TRUE) {
   if (is.null(man_dir)) {
     cands <- c("../man", "man", "website/man", "website/../man")
     hit <- cands[file.exists(file.path(cands, paste0(fn, ".Rd")))]
@@ -248,10 +369,6 @@ autodoc <- function(fn, level = 4, man_dir = NULL,
   block <- c(
     h("Usage"),
     "",
-    "::: callout-note",
-    "Code chunks under **Usage** sections are not part of the demonstration. They are meant to show you how to use the arguments in the function.",
-    ":::",
-    "",
     "```r",
     render_usage(usage),
     "```",
@@ -262,13 +379,21 @@ autodoc <- function(fn, level = 4, man_dir = NULL,
   )
 
   if (details && !is.null(det)) {
-    block <- c(block, "", h("Details"), "", render_details(det))
+    block <- c(block, "", h("Details"), "", render_details(rd_path))
   }
   if (examples && !is.null(exm)) {
     block <- c(block, "", h("Examples"), "", "```r", render_examples(exm), "```")
   }
   if (references && !is.null(ref)) {
     block <- c(block, "", h("References"), "", render_references(ref, rd_path))
+  }
+  if (see_R_file) {
+    r_file <- file.path(dirname(man_dir), "R", paste0(fn, ".R"))
+    if (file.exists(r_file)) {
+      url  <- paste0(GOFLUX_GITHUB_URL, "/blob/", GOFLUX_GITHUB_BRANCH, "/R/", fn, ".R")
+      link <- paste0("[View the `", fn, "` source code on GitHub](", url, "){target=\"_blank\"}")
+      block <- c(link, "", block)
+    }
   }
 
   paste(block, collapse = "\n")
