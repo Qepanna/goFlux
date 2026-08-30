@@ -121,11 +121,11 @@
 #'
 #' @references Hüppi et al. (2018). Restricting the nonlinearity parameter in
 #' soil greenhouse gas flux calculation for more reliable flux estimates.
-#' \emph{PloS one}, 13(7), e0200876.
+#' \emph{PloS one}, 13(7), e0200876. [@hüppi2018]
 #'
 #' @references Hutchinson and Mosier (1981). Improved soil cover method for
 #' field measurement of nitrous oxide fluxes.
-#' \emph{Soil Science Society of America Journal}, 45(2), 311-316.
+#' \emph{Soil Science Society of America Journal}, 45(2), 311-316. [@hutchinson1981]
 #'
 #' @returns Returns a data frame with 32 columns: a \code{UniqueID} per
 #' measurement, 11 columns for the linear model results (linear flux estimate

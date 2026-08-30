@@ -173,7 +173,7 @@ results <- goAquaFlux(
 \references{
 Rheault, K., Christiansen, J. R., & Larsen, K. S. (2024). goFlux: A
 user-friendly way to calculate GHG fluxes yourself, regardless of user
-experience. *Journal of Open Source Software*, 9(96), 6393.
+experience. *Journal of Open Source Software*, 9(96), 6393. [@rheault2024]
 }
 \seealso{
 \code{\link{find.bubbles}},

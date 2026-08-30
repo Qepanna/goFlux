@@ -274,10 +274,34 @@ rd_section_source <- function(rd_path, tag) {
   if (end == 0L) return(NULL)
   substr(txt, start, start + end - 2L)
 }
-# The References section: entries from \references as a bullet list
+
+# BibTeX citation keys present in website/references.bib (memoized). Used by
+# render_references() to decide whether a [@key] marker in \references will
+# actually resolve to a real bibliography entry.
+bib_keys <- local({
+  cache <- NULL
+  function() {
+    if (is.null(cache)) {
+      f <- c("../references.bib", "references.bib", "website/references.bib")
+      f <- f[file.exists(f)]
+      cache <- if (!length(f)) character() else {
+        ln <- readLines(f[1], warn = FALSE)
+        k  <- regmatches(ln, regexpr("^@[A-Za-z]+\\{([^,]+),", ln))
+        sub("^@[A-Za-z]+\\{([^,]+),", "\\1", k[nzchar(k)])
+      }
+    }
+    cache
+  }
+})
+
 render_references <- function(ref_tag, rd_path = NULL) {
-  # Render each reference as its own paragraph, like the site's bottom
-  # bibliography. Split on the real blank lines in the raw \references source.
+  # Each reference renders as its own paragraph. A reference that carries a
+  # Quarto citation marker -- "text... [@key]" -- is replaced by the citation
+  # itself (e.g. "[@johannesson2024]"), which Quarto resolves against
+  # references.bib into a clickable link to the page's bottom bibliography.
+  # If the key is not in references.bib, fall back to the plain text (with any
+  # unresolved [@key] markers stripped), i.e. "references.bib first, else text".
+  keys <- bib_keys()
   entries <- NULL
   if (!is.null(rd_path)) {
     raw <- rd_section_source(rd_path, "references")
@@ -292,10 +316,17 @@ render_references <- function(ref_tag, rd_path = NULL) {
         if (is.null(txt) || !nzchar(trimws(txt))) {
             txt <- e   # graceful fallback: use the raw entry text as-is
         }
-        txt <- gsub("[[:space:]]+", " ", txt)
-        txt <- gsub("[[:space:]]+([.,;:!?)\\]])", "\\1", txt)
-        trimws(txt)
-        }, character(1))
+        cites <- regmatches(txt, gregexpr("\\[@[^]]+\\]", txt))[[1]]
+        hit   <- sub("^\\[@(.+)\\]$", "\\1", cites) %in% keys
+        if (length(cites) && any(hit)) {
+          paste(cites[hit], collapse = " ")
+        } else {
+          txt <- gsub("\\[@[^]]+\\]", "", txt)   # drop unresolved markers
+          txt <- gsub("[[:space:]]+", " ", txt)
+          txt <- gsub("[[:space:]]+([.,;:!?)\\]])", "\\1", txt)
+          trimws(txt)
+        }
+      }, character(1))
     }
   }
   if (is.null(entries)) {

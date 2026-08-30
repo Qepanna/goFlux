@@ -41,5 +41,5 @@ cat(autodoc("iso.comp", level = 4))
 ```{r}
 #| echo: false
 #| results: asis
-cat(autodoc("auto.deadband", level = 4))
+cat(autodoc("auto.deadband", level = 4, references = FALSE))
 ```

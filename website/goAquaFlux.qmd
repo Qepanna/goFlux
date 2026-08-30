@@ -13,7 +13,7 @@ source("scripts/autodoc.R")
 ## Overview
 
 **goAquaFlux** extends the [goFlux](https://github.com/Qepanna/goFlux) R package
-(Rheault et al., 2024) to aquatic floating-chamber measurements, where methane
+[@rheault2024] to aquatic floating-chamber measurements, where methane
 reaches the atmosphere by two pathways with very different behaviour:
 
 - **Diffusion** — a smooth, near-linear accumulation in the chamber headspace.

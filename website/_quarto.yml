@@ -2,6 +2,8 @@ project:
   type: website
   output-dir: _site
 
+bibliography: references.bib
+csl: apa-no-initials.csl
 
 format:
   html:

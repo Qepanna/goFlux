@@ -149,11 +149,11 @@ CO2_best <- best.flux(CO2_flux)
 \references{
 Hüppi et al. (2018). Restricting the nonlinearity parameter in
 soil greenhouse gas flux calculation for more reliable flux estimates.
-\emph{PloS one}, 13(7), e0200876.
+\emph{PloS one}, 13(7), e0200876. [@hüppi2018]
 
 Hutchinson and Mosier (1981). Improved soil cover method for
 field measurement of nitrous oxide fluxes.
-\emph{Soil Science Society of America Journal}, 45(2), 311-316.
+\emph{Soil Science Society of America Journal}, 45(2), 311-316. [@hutchinson1981]
 }
 \seealso{
 Look up the functions \code{\link[goFlux]{MDF}},
