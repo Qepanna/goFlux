@@ -82,7 +82,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-ae99402589db785af94a83ae6110a1e2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-10f587352ad0990e360fec5eef9e7a84.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -1582,7 +1582,7 @@ Important
 <li>Celsius for temperature</li>
 </ul>
 <p>If your Smart Chamber uses different units, either convert the units after import, change the settings on your instrument, or contact the maintainer of this package for support.</p>
-<p>Important note about the total volume: it is calculated from the addition of the Area x Offset and the Chamber Volume. If a chamber volume is specified (“ChamVolume” in the raw file), that value is used, otherwise, the default value is 4244.1(cm<sup>3</sup>). For more precise results, remember to add the volume inside your GHG analyzer (IRGA volume; e.g., 6.4 (cm<sup>3</sup>) for the LI-7810 and the LI-7820), plus the volume inside the tubing connecting your instruments. For more details about volume estimation, download the example auxiliary file from <a href="https://qepanna.quarto.pub/goflux/example.html#create-an-auxiliary-file">the goFlux webpage</a>.</p>
+<p>Important note about the total volume: it is calculated from the addition of the Area x Offset and the Chamber Volume. If a chamber volume is specified (“ChamVolume” in the raw file), that value is used, otherwise, the default value is 4244.1(cm<sup>3</sup>). For more precise results, remember to add the volume inside your GHG analyzer (IRGA volume; e.g., 6.4 (cm<sup>3</sup>) for the LI-7810 and the LI-7820), plus the volume inside the tubing connecting your instruments. For more details about volume estimation, download the example auxiliary file from <a href="https://qepanna.github.io/goFlux/example.html#create-an-auxiliary-file">the goFlux webpage</a>.</p>
 <p>In addition, soil temperature and moisture are read with a HydraProbe connected to the Smart Chamber. If you are using a different setup, please contact the maintainer of this package for support.</p>
 <p>As opposed to the other import functions, there is no option to “keep_all” with the Smart Chamber. If you would like to import additional data using this function, please contact the maintainer of this package for support. #### Examples</p>
 <div class="cell">
@@ -3329,7 +3329,7 @@ Important
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("^(?:http:|https:)\/\/(?:www\.)*(qepanna\.quarto\.pub|qepanna\.github\.io)\/.*$");
+        var filterRegex = new RegExp("^(?:http:|https:)\/\/(?:www\.)*qepanna\.github\.io\/.*$");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
