@@ -4,7 +4,7 @@
 #                                                                              #
 #  This scripts is used to plots the results and save it as pdf                #
 #                                                                              #
-#  https://qepanna.quarto.pub/goflux/flux2pdf.html                             #
+#  https://qepanna.github.io/goFlux/flux2pdf.html                             #
 #                                                                              #
 #==============================================================================#
 

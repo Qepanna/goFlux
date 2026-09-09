@@ -91,7 +91,7 @@ quality check the results objectively (hence the no experience needed)
 and obtain high quality flux estimates from static chamber measurements
 (wonderful!).
 
-Look up [this webpage](https://qepanna.quarto.pub/goflux/) for a
+Look up [this webpage](https://qepanna.github.io/goFlux/) for a
 demonstration of the package usage.
 
 ### Import and measurement identification
@@ -153,9 +153,9 @@ and end points of each measurement and assign a UniqueID:
   the LI-COR Smart Chamber or the GAIATECH Automated ECOFlux chamber.
 
 Follow these links for more details and demonstrations about [importing
-raw data](https://qepanna.quarto.pub/goflux/import.html) from the listed
+raw data](https://qepanna.github.io/goFlux/import.html) from the listed
 instruments, or the [identification of
-measurements](https://qepanna.quarto.pub/goflux/manualID.html).
+measurements](https://qepanna.github.io/goFlux/manualID.html).
 
 ### Flux calculation
 
@@ -203,7 +203,7 @@ universal gas constant in L·kPa·K<sup>-1</sup>·mol<sup>-1</sup>. Each
 parameters are measured inside the chamber at $t = 0$.
 
 More details and demonstrations about the function `goFlux` can be found
-[here](https://qepanna.quarto.pub/goflux/goFlux.html).
+[here](https://qepanna.github.io/goFlux/goFlux.html).
 
 ### Automatic selection of the best flux estimate
 
@@ -241,7 +241,7 @@ By default, all criteria are included:
 `criteria = c("MAE", "RMSE", "AICc", "SE", "g-factor", "kappa", "MDF", "nb.obs", "p-value", "intercept")`
 
 A demonstration of the usage of the function `best.flux` can be found
-[here](https://qepanna.quarto.pub/goflux/bestflux.html).
+[here](https://qepanna.github.io/goFlux/bestflux.html).
 
 #### **G-factor**
 
@@ -474,7 +474,7 @@ and visually inspect the measurements using the function `flux.plot` and
 save the plots as pdf using `flux2pdf`.
 
 Find out more about these functions
-[here](https://qepanna.quarto.pub/goflux/flux2pdf.html).
+[here](https://qepanna.github.io/goFlux/flux2pdf.html).
 
 ## Installation
 

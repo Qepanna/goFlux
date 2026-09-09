@@ -5,8 +5,8 @@
 #  This scripts is used to calculate GHG fluxes and select the best flux       #
 #  estimate between LM and HM using the function best.flux                     #
 #                                                                              #
-#  https://qepanna.quarto.pub/goflux/goFlux.html                               #
-#  https://qepanna.quarto.pub/goflux/bestflux.html                             #
+#  https://qepanna.github.io/goFlux/goFlux.html                               #
+#  https://qepanna.github.io/goFlux/bestflux.html                             #
 #                                                                              #
 #==============================================================================#
 

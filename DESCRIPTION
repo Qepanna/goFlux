@@ -11,7 +11,7 @@ Description: Import raw chamber data into R for flux calculation, quality check
     flux estimates with an automatic selection of the best flux estimate - 
     without extensive knowledge or experience. More details are found in 
     Rheault et al., (2024) <doi:10.21105/joss.06393>.
-URL: https://qepanna.quarto.pub/goflux/
+URL: https://qepanna.github.io/goFlux/
 License: GPL-2
 Encoding: UTF-8
 LazyData: true

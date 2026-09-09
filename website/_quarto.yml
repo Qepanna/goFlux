@@ -13,7 +13,7 @@ format:
     toc-depth: 4
     link-external-icon: false
     link-external-newwindow: true
-    link-external-filter: '^(?:http:|https:)\/\/(?:www\.)*(qepanna\.quarto\.pub|qepanna\.github\.io)\/.*$'
+    link-external-filter: '^(?:http:|https:)\/\/(?:www\.)*qepanna\.github\.io\/.*$'
     theme:
       - custom.scss
 

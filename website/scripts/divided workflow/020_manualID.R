@@ -4,7 +4,7 @@
 #                                                                              #
 #  This scripts is used to manually identify start and end of measurements     #
 #                                                                              #
-#  https://qepanna.quarto.pub/goflux/manualID.html                             #
+#  https://qepanna.github.io/goFlux/manualID.html                             #
 #                                                                              #
 #==============================================================================#
 

@@ -57,7 +57,7 @@ For more precise results, remember to add the volume inside your GHG analyzer
 for the LI-7810 and the LI-7820), plus the volume inside the tubing connecting
 your instruments. For more details about volume estimation, download the
 example auxiliary file from
-\href{https://qepanna.quarto.pub/goflux/example.html#create-an-auxiliary-file}{the goFlux webpage}.
+\href{https://qepanna.github.io/goFlux/example.html#create-an-auxiliary-file}{the goFlux webpage}.
 
 In addition, soil temperature and moisture are read with a HydraProbe
 connected to the Smart Chamber. If you are using a different setup, please

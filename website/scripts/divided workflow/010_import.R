@@ -4,7 +4,7 @@
 #                                                                              #
 #  This scripts is used to import raw data from a LGR instrument               #
 #                                                                              #
-#  https://qepanna.quarto.pub/goflux/import.html                               #
+#  https://qepanna.github.io/goFlux/import.html                               #
 #                                                                              #
 #==============================================================================#
 
