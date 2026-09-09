@@ -71,6 +71,8 @@ importFrom(dplyr,
   right_join,
   row_number,
   select,
+  slice,
+  starts_with,
   summarise,
   ungroup,
   vars

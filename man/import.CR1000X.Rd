@@ -64,7 +64,7 @@ creation of this function (11-2023).
 }
 \examples{
 # Load file from downloaded package
-file.path <- system.file("extdata", "Cr1000X/CR1000X.data", package = "goFlux")
+file.path <- system.file("extdata", "CR1000X/CR1000X.data", package = "goFlux")
 
 # Run function
 imp.CR1000X <- import.CR1000X(inputfile = file.path)
@@ -95,8 +95,7 @@ See also, import functions for other instruments:
          \code{\link[goFlux]{import.skyline}},
          \code{\link[goFlux]{import.uCH4}},
          \code{\link[goFlux]{import.uN2O}},
-         \code{\link[goFlux]{import.UGGA}},
-         \code{\link[goFlux]{import.PS3010}}
+         \code{\link[goFlux]{import.UGGA}}
 
 See \code{\link[base]{timezones}} for a description of the underlying
          timezone attribute.

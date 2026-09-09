@@ -78,18 +78,17 @@
 #'          \code{\link[goFlux]{import.skyline}},
 #'          \code{\link[goFlux]{import.uCH4}},
 #'          \code{\link[goFlux]{import.uN2O}},
-#'          \code{\link[goFlux]{import.UGGA}},
-#'          \code{\link[goFlux]{import.PS3010}}
+#'          \code{\link[goFlux]{import.UGGA}}
 #'
 #' @seealso See \code{\link[base]{timezones}} for a description of the underlying
 #'          timezone attribute.
 #'
-##' @examples
-##' # Load file from downloaded package
-##' file.path <- system.file("extdata", "Cr1000X/CR1000X.data", package = "goFlux")
-##'
-##' # Run function
-##' imp.CR1000X <- import.CR1000X(inputfile = file.path)
+#' @examples
+#' # Load file from downloaded package
+#' file.path <- system.file("extdata", "CR1000X/CR1000X.data", package = "goFlux")
+#'
+#' # Run function
+#' imp.CR1000X <- import.CR1000X(inputfile = file.path)
 #' @export
 
 import.CR1000X <- function(inputfile, timezone = "UTC",
@@ -109,7 +108,12 @@ import.CR1000X <- function(inputfile, timezone = "UTC",
   #  if(!is.numeric(prec)) stop("'prec' must be of class numeric") else{
   #    if(length(prec) != 2) stop("'prec' must be of length 2")}}
   
-  ## Assign NULL to variables without binding
+## Assign NULL to variables without binding
+  import.error <- H2O_ppm <- H2O <- N2O <- NULL
+  CH4 <- CO2 <- Etime <- Etime_offset <- Etime.original <- NULL
+  flag <- HM_mod <- LI7810_CH4 <- LI7810_CO2 <- LI7810_H2O <- NULL
+  LI7810_Remark <- LI7820_H2O <- LI7820_N20 <- LI7820_Remark <- NULL
+  LI8100_CO2 <- LI8100_H2O <- N20 <- TIMESTAMP <- NULL
   #H2O_ppm <- H2O <- N2O <- TIME <- DATE <- DATAH <- N2Odry_ppb <-
   #  REMARK <- POSIX.warning <- import.error <- NULL
   
@@ -154,8 +158,6 @@ import.CR1000X <- function(inputfile, timezone = "UTC",
 
 
     #convert into long format
-    library(tidyr)
-    library(dplyr)
     data.raw <- data.raw %>%
       pivot_longer(
         cols = starts_with("LI"),

@@ -7,7 +7,7 @@
 #' (typically CH4), after which the time series is separated into
 #' diffusive and ebullitive segments.
 #'
-##' The workflow includes: (1) data validation and cleaning; (2) calculation of
+#' The workflow includes: (1) data validation and cleaning; (2) calculation of
 #' auxiliary variables (flux conversion term and MDF); (3) bubble detection
 #' (typically using CH4 concentration); (4) estimation of ebullition flux based
 #' on detected bubble magnitudes; (5) estimation of diffusive flux using model
