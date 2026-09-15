@@ -1,14 +1,13 @@
 #' Detect bubbling (ebullition) events in a chamber incubation time series
 #'
 #' Identifies bubbling events in a gas concentration time series by analysing
-#' rolling dispersion within a moving window. Dispersion can be quantified from
-#' the rolling median absolute deviation (\code{"mad"}), the rolling variance
-#' (\code{"variance"}), or the rolling variance of the first differences
-#' (\code{"diff"}). Contiguous periods where dispersion exceeds an adaptive
-#' threshold are flagged as candidate bubbling events.
-#' of the concentration step is then estimated with a local step-dummy
-#' regression that separates the abrupt bubble step from the underlying
-#' diffusive trend.
+#' rolling dispersion within a moving window. Dispersion is quantified either
+#' from the rolling variance of the first differences (\code{"diff"}, the
+#' default) or from the rolling variance of the concentration itself
+#' (\code{"variance"}). Contiguous periods where dispersion exceeds an adaptive
+#' threshold are flagged as candidate bubbling events. The magnitude of the
+#' concentration step is then estimated with a local step-dummy regression that
+#' separates the abrupt bubble step from the underlying diffusive trend.
 #'
 #' @param df A data.frame containing the incubation time series. Must include an
 #'   \code{Etime} column (elapsed time, seconds) and the concentration column
@@ -23,10 +22,12 @@
 #' @param dt Numeric; temporal resolution (seconds) of the regular grid the
 #'   signal is interpolated onto before rolling statistics. Default \code{1}.
 #'
-#' @param method Character; dispersion metric. One of \code{"mad"} (default),
-#'   \code{"variance"} or \code{"diff"}. \code{"diff"} computes rolling variance
-#'   of the first differences and is largely insensitive to a linear diffusive
-#'   trend, so it is recommended when diffusion is strong (see Details).
+#' @param method Character; dispersion metric. Either \code{"diff"} (default),
+#'   the rolling variance of the first differences, or \code{"variance"}, the
+#'   rolling variance of the concentration itself. \code{"diff"} is largely
+#'   insensitive to a linear diffusive trend and is the safer general-purpose
+#'   choice; \code{"variance"} is more sensitive to small steps on quiet,
+#'   low-emission traces (see Details).
 #'
 #' @param var.quantile Numeric in (0, 1); empirical quantile of the rolling
 #'   dispersion distribution used in the adaptive threshold. Default \code{0.7}.
@@ -73,18 +74,30 @@
 #' MAD}). Contiguous supra-threshold runs are merged (\code{min_gap}) and
 #' filtered by duration (\code{min_length}).
 #'
-#' A steep but purely diffusive rise inflates the rolling variance/MAD even in
-#' the absence of bubbles, which can produce false positives. The \code{"diff"}
-#' method mitigates this by operating on the increments of the signal: a genuine
-#' ebullition step produces a large positive spike in the first differences,
-#' whereas a linear diffusive trend produces roughly constant increments and
-#' therefore low differenced dispersion.
+#' The two methods differ in what the variance is taken over. \code{"variance"}
+#' uses the concentration itself, which responds strongly to a step but is also
+#' inflated by a steep diffusive rise, so its detection power falls as the trend
+#' grows relative to the step. \code{"diff"} uses the increments: an ebullition
+#' step produces one large increment and a sharp spike, whereas a linear
+#' diffusive trend produces roughly constant increments and therefore low
+#' differenced dispersion. \code{"diff"} is consequently the more robust default
+#' across emission regimes, while \code{"variance"} retains an advantage for
+#' small steps on quiet traces, where differencing amplifies measurement noise.
+#'
+#' A rolling median absolute deviation was evaluated as a third metric and
+#' removed: being robust by construction, it suppresses the very outlier that
+#' marks a bubble. On test incubations it produced only weak contrast, fragmented
+#' single events into several, and inflated summed event magnitude accordingly.
 #'
 #' Event magnitude is estimated with the local model
-#' \deqn{C_t = \beta_0 + \beta_1 t + \beta_2 I(t \ge t_b)}
-#' where \eqn{I(t \ge t_b)} is a step dummy at the event start; \eqn{\beta_2} is
-#' the estimated magnitude. Only events with a positive magnitude are retained
-#' (ebullition adds gas to the headspace).
+#' \deqn{C_t = \beta_0 + \beta_1 (t - t_b) + \beta_2 I(t \ge t_b)}
+#' where \eqn{t_b} is the step time, taken as the largest positive increment
+#' within the event rather than its leading edge, and \eqn{I(t \ge t_b)} is a
+#' step dummy. Time is centred on \eqn{t_b}, so \eqn{\beta_0} is the fitted
+#' concentration at the step, \eqn{\beta_1} the local trend and \eqn{\beta_2}
+#' the magnitude. Only events with a positive magnitude are retained (ebullition
+#' adds gas to the headspace). Note that \eqn{\beta_1} next to a large event may
+#' reflect post-bubble re-equilibration rather than a diffusive rate.
 #'
 #' @examples
 #' \dontrun{
@@ -103,7 +116,7 @@ find.bubbles <- function(df,
                          bubble_source,
                          window.size = 15,     # secs
                          dt = 1,
-                         method = c("mad", "variance", "diff"),
+                         method = c("diff", "variance"),
                          var.quantile = 0.7,
                          k = 4,
                          min_ratio = 3,
@@ -159,7 +172,9 @@ find.bubbles <- function(df,
     c(0, diff(conc_interp))   # pad to keep length; leading increment = 0
   } else conc_interp
 
-  disp_fun <- if (method == "mad") function(v) mad(v) else function(v) var(v)
+  ## Both retained methods use the variance; they differ only in whether it is
+  ## taken over the increments ("diff") or over the level ("variance").
+  disp_fun <- function(v) var(v)
 
   roll_stat <- zoo::rollapply(disp_input, width = window.size,
                               align = "center", fill = NA, FUN = disp_fun)
