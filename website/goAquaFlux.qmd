@@ -30,12 +30,13 @@ and returns a partitioned total.
 The workflow is a pipeline of four steps, one function each, coordinated by
 `goAquaFlux()` across all incubations in a dataset (split by `UniqueID`):
 
-1. **Detect the bubbles.** `find.bubbles()` scans the concentration series
-   (typically `CH4dry_ppb`) with a rolling dispersion metric — MAD,
-   variance, or the MAD of first differences (`"diff"`, robust to a diffusive
-   trend) — and flags contiguous supra-threshold periods as bubbling events.
-   Each event's size is then estimated as a local step on top of the
-   diffusive trend.
+1. **Detect the bubbles.** `find.bubbles()` robustly standardises the
+   concentration series (typically `CH4dry_ppb`) and scans it with a rolling
+   variance, taken either over the first differences (`"diff"`, the default,
+   robust to a steep diffusive trend) or over the concentration itself
+   (`"variance"`, more sensitive to small steps on quiet traces). Contiguous
+   periods above an adaptive threshold are flagged as bubbling events, and each
+   event's size is then estimated as a local step on top of the diffusive trend.
 2. **Fit the diffusive flux.** `goAquaFlux.diffusive()` fits the diffusive
    component on the bubble-free window (truncated at the first event) using
    goFlux's linear (LM) and non-linear (HM) models and the model-selection
@@ -61,8 +62,8 @@ events, and a legend of the total / diffusive / ebullitive fluxes.
 ```{r}
 #| eval: false
 # install.packages("remotes")
-remotes::install_github("Qepanna/goFlux")          # the parent package
-remotes::install_github("Qepanna/goFlux@aquaghg")    # this fork + aqua extension
+# The aquatic extension is part of goFlux from v0.3.2 onwards.
+remotes::install_github("Qepanna/goFlux")
 ```
 
 ## Quick start
@@ -75,6 +76,16 @@ fluxres <- goAquaFlux(
   dataframe            = IDed,          # output of goFlux::autoID()
   gastype              = "CH4dry_ppb",
   use_bubble_detection = TRUE
+)
+
+# The detector is tunable. "diff" is the default; "variance" can be more
+# sensitive to small bubbles on low-emission incubations.
+fluxres <- goAquaFlux(
+  dataframe            = IDed,
+  gastype              = "CH4dry_ppb",
+  use_bubble_detection = TRUE,
+  bubble.method        = "variance",
+  bubble.args          = list(min_magnitude = 10)
 )
 
 flux.plot.aqua(fluxres, IDed, gastype = "CH4dry_ppb",
