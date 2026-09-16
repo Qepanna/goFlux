@@ -1,3 +1,13 @@
+## 0.3.3 (2026-09-16)
+
+## What's Changed
+* chore: added new import function and documentation for Campbell CR1000X data logger by @KatharinaJentzsch in https://github.com/Qepanna/goFlux/pull/38
+* fix: removed rolling mad, diff is now the default by @camilleminaudo in https://github.com/Qepanna/goFlux/pull/45
+* Fixed documentation issue in the hand-written prose by @camilleminaudo in https://github.com/Qepanna/goFlux/pull/47
+
+
+**Full Changelog**: https://github.com/Qepanna/goFlux/compare/goFlux-0.3.2...goFlux-0.3.3
+
 ## 0.3.2 (2026-08-19)
 
 ## What's Changed
