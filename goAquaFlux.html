@@ -376,7 +376,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="how-it-works">How it works</h2>
 <p>The workflow is a pipeline of four steps, one function each, coordinated by <code>goAquaFlux()</code> across all incubations in a dataset (split by <code>UniqueID</code>):</p>
 <ol type="1">
-<li><strong>Detect the bubbles.</strong> <code>find.bubbles()</code> scans the concentration series (typically <code>CH4dry_ppb</code>) with a rolling dispersion metric — MAD, variance, or the MAD of first differences (<code>"diff"</code>, robust to a diffusive trend) — and flags contiguous supra-threshold periods as bubbling events. Each event’s size is then estimated as a local step on top of the diffusive trend.</li>
+<li><strong>Detect the bubbles.</strong> <code>find.bubbles()</code> robustly standardises the concentration series (typically <code>CH4dry_ppb</code>) and scans it with a rolling variance, taken either over the first differences (<code>"diff"</code>, the default, robust to a steep diffusive trend) or over the concentration itself (<code>"variance"</code>, more sensitive to small steps on quiet traces). Contiguous periods above an adaptive threshold are flagged as bubbling events, and each event’s size is then estimated as a local step on top of the diffusive trend.</li>
 <li><strong>Fit the diffusive flux.</strong> <code>goAquaFlux.diffusive()</code> fits the diffusive component on the bubble-free window (truncated at the first event) using goFlux’s linear (LM) and non-linear (HM) models and the model-selection criteria. For non-bubble gases, the window is only cut at a bubble that coincides with an abrupt slope change.</li>
 <li><strong>Compute the ebullitive flux.</strong> <code>goAquaFlux.ebullition()</code> converts the summed bubble magnitudes into a flux, <span class="math inline">\(F_E = \frac{\sum \Delta C_{\text{bubble}}}{t_{inc}} \times K\)</span>, with standard errors propagated from the per-event magnitudes, and returns an independent two-point endpoint estimate for diagnosis.</li>
 <li><strong>Combine and check.</strong> <code>goAquaFlux.total()</code> adds the two components, <span class="math inline">\(F_T = F_E + F_D\)</span>, propagates the error assuming independence (<span class="math inline">\(SE_T = \sqrt{SE_E^2 + SE_D^2}\)</span>), and flags results that are suspiciously larger than the endpoint estimate (e.g.&nbsp;a diffusive ramp mistaken for a bubble step).</li>
@@ -387,8 +387,8 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="installation">Installation</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("remotes")</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"Qepanna/goFlux"</span>)          <span class="co"># the parent package</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"Qepanna/goFlux@aquaghg"</span>)    <span class="co"># this fork + aqua extension</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The aquatic extension is part of goFlux from v0.3.2 onwards.</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"Qepanna/goFlux"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="quick-start" class="level2">
@@ -402,8 +402,18 @@ window.Quarto = {
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">use_bubble_detection =</span> <span class="cn">TRUE</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">flux.plot.aqua</span>(fluxres, IDed, <span class="at">gastype =</span> <span class="st">"CH4dry_ppb"</span>,</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>               <span class="at">plot.display =</span> <span class="fu">c</span>(<span class="st">"diffusive.window"</span>, <span class="st">"ebullition.events"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># The detector is tunable. "diff" is the default; "variance" can be more</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># sensitive to small bubbles on low-emission incubations.</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>fluxres <span class="ot">&lt;-</span> <span class="fu">goAquaFlux</span>(</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">dataframe            =</span> IDed,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">gastype              =</span> <span class="st">"CH4dry_ppb"</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">use_bubble_detection =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">bubble.method        =</span> <span class="st">"variance"</span>,</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">bubble.args          =</span> <span class="fu">list</span>(<span class="at">min_magnitude =</span> <span class="dv">10</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="fu">flux.plot.aqua</span>(fluxres, IDed, <span class="at">gastype =</span> <span class="st">"CH4dry_ppb"</span>,</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>               <span class="at">plot.display =</span> <span class="fu">c</span>(<span class="st">"diffusive.window"</span>, <span class="st">"ebullition.events"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="functions" class="level2">
@@ -580,7 +590,7 @@ Note
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  bubble_source,</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">window.size =</span> <span class="dv">15</span>,</span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">dt =</span> <span class="dv">1</span>,</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="fu">c</span>(<span class="st">"mad"</span>, <span class="st">"variance"</span>, <span class="st">"diff"</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="fu">c</span>(<span class="st">"diff"</span>, <span class="st">"variance"</span>),</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">var.quantile =</span> <span class="fl">0.7</span>,</span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">k =</span> <span class="dv">4</span>,</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">min_ratio =</span> <span class="dv">3</span>,</span>
@@ -625,7 +635,7 @@ Note
 </tr>
 <tr class="odd">
 <td><code>method</code></td>
-<td>Character; dispersion metric. One of <code>"mad"</code> (default), <code>"variance"</code> or <code>"diff"</code>. <code>"diff"</code> computes rolling variance of the first differences and is largely insensitive to a linear diffusive trend, so it is recommended when diffusion is strong (see Details).</td>
+<td>Character; dispersion metric. Either <code>"diff"</code> (default), the rolling variance of the first differences, or <code>"variance"</code>, the rolling variance of the concentration itself. <code>"diff"</code> is largely insensitive to a linear diffusive trend and is the safer general-purpose choice; <code>"variance"</code> is more sensitive to small steps on quiet, low-emission traces (see Details).</td>
 </tr>
 <tr class="even">
 <td><code>var.quantile</code></td>
@@ -673,8 +683,9 @@ Note
 <section id="details-1" class="level4">
 <h4 class="anchored" data-anchor-id="details-1">Details</h4>
 <p>The signal is first robustly standardised (median / MAD) and interpolated onto a regular <code>dt</code>-second grid. Rolling dispersion is then computed and compared to an adaptive threshold defined as the maximum of an empirical quantile (<code>var.quantile</code>) and a robust bound (median + k MAD). Contiguous supra-threshold runs are merged (<code>min_gap</code>) and filtered by duration (<code>min_length</code>).</p>
-<p>A steep but purely diffusive rise inflates the rolling variance/MAD even in the absence of bubbles, which can produce false positives. The <code>"diff"</code> method mitigates this by operating on the increments of the signal: a genuine ebullition step produces a large positive spike in the first differences, whereas a linear diffusive trend produces roughly constant increments and therefore low differenced dispersion.</p>
-<p>Event magnitude is estimated with the local model C_t = _0 + _1 t + _2 I(t t_b) where I(t t_b) is a step dummy at the event start; _2 is the estimated magnitude. Only events with a positive magnitude are retained (ebullition adds gas to the headspace).</p>
+<p>The two methods differ in what the variance is taken over. <code>"variance"</code> uses the concentration itself, which responds strongly to a step but is also inflated by a steep diffusive rise, so its detection power falls as the trend grows relative to the step. <code>"diff"</code> uses the increments: an ebullition step produces one large increment and a sharp spike, whereas a linear diffusive trend produces roughly constant increments and therefore low differenced dispersion. <code>"diff"</code> is consequently the more robust default across emission regimes, while <code>"variance"</code> retains an advantage for small steps on quiet traces, where differencing amplifies measurement noise.</p>
+<p>A rolling median absolute deviation was evaluated as a third metric and removed: being robust by construction, it suppresses the very outlier that marks a bubble. On test incubations it produced only weak contrast, fragmented single events into several, and inflated summed event magnitude accordingly.</p>
+<p>Event magnitude is estimated with the local model C_t = _0 + _1 (t - t_b) + _2 I(t t_b) where t_b is the step time, taken as the largest positive increment within the event rather than its leading edge, and I(t t_b) is a step dummy. Time is centred on t_b, so _0 is the fitted concentration at the step, _1 the local trend and _2 the magnitude. Only events with a positive magnitude are retained (ebullition adds gas to the headspace). Note that _1 next to a large event may reflect post-bubble re-equilibration rather than a diffusive rate.</p>
 </section>
 <section id="examples-1" class="level4">
 <h4 class="anchored" data-anchor-id="examples-1">Examples</h4>
