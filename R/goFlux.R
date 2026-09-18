@@ -582,11 +582,21 @@ goFlux <- function(dataframe, gastype, H2O_col = "H2O_ppm", prec = NULL,
         data_split[[f]]$warn.H2O_mol <- FALSE}
     }
 
-    # First flagged time must be chamber closure (Etime == 0)
-    if (is.na(data_split[[f]]$Etime[1]) || data_split[[f]]$Etime[1] != 0) {
-      stop("Invalid Etime origin: for each UniqueID, the first row with ",
-           "flag == 1 must have Etime == 0. Problem detected for UniqueID: ",
-           data_split[[f]]$UniqueID[1], ".", call. = FALSE)}
+    # The first retained observation may post-date chamber closure (e.g. the
+    # closure-instant slot holds no measurement for this gas). Re-anchor rather
+    # than fail, but warn when the offset is material.
+    t0 <- data_split[[f]]$Etime[1]
+    if (is.na(t0)) {
+      stop("Etime is NA for UniqueID: ", data_split[[f]]$UniqueID[1],
+           ".", call. = FALSE)
+    }
+    if (t0 != 0) {
+      if (t0 > 5) warning("First valid observation for UniqueID ",
+                          data_split[[f]]$UniqueID[1], " is ", t0,
+                          " s after chamber closure; Etime re-anchored. ",
+                          "C0 refers to this first observation.")
+      data_split[[f]]$Etime <- data_split[[f]]$Etime - t0
+    }
 
     # Ensure values are available and unique per UniqueID for Vtot and Area
     if (all(is.na(data_split[[f]]$Vtot))) {
