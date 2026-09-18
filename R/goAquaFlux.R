@@ -183,7 +183,7 @@ goAquaFlux <- function(dataframe,
                        use_bubble_detection = TRUE,
                        bubble.window.size = 30,
                        bubble_gas = "CH4dry_ppb",
-                       bubble.method = "mad",   ## "mad" (default), "variance" or "diff"; passed to find.bubbles().
+                       bubble.method = "diff",   ## "variance" or "diff"; passed to find.bubbles().
                        bubble.args = list(),    ## named list of extra find.bubbles() args (e.g. list(k = 5, min_magnitude = 10)).
 
                        # Ebullition flux
