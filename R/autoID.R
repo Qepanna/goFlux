@@ -345,12 +345,7 @@ autoID <- function(inputfile, auxfile = NULL, obs.length = NULL,
     mutate(flag = if_else(between(POSIX.time, start.time, end.time), 1, 0)) %>%
     mutate(obs.length = as.numeric(end.time - start.time, units = "secs")) %>%
     # Add arguments
-    mutate(deadband = deadband, crop.end = crop.end, shoulder = shoulder) %>%
-    group_by(UniqueID) %>%
-    mutate(Etime_offset = if (any(flag == 1)) min(Etime[flag == 1], na.rm = TRUE) else 0) %>%
-    mutate(Etime = Etime - Etime_offset) %>%
-    select(-Etime_offset) %>%
-    ungroup()
+    mutate(deadband = deadband, crop.end = crop.end, shoulder = shoulder)
 
   # Remove from inputfile columns that are also present in time_filter,
   # except POSIX.time, before combining them
@@ -367,6 +362,15 @@ autoID <- function(inputfile, auxfile = NULL, obs.length = NULL,
 
   # Drop rows without UniqueID
   if(drop == TRUE) data.filter <- drop_na(data.filter, UniqueID)
+
+  # Re-anchor Etime on the observations that actually survived the join: the
+  # chamber-closure grid point may have no matching measurement, in which case
+  # the first retained flag == 1 row would otherwise start at Etime > 0.
+  data.filter <- data.filter %>%
+    group_by(UniqueID) %>%
+    mutate(Etime = Etime - if (any(flag == 1, na.rm = TRUE))
+      min(Etime[flag == 1], na.rm = TRUE) else 0) %>%
+    ungroup()
 
   # Add the rest of the auxiliary data from the auxfile to the output file
   if(!is.null(auxfile)){
