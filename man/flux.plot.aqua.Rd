@@ -17,41 +17,101 @@ flux.plot.aqua(
 }
 \arguments{
 \item{flux.results.ls}{The list returned by \code{\link{goAquaFlux}} (with
-\code{return_df = TRUE}), i.e. a list with \code{flux_summary},
-\code{bubbles} and \code{diffusive}. For backwards compatibility, a plain
+\code{return_df = TRUE}), containing \code{flux_summary}, \code{bubbles}
+and \code{diffusive}. For backwards compatibility a plain
 \code{best.flux}-style data.frame may also be supplied, in which case the
-function delegates to \code{\link[goFlux]{flux.plot}} (diffusion only).}
+call is delegated to \code{\link[goFlux]{flux.plot}} and only the diffusive
+component is plotted.}
 
-\item{dataframe}{The data.frame of measurements used by
-\code{\link{goAquaFlux}} (with \code{Etime}, \code{flag} and the gas column).}
+\item{dataframe}{Data.frame of measurements used by \code{\link{goAquaFlux}},
+containing at least \code{UniqueID}, \code{Etime}, \code{flag} and the
+column named by \code{gastype}.}
 
-\item{gastype}{Character; gas column to plot (e.g. \code{"CH4dry_ppb"}).}
+\item{gastype}{Character string; the gas column to plot. One of
+\code{"CO2dry_ppm"}, \code{"COdry_ppb"}, \code{"CH4dry_ppb"},
+\code{"N2Odry_ppb"}, \code{"NO2dry_ppb"}, \code{"NOdry_ppb"},
+\code{"NH3dry_ppb"} or \code{"H2O_ppm"}.}
 
-\item{shoulder}{Numeric; padding (seconds) added before/after the measurement
-on the x-axis. Default \code{30}.}
+\item{shoulder}{Numeric; padding in seconds added before and after the
+measurement on the x-axis. Default \code{30}.}
 
-\item{plot.display}{Character vector of elements to overlay. Currently
-supported: \code{"diffusive.window"} and \code{"ebullition.events"}.
-Default \code{c("diffusive.window", "ebullition.events")}.}
+\item{plot.display}{Character vector of overlays to draw. Supported values
+are \code{"diffusive.window"} and \code{"ebullition.events"}. Pass
+\code{NULL} to draw the observations and fits only. Both are shown by
+default.}
 
-\item{flux.unit}{Character or \code{NULL}; flux-unit label. If \code{NULL}, a
-sensible default is chosen from \code{gastype}.}
+\item{flux.unit}{Character string or \code{NULL}; the flux unit shown in the
+caption. Plotmath syntax (for example \code{"nmol~m^-2*s^-1"}) is accepted
+and converted to plain text. When \code{NULL}, a unit consistent with
+\code{gastype} is chosen.}
 
-\item{quality.check}{Logical; reserved for quality-check annotations.
-Default \code{FALSE}.}
+\item{quality.check}{Logical; reserved for forthcoming quality-check
+annotations. Currently ignored, with a message. Default \code{FALSE}.}
 
-\item{conversion.factor}{Numeric > 0; multiplies displayed flux values.
-Default \code{1}.}
+\item{conversion.factor}{Numeric greater than zero; multiplier applied to the
+displayed flux estimates and their standard errors, for reporting in a unit
+other than the one returned by \code{\link{goAquaFlux}}. Default \code{1}.}
 }
 \value{
-A list of \code{ggplot} objects, one per \code{UniqueID}.
+A named list of \code{\link[ggplot2]{ggplot}} objects, one per
+  \code{UniqueID} and named by it. The objects are returned unprinted and can
+  be modified further with standard \pkg{ggplot2} syntax.
 }
 \description{
-Produces one diagnostic plot per incubation from the output of
-\code{\link{goAquaFlux}}: the measured concentration time series, the
-diffusive window (shaded), the detected bubbling events, and a compact legend
-of the total / diffusive / ebullitive flux estimates.
+Produces one diagnostic figure per incubation from the output of
+\code{\link{goAquaFlux}}, showing the measured concentration series, the
+window over which the diffusive flux was fitted, the detected ebullition
+events, the linear (LM) and Hutchinson-Mosier (HM) fits, and the resulting
+total, diffusive and ebullitive flux estimates.
+}
+\details{
+Each figure is composed of the following elements.
+
+\describe{
+  \item{Observations}{All records for the incubation are drawn. Points
+    retained by the quality flag (\code{flag == 1}) are filled and opaque;
+    discarded points are hollow and faded, so that they remain visible for
+    diagnosis without competing with the retained series.}
+  \item{Diffusive window}{A full-height band from \eqn{t = 0} to the end of
+    the window used to fit the diffusive flux. The extent of the window is
+    taken from \code{n_obs.diffusion} in \code{flux_summary} and applied to
+    the time-ordered retained series.}
+  \item{Ebullition events}{Full-height bands spanning the start and end times
+    of each detected bubbling event.}
+  \item{Model fits}{The LM and HM fits are drawn only across the diffusive
+    window, since neither is fitted to the ebullitive part of the series. A
+    fit that stops short of, or runs past, the bubble-free portion of the
+    record is then a direct indication that the window was misidentified.}
+  \item{Flux estimates}{Reported in the plot subtitle, with their unit in the
+    caption. They are placed outside the panel so that they cannot overlap
+    the data for any incubation.}
+}
+
+If the \pkg{ggtext} package is available, the subtitle is rendered with the
+diffusive and ebullitive estimates coloured to match their respective bands
+and fits; otherwise a plain-text subtitle is used. The two variants are
+identical in content.
+
+Colours follow the Okabe-Ito palette, which remains distinguishable under the
+common forms of colour vision deficiency and in greyscale print.
+}
+\examples{
+\dontrun{
+res <- goAquaFlux(mydata, gastype = "CH4dry_ppb", return_df = TRUE)
+
+plots <- flux.plot.aqua(res, mydata, gastype = "CH4dry_ppb")
+
+# Inspect a single incubation by name
+plots[["LAKE01-2026-05-12-01"]]
+
+# Write all diagnostics to a multi-page PDF
+pdf("ch4_diagnostics.pdf", width = 8, height = 5)
+invisible(lapply(plots, print))
+dev.off()
+}
+
 }
 \seealso{
-\code{\link{goAquaFlux}}, \code{\link[goFlux]{flux.plot}}
+\code{\link{goAquaFlux}} for the flux calculation itself, and
+  \code{\link[goFlux]{flux.plot}} for the diffusion-only equivalent.
 }

@@ -9,7 +9,7 @@ find.bubbles(
   bubble_source,
   window.size = 15,
   dt = 1,
-  method = c("mad", "variance", "diff"),
+  method = c("diff", "variance"),
   var.quantile = 0.7,
   k = 4,
   min_ratio = 3,
@@ -19,7 +19,11 @@ find.bubbles(
   max_reg_window = 120,
   reg.min.obs = 10,
   min_magnitude = 5,
-  min_snr = NULL
+  min_snr = NULL,
+  magnitude.model = c("step_reequil", "step"),
+  tau.range = c(2, NA),
+  exclude.ramp = TRUE,
+  allow.slow.approach = FALSE
 )
 }
 \arguments{
@@ -36,10 +40,12 @@ steps) used to compute rolling dispersion. Default \code{15}.}
 \item{dt}{Numeric; temporal resolution (seconds) of the regular grid the
 signal is interpolated onto before rolling statistics. Default \code{1}.}
 
-\item{method}{Character; dispersion metric. One of \code{"mad"} (default),
-\code{"variance"} or \code{"diff"}. \code{"diff"} computes rolling variance
-of the first differences and is largely insensitive to a linear diffusive
-trend, so it is recommended when diffusion is strong (see Details).}
+\item{method}{Character; dispersion metric. Either \code{"diff"} (default),
+the rolling variance of the first differences, or \code{"variance"}, the
+rolling variance of the concentration itself. \code{"diff"} is largely
+insensitive to a linear diffusive trend and is the safer general-purpose
+choice; \code{"variance"} is more sensitive to small steps on quiet,
+low-emission traces (see Details).}
 
 \item{var.quantile}{Numeric in (0, 1); empirical quantile of the rolling
 dispersion distribution used in the adaptive threshold. Default \code{0.7}.}
@@ -67,56 +73,155 @@ local magnitude regression around each event. Default \code{120}.}
 \item{reg.min.obs}{Integer; minimum observations required for the magnitude
 regression. Default \code{10}.}
 
-\item{min_magnitude}{Numeric or \code{NULL}; minimum absolute step magnitude
-(same units as \code{bubble_source}) to retain an event. Default \code{5}.}
+\item{min_magnitude}{Numeric or \code{NULL}; minimum step magnitude (same
+units as \code{bubble_source}) to retain an event. Default \code{5}.}
 
 \item{min_snr}{Numeric or \code{NULL}; if set, minimum signal-to-noise ratio
-(\code{|magnitude| / SE}) to retain an event.}
+(\code{magnitude / SE}) to retain an event.}
+
+\item{magnitude.model}{Character; model used to estimate event magnitude.
+\code{"step_reequil"} (default) adds an exponential re-equilibration term
+after the transient peak, so that \code{magnitude} is the \emph{settled}
+step, i.e. the gas that remains in the headspace once the bubble has mixed
+(see Details). \code{"step"} is the plain step regression without a
+re-equilibration term.}
+
+\item{tau.range}{Numeric vector of length 2; lower and upper bounds (seconds)
+of the re-equilibration time constant \eqn{\tau} explored when
+\code{magnitude.model = "step_reequil"}. An \code{NA} upper bound (default)
+means the length of the post-peak data available for the regression.
+Default \code{c(2, NA)}.}
+
+\item{exclude.ramp}{Logical; if \code{TRUE} (default), the observations on
+the steep rise of the bubble (between the last pre-bubble observation and
+the transient peak) are excluded from the magnitude regression, because they
+belong neither to the pre-bubble nor to the post-bubble level.}
+
+\item{allow.slow.approach}{Logical; if \code{FALSE} (default), the
+re-equilibration term must describe a positive overshoot that decays
+towards the settled level (\eqn{\beta_3 > 0}). If \code{TRUE}, a gradual
+approach from below (\eqn{\beta_3 < 0}) is also allowed. This can recover
+steps that mix slowly into the headspace, but it can also turn a change in
+diffusive slope into a spurious step.}
 }
 \value{
-A data.frame with one row per retained bubbling event and columns
-  \code{start}, \code{end}, \code{magnitude}, \code{SE}, \code{slope} and
-  \code{n_used}; or \code{NULL} if no events are detected or the series does
-  not meet the minimum variability criteria.
+A data.frame with one row per retained bubbling event and columns:
+\describe{
+  \item{\code{start}, \code{end}}{Start and end (seconds, relative to the
+    first \code{Etime}) of the high-dispersion period that defines the
+    event.}
+  \item{\code{magnitude}}{Estimated concentration step (units of
+    \code{bubble_source}). With \code{magnitude.model = "step_reequil"} this
+    is the settled step.}
+  \item{\code{SE}}{Standard error of \code{magnitude}. When a
+    re-equilibration term is retained, it is conditional on the selected
+    \eqn{\tau}.}
+  \item{\code{slope}}{Local trend (\eqn{\beta_1}, units per second).}
+  \item{\code{n_used}}{Number of observations used in the regression.}
+  \item{\code{overshoot}}{Amplitude of the transient above the settled level
+    at the peak (\eqn{\beta_3}); \code{0} when no re-equilibration term was
+    retained and \code{NA} with \code{magnitude.model = "step"}.}
+  \item{\code{tau}}{Selected re-equilibration time constant (seconds);
+    \code{NA} when no re-equilibration term was retained.}
+  \item{\code{magnitude.step}}{Magnitude from the plain step regression on
+    the same observations, reported for comparison.}
+  \item{\code{reequil.complete}}{\code{TRUE} when at least \eqn{3 \tau} of
+    data follow the peak; \code{FALSE} when the settled level is partly
+    extrapolated; \code{NA} when no re-equilibration term was retained.}
+}
+\code{NULL} is returned if no events are detected or if the series does not
+meet the minimum variability criteria.
 }
 \description{
 Identifies bubbling events in a gas concentration time series by analysing
-rolling dispersion within a moving window. Dispersion can be quantified from
-the rolling median absolute deviation (\code{"mad"}), the rolling variance
-(\code{"variance"}), or the rolling variance of the first differences
-(\code{"diff"}). Contiguous periods where dispersion exceeds an adaptive
-threshold are flagged as candidate bubbling events.
-of the concentration step is then estimated with a local step-dummy
-regression that separates the abrupt bubble step from the underlying
-diffusive trend.
+rolling dispersion within a moving window, then estimates the amount of gas
+each event added to the chamber headspace. Dispersion is quantified either
+from the rolling variance of the first differences (\code{"diff"}, the
+default) or from the rolling variance of the concentration itself
+(\code{"variance"}). Contiguous periods where dispersion exceeds an adaptive
+threshold are flagged as candidate bubbling events. The magnitude of each
+event is then estimated with a local step regression that separates the
+bubble step from the underlying diffusive trend and, by default, from the
+transient peak and re-equilibration that typically follow a bubble.
 }
 \details{
-The signal is first robustly standardised (median / MAD) and interpolated
-onto a regular \code{dt}-second grid. Rolling dispersion is then computed and
-compared to an adaptive threshold defined as the maximum of an empirical
-quantile (\code{var.quantile}) and a robust bound (\eqn{median + k \times
-MAD}). Contiguous supra-threshold runs are merged (\code{min_gap}) and
-filtered by duration (\code{min_length}).
+\strong{Detection.} The signal is first robustly standardised (median / MAD)
+and interpolated onto a regular \code{dt}-second grid. Rolling dispersion is
+then computed and compared to an adaptive threshold defined as the maximum
+of an empirical quantile (\code{var.quantile}) and a robust bound
+(\eqn{median + k \times MAD}). Contiguous supra-threshold runs are merged
+(\code{min_gap}) and filtered by duration (\code{min_length}).
 
-A steep but purely diffusive rise inflates the rolling variance/MAD even in
-the absence of bubbles, which can produce false positives. The \code{"diff"}
-method mitigates this by operating on the increments of the signal: a genuine
-ebullition step produces a large positive spike in the first differences,
-whereas a linear diffusive trend produces roughly constant increments and
-therefore low differenced dispersion.
+The two methods differ in what the variance is taken over. \code{"variance"}
+uses the concentration itself, which responds strongly to a step but is also
+inflated by a steep diffusive rise, so its detection power falls as the trend
+grows relative to the step. \code{"diff"} uses the increments: an ebullition
+step produces one large increment and a sharp spike, whereas a linear
+diffusive trend produces roughly constant increments and therefore low
+differenced dispersion. \code{"diff"} is consequently the more robust default
+across emission regimes, while \code{"variance"} retains an advantage for
+small steps on quiet traces, where differencing amplifies measurement noise.
 
-Event magnitude is estimated with the local model
-\deqn{C_t = \beta_0 + \beta_1 t + \beta_2 I(t \ge t_b)}
-where \eqn{I(t \ge t_b)} is a step dummy at the event start; \eqn{\beta_2} is
-the estimated magnitude. Only events with a positive magnitude are retained
-(ebullition adds gas to the headspace).
+A rolling median absolute deviation was evaluated as a third metric and
+removed: being robust by construction, it suppresses the very outlier that
+marks a bubble. On test incubations it produced only weak contrast, fragmented
+single events into several, and inflated summed event magnitude accordingly.
+
+\strong{Magnitude, plain step model.} With \code{magnitude.model = "step"},
+event magnitude is estimated with the local model
+\deqn{C_t = \beta_0 + \beta_1 (t - t_b) + \beta_2 I(t \ge t_s)}
+where \eqn{t_b} is the time of the largest positive increment within the
+event, \eqn{I(t \ge t_s)} is a step dummy and \eqn{\beta_2} is the
+magnitude. The pre- and post-bubble lines share the slope \eqn{\beta_1}, so
+\eqn{\beta_2} is their vertical offset. The dummy switches at
+\eqn{t_s = t_b}, or at the transient peak \eqn{t_p} when
+\code{exclude.ramp = TRUE} (with the rise removed, both choices separate the
+same two groups of observations). The regression uses the observations
+between the neighbouring events, limited to \code{max_reg_window} seconds on
+each side of \eqn{t_b}.
+
+\strong{Magnitude, step + re-equilibration model.} Chamber records of
+bubbling events usually show a jump, a transient peak and a
+re-equilibration, rather than a clean step: the bubble gas reaches the
+analyser before it is mixed through the headspace. In the plain step model
+the whole transient falls on the post-bubble side, which raises the fitted
+post-bubble level and biases the magnitude upward, in proportion to the size
+and duration of the overshoot. With \code{magnitude.model = "step_reequil"}
+(default) the model becomes
+\deqn{C_t = \beta_0 + \beta_1 (t - t_b) + I(t \ge t_s)
+  [\beta_2 + \beta_3 e^{-(t - t_p)/\tau}]}
+where \eqn{\beta_2} is the settled step (the gas added to the headspace),
+\eqn{\beta_3} the amplitude of the transient at the peak and \eqn{\tau} the
+re-equilibration time constant. For a given \eqn{\tau} the model is linear;
+\eqn{\tau} is profiled on a logarithmic grid within \code{tau.range} and
+refined with a one-dimensional search that minimises the residual sum of
+squares. The re-equilibration term is retained only if it lowers the AIC of
+the plain step model, with an additional penalty of 2 for the profiled
+\eqn{\tau}; otherwise the plain step estimate is returned. The pre-bubble
+window of the next event starts after \eqn{t_p + 3 \tau} of the previous
+event (when this leaves at least 3 pre-bubble observations), so that the
+tail of one event does not bias the baseline of the next.
+
+Only events with a positive magnitude are retained, since ebullition adds gas
+to the headspace. Note that \eqn{\beta_1} next to a large event may still
+reflect post-bubble dynamics rather than a diffusive rate, because a single
+slope is shared by the pre- and post-bubble segments.
 }
 \examples{
 \dontrun{
+# Default: step + re-equilibration model (settled step)
 bubbles <- find.bubbles(df = incubation_data,
                         bubble_source = "CH4dry_ppb",
                         window.size = 15,
                         method = "diff")
+
+# Plain step regression, as in earlier versions
+bubbles_step <- find.bubbles(df = incubation_data,
+                             bubble_source = "CH4dry_ppb",
+                             window.size = 15,
+                             method = "diff",
+                             magnitude.model = "step",
+                             exclude.ramp = FALSE)
 }
 
 }

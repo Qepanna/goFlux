@@ -20,7 +20,7 @@ goAquaFlux(
   use_bubble_detection = TRUE,
   bubble.window.size = 30,
   bubble_gas = "CH4dry_ppb",
-  bubble.method = "mad",
+  bubble.method = "diff",
   bubble.args = list(),
   ebullition.final_window_min = 30,
   ebullition.window_C0Cf = 10,
