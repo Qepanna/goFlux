@@ -19,7 +19,11 @@ find.bubbles(
   max_reg_window = 120,
   reg.min.obs = 10,
   min_magnitude = 5,
-  min_snr = NULL
+  min_snr = NULL,
+  magnitude.model = c("step_reequil", "step"),
+  tau.range = c(2, NA),
+  exclude.ramp = TRUE,
+  allow.slow.approach = FALSE
 )
 }
 \arguments{
@@ -69,17 +73,64 @@ local magnitude regression around each event. Default \code{120}.}
 \item{reg.min.obs}{Integer; minimum observations required for the magnitude
 regression. Default \code{10}.}
 
-\item{min_magnitude}{Numeric or \code{NULL}; minimum absolute step magnitude
-(same units as \code{bubble_source}) to retain an event. Default \code{5}.}
+\item{min_magnitude}{Numeric or \code{NULL}; minimum step magnitude (same
+units as \code{bubble_source}) to retain an event. Default \code{5}.}
 
 \item{min_snr}{Numeric or \code{NULL}; if set, minimum signal-to-noise ratio
-(\code{|magnitude| / SE}) to retain an event.}
+(\code{magnitude / SE}) to retain an event.}
+
+\item{magnitude.model}{Character; model used to estimate event magnitude.
+\code{"step_reequil"} (default) adds an exponential re-equilibration term
+after the transient peak, so that \code{magnitude} is the \emph{settled}
+step, i.e. the gas that remains in the headspace once the bubble has mixed
+(see Details). \code{"step"} is the plain step regression without a
+re-equilibration term.}
+
+\item{tau.range}{Numeric vector of length 2; lower and upper bounds (seconds)
+of the re-equilibration time constant \eqn{\tau} explored when
+\code{magnitude.model = "step_reequil"}. An \code{NA} upper bound (default)
+means the length of the post-peak data available for the regression.
+Default \code{c(2, NA)}.}
+
+\item{exclude.ramp}{Logical; if \code{TRUE} (default), the observations on
+the steep rise of the bubble (between the last pre-bubble observation and
+the transient peak) are excluded from the magnitude regression, because they
+belong neither to the pre-bubble nor to the post-bubble level.}
+
+\item{allow.slow.approach}{Logical; if \code{FALSE} (default), the
+re-equilibration term must describe a positive overshoot that decays
+towards the settled level (\eqn{\beta_3 > 0}). If \code{TRUE}, a gradual
+approach from below (\eqn{\beta_3 < 0}) is also allowed. This can recover
+steps that mix slowly into the headspace, but it can also turn a change in
+diffusive slope into a spurious step.}
 }
 \value{
-A data.frame with one row per retained bubbling event and columns
-  \code{start}, \code{end}, \code{magnitude}, \code{SE}, \code{slope} and
-  \code{n_used}; or \code{NULL} if no events are detected or the series does
-  not meet the minimum variability criteria.
+A data.frame with one row per retained bubbling event and columns:
+\describe{
+  \item{\code{start}, \code{end}}{Start and end (seconds, relative to the
+    first \code{Etime}) of the high-dispersion period that defines the
+    event.}
+  \item{\code{magnitude}}{Estimated concentration step (units of
+    \code{bubble_source}). With \code{magnitude.model = "step_reequil"} this
+    is the settled step.}
+  \item{\code{SE}}{Standard error of \code{magnitude}. When a
+    re-equilibration term is retained, it is conditional on the selected
+    \eqn{\tau}.}
+  \item{\code{slope}}{Local trend (\eqn{\beta_1}, units per second).}
+  \item{\code{n_used}}{Number of observations used in the regression.}
+  \item{\code{overshoot}}{Amplitude of the transient above the settled level
+    at the peak (\eqn{\beta_3}); \code{0} when no re-equilibration term was
+    retained and \code{NA} with \code{magnitude.model = "step"}.}
+  \item{\code{tau}}{Selected re-equilibration time constant (seconds);
+    \code{NA} when no re-equilibration term was retained.}
+  \item{\code{magnitude.step}}{Magnitude from the plain step regression on
+    the same observations, reported for comparison.}
+  \item{\code{reequil.complete}}{\code{TRUE} when at least \eqn{3 \tau} of
+    data follow the peak; \code{FALSE} when the settled level is partly
+    extrapolated; \code{NA} when no re-equilibration term was retained.}
+}
+\code{NULL} is returned if no events are detected or if the series does not
+meet the minimum variability criteria.
 }
 \description{
 Identifies bubbling events in a gas concentration time series by analysing
@@ -126,10 +177,19 @@ reflect post-bubble re-equilibration rather than a diffusive rate.
 }
 \examples{
 \dontrun{
+# Default: step + re-equilibration model (settled step)
 bubbles <- find.bubbles(df = incubation_data,
                         bubble_source = "CH4dry_ppb",
                         window.size = 15,
                         method = "diff")
+
+# Plain step regression, as in earlier versions
+bubbles_step <- find.bubbles(df = incubation_data,
+                             bubble_source = "CH4dry_ppb",
+                             window.size = 15,
+                             method = "diff",
+                             magnitude.model = "step",
+                             exclude.ramp = FALSE)
 }
 
 }
