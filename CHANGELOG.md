@@ -1,3 +1,12 @@
+## 0.4.0 (2026-09-23)
+
+## What's Changed
+* Solving Etime issues with autoID and making nicer plots by @camilleminaudo in https://github.com/Qepanna/goFlux/pull/48
+* feat: estimate settled step with re-equilibration model by @camilleminaudo in https://github.com/Qepanna/goFlux/pull/50
+
+
+**Full Changelog**: https://github.com/Qepanna/goFlux/compare/goFlux-0.3.3...goFlux-0.4.0
+
 ## 0.3.3 (2026-09-16)
 
 ## What's Changed
