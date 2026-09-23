@@ -134,23 +134,21 @@ meet the minimum variability criteria.
 }
 \description{
 Identifies bubbling events in a gas concentration time series by analysing
-rolling dispersion within a moving window, then estimates the amount of gas
-each event added to the chamber headspace. Dispersion is quantified either
+rolling dispersion within a moving window. Dispersion is quantified either
 from the rolling variance of the first differences (\code{"diff"}, the
 default) or from the rolling variance of the concentration itself
 (\code{"variance"}). Contiguous periods where dispersion exceeds an adaptive
-threshold are flagged as candidate bubbling events. The magnitude of each
-event is then estimated with a local step regression that separates the
-bubble step from the underlying diffusive trend and, by default, from the
-transient peak and re-equilibration that typically follow a bubble.
+threshold are flagged as candidate bubbling events. The magnitude of the
+concentration step is then estimated with a local step-dummy regression that
+separates the abrupt bubble step from the underlying diffusive trend.
 }
 \details{
-\strong{Detection.} The signal is first robustly standardised (median / MAD)
-and interpolated onto a regular \code{dt}-second grid. Rolling dispersion is
-then computed and compared to an adaptive threshold defined as the maximum
-of an empirical quantile (\code{var.quantile}) and a robust bound
-(\eqn{median + k \times MAD}). Contiguous supra-threshold runs are merged
-(\code{min_gap}) and filtered by duration (\code{min_length}).
+The signal is first robustly standardised (median / MAD) and interpolated
+onto a regular \code{dt}-second grid. Rolling dispersion is then computed and
+compared to an adaptive threshold defined as the maximum of an empirical
+quantile (\code{var.quantile}) and a robust bound (\eqn{median + k \times
+MAD}). Contiguous supra-threshold runs are merged (\code{min_gap}) and
+filtered by duration (\code{min_length}).
 
 The two methods differ in what the variance is taken over. \code{"variance"}
 uses the concentration itself, which responds strongly to a step but is also
@@ -167,45 +165,15 @@ removed: being robust by construction, it suppresses the very outlier that
 marks a bubble. On test incubations it produced only weak contrast, fragmented
 single events into several, and inflated summed event magnitude accordingly.
 
-\strong{Magnitude, plain step model.} With \code{magnitude.model = "step"},
-event magnitude is estimated with the local model
-\deqn{C_t = \beta_0 + \beta_1 (t - t_b) + \beta_2 I(t \ge t_s)}
-where \eqn{t_b} is the time of the largest positive increment within the
-event, \eqn{I(t \ge t_s)} is a step dummy and \eqn{\beta_2} is the
-magnitude. The pre- and post-bubble lines share the slope \eqn{\beta_1}, so
-\eqn{\beta_2} is their vertical offset. The dummy switches at
-\eqn{t_s = t_b}, or at the transient peak \eqn{t_p} when
-\code{exclude.ramp = TRUE} (with the rise removed, both choices separate the
-same two groups of observations). The regression uses the observations
-between the neighbouring events, limited to \code{max_reg_window} seconds on
-each side of \eqn{t_b}.
-
-\strong{Magnitude, step + re-equilibration model.} Chamber records of
-bubbling events usually show a jump, a transient peak and a
-re-equilibration, rather than a clean step: the bubble gas reaches the
-analyser before it is mixed through the headspace. In the plain step model
-the whole transient falls on the post-bubble side, which raises the fitted
-post-bubble level and biases the magnitude upward, in proportion to the size
-and duration of the overshoot. With \code{magnitude.model = "step_reequil"}
-(default) the model becomes
-\deqn{C_t = \beta_0 + \beta_1 (t - t_b) + I(t \ge t_s)
-  [\beta_2 + \beta_3 e^{-(t - t_p)/\tau}]}
-where \eqn{\beta_2} is the settled step (the gas added to the headspace),
-\eqn{\beta_3} the amplitude of the transient at the peak and \eqn{\tau} the
-re-equilibration time constant. For a given \eqn{\tau} the model is linear;
-\eqn{\tau} is profiled on a logarithmic grid within \code{tau.range} and
-refined with a one-dimensional search that minimises the residual sum of
-squares. The re-equilibration term is retained only if it lowers the AIC of
-the plain step model, with an additional penalty of 2 for the profiled
-\eqn{\tau}; otherwise the plain step estimate is returned. The pre-bubble
-window of the next event starts after \eqn{t_p + 3 \tau} of the previous
-event (when this leaves at least 3 pre-bubble observations), so that the
-tail of one event does not bias the baseline of the next.
-
-Only events with a positive magnitude are retained, since ebullition adds gas
-to the headspace. Note that \eqn{\beta_1} next to a large event may still
-reflect post-bubble dynamics rather than a diffusive rate, because a single
-slope is shared by the pre- and post-bubble segments.
+Event magnitude is estimated with the local model
+\deqn{C_t = \beta_0 + \beta_1 (t - t_b) + \beta_2 I(t \ge t_b)}
+where \eqn{t_b} is the step time, taken as the largest positive increment
+within the event rather than its leading edge, and \eqn{I(t \ge t_b)} is a
+step dummy. Time is centred on \eqn{t_b}, so \eqn{\beta_0} is the fitted
+concentration at the step, \eqn{\beta_1} the local trend and \eqn{\beta_2}
+the magnitude. Only events with a positive magnitude are retained (ebullition
+adds gas to the headspace). Note that \eqn{\beta_1} next to a large event may
+reflect post-bubble re-equilibration rather than a diffusive rate.
 }
 \examples{
 \dontrun{
