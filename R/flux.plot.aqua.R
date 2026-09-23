@@ -429,7 +429,7 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
     ## leaves the colour scale free for the model fits.
     plot <- plot +
       geom_point(aes(y = .data[[gastype]], shape = flag_lab, alpha = flag_lab),
-                 colour = col_points, size = 1.5)
+                 colour = col_points, size = 0.5)
 
     ## Model fits, restricted to the interval over which they were estimated.
     if (plot_diffusion && nrow(df_diff) > 0) {
