@@ -111,7 +111,21 @@
 #'   \item{\code{reequil.complete}}{\code{TRUE} when at least \eqn{3 \tau} of
 #'     data follow the peak; \code{FALSE} when the settled level is partly
 #'     extrapolated; \code{NA} when no re-equilibration term was retained.}
+#'   \item{\code{intercept}}{Fitted \eqn{\beta_0}: modelled pre-bubble level at
+#'     \eqn{t_b}.}
+#'   \item{\code{t.bubble}}{\eqn{t_b}, time (s) of the largest increment, the
+#'     origin of the \code{slope} term.}
+#'   \item{\code{t.step}}{\eqn{t_s}, time (s) at which the step dummy switches
+#'     on.}
+#'   \item{\code{t.peak}}{\eqn{t_p}, time (s) of the transient peak, the origin
+#'     of the re-equilibration term.}
+#'   \item{\code{fit.start}, \code{fit.end}}{Time span (s) of the observations
+#'     used in the magnitude regression.}
 #' }
+#' The last six columns, together with \code{slope}, \code{magnitude},
+#' \code{overshoot} and \code{tau}, fully define the fitted event model, so
+#' that it can be redrawn (e.g. by \code{\link{flux.plot.aqua}}) without
+#' refitting. All times share the reference of \code{start} and \code{end}.
 #' \code{NULL} is returned if no events are detected or if the series does not
 #' meet the minimum variability criteria.
 #'
@@ -376,6 +390,7 @@ find.bubbles <- function(df,
   # Magnitude of each event
   # ---------------------------------------------------------------------------
 
+  chunks$bubble.gas       <- bubble_source
   chunks$magnitude        <- NA_real_
   chunks$SE               <- NA_real_
   chunks$slope            <- NA_real_
@@ -384,6 +399,13 @@ find.bubbles <- function(df,
   chunks$tau              <- NA_real_
   chunks$magnitude.step   <- NA_real_
   chunks$reequil.complete <- NA
+  # Terms needed to redraw the fitted event model (see @return).
+  chunks$intercept        <- NA_real_
+  chunks$t.bubble         <- NA_real_
+  chunks$t.step           <- NA_real_
+  chunks$t.peak           <- NA_real_
+  chunks$fit.start        <- NA_real_
+  chunks$fit.end          <- NA_real_
 
   # First differences of the (deduplicated) raw series, aligned so that
   # raw_incr[j] is the increment that leads TO observation j.
@@ -541,6 +563,14 @@ find.bubbles <- function(df,
       if (is.na(best_tau)) 0 else coefs["reeq", "Estimate"]
     chunks$tau[i]              <- best_tau
     chunks$reequil.complete[i] <- reeq_complete
+    # Remaining model terms, stored so that the fit can be redrawn (e.g. by
+    # flux.plot.aqua) without refitting.
+    chunks$intercept[i]        <- coefs["(Intercept)", "Estimate"]
+    chunks$t.bubble[i]         <- tb.start
+    chunks$t.step[i]           <- t.step
+    chunks$t.peak[i]           <- t.peak
+    chunks$fit.start[i]        <- min(df_local$time)
+    chunks$fit.end[i]          <- max(df_local$time)
 
     # The next event's baseline should start once this one has re-equilibrated.
     prev_settled <- if (is.na(best_tau)) -Inf else t.peak + 3 * best_tau
