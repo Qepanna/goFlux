@@ -10,10 +10,13 @@
 ## of information:
 ##   * the x-axis is elapsed time, and both shaded bands mark time windows;
 ##   * fill encodes which window (diffusive vs. ebullitive);
-##   * colour encodes which model fit (LM vs. HM);
+##   * colour encodes which model fit (LM, HM or bubble fit);
 ##   * shape and opacity encode whether an observation was retained or
 ##     discarded by the quality flag;
 ##   * the numeric flux estimates live in the plot header, outside the panel.
+##
+## Across both fill and colour, blue tones always denote the diffusive
+## component and vermillion the ebullitive one.
 ##
 ## Keeping the estimates out of the panel is deliberate: chamber concentration
 ## series are usually monotonic, so any in-panel corner is eventually occupied
@@ -81,6 +84,65 @@
 }
 
 
+#' Evaluate the fitted step + re-equilibration model of one bubbling event
+#'
+#' Rebuilds the local model fitted by \code{find.bubbles},
+#' \deqn{C_t = \beta_0 + \beta_1 (t - t_b) + I(t \ge t_s)
+#'   [\beta_2 + \beta_3 e^{-(t - t_p)/\tau}],}
+#' from the columns of one row of \code{bubbles}. The curve starts at the
+#' beginning of the event band (\code{start}, or \code{fit.start} if later)
+#' rather than at \code{fit.start}: the full pre-bubble branch would cover the
+#' diffusive fits and the tail of the previous event, while a short lead-in is
+#' enough to anchor the jump. It ends at \code{fit.end}. The pre- and post-step
+#' branches share the abscissa \eqn{t_s}, so that the jump is drawn as a
+#' vertical segment.
+#'
+#' @param b One-row data.frame from \code{find.bubbles} (via
+#'   \code{goAquaFlux}), with an added integer column \code{event} that
+#'   identifies the event within the incubation.
+#' @param n Integer; number of points used for the post-step branch. The
+#'   pre-step lead-in uses a quarter as many.
+#'
+#' @return A list with \code{fit}, the modelled curve, and \code{settled},
+#'   the settled post-bubble level (\eqn{\beta_2} without the transient), or
+#'   \code{NULL} when no re-equilibration term was retained. Both are
+#'   data.frames with columns \code{x}, \code{y} and \code{event}.
+#'
+#' @noRd
+.bubble_curve <- function(b, n = 200) {
+  # overshoot is 0 when the plain step was retained and NA with
+  # magnitude.model = "step": in both cases there is no transient term.
+  has_reeq <- is.finite(b$overshoot) && b$overshoot != 0 && is.finite(b$tau)
+
+  level <- function(t, on) {
+    y <- b$intercept + b$slope * (t - b$t.bubble)
+    if (on) y <- y + b$magnitude
+    y
+  }
+
+  t_lead <- min(max(b$start, b$fit.start), b$t.step)
+  t_pre  <- seq(t_lead, b$t.step, length.out = max(2L, n %/% 4))
+  t_post <- seq(b$t.step,    b$fit.end, length.out = n)
+
+  y_post <- level(t_post, TRUE)
+  if (has_reeq) {
+    y_post <- y_post + b$overshoot * exp(-pmax(t_post - b$t.peak, 0) / b$tau)
+  }
+
+  fit <- data.frame(x = c(t_pre, t_post),
+                    y = c(level(t_pre, FALSE), y_post),
+                    event = b$event)
+
+  settled <- if (has_reeq) {
+    data.frame(x = c(b$t.step, b$fit.end),
+               y = level(c(b$t.step, b$fit.end), TRUE),
+               event = b$event)
+  } else NULL
+
+  list(fit = fit, settled = settled)
+}
+
+
 #' Plot aquatic chamber incubations with diffusive and ebullitive components
 #'
 #' Produces one diagnostic figure per incubation from the output of
@@ -102,11 +164,37 @@
 #'     taken from \code{n_obs.diffusion} in \code{flux_summary} and applied to
 #'     the time-ordered retained series.}
 #'   \item{Ebullition events}{Full-height bands spanning the start and end times
-#'     of each detected bubbling event.}
-#'   \item{Model fits}{The LM and HM fits are drawn only across the diffusive
-#'     window, since neither is fitted to the ebullitive part of the series. A
-#'     fit that stops short of, or runs past, the bubble-free portion of the
-#'     record is then a direct indication that the window was misidentified.}
+#'     of each detected bubbling event. Events are detected on a single gas
+#'     (\code{bubble.gas}) and shared by all gases of an incubation. They are
+#'     drawn for every gas, including one without ebullition, because they
+#'     show whether the diffusive window was cut short by bubbling or by
+#'     another selection step. When they come from another gas, the legend
+#'     names it, e.g. \emph{ebullition event (CH4)}.}
+#'   \item{Model fits}{The LM (dark blue) and HM (sky blue) fits are drawn
+#'     only across the diffusive window, since neither is fitted to the
+#'     ebullitive part of the series. A fit that stops short of, or runs past,
+#'     the bubble-free portion of the record is then a direct indication that
+#'     the window was misidentified.}
+#'   \item{Bubble fits}{For each event whose magnitude is significant
+#'     (\code{magnitude / SE >= bubble.snr}), the step + re-equilibration model
+#'     fitted by \code{find.bubbles}, in vermillion. It is drawn from the start
+#'     of the event band to the end of that event's fit window: pre-bubble
+#'     lead-in, jump to the transient peak and exponential re-equilibration.
+#'     When a re-equilibration term was retained, the settled post-bubble level
+#'     is added as a dashed line; the estimated magnitude is the vertical
+#'     offset between it and the pre-bubble trend. A curve that has not
+#'     converged on the dashed line by the end of the fit window indicates an
+#'     extrapolated settled level (\code{reequil.complete = FALSE}).
+#'
+#'     The models are in the units of the gas the events were detected on, so
+#'     they are drawn only on that gas's panel (see \code{bubble.gas}), and
+#'     only when it has an ebullitive component: a finite, non-zero
+#'     \code{flux_ebullition} and a total flux that differs from the diffusive
+#'     flux. Redrawing a model requires the columns \code{intercept},
+#'     \code{t.bubble}, \code{t.step}, \code{t.peak}, \code{fit.start} and
+#'     \code{fit.end} returned by \code{find.bubbles}; if \code{bubbles}
+#'     lacks them (output of an earlier version), the fits are skipped with a
+#'     warning and the rest of the figure is unaffected.}
 #'   \item{Flux estimates}{Reported in the plot subtitle, with their unit in the
 #'     caption. They are placed outside the panel so that they cannot overlap
 #'     the data for any incubation.}
@@ -117,12 +205,18 @@
 #' and fits; otherwise a plain-text subtitle is used. The two variants are
 #' identical in content.
 #'
+#' Layers are drawn back to front: bands, observations, bubble fits, then the
+#' LM and HM fits. The y-axis range covers every drawn element within the
+#' x-window, including discarded points and extrapolated bubble-fit levels, so
+#' that nothing is silently clipped.
+#'
 #' Colours follow the Okabe-Ito palette, which remains distinguishable under the
 #' common forms of colour vision deficiency and in greyscale print.
 #'
 #' @param flux.results.ls The list returned by \code{\link{goAquaFlux}} (with
 #'   \code{return_df = TRUE}), containing \code{flux_summary}, \code{bubbles}
-#'   and \code{diffusive}. For backwards compatibility a plain
+#'   and \code{diffusive}. \code{bubbles} may be \code{NULL} when no
+#'   ebullition detection was run. For backwards compatibility a plain
 #'   \code{best.flux}-style data.frame may also be supplied, in which case the
 #'   call is delegated to \code{\link[goFlux]{flux.plot}} and only the diffusive
 #'   component is plotted.
@@ -135,10 +229,24 @@
 #'   \code{"NH3dry_ppb"} or \code{"H2O_ppm"}.
 #' @param shoulder Numeric; padding in seconds added before and after the
 #'   measurement on the x-axis. Default \code{30}.
-#' @param plot.display Character vector of overlays to draw. Supported values
-#'   are \code{"diffusive.window"} and \code{"ebullition.events"}. Pass
-#'   \code{NULL} to draw the observations and fits only. Both are shown by
-#'   default.
+#' @param plot.display Character vector of overlays to draw, any of
+#'   \code{"diffusive.window"}, \code{"ebullition.events"} and
+#'   \code{"bubble.fits"}; other values are an error. Pass \code{NULL} to draw
+#'   the observations and the LM and HM fits only. All three overlays are shown
+#'   by default.
+#' @param bubble.snr Numeric or \code{NULL}; minimum signal-to-noise ratio
+#'   (\code{magnitude / SE}) for an event's fitted model to be drawn. The
+#'   default \code{2} corresponds roughly to a magnitude significantly greater
+#'   than zero at the 5\% level. \code{NULL} draws the fit of every event,
+#'   including those whose \code{SE} is missing.
+#' @param bubble.gas Character string or \code{NULL}; the gas on which
+#'   ebullition events were detected by \code{\link{goAquaFlux}}, e.g.
+#'   \code{"CH4dry_ppb"}. Bubble fits are drawn only when \code{gastype}
+#'   matches it, and when it differs the legend names it (e.g.
+#'   \emph{ebullition event (CH4)}). A \code{bubble.gas} (or
+#'   \code{bubble_source}) column in \code{bubbles}, when present, takes
+#'   precedence. When neither is available, the events are assumed to belong
+#'   to \code{gastype}.
 #' @param flux.unit Character string or \code{NULL}; the flux unit shown in the
 #'   caption. Plotmath syntax (for example \code{"nmol~m^-2*s^-1"}) is accepted
 #'   and converted to plain text. When \code{NULL}, a unit consistent with
@@ -165,6 +273,13 @@
 #' # Inspect a single incubation by name
 #' plots[["LAKE01-2026-05-12-01"]]
 #'
+#' # CO2 of the same incubations, with bubbles detected on CH4: the CH4
+#' # ebullition events are shown as bands, without the CH4 bubble fits
+#' res_co2 <- goAquaFlux(mydata, gastype = "CO2dry_ppm",
+#'                       bubble.gas = "CH4dry_ppb", return_df = TRUE)
+#' plots_co2 <- flux.plot.aqua(res_co2, mydata, gastype = "CO2dry_ppm",
+#'                             bubble.gas = "CH4dry_ppb")
+#'
 #' # Write all diagnostics to a multi-page PDF
 #' pdf("ch4_diagnostics.pdf", width = 8, height = 5)
 #' invisible(lapply(plots, print))
@@ -172,19 +287,23 @@
 #' }
 #'
 #' @importFrom ggplot2 ggplot aes geom_point geom_rect geom_segment geom_line
+#' @importFrom ggplot2 geom_path
 #' @importFrom ggplot2 scale_colour_manual scale_fill_manual scale_shape_manual
 #' @importFrom ggplot2 scale_alpha_manual scale_x_continuous xlab ylab labs
 #' @importFrom ggplot2 coord_cartesian theme_bw theme element_text element_blank
 #' @importFrom ggplot2 element_line guides guide_legend margin unit
 #' @importFrom dplyr %>% right_join group_by group_split filter
 #' @importFrom pbapply pblapply pboptions
-#' @importFrom stats na.omit
+#' @importFrom stats na.omit complete.cases
 #' @importFrom rlang .data
 #'
 #' @export
 #'
 flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
-                           plot.display = c("diffusive.window", "ebullition.events"),
+                           plot.display = c("diffusive.window", "ebullition.events",
+                                            "bubble.fits"),
+                           bubble.snr = 2,
+                           bubble.gas = NULL,
                            flux.unit = NULL,
                            quality.check = FALSE,
                            conversion.factor = 1) {
@@ -258,12 +377,61 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
     message("'quality.check = TRUE' is reserved for future use and is ignored.")
   }
 
+  allowed_display <- c("diffusive.window", "ebullition.events", "bubble.fits")
+  if (!is.null(plot.display)) {
+    if (!is.character(plot.display)) {
+      stop("'plot.display' must be a character vector or NULL")
+    }
+    bad_display <- setdiff(plot.display, allowed_display)
+    if (length(bad_display) > 0) {
+      stop("unknown 'plot.display' value(s): ", paste(bad_display, collapse = ", "),
+           ". Supported: ", paste(allowed_display, collapse = ", "))
+    }
+  }
+
+  # ---- Bubble-fit options ---------------------------------------------------
+
+  if (!is.null(bubble.gas) &&
+      (!is.character(bubble.gas) || length(bubble.gas) != 1L || is.na(bubble.gas))) {
+    stop("'bubble.gas' must be a single character string or NULL")
+  }
+  # Column of $bubbles recording the gas on which the events were detected,
+  # if goAquaFlux provides one; it takes precedence over 'bubble.gas'.
+  bubble_gas_col <- if (is.data.frame(bubbles)) {
+    intersect(c("bubble.gas", "bubble_source"), names(bubbles))[1]
+  } else NA_character_
+  if (!is.null(bubble.snr) &&
+      (!is.numeric(bubble.snr) || length(bubble.snr) != 1L || is.na(bubble.snr) ||
+       bubble.snr < 0)) {
+    stop("'bubble.snr' must be a single non-negative number or NULL")
+  }
+
+  # The fitted event model can only be redrawn if find.bubbles() returned all
+  # of its terms. Output from earlier versions lacks some of them: the figure
+  # is then drawn without the bubble fits, and the user is told why.
+  bubble_model_cols <- c("start", "magnitude", "SE", "slope", "overshoot", "tau",
+                         "intercept", "t.bubble", "t.step", "t.peak",
+                         "fit.start", "fit.end")
+  draw_bubble_fits <- !is.null(plot.display) && "bubble.fits" %in% plot.display &&
+    is.data.frame(bubbles) && nrow(bubbles) > 0
+  if (draw_bubble_fits) {
+    missing_bcols <- setdiff(bubble_model_cols, names(bubbles))
+    if (length(missing_bcols) > 0) {
+      warning("'bubbles' lacks the model terms needed to draw bubble fits (",
+              paste(missing_bcols, collapse = ", "), "); re-run goAquaFlux() ",
+              "with the current find.bubbles(). Bubble fits are skipped.")
+      draw_bubble_fits <- FALSE
+    }
+  }
+
   # ---- Appearance constants -------------------------------------------------
 
-  # Okabe-Ito blue and vermillion. Blue is used throughout for the diffusive
-  # component and vermillion for the ebullitive one, in both the bands and the
-  # model fits, so that the two components stay identifiable without the legend.
+  # Okabe-Ito palette. Blue tones are used throughout for the diffusive
+  # component (dark blue for the diffusive band and the LM fit, sky blue for
+  # the HM fit) and vermillion for the ebullitive one (event bands and bubble
+  # fits), so that the two components stay identifiable without the legend.
   col_diffusive  <- "#0072B2"
+  col_hm         <- "#56B4E9"
   col_ebullitive <- "#D55E00"
   col_points     <- "grey15"
 
@@ -304,6 +472,7 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
 
   # Silence R CMD check notes on columns referenced by non-standard evaluation.
   UniqueID <- Etime <- flag <- flag_lab <- HM_mod <- start <- end <- NULL
+  x <- y <- event <- NULL
 
   # ---- One figure per incubation --------------------------------------------
 
@@ -364,6 +533,47 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
       can.plot.bubbles <- nrow(bubbles_f) > 0
     }
 
+    ## Bubble events are detected on a single gas (bubble.gas) and shared by
+    ## every gas of the incubation. Their bands are always drawn, because they
+    ## show whether the diffusive window was cut short by bubbling or by another
+    ## selection step, even for a gas without ebullition. Only the fitted event
+    ## models require this gas to have an ebullitive component: flux_ebullition
+    ## finite and non-zero, and total flux different from diffusive flux.
+    ebull_active <- length(flux_ebull) == 1L &&
+      isTRUE(is.finite(flux_ebull) && flux_ebull != 0) &&
+      !isTRUE(all.equal(flux_total, flux_diff))
+
+    ## The fitted event models are in the units of the gas they were detected
+    ## on, so they are drawn only on that gas's panel, even when this gas has a
+    ## non-zero ebullitive flux estimated over the same windows.
+    bgas <- if (can.plot.bubbles && !is.na(bubble_gas_col)) {
+      as.character(unique(bubbles_f[[bubble_gas_col]])[1])
+    } else if (!is.null(bubble.gas)) bubble.gas else gastype
+    fits_same_gas <- identical(bgas, gastype)
+
+    ## When the events come from another gas, the legend says so, so that
+    ## e.g. a CO2 panel does not suggest the bands were detected on CO2.
+    ebull_label <- if (fits_same_gas) "ebullition event" else
+      paste0("ebullition event (", sub("(dry)?_pp[mb]$", "", bgas), ")")
+
+    ## Fitted model of each significant bubbling event. The SE guard avoids a
+    ## division by zero; an event with a missing SE has no finite SNR and is
+    ## only drawn when bubble.snr = NULL.
+    bfit_df <- bset_df <- NULL
+    if (draw_bubble_fits && can.plot.bubbles && fits_same_gas && ebull_active) {
+      bb <- bubbles_f
+      bb$event <- seq_len(nrow(bb))
+      snr  <- bb$magnitude / pmax(bb$SE, .Machine$double.eps)
+      keep <- complete.cases(bb[, c("intercept", "slope", "magnitude",
+                                    "t.bubble", "t.step", "fit.start", "fit.end")])
+      if (!is.null(bubble.snr)) keep <- keep & is.finite(snr) & snr >= bubble.snr
+      if (any(keep)) {
+        curves  <- lapply(which(keep), function(j) .bubble_curve(bb[j, ]))
+        bfit_df <- do.call(rbind, lapply(curves, `[[`, "fit"))
+        bset_df <- do.call(rbind, lapply(curves, `[[`, "settled"))  # NULL if none
+      }
+    }
+
     ## Axis ranges.
     ## The x-range is the retained series padded by 'shoulder'. The y-range spans
     ## everything actually drawn within that x-window, including discarded points
@@ -377,6 +587,11 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
       y_vals <- c(y_vals,
                   df_all$HM_mod[in_window],
                   LM.C0 + LM.slope * range(df_diff$Etime, na.rm = TRUE))
+    }
+    ## The bubble fits are included, so that an extrapolated settled level or
+    ## an overshoot above the observations is not clipped.
+    for (d in list(bfit_df, bset_df)) {
+      if (!is.null(d)) y_vals <- c(y_vals, d$y[d$x >= xmin & d$x <= xmax])
     }
     y_vals <- na.omit(y_vals)
     ymax <- max(y_vals)
@@ -431,6 +646,23 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
       geom_point(aes(y = .data[[gastype]], shape = flag_lab, alpha = flag_lab),
                  colour = col_points, size = 0.5)
 
+    ## Bubble fits, drawn below the LM and HM fits so that those stay visible
+    ## where they meet. geom_path (not geom_line) keeps the row order, so the
+    ## two points sharing t_s draw the jump as a vertical segment. The settled
+    ## level is dashed and kept out of the legend: it belongs to the fit.
+    if (!is.null(bset_df)) {
+      plot <- plot +
+        geom_path(data = bset_df, aes(x = x, y = y, group = event),
+                  colour = col_ebullitive, linewidth = 0.5, linetype = "22",
+                  inherit.aes = FALSE)
+    }
+    if (!is.null(bfit_df)) {
+      plot <- plot +
+        geom_path(data = bfit_df,
+                  aes(x = x, y = y, group = event, colour = "bubble fit"),
+                  linewidth = 0.8, inherit.aes = FALSE)
+    }
+
     ## Model fits, restricted to the interval over which they were estimated.
     if (plot_diffusion && nrow(df_diff) > 0) {
       x_start <- min(df_diff$Etime, na.rm = TRUE)
@@ -476,10 +708,15 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
     plot +
       scale_shape_manual(NULL, values = c("retained" = 16, "discarded" = 1)) +
       scale_alpha_manual(NULL, values = c("retained" = 0.9, "discarded" = 0.45)) +
-      scale_colour_manual(NULL, values = c("LM fit" = col_diffusive,
-                                           "HM fit" = col_ebullitive)) +
+      scale_colour_manual(NULL, values = c("LM fit"     = col_diffusive,
+                                           "HM fit"     = col_hm,
+                                           "bubble fit" = col_ebullitive)) +
+      # The fill labels are set by function so that the ebullition key can name
+      # the gas the events were detected on, without changing the fill values.
       scale_fill_manual(NULL, values = c("diffusive window"  = col_diffusive,
-                                         "ebullition event"  = col_ebullitive)) +
+                                         "ebullition event"  = col_ebullitive),
+                        labels = function(b) ifelse(b == "ebullition event",
+                                                    ebull_label, b)) +
       # The band keys are drawn at a higher opacity than the bands themselves,
       # which would otherwise be barely visible at legend-key size.
       guides(fill  = guide_legend(override.aes = list(alpha = 0.35)),
