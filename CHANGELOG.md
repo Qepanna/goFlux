@@ -1,3 +1,11 @@
+## 0.5.0 (2026-09-24)
+
+## What's Changed
+* feat: draw fitted bubble models on incubation viz by @camilleminaudo in https://github.com/Qepanna/goFlux/pull/51
+
+
+**Full Changelog**: https://github.com/Qepanna/goFlux/compare/goFlux-0.4.0...goFlux-0.5.0
+
 ## 0.4.0 (2026-09-23)
 
 ## What's Changed
