@@ -94,7 +94,12 @@ Each figure is composed of the following elements.
   \item{Observations}{All records for the incubation are drawn. Points
     retained by the quality flag (\code{flag == 1}) are filled and opaque;
     discarded points are hollow and faded, so that they remain visible for
-    diagnosis without competing with the retained series.}
+    diagnosis without competing with the retained series. For a gas other
+    than the one the bubbles were detected on (e.g. CO2 with bubbles
+    detected on CH4), when ebullition cut the diffusive window short, only
+    the retained points of the diffusive window are black: those after it,
+    which do not enter any flux estimate for that gas, are light grey
+    (\emph{outside diffusive window}).}
   \item{Diffusive window}{A full-height band from \eqn{t = 0} to the end of
     the window used to fit the diffusive flux. The extent of the window is
     taken from \code{n_obs.diffusion} in \code{flux_summary} and applied to

@@ -13,7 +13,9 @@
 ##   * colour encodes which model fit (the diffusive model selected by
 ##     best.flux, or the bubble fits);
 ##   * shape and opacity encode whether an observation was retained or
-##     discarded by the quality flag;
+##     discarded by the quality flag, and, for a gas other than the bubble gas,
+##     light grey marks retained observations after a diffusive window cut
+##     short by ebullition;
 ##   * the numeric flux estimates live in the plot header, outside the panel;
 ##   * the quality checks are reported in the caption, as in flux.plot(): the
 ##     best.flux check of the diffusive fit for every gas, and the ebullition
@@ -228,7 +230,12 @@
 #'   \item{Observations}{All records for the incubation are drawn. Points
 #'     retained by the quality flag (\code{flag == 1}) are filled and opaque;
 #'     discarded points are hollow and faded, so that they remain visible for
-#'     diagnosis without competing with the retained series.}
+#'     diagnosis without competing with the retained series. For a gas other
+#'     than the one the bubbles were detected on (e.g. CO2 with bubbles
+#'     detected on CH4), when ebullition cut the diffusive window short, only
+#'     the retained points of the diffusive window are black: those after it,
+#'     which do not enter any flux estimate for that gas, are light grey
+#'     (\emph{outside diffusive window}).}
 #'   \item{Diffusive window}{A full-height band from \eqn{t = 0} to the end of
 #'     the window used to fit the diffusive flux. The extent of the window is
 #'     taken from \code{n_obs.diffusion} in \code{flux_summary} and applied to
@@ -542,6 +549,7 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
   col_hm         <- "#56B4E9"
   col_ebullitive <- "#D55E00"
   col_points     <- "grey15"
+  col_outside    <- "grey75"
 
   use_markdown <- requireNamespace("ggtext", quietly = TRUE)
 
@@ -732,9 +740,28 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
     # readable without reference to the documentation. Unused levels are dropped
     # so that incubations with no discarded records do not advertise an empty
     # category.
+    df_all$flag_lab <- ifelse(df_all$flag == 1, "retained", "discarded")
+
+    ## For a gas other than the bubble gas, no ebullitive flux is estimated: when
+    ## ebullition cut the diffusive window short, the retained points after it
+    ## enter no flux estimate and are shown in light grey.
+    if (!fits_same_gas && nrow(df_diff) > 0 && nrow(df_good) > 0) {
+      t_diff_end <- max(df_diff$Etime, na.rm = TRUE)
+      if (t_diff_end < max(df_good$Etime, na.rm = TRUE)) {
+        df_all$flag_lab[df_all$flag == 1 & df_all$Etime > t_diff_end] <-
+          "outside diffusive window"
+      }
+    }
     df_all$flag_lab <- droplevels(
-      factor(ifelse(df_all$flag == 1, "retained", "discarded"),
-             levels = c("retained", "discarded")))
+      factor(df_all$flag_lab,
+             levels = c("retained", "outside diffusive window", "discarded")))
+
+    ## Point colour per category. The two colours are drawn as separate layers,
+    ## since the colour scale is used by the model fits; the legend keys are
+    ## coloured to match.
+    key_colours <- c("retained" = col_points,
+                     "outside diffusive window" = col_outside,
+                     "discarded" = col_points)[levels(df_all$flag_lab)]
 
     # ---- Layers -------------------------------------------------------------
 
@@ -769,9 +796,17 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
 
     ## Observations. The quality flag is carried by shape and opacity, which
     ## leaves the colour scale free for the model fits.
+    is_outside <- df_all$flag_lab == "outside diffusive window"
     plot <- plot +
-      geom_point(aes(y = .data[[gastype]], shape = flag_lab, alpha = flag_lab),
+      geom_point(data = df_all[!is_outside, ],
+                 aes(y = .data[[gastype]], shape = flag_lab, alpha = flag_lab),
                  colour = col_points, size = 0.5)
+    if (any(is_outside)) {
+      plot <- plot +
+        geom_point(data = df_all[is_outside, ],
+                   aes(y = .data[[gastype]], shape = flag_lab, alpha = flag_lab),
+                   colour = col_outside, size = 0.5)
+    }
 
     ## Bubble fits, drawn below the diffusive fit so that it stays visible
     ## where they meet. geom_path (not geom_line) keeps the row order, so the
@@ -858,8 +893,12 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
                          collapse = "\n")
 
     plot +
-      scale_shape_manual(NULL, values = c("retained" = 16, "discarded" = 1)) +
-      scale_alpha_manual(NULL, values = c("retained" = 0.9, "discarded" = 0.45)) +
+      scale_shape_manual(NULL, values = c("retained" = 16,
+                                          "outside diffusive window" = 16,
+                                          "discarded" = 1)) +
+      scale_alpha_manual(NULL, values = c("retained" = 0.9,
+                                          "outside diffusive window" = 0.9,
+                                          "discarded" = 0.45)) +
       scale_colour_manual(NULL, values = c("diffusive fit (LM)" = col_diffusive,
                                            "diffusive fit (HM)" = col_diffusive,
                                            "LM fit"             = col_diffusive,
@@ -874,7 +913,9 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
       # The band keys are drawn at a higher opacity than the bands themselves,
       # which would otherwise be barely visible at legend-key size.
       guides(fill  = guide_legend(override.aes = list(alpha = 0.35)),
-             alpha = guide_legend(override.aes = list(size = 2))) +
+             shape = guide_legend(override.aes = list(colour = unname(key_colours))),
+             alpha = guide_legend(override.aes = list(size = 2,
+                                                      colour = unname(key_colours)))) +
       xlab("Time (s)") + ylab_plot +
       # Breaks are derived from the data range rather than set at a fixed
       # interval, which keeps the axis legible for incubations of any duration.
