@@ -4,7 +4,7 @@
 \alias{goAquaFlux.total}
 \title{Combine diffusive and ebullitive flux into a total chamber flux}
 \usage{
-goAquaFlux.total(ebullition_flux, diffusive_flux, tolerance = 1.2)
+goAquaFlux.total(ebullition_flux, diffusive_flux)
 }
 \arguments{
 \item{ebullition_flux}{A list returned by \code{\link{goAquaFlux.ebullition}}.
@@ -13,10 +13,6 @@ error) and \code{F_tot2pts} (the endpoint total-flux estimate).}
 
 \item{diffusive_flux}{A list returned by \code{\link{goAquaFlux.diffusive}}.
 Must contain at least \code{flux} (diffusive flux) and \code{SE}.}
-
-\item{tolerance}{Numeric > 1. Ratio above which the reconstructed total flux
-is flagged as suspiciously larger than the endpoint estimate. Default
-\code{1.2} (i.e. 20\% larger).}
 }
 \value{
 A named list with:
@@ -25,8 +21,6 @@ A named list with:
   \item{SE}{Propagated standard error of the total flux.}
   \item{ratio}{Ratio of the reconstructed total flux to the two-point
     endpoint estimate (\code{NA} if the endpoint estimate is unavailable).}
-  \item{flag_suspicious}{Logical; \code{TRUE} when
-    \code{flux > F_tot2pts * tolerance}.}
   \item{message}{Diagnostic message (\code{NA} when nothing to report).}
 }
 }
@@ -34,14 +28,12 @@ A named list with:
 Combines the diffusive and ebullitive components of a gas flux into a single
 total flux estimate. The total flux is the sum of the two components and the
 associated uncertainty is propagated assuming the two errors are independent.
-As a consistency check, the reconstructed total flux is compared against a
-simple two-point (endpoint) estimate of the total flux over the whole
-deployment (\code{F_tot2pts}, produced by
-\code{\link{goAquaFlux.ebullition}}). If the reconstructed flux exceeds the
-endpoint estimate by more than \code{tolerance}, the result is flagged as
-potentially suspicious and a warning is issued. This typically indicates that
-bubble magnitudes were over-estimated (e.g. a diffusive ramp mistaken for a
-step).
+The ratio of the total flux to the two-point (endpoint) estimate is returned
+for information only. It is not a quality check: when \code{best.flux}
+selects the Hutchinson-Mosier model, the diffusive flux is an initial slope
+whereas the two-point estimate is a mean rate, so the ratio exceeds 1 even
+without any bubble. Use \code{\link{goAquaFlux.diagnostics}} (mass-balance
+closure) to assess the flux separation.
 }
 \details{
 Total flux:  \deqn{F_T = F_E + F_D}

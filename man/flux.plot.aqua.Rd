@@ -9,16 +9,20 @@ flux.plot.aqua(
   dataframe,
   gastype,
   shoulder = 30,
-  plot.display = c("diffusive.window", "ebullition.events"),
+  plot.display = c("diffusive.window", "ebullition.events", "bubble.fits",
+    "mass.balance"),
+  bubble.snr = 2,
+  bubble.gas = NULL,
   flux.unit = NULL,
-  quality.check = FALSE,
+  quality.check = TRUE,
   conversion.factor = 1
 )
 }
 \arguments{
 \item{flux.results.ls}{The list returned by \code{\link{goAquaFlux}} (with
-\code{return_df = TRUE}), containing \code{flux_summary}, \code{bubbles}
-and \code{diffusive}. For backwards compatibility a plain
+\code{return_df = TRUE}), containing \code{flux_summary}, \code{bubbles},
+\code{diffusive} and \code{diagnostics}. \code{bubbles} may be \code{NULL} when no
+ebullition detection was run. For backwards compatibility a plain
 \code{best.flux}-style data.frame may also be supplied, in which case the
 call is delegated to \code{\link[goFlux]{flux.plot}} and only the diffusive
 component is plotted.}
@@ -35,18 +39,40 @@ column named by \code{gastype}.}
 \item{shoulder}{Numeric; padding in seconds added before and after the
 measurement on the x-axis. Default \code{30}.}
 
-\item{plot.display}{Character vector of overlays to draw. Supported values
-are \code{"diffusive.window"} and \code{"ebullition.events"}. Pass
-\code{NULL} to draw the observations and fits only. Both are shown by
-default.}
+\item{plot.display}{Character vector of overlays to draw, any of
+\code{"diffusive.window"}, \code{"ebullition.events"},
+\code{"bubble.fits"} and \code{"mass.balance"}; other values are an
+error. Pass \code{NULL} to draw the observations and the LM and HM fits
+only. All four overlays are enabled by default; \code{"mass.balance"} is
+drawn only on the panel of the bubble gas, for incubations whose
+ebullition check fails on the closure, and requires
+\code{quality.check = TRUE}.}
+
+\item{bubble.snr}{Numeric or \code{NULL}; minimum signal-to-noise ratio
+(\code{magnitude / SE}) for an event's fitted model to be drawn. The
+default \code{2} corresponds roughly to a magnitude significantly greater
+than zero at the 5\% level. \code{NULL} draws the fit of every event,
+including those whose \code{SE} is missing.}
+
+\item{bubble.gas}{Character string or \code{NULL}; the gas on which
+ebullition events were detected by \code{\link{goAquaFlux}}, e.g.
+\code{"CH4dry_ppb"}. Bubble fits are drawn only when \code{gastype}
+matches it, and when it differs the legend names it (e.g.
+\emph{ebullition event (CH4)}). A \code{bubble.gas} (or
+\code{bubble_source}) column in \code{bubbles}, when present, takes
+precedence. When neither is available, the events are assumed to belong
+to \code{gastype}.}
 
 \item{flux.unit}{Character string or \code{NULL}; the flux unit shown in the
 caption. Plotmath syntax (for example \code{"nmol~m^-2*s^-1"}) is accepted
 and converted to plain text. When \code{NULL}, a unit consistent with
 \code{gastype} is chosen.}
 
-\item{quality.check}{Logical; reserved for forthcoming quality-check
-annotations. Currently ignored, with a message. Default \code{FALSE}.}
+\item{quality.check}{Logical; if \code{TRUE} (default), the quality check
+of the diffusive fit and, for the bubble gas, the ebullition check are
+reported in the figures (see \strong{Details}). Results of an earlier
+version without ebullition check show the quality check of the diffusive
+fit only, with a message.}
 
 \item{conversion.factor}{Numeric greater than zero; multiplier applied to the
 displayed flux estimates and their standard errors, for reporting in a unit
@@ -77,20 +103,72 @@ Each figure is composed of the following elements.
     taken from \code{n_obs.diffusion} in \code{flux_summary} and applied to
     the time-ordered retained series.}
   \item{Ebullition events}{Full-height bands spanning the start and end times
-    of each detected bubbling event.}
-  \item{Model fits}{The LM and HM fits are drawn only across the diffusive
-    window, since neither is fitted to the ebullitive part of the series. A
-    fit that stops short of, or runs past, the bubble-free portion of the
-    record is then a direct indication that the window was misidentified.}
+    of each detected bubbling event. Events are detected on a single gas
+    (\code{bubble.gas}) and shared by all gases of an incubation. They are
+    drawn for every gas, including one without ebullition, because they
+    show whether the diffusive window was cut short by bubbling or by
+    another selection step. When they come from another gas, the legend
+    names it, e.g. \emph{ebullition event (CH4)}.}
+  \item{Model fits}{The LM (dark blue) and HM (sky blue) fits are drawn
+    only across the diffusive window, since neither is fitted to the
+    ebullitive part of the series. A fit that stops short of, or runs past,
+    the bubble-free portion of the record is then a direct indication that
+    the window was misidentified.}
+  \item{Bubble fits}{For each event whose magnitude is significant
+    (\code{magnitude / SE >= bubble.snr}), the step + re-equilibration model
+    fitted by \code{find.bubbles}, in vermillion. It is drawn from the start
+    of the event band to the end of that event's fit window: pre-bubble
+    lead-in, jump to the transient peak and exponential re-equilibration.
+    When a re-equilibration term was retained, the settled post-bubble level
+    is added as a dashed line; the estimated magnitude is the vertical
+    offset between it and the pre-bubble trend. A curve that has not
+    converged on the dashed line by the end of the fit window indicates an
+    extrapolated settled level (\code{reequil.complete = FALSE}).
+
+    The models are in the units of the gas the events were detected on, so
+    they are drawn only on that gas's panel (see \code{bubble.gas}), and
+    only when it has an ebullitive component: a finite, non-zero
+    \code{flux_ebullition} and a total flux that differs from the diffusive
+    flux. Redrawing a model requires the columns \code{intercept},
+    \code{t.bubble}, \code{t.step}, \code{t.peak}, \code{fit.start} and
+    \code{fit.end} returned by \code{find.bubbles}; if \code{bubbles}
+    lacks them (output of an earlier version), the fits are skipped with a
+    warning and the rest of the figure is unaffected.}
   \item{Flux estimates}{Reported in the plot subtitle, with their unit in the
     caption. They are placed outside the panel so that they cannot overlap
     the data for any incubation.}
+  \item{Quality checks}{When \code{quality.check = TRUE}, the caption
+    reports the two complementary checks of \code{\link{goAquaFlux}}. The
+    quality check of the diffusive fit (\code{quality.check} and
+    \code{model} from \code{\link[goFlux]{best.flux}}) is shown for every
+    gas, as in \code{\link[goFlux]{flux.plot}}. The ebullition check
+    (\code{ebullition.check}, see \code{\link{goAquaFlux.diagnostics}}) is
+    shown only on the panel of the gas the bubbles were detected on, the only
+    gas for which it is computed: the figure of any other gas (e.g. CO2 with
+    bubbles detected on CH4) is assessed from that gas's own fit alone. The
+    closure is given in brackets and, when no bubble was detected, the
+    detection limit of ebullition.}
+  \item{Mass balance}{For an incubation whose ebullition check fails on the
+    closure (\code{"closure < 0.8"} or \code{"closure > 1.2"}),
+    the series implied by the separation with both components as mean rates
+    (observed start concentration + mean diffusive rate + bubble steps) is
+    drawn in grey, together with the observed mean concentrations over the
+    first and last \code{window_C0Cf} seconds (thick grey segments). Where
+    the grey path departs from the observations shows where the gas is
+    missing or over-attributed: a gap that opens after the first bubble
+    suggests a diffusive rate that changed or undetected bubbles, a gap at a
+    single step suggests a misestimated bubble.}
 }
 
 If the \pkg{ggtext} package is available, the subtitle is rendered with the
 diffusive and ebullitive estimates coloured to match their respective bands
 and fits; otherwise a plain-text subtitle is used. The two variants are
 identical in content.
+
+Layers are drawn back to front: bands, observations, bubble fits, then the
+LM and HM fits. The y-axis range covers every drawn element within the
+x-window, including discarded points and extrapolated bubble-fit levels, so
+that nothing is silently clipped.
 
 Colours follow the Okabe-Ito palette, which remains distinguishable under the
 common forms of colour vision deficiency and in greyscale print.
@@ -103,6 +181,18 @@ plots <- flux.plot.aqua(res, mydata, gastype = "CH4dry_ppb")
 
 # Inspect a single incubation by name
 plots[["LAKE01-2026-05-12-01"]]
+
+# CO2 of the same incubations, with bubbles detected on CH4: the CH4
+# ebullition events are shown as bands, without the CH4 bubble fits
+res_co2 <- goAquaFlux(mydata, gastype = "CO2dry_ppm",
+                      bubble.gas = "CH4dry_ppb", return_df = TRUE)
+plots_co2 <- flux.plot.aqua(res_co2, mydata, gastype = "CO2dry_ppm",
+                            bubble.gas = "CH4dry_ppb")
+
+# Only the incubations whose ebullition check failed
+chk <- res$flux_summary$ebullition.check
+plots[res$flux_summary$UniqueID[!is.na(chk) & nzchar(chk) &
+                                  chk != "no bubble detected"]]
 
 # Write all diagnostics to a multi-page PDF
 pdf("ch4_diagnostics.pdf", width = 8, height = 5)
