@@ -9,8 +9,7 @@ flux.plot.aqua(
   dataframe,
   gastype,
   shoulder = 30,
-  plot.display = c("diffusive.window", "ebullition.events", "bubble.fits",
-    "mass.balance"),
+  plot.display = c("diffusive.window", "ebullition.events", "bubble.fits"),
   bubble.snr = 2,
   bubble.gas = NULL,
   flux.unit = NULL,
@@ -40,13 +39,10 @@ column named by \code{gastype}.}
 measurement on the x-axis. Default \code{30}.}
 
 \item{plot.display}{Character vector of overlays to draw, any of
-\code{"diffusive.window"}, \code{"ebullition.events"},
-\code{"bubble.fits"} and \code{"mass.balance"}; other values are an
-error. Pass \code{NULL} to draw the observations and the LM and HM fits
-only. All four overlays are enabled by default; \code{"mass.balance"} is
-drawn only on the panel of the bubble gas, for incubations whose
-ebullition check fails on the closure, and requires
-\code{quality.check = TRUE}.}
+\code{"diffusive.window"}, \code{"ebullition.events"} and
+\code{"bubble.fits"}; other values are an error. Pass \code{NULL} to draw
+the observations and the diffusive fit only. All three overlays are shown
+by default.}
 
 \item{bubble.snr}{Numeric or \code{NULL}; minimum signal-to-noise ratio
 (\code{magnitude / SE}) for an event's fitted model to be drawn. The
@@ -87,8 +83,9 @@ A named list of \code{\link[ggplot2]{ggplot}} objects, one per
 Produces one diagnostic figure per incubation from the output of
 \code{\link{goAquaFlux}}, showing the measured concentration series, the
 window over which the diffusive flux was fitted, the detected ebullition
-events, the linear (LM) and Hutchinson-Mosier (HM) fits, and the resulting
-total, diffusive and ebullitive flux estimates.
+events, the diffusive model selected by \code{\link[goFlux]{best.flux}}
+(linear, LM, or Hutchinson-Mosier, HM), and the resulting total, diffusive
+and ebullitive flux estimates.
 }
 \details{
 Each figure is composed of the following elements.
@@ -109,11 +106,15 @@ Each figure is composed of the following elements.
     show whether the diffusive window was cut short by bubbling or by
     another selection step. When they come from another gas, the legend
     names it, e.g. \emph{ebullition event (CH4)}.}
-  \item{Model fits}{The LM (dark blue) and HM (sky blue) fits are drawn
-    only across the diffusive window, since neither is fitted to the
-    ebullitive part of the series. A fit that stops short of, or runs past,
-    the bubble-free portion of the record is then a direct indication that
-    the window was misidentified.}
+  \item{Diffusive fit}{Only the model selected by
+    \code{\link[goFlux]{best.flux}} (column \code{model} of
+    \code{diffusive}) is drawn, in dark blue, and the legend names it, e.g.
+    \emph{diffusive fit (HM)}. It is drawn only across the diffusive window,
+    since it is not fitted to the ebullitive part of the series. A fit that
+    stops short of, or runs past, the bubble-free portion of the record is
+    then a direct indication that the window was misidentified. For output
+    without a \code{model} column (earlier versions), both the LM (dark
+    blue) and HM (sky blue) fits are drawn.}
   \item{Bubble fits}{For each event whose magnitude is significant
     (\code{magnitude / SE >= bubble.snr}), the step + re-equilibration model
     fitted by \code{find.bubbles}, in vermillion. It is drawn from the start
@@ -148,16 +149,6 @@ Each figure is composed of the following elements.
     bubbles detected on CH4) is assessed from that gas's own fit alone. The
     closure is given in brackets and, when no bubble was detected, the
     detection limit of ebullition.}
-  \item{Mass balance}{For an incubation whose ebullition check fails on the
-    closure (\code{"closure < 0.8"} or \code{"closure > 1.2"}),
-    the series implied by the separation with both components as mean rates
-    (observed start concentration + mean diffusive rate + bubble steps) is
-    drawn in grey, together with the observed mean concentrations over the
-    first and last \code{window_C0Cf} seconds (thick grey segments). Where
-    the grey path departs from the observations shows where the gas is
-    missing or over-attributed: a gap that opens after the first bubble
-    suggests a diffusive rate that changed or undetected bubbles, a gap at a
-    single step suggests a misestimated bubble.}
 }
 
 If the \pkg{ggtext} package is available, the subtitle is rendered with the
@@ -166,7 +157,7 @@ and fits; otherwise a plain-text subtitle is used. The two variants are
 identical in content.
 
 Layers are drawn back to front: bands, observations, bubble fits, then the
-LM and HM fits. The y-axis range covers every drawn element within the
+diffusive fit. The y-axis range covers every drawn element within the
 x-window, including discarded points and extrapolated bubble-fit levels, so
 that nothing is silently clipped.
 
