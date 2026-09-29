@@ -102,7 +102,7 @@ div.csl-indent {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-10f587352ad0990e360fec5eef9e7a84.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-52159af3ad406ccd9ea9f3961161432d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -330,11 +330,16 @@ window.Quarto = {
   <li><a href="#usage-4" id="toc-usage-4" class="nav-link" data-scroll-target="#usage-4">Usage</a></li>
   <li><a href="#arguments-4" id="toc-arguments-4" class="nav-link" data-scroll-target="#arguments-4">Arguments</a></li>
   <li><a href="#details-4" id="toc-details-4" class="nav-link" data-scroll-target="#details-4">Details</a></li>
+  <li><a href="#usage-5" id="toc-usage-5" class="nav-link" data-scroll-target="#usage-5">Usage</a></li>
+  <li><a href="#arguments-5" id="toc-arguments-5" class="nav-link" data-scroll-target="#arguments-5">Arguments</a></li>
+  <li><a href="#details-5" id="toc-details-5" class="nav-link" data-scroll-target="#details-5">Details</a></li>
   </ul></li>
   <li><a href="#flux.plot.aqua" id="toc-flux.plot.aqua" class="nav-link" data-scroll-target="#flux.plot.aqua"><code>flux.plot.aqua</code> for plotting aquatic chamber incubations</a>
   <ul class="collapse">
-  <li><a href="#usage-5" id="toc-usage-5" class="nav-link" data-scroll-target="#usage-5">Usage</a></li>
-  <li><a href="#arguments-5" id="toc-arguments-5" class="nav-link" data-scroll-target="#arguments-5">Arguments</a></li>
+  <li><a href="#usage-6" id="toc-usage-6" class="nav-link" data-scroll-target="#usage-6">Usage</a></li>
+  <li><a href="#arguments-6" id="toc-arguments-6" class="nav-link" data-scroll-target="#arguments-6">Arguments</a></li>
+  <li><a href="#details-6" id="toc-details-6" class="nav-link" data-scroll-target="#details-6">Details</a></li>
+  <li><a href="#examples-2" id="toc-examples-2" class="nav-link" data-scroll-target="#examples-2">Examples</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -451,15 +456,16 @@ Note
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">Pcham =</span> <span class="cn">NULL</span>,</span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">Tcham =</span> <span class="cn">NULL</span>,</span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">use_bubble_detection =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">bubble.window.size =</span> <span class="dv">30</span>,</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">bubble.window.size =</span> <span class="dv">15</span>,</span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">bubble_gas =</span> <span class="st">"CH4dry_ppb"</span>,</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">bubble.method =</span> <span class="st">"mad"</span>,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">bubble.method =</span> <span class="st">"diff"</span>,</span>
 <span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">bubble.args =</span> <span class="fu">list</span>(),</span>
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">ebullition.final_window_min =</span> <span class="dv">30</span>,</span>
 <span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">ebullition.window_C0Cf =</span> <span class="dv">10</span>,</span>
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">diffusion.minimum_window =</span> <span class="dv">30</span>,</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">return_df =</span> <span class="cn">TRUE</span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">diagnostics.args =</span> <span class="fu">list</span>(),</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">return_df =</span> <span class="cn">TRUE</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="arguments" class="level4">
 <h4 class="anchored" data-anchor-id="arguments">Arguments</h4>
@@ -552,18 +558,28 @@ Note
 <td>Minimum number of observations required to compute diffusive flux before the first bubble event.</td>
 </tr>
 <tr class="even">
+<td><code>diagnostics.args</code></td>
+<td>Named list of arguments passed to <code>goAquaFlux.diagnostics</code> (<code>window_C0Cf</code>, <code>tolerance</code>, <code>min_snr</code>, <code>dl_sigma</code>).</td>
+</tr>
+<tr class="odd">
 <td><code>return_df</code></td>
-<td>Logical. If <code>TRUE</code> (default) the function returns a tidy list of three data frames (see <strong>Value</strong>). If <code>FALSE</code>, the raw per-incubation results list is returned instead, which is convenient for advanced users who want the untidied intermediate objects.</td>
+<td>Logical. If <code>TRUE</code> (default) the function returns a tidy list of four data frames (see <strong>Value</strong>). If <code>FALSE</code>, the raw per-incubation results list is returned instead, which is convenient for advanced users who want the untidied intermediate objects.</td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="details" class="level4">
 <h4 class="anchored" data-anchor-id="details">Details</h4>
-<p>The workflow includes: (1) data validation and cleaning; (2) calculation of auxiliary variables (flux conversion term and MDF); (3) bubble detection (typically using CH4 concentration); (4) estimation of ebullition flux based on detected bubble magnitudes; (5) estimation of diffusive flux using model selection; and (6) combination of the diffusive and ebullitive components into a total flux.</p>
+<p>The workflow includes: (1) data validation and cleaning; (2) calculation of auxiliary variables (flux conversion term and MDF); (3) bubble detection (typically using CH4 concentration); (4) estimation of ebullition flux based on detected bubble magnitudes; (5) estimation of diffusive flux using model selection; (6) combination of the diffusive and ebullitive components into a total flux; and (7) quality checks: <code>best.flux</code> for the diffusive fit and, for the gas on which bubbles are detected, <code>goAquaFlux.diagnostics</code> for the ebullitive component.</p>
 <p>The function operates on datasets containing multiple chamber incubations, which are automatically split using the <code>UniqueID</code> column.</p>
 <p>Bubble detection is performed using a rolling window approach applied to concentration variability of the selected gas (typically CH4). Detected bubbling events are used to estimate ebullition fluxes and restrict the time window used for diffusive flux estimation.</p>
 <p>Diffusive fluxes are calculated using the <code>goFlux</code> framework, which evaluates multiple regression models and selects the best model according to user-defined criteria.</p>
+<p>Quality is reported in two complementary columns, following the conventions of <code>best.flux</code> (an empty string means that all checks were passed):</p>
+<ul>
+<li><code>quality.check</code> concerns the diffusive fit. It is the column returned by <code>best.flux</code> for the diffusive window, so that a diffusive flux from <code>goAquaFlux()</code> is checked exactly as one from <code>goFlux()</code> .</li>
+<li><code>ebullition.check</code> concerns the ebullitive component and is computed only for the gas on which bubbles are detected ( <code>bubble_gas</code> ), by <code>goAquaFlux.diagnostics</code> : whether the diffusive and ebullitive components account for the gas that accumulated in the chamber (mass-balance closure), and which ebullitive flux could have gone undetected when no bubble was found. For any other gas it is <code>NA</code> : its fluxes are then assessed from its own observations only, through <code>quality.check</code> .</li>
+</ul>
+<p>Incubations with a non-empty <code>quality.check</code> or <code>ebullition.check</code> should be inspected, e.g.&nbsp;with <code>flux.plot.aqua</code>.</p>
 </section>
 <section id="examples" class="level4">
 <h4 class="anchored" data-anchor-id="examples">Examples</h4>
@@ -600,15 +616,19 @@ Note
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">max_reg_window =</span> <span class="dv">120</span>,</span>
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">reg.min.obs =</span> <span class="dv">10</span>,</span>
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">min_magnitude =</span> <span class="dv">5</span>,</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">min_snr =</span> <span class="cn">NULL</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">min_snr =</span> <span class="cn">NULL</span>,</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">magnitude.model =</span> <span class="fu">c</span>(<span class="st">"step_reequil"</span>, <span class="st">"step"</span>),</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">tau.range =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="cn">NA</span>),</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">exclude.ramp =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">allow.slow.approach =</span> <span class="cn">FALSE</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="arguments-1" class="level4">
 <h4 class="anchored" data-anchor-id="arguments-1">Arguments</h4>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 18%">
-<col style="width: 81%">
+<col style="width: 22%">
+<col style="width: 77%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -671,30 +691,57 @@ Note
 </tr>
 <tr class="even">
 <td><code>min_magnitude</code></td>
-<td>Numeric or <code>NULL</code>; minimum absolute step magnitude (same units as <code>bubble_source</code>) to retain an event. Default <code>5</code>.</td>
+<td>Numeric or <code>NULL</code>; minimum step magnitude (same units as <code>bubble_source</code>) to retain an event. Default <code>5</code>.</td>
 </tr>
 <tr class="odd">
 <td><code>min_snr</code></td>
-<td>Numeric or <code>NULL</code>; if set, minimum signal-to-noise ratio (<code>|magnitude| / SE</code>) to retain an event.</td>
+<td>Numeric or <code>NULL</code>; if set, minimum signal-to-noise ratio (<code>magnitude / SE</code>) to retain an event.</td>
+</tr>
+<tr class="even">
+<td><code>magnitude.model</code></td>
+<td>Character; model used to estimate event magnitude. <code>"step_reequil"</code> (default) adds an exponential re-equilibration term after the transient peak, so that <code>magnitude</code> is the <em>settled</em> step, i.e.&nbsp;the gas that remains in the headspace once the bubble has mixed (see Details). <code>"step"</code> is the plain step regression without a re-equilibration term.</td>
+</tr>
+<tr class="odd">
+<td><code>tau.range</code></td>
+<td>Numeric vector of length 2; lower and upper bounds (seconds) of the re-equilibration time constant explored when <code>magnitude.model = "step_reequil"</code>. An <code>NA</code> upper bound (default) means the length of the post-peak data available for the regression. Default <code>c(2, NA)</code>.</td>
+</tr>
+<tr class="even">
+<td><code>exclude.ramp</code></td>
+<td>Logical; if <code>TRUE</code> (default), the observations on the steep rise of the bubble (between the last pre-bubble observation and the transient peak) are excluded from the magnitude regression, because they belong neither to the pre-bubble nor to the post-bubble level.</td>
+</tr>
+<tr class="odd">
+<td><code>allow.slow.approach</code></td>
+<td>Logical; if <code>FALSE</code> (default), the re-equilibration term must describe a positive overshoot that decays towards the settled level (_3 &gt; 0). If <code>TRUE</code>, a gradual approach from below (_3 &lt; 0) is also allowed. This can recover steps that mix slowly into the headspace, but it can also turn a change in diffusive slope into a spurious step.</td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="details-1" class="level4">
 <h4 class="anchored" data-anchor-id="details-1">Details</h4>
-<p>The signal is first robustly standardised (median / MAD) and interpolated onto a regular <code>dt</code>-second grid. Rolling dispersion is then computed and compared to an adaptive threshold defined as the maximum of an empirical quantile (<code>var.quantile</code>) and a robust bound (median + k MAD). Contiguous supra-threshold runs are merged (<code>min_gap</code>) and filtered by duration (<code>min_length</code>).</p>
+<p><strong>Detection.</strong> The signal is first robustly standardised (median / MAD) and interpolated onto a regular <code>dt</code>-second grid. Rolling dispersion is then computed and compared to an adaptive threshold defined as the maximum of an empirical quantile (<code>var.quantile</code>) and a robust bound (median + k MAD). Contiguous supra-threshold runs are merged (<code>min_gap</code>) and filtered by duration (<code>min_length</code>).</p>
 <p>The two methods differ in what the variance is taken over. <code>"variance"</code> uses the concentration itself, which responds strongly to a step but is also inflated by a steep diffusive rise, so its detection power falls as the trend grows relative to the step. <code>"diff"</code> uses the increments: an ebullition step produces one large increment and a sharp spike, whereas a linear diffusive trend produces roughly constant increments and therefore low differenced dispersion. <code>"diff"</code> is consequently the more robust default across emission regimes, while <code>"variance"</code> retains an advantage for small steps on quiet traces, where differencing amplifies measurement noise.</p>
 <p>A rolling median absolute deviation was evaluated as a third metric and removed: being robust by construction, it suppresses the very outlier that marks a bubble. On test incubations it produced only weak contrast, fragmented single events into several, and inflated summed event magnitude accordingly.</p>
-<p>Event magnitude is estimated with the local model C_t = _0 + _1 (t - t_b) + _2 I(t t_b) where t_b is the step time, taken as the largest positive increment within the event rather than its leading edge, and I(t t_b) is a step dummy. Time is centred on t_b, so _0 is the fitted concentration at the step, _1 the local trend and _2 the magnitude. Only events with a positive magnitude are retained (ebullition adds gas to the headspace). Note that _1 next to a large event may reflect post-bubble re-equilibration rather than a diffusive rate.</p>
+<p><strong>Magnitude, plain step model.</strong> With <code>magnitude.model = "step"</code>, event magnitude is estimated with the local model C_t = _0 + _1 (t - t_b) + _2 I(t t_s) where t_b is the time of the largest positive increment within the event, I(t t_s) is a step dummy and _2 is the magnitude. The pre- and post-bubble lines share the slope _1, so _2 is their vertical offset. The dummy switches at t_s = t_b, or at the transient peak t_p when <code>exclude.ramp = TRUE</code> (with the rise removed, both choices separate the same two groups of observations). The regression uses the observations between the neighbouring events, limited to <code>max_reg_window</code> seconds on each side of t_b.</p>
+<p><strong>Magnitude, step + re-equilibration model.</strong> Chamber records of bubbling events usually show a jump, a transient peak and a re-equilibration, rather than a clean step: the bubble gas reaches the analyser before it is mixed through the headspace. In the plain step model the whole transient falls on the post-bubble side, which raises the fitted post-bubble level and biases the magnitude upward, in proportion to the size and duration of the overshoot. With <code>magnitude.model = "step_reequil"</code> (default) the model becomes C_t = _0 + _1 (t - t_b) + I(t t_s) [_2 + _3 e^{-(t - t_p)/}] where _2 is the settled step (the gas added to the headspace), _3 the amplitude of the transient at the peak and the re-equilibration time constant. For a given the model is linear; is profiled on a logarithmic grid within <code>tau.range</code> and refined with a one-dimensional search that minimises the residual sum of squares. The re-equilibration term is retained only if it lowers the AIC of the plain step model, with an additional penalty of 2 for the profiled ; otherwise the plain step estimate is returned. The pre-bubble window of the next event starts after t_p + 3 of the previous event (when this leaves at least 3 pre-bubble observations), so that the tail of one event does not bias the baseline of the next.</p>
+<p>Only events with a positive magnitude are retained, since ebullition adds gas to the headspace. Note that _1 next to a large event may still reflect post-bubble dynamics rather than a diffusive rate, because a single slope is shared by the pre- and post-bubble segments.</p>
 </section>
 <section id="examples-1" class="level4">
 <h4 class="anchored" data-anchor-id="examples-1">Examples</h4>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Not run:</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>bubbles <span class="ot">&lt;-</span> <span class="fu">find.bubbles</span>(<span class="at">df =</span> incubation_data,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">bubble_source =</span> <span class="st">"CH4dry_ppb"</span>,</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">window.size =</span> <span class="dv">15</span>,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">method =</span> <span class="st">"diff"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Default: step + re-equilibration model (settled step)</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>bubbles <span class="ot">&lt;-</span> <span class="fu">find.bubbles</span>(<span class="at">df =</span> incubation_data,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">bubble_source =</span> <span class="st">"CH4dry_ppb"</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">window.size =</span> <span class="dv">15</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">method =</span> <span class="st">"diff"</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Plain step regression, as in earlier versions</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>bubbles_step <span class="ot">&lt;-</span> <span class="fu">find.bubbles</span>(<span class="at">df =</span> incubation_data,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                             <span class="at">bubble_source =</span> <span class="st">"CH4dry_ppb"</span>,</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>                             <span class="at">window.size =</span> <span class="dv">15</span>,</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>                             <span class="at">method =</span> <span class="st">"diff"</span>,</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>                             <span class="at">magnitude.model =</span> <span class="st">"step"</span>,</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>                             <span class="at">exclude.ramp =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 </section>
 <section id="goAquaFlux.diffusive" class="level3">
@@ -841,7 +888,7 @@ Note
 <p><a href="https://github.com/Qepanna/goFlux/blob/master/R/goAquaFlux.total.R" target="_blank">View the <code>goAquaFlux.total</code> source code on GitHub</a></p>
 <section id="usage-4" class="level4">
 <h4 class="anchored" data-anchor-id="usage-4">Usage</h4>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">goAquaFlux.total</span>(ebullition_flux, diffusive_flux, <span class="at">tolerance =</span> <span class="fl">1.2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">goAquaFlux.total</span>(ebullition_flux, diffusive_flux)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="arguments-4" class="level4">
 <h4 class="anchored" data-anchor-id="arguments-4">Arguments</h4>
@@ -865,37 +912,116 @@ Note
 <td><code>diffusive_flux</code></td>
 <td>A list returned by <code>goAquaFlux.diffusive</code>. Must contain at least <code>flux</code> (diffusive flux) and <code>SE</code>.</td>
 </tr>
-<tr class="odd">
-<td><code>tolerance</code></td>
-<td>Numeric &gt; 1. Ratio above which the reconstructed total flux is flagged as suspiciously larger than the endpoint estimate. Default <code>1.2</code> (i.e.&nbsp;20% larger).</td>
-</tr>
 </tbody>
 </table>
 </section>
 <section id="details-4" class="level4">
 <h4 class="anchored" data-anchor-id="details-4">Details</h4>
-<p>Total flux: F_T = F_E + F_D Error propagation (independent errors): SE_T = </p>
+<p>Total flux: F_T = F_E + F_D Error propagation (independent errors): SE_T = ### <code>goAquaFlux.diagnostics</code> for checking the ebullitive component {#goAquaFlux.diagnostics}</p>
+<p>Checks the part of a <code>goAquaFlux</code> estimate that <code>best.flux</code> does not cover: the separation into diffusive and ebullitive components, via mass-balance closure.</p>
+<p><a href="https://github.com/Qepanna/goFlux/blob/master/R/goAquaFlux.diagnostics.R" target="_blank">View the <code>goAquaFlux.diagnostics</code> source code on GitHub</a></p>
+</section>
+<section id="usage-5" class="level4">
+<h4 class="anchored" data-anchor-id="usage-5">Usage</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">goAquaFlux.diagnostics</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  df,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  gastype,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">bubbles =</span> <span class="cn">NULL</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  diffusive_flux,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  flux.term,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">window_C0Cf =</span> <span class="dv">10</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">tolerance =</span> <span class="fl">0.2</span>,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">min_snr =</span> <span class="dv">10</span>,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">dl_sigma =</span> <span class="dv">20</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="arguments-5" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-5">Arguments</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 81%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>df</code></td>
+<td>data.frame of one incubation (<code>flag == 1</code> rows).</td>
+</tr>
+<tr class="even">
+<td><code>gastype</code></td>
+<td>Character; gas column, the gas on which bubbles are detected (e.g.&nbsp;<code>"CH4dry_ppb"</code>).</td>
+</tr>
+<tr class="odd">
+<td><code>bubbles</code></td>
+<td>data.frame of bubbles from <code>find.bubbles</code>, or <code>NULL</code>.</td>
+</tr>
+<tr class="even">
+<td><code>diffusive_flux</code></td>
+<td>List returned by <code>goAquaFlux.diffusive</code>.</td>
+</tr>
+<tr class="odd">
+<td><code>flux.term</code></td>
+<td>Numeric; flux term of the incubation.</td>
+</tr>
+<tr class="even">
+<td><code>window_C0Cf</code></td>
+<td>Numeric; seconds averaged at the start and end of the incubation for C_{obs}. Default 10.</td>
+</tr>
+<tr class="odd">
+<td><code>tolerance</code></td>
+<td>Numeric; accepted deviation of <code>closure</code> from 1. Default 0.2.</td>
+</tr>
+<tr class="even">
+<td><code>min_snr</code></td>
+<td>Numeric; minimum</td>
+</tr>
+<tr class="odd">
+<td><code>dl_sigma</code></td>
+<td>Numeric; bubble detection limit in multiples of . Default 20.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="details-5" class="level4">
+<h4 class="anchored" data-anchor-id="details-5">Details</h4>
+<p><strong>Mass-balance closure.</strong> When bubbles were detected, the separation is checked against the gas that actually accumulated in the chamber, in concentration units and with mean rates only: closure = ({s}_D , T + <em>i M_i) / C</em>{obs} {s}<em>D is the mean diffusive accumulation rate over the diffusive window (slope of the linear model fitted by goFlux on that window, whatever model <code>best.flux</code> selected), T the incubation length, M_i the settled bubble steps and C</em>{obs} the difference between the mean concentrations of the last and first <code>window_C0Cf</code> seconds.</p>
+<ul>
+<li>closure &lt; 1 : part of the accumulated gas is not explained (undetected bubbles, or diffusion faster after the first bubble than before it);</li>
+<li>closure &gt; 1 : more gas is attributed than accumulated (over-estimated bubbles, or diffusion slowing down after the first bubble, e.g.&nbsp;a curved accumulation measured on a short window).</li>
+</ul>
+<p>Mean rates are used because the reported diffusive flux is an initial slope when <code>best.flux</code> selects the Hutchinson-Mosier model, whereas the ebullitive flux and the observed change are mean rates. Comparing the total flux with a two-point estimate would therefore flag curvature, which is already assessed by the g-factor of <code>best.flux</code>.</p>
+<p>The closure is evaluated only when the observed change is large compared with the noise, estimated robustly from first differences as = MAD(C_t)/: |C_{obs}| &gt; <code>min_snr</code> .</p>
+<p><strong>Detection limit.</strong> An incubation without detected bubbles does not prove the absence of ebullition. <code>bubble_detection_limit</code> is the smallest bubble detected reliably (<code>dl_sigma</code> ; isolated bubbles of 20 were detected in 96-100% of synthetic incubations) and <code>ebullition_detection_limit</code> the ebullitive flux of one such bubble over the incubation.</p>
+<p><strong>Calibration.</strong> On synthetic incubations with known fluxes and detected bubbles, with the defaults (<code>tolerance = 0.2</code>, <code>min_snr = 10</code>), 98% of the incubations whose closure failed had a total-flux error &gt; 20%, while those that passed had median absolute errors of 2% (total flux) and 1.5% (ebullitive flux).</p>
 </section>
 </section>
 <section id="flux.plot.aqua" class="level3">
 <h3 class="anchored" data-anchor-id="flux.plot.aqua"><code>flux.plot.aqua</code> for plotting aquatic chamber incubations</h3>
 <p>Per-incubation diagnostic plots of the diffusive window and ebullition events.</p>
 <p><a href="https://github.com/Qepanna/goFlux/blob/master/R/flux.plot.aqua.R" target="_blank">View the <code>flux.plot.aqua</code> source code on GitHub</a></p>
-<section id="usage-5" class="level4">
-<h4 class="anchored" data-anchor-id="usage-5">Usage</h4>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">flux.plot.aqua</span>(</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  flux.results.ls,</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  dataframe,</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  gastype,</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">shoulder =</span> <span class="dv">30</span>,</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot.display =</span> <span class="fu">c</span>(<span class="st">"diffusive.window"</span>, <span class="st">"ebullition.events"</span>),</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">flux.unit =</span> <span class="cn">NULL</span>,</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">quality.check =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">conversion.factor =</span> <span class="dv">1</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="usage-6" class="level4">
+<h4 class="anchored" data-anchor-id="usage-6">Usage</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">flux.plot.aqua</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  flux.results.ls,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  dataframe,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  gastype,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">shoulder =</span> <span class="dv">30</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">plot.display =</span> <span class="fu">c</span>(<span class="st">"diffusive.window"</span>, <span class="st">"ebullition.events"</span>, <span class="st">"bubble.fits"</span>),</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">bubble.snr =</span> <span class="dv">2</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">bubble.gas =</span> <span class="cn">NULL</span>,</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">flux.unit =</span> <span class="cn">NULL</span>,</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">quality.check =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">conversion.factor =</span> <span class="dv">1</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="arguments-5" class="level4">
-<h4 class="anchored" data-anchor-id="arguments-5">Arguments</h4>
+<section id="arguments-6" class="level4">
+<h4 class="anchored" data-anchor-id="arguments-6">Arguments</h4>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 20%">
@@ -910,38 +1036,81 @@ Note
 <tbody>
 <tr class="odd">
 <td><code>flux.results.ls</code></td>
-<td>The list returned by <code>goAquaFlux</code> (with <code>return_df = TRUE</code>), i.e.&nbsp;a list with <code>flux_summary</code>, <code>bubbles</code> and <code>diffusive</code>. For backwards compatibility, a plain <code>best.flux</code>-style data.frame may also be supplied, in which case the function delegates to <code>flux.plot</code> (diffusion only).</td>
+<td>The list returned by <code>goAquaFlux</code> (with <code>return_df = TRUE</code>), containing <code>flux_summary</code>, <code>bubbles</code>, <code>diffusive</code> and <code>diagnostics</code>. <code>bubbles</code> may be <code>NULL</code> when no ebullition detection was run. For backwards compatibility a plain <code>best.flux</code>-style data.frame may also be supplied, in which case the call is delegated to <code>flux.plot</code> and only the diffusive component is plotted.</td>
 </tr>
 <tr class="even">
 <td><code>dataframe</code></td>
-<td>The data.frame of measurements used by <code>goAquaFlux</code> (with <code>Etime</code>, <code>flag</code> and the gas column).</td>
+<td>Data.frame of measurements used by <code>goAquaFlux</code>, containing at least <code>UniqueID</code>, <code>Etime</code>, <code>flag</code> and the column named by <code>gastype</code>.</td>
 </tr>
 <tr class="odd">
 <td><code>gastype</code></td>
-<td>Character; gas column to plot (e.g.&nbsp;<code>"CH4dry_ppb"</code>).</td>
+<td>Character string; the gas column to plot. One of <code>"CO2dry_ppm"</code>, <code>"COdry_ppb"</code>, <code>"CH4dry_ppb"</code>, <code>"N2Odry_ppb"</code>, <code>"NO2dry_ppb"</code>, <code>"NOdry_ppb"</code>, <code>"NH3dry_ppb"</code> or <code>"H2O_ppm"</code>.</td>
 </tr>
 <tr class="even">
 <td><code>shoulder</code></td>
-<td>Numeric; padding (seconds) added before/after the measurement on the x-axis. Default <code>30</code>.</td>
+<td>Numeric; padding in seconds added before and after the measurement on the x-axis. Default <code>30</code>.</td>
 </tr>
 <tr class="odd">
 <td><code>plot.display</code></td>
-<td>Character vector of elements to overlay. Currently supported: <code>"diffusive.window"</code> and <code>"ebullition.events"</code>. Default <code>c("diffusive.window", "ebullition.events")</code>.</td>
+<td>Character vector of overlays to draw, any of <code>"diffusive.window"</code>, <code>"ebullition.events"</code> and <code>"bubble.fits"</code>; other values are an error. Pass <code>NULL</code> to draw the observations and the diffusive fit only. All three overlays are shown by default.</td>
+</tr>
+<tr class="even">
+<td><code>bubble.snr</code></td>
+<td>Numeric or <code>NULL</code>; minimum signal-to-noise ratio (<code>magnitude / SE</code>) for an event’s fitted model to be drawn. The default <code>2</code> corresponds roughly to a magnitude significantly greater than zero at the 5% level. <code>NULL</code> draws the fit of every event, including those whose <code>SE</code> is missing.</td>
+</tr>
+<tr class="odd">
+<td><code>bubble.gas</code></td>
+<td>Character string or <code>NULL</code>; the gas on which ebullition events were detected by <code>goAquaFlux</code>, e.g.&nbsp;<code>"CH4dry_ppb"</code>. Bubble fits are drawn only when <code>gastype</code> matches it, and when it differs the legend names it (e.g.&nbsp;<em>ebullition event (CH4)</em>). A <code>bubble.gas</code> (or <code>bubble_source</code>) column in <code>bubbles</code>, when present, takes precedence. When neither is available, the events are assumed to belong to <code>gastype</code>.</td>
 </tr>
 <tr class="even">
 <td><code>flux.unit</code></td>
-<td>Character or <code>NULL</code>; flux-unit label. If <code>NULL</code>, a sensible default is chosen from <code>gastype</code>.</td>
+<td>Character string or <code>NULL</code>; the flux unit shown in the caption. Plotmath syntax (for example <code>"nmol~m^-2*s^-1"</code>) is accepted and converted to plain text. When <code>NULL</code>, a unit consistent with <code>gastype</code> is chosen.</td>
 </tr>
 <tr class="odd">
 <td><code>quality.check</code></td>
-<td>Logical; reserved for quality-check annotations. Default <code>FALSE</code>.</td>
+<td>Logical; if <code>TRUE</code> (default), the quality check of the diffusive fit and, for the bubble gas, the ebullition check are reported in the figures (see <strong>Details</strong>). Results of an earlier version without ebullition check show the quality check of the diffusive fit only, with a message.</td>
 </tr>
 <tr class="even">
 <td><code>conversion.factor</code></td>
-<td>Numeric &gt; 0; multiplies displayed flux values. Default <code>1</code>.</td>
+<td>Numeric greater than zero; multiplier applied to the displayed flux estimates and their standard errors, for reporting in a unit other than the one returned by <code>goAquaFlux</code>. Default <code>1</code>.</td>
 </tr>
 </tbody>
 </table>
+</section>
+<section id="details-6" class="level4">
+<h4 class="anchored" data-anchor-id="details-6">Details</h4>
+<p>Each figure is composed of the following elements.</p>
+<p>If the <strong>ggtext</strong> package is available, the subtitle is rendered with the diffusive and ebullitive estimates coloured to match their respective bands and fits; otherwise a plain-text subtitle is used. The two variants are identical in content.</p>
+<p>Layers are drawn back to front: bands, observations, bubble fits, then the diffusive fit. The y-axis range covers every drawn element within the x-window, including discarded points and extrapolated bubble-fit levels, so that nothing is silently clipped.</p>
+<p>Colours follow the Okabe-Ito palette, which remains distinguishable under the common forms of colour vision deficiency and in greyscale print.</p>
+</section>
+<section id="examples-2" class="level4">
+<h4 class="anchored" data-anchor-id="examples-2">Examples</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Not run:</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">goAquaFlux</span>(mydata, <span class="at">gastype =</span> <span class="st">"CH4dry_ppb"</span>, <span class="at">return_df =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>plots <span class="ot">&lt;-</span> <span class="fu">flux.plot.aqua</span>(res, mydata, <span class="at">gastype =</span> <span class="st">"CH4dry_ppb"</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect a single incubation by name</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>plots[[<span class="st">"LAKE01-2026-05-12-01"</span>]]</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co"># CO2 of the same incubations, with bubbles detected on CH4: the CH4</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co"># ebullition events are shown as bands, without the CH4 bubble fits</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>res_co2 <span class="ot">&lt;-</span> <span class="fu">goAquaFlux</span>(mydata, <span class="at">gastype =</span> <span class="st">"CO2dry_ppm"</span>,</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>                      <span class="at">bubble.gas =</span> <span class="st">"CH4dry_ppb"</span>, <span class="at">return_df =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>plots_co2 <span class="ot">&lt;-</span> <span class="fu">flux.plot.aqua</span>(res_co2, mydata, <span class="at">gastype =</span> <span class="st">"CO2dry_ppm"</span>,</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>                            <span class="at">bubble.gas =</span> <span class="st">"CH4dry_ppb"</span>)</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Only the incubations whose ebullition check failed</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>chk <span class="ot">&lt;-</span> res<span class="sc">$</span>flux_summary<span class="sc">$</span>ebullition.check</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>plots[res<span class="sc">$</span>flux_summary<span class="sc">$</span>UniqueID[<span class="sc">!</span><span class="fu">is.na</span>(chk) <span class="sc">&amp;</span> <span class="fu">nzchar</span>(chk) <span class="sc">&amp;</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>                                  chk <span class="sc">!=</span> <span class="st">"no bubble detected"</span>]]</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Write all diagnostics to a multi-page PDF</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="fu">pdf</span>(<span class="st">"ch4_diagnostics.pdf"</span>, <span class="at">width =</span> <span class="dv">8</span>, <span class="at">height =</span> <span class="dv">5</span>)</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">lapply</span>(plots, print))</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="fu">dev.off</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 
