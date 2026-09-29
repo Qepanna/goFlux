@@ -79,8 +79,8 @@ rd_to_md <- function(x, inline = TRUE) {
     "\\itemize"   = list_md(x, "-"),
     "\\enumerate" = list_md(x, "1."),
     "\\describe"  = describe_md(x),
-    "\\eqn"   = rd_to_md(x[[1]], inline = inline),
-    "\\deqn"  = rd_to_md(x[[1]], inline = inline),
+    "\\eqn"   = paste0("$", rd_to_md(x[[1]], inline = inline), "$"),
+    "\\deqn"  = paste0("$", rd_to_md(x[[1]], inline = inline), "$"),
     "\\ifelse"= if (trimws(rd_to_md(x[[1]], inline = FALSE)) == "html")
                   rd_to_md(x[[2]], inline = inline)
                 else rd_to_md(x[[3]], inline = inline),
@@ -135,13 +135,39 @@ render_usage <- function(usage_tag) {
   trimws(rd_to_md(usage_tag, inline = FALSE))
 }
 
+# A literal "|" ends a markdown pipe-table cell, even inside $...$ math,
+# because pandoc splits the row into cells before it parses the inline content
+# (so `\eqn{|\Delta C_{obs}|/\sigma}` used to truncate the whole description).
+# Inside math a pipe becomes \vert (same LaTeX, no delimiter clash); outside
+# math it is escaped as \|. The replacements are built with paste(), never
+# passed through gsub()'s replacement parsing.
+md_table_cell <- function(txt) {
+  bs <- "\\"
+  # split into plain / $math$ / plain / $math$ ... runs
+  chunks <- character()
+  repeat {
+    m <- regexpr("\\$[^$]*\\$", txt)
+    if (m < 0L) { chunks <- c(chunks, txt); break }
+    chunks <- c(chunks, substr(txt, 1L, m - 1L),
+                substr(txt, m, m + attr(m, "match.length") - 1L))
+    txt <- substr(txt, m + attr(m, "match.length"), nchar(txt))
+  }
+  out <- character(length(chunks))
+  for (i in seq_along(chunks)) {
+    p <- strsplit(chunks[i], "|", fixed = TRUE)[[1]]
+    out[i] <- paste(p, collapse = if (i %% 2L == 1L) paste0(bs, "|")
+                                     else               paste0(bs, "vert "))
+  }
+  paste(out, collapse = "")
+}
+
 # The Arguments section: one table row per \item{arg}{description}
 render_arguments <- function(args_tag) {
   items <- Filter(function(el) identical(attr(el, "Rd_tag"), "\\item"), args_tag)
   if (!length(items)) return("")
   arg_names <- vapply(items, function(it) trimws(rd_to_md(it[[1]])), character(1))
   rows <- vapply(seq_along(items), function(i) {
-    desc <- gsub("[[:space:]]+", " ", trimws(rd_to_md(items[[i]][[2]])))
+    desc <- md_table_cell(gsub("[[:space:]]+", " ", trimws(rd_to_md(items[[i]][[2]]))))
     paste0("| `", arg_names[i], "` | ", desc, " |")
   }, character(1))
   # pandoc/Quarto sets pipe-table column widths from the relative dash count
@@ -170,21 +196,25 @@ segment_details <- function(raw) {
     text <- trimws(text)
     if (nzchar(text)) blocks[[length(blocks) + 1L]] <<- list(type = type, text = text)
   }
-  # Blank lines => paragraph breaks (the author's "new paragraph" signal).
-  chunks <- strsplit(raw, "\n[[:space:]]*\n")[[1]]
-  for (chunk in chunks) {
-    rest <- chunk
-    repeat {
-      # Find the earliest block-level tag in this chunk.
-      pos <- Inf; hit <- NA_character_
-      for (t in block_tags) {
-        m <- regexpr(paste0("\\", t, "[[:space:]]*\\{"), rest)
-        if (m > 0L && m < pos) { pos <- m; hit <- t }
-      }
-      if (!is.finite(pos)) break
-      # Prose before the block.
+  rest <- raw
+  repeat {
+    # earliest block-level tag in what is left
+    pos <- Inf; hit <- NA_character_
+    for (t in block_tags) {
+      m <- regexpr(paste0("\\", t, "[[:space:]]*\\{"), rest)
+      if (m > 0L && m < pos) { pos <- m; hit <- t }
+    }
+    # earliest blank line in what is left
+    b <- regexpr("\n[[:space:]]*\n", rest)
+    bpos <- if (b > 0L) b else Inf
+
+    if (!is.finite(pos) && !is.finite(bpos)) { push("prose", rest); break }
+
+    if (pos < bpos) {
+      # A block-level span starts first: take it whole, even across blank lines
+      # (a blank line inside \describe{} used to leave the block unterminated,
+      # and the whole list was silently dropped).
       push("prose", substr(rest, 1L, pos - 1L))
-      # Brace-match the block's {...} span (handles nested/multi-line braces).
       chars <- strsplit(substr(rest, pos, nchar(rest)), "")[[1]]
       depth <- 0L; end <- NA_integer_
       for (i in seq_along(chars)) {
@@ -194,11 +224,14 @@ segment_details <- function(raw) {
           if (depth == 0L) { end <- i; break }
         }
       }
-      if (!is.finite(end)) break          # safety: unterminated tag -> keep as prose
+      if (!is.finite(end)) { push("prose", rest); break }   # safety: unterminated
       push(hit, substr(rest, pos, pos + end - 1L))
-      rest <- substr(rest, pos + end, nchar(rest))   # continue after the block
+      rest <- substr(rest, pos + end, nchar(rest))
+    } else {
+      # A paragraph break comes first: everything before it is one prose block.
+      push("prose", substr(rest, 1L, bpos - 1L))
+      rest <- substr(rest, bpos + attr(b, "match.length"), nchar(rest))
     }
-    push("prose", rest)
   }
   blocks
 }

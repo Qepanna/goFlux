@@ -106,7 +106,7 @@ Code chunks under **Usage** sections are not part of the demonstration. They are
 ```{r}
 #| echo: false
 #| results: asis
-cat(autodoc("goAquaFlux", level = 4))
+cat(autodoc("goAquaFlux", level = 4, references= FALSE))
 ```
 
 ### `find.bubbles` for detecting ebullition events {#find.bubbles}
@@ -149,6 +149,7 @@ Combine components with error propagation and consistency checks.
 #| results: asis
 cat(autodoc("goAquaFlux.total", level = 4))
 ```
+
 ### `goAquaFlux.diagnostics` for checking the ebullitive component {#goAquaFlux.diagnostics}
 
 Checks the part of a `goAquaFlux` estimate that `best.flux` does not cover: the
