@@ -149,6 +149,16 @@ Combine components with error propagation and consistency checks.
 #| results: asis
 cat(autodoc("goAquaFlux.total", level = 4))
 ```
+### `goAquaFlux.diagnostics` for checking the ebullitive component {#goAquaFlux.diagnostics}
+
+Checks the part of a `goAquaFlux` estimate that `best.flux` does not cover: the
+separation into diffusive and ebullitive components, via mass-balance closure.
+
+```{r}
+#| echo: false
+#| results: asis
+cat(autodoc("goAquaFlux.diagnostics", level = 4))
+```
 
 ### `flux.plot.aqua` for plotting aquatic chamber incubations {#flux.plot.aqua}
 

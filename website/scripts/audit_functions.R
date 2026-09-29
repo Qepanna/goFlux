@@ -94,20 +94,37 @@ stale <- setdiff(names(documented), rd_names)
 # --- Instrument links ------------------------------------------------------
 # Parse @instrumentlink records from the R source of the import functions.
 # Format:  Manufacturer|ID|Name|URL   (URL optional)
+# The function name is derived from the source FILE name (import.<ID>.R), never
+# from the ID field, so a mistyped ID cannot silently produce a bogus entry.
 read_instrument_links <- function(root = ".") {
   files <- list.files(file.path(root, "R"), pattern = "^import.*\\.R$",
                       full.names = TRUE)
   recs <- unlist(lapply(files, function(f) {
     lines <- readLines(f, warn = FALSE)
+    nr    <- seq_along(lines)
     hits  <- regmatches(lines, regexpr("#'\\s*@instrumentlink\\s+(.+)", lines))
-    hits  <- hits[nzchar(hits)]
-    lapply(hits, function(h) {
-      x <- strsplit(sub("#'\\s*@instrumentlink\\s+", "", h), "\\|")[[1]]
-      data.frame(manufacturer = x[1], id = x[2], name = x[3],
-                 url = if (length(x) > 3) x[4] else NA,
-                 fn = paste0("import.", x[2]), stringsAsFactors = FALSE)
+    keep  <- nzchar(hits)
+    hits  <- hits[keep]
+    nr    <- nr[keep]
+    lapply(seq_along(hits), function(i) {
+      x <- strsplit(sub("#'\\s*@instrumentlink\\s+", "", hits[i]), "\\|")[[1]]
+      if (length(x) < 3) {
+        stop(sprintf(
+          "%s:%d: malformed @instrumentlink record (%d field(s), need >= 3)\n  Expected: Manufacturer|ID|Name|URL   (URL optional)\n  Found:    %s",
+          f, nr[i], length(x), hits[i]), call. = FALSE)
+      }
+      data.frame(manufacturer = trimws(x[1]), id = trimws(x[2]),
+                 name = trimws(x[3]),
+                 url = if (length(x) > 3) trimws(x[4]) else NA,
+                 fn = sub("\\.R$", "", basename(f)),
+                 stringsAsFactors = FALSE)
     })
   }), recursive = FALSE)
+  if (!length(recs)) {
+    return(data.frame(manufacturer = character(), id = character(),
+                      name = character(), url = character(),
+                      fn = character(), stringsAsFactors = FALSE))
+  }
   do.call(rbind, recs)
 }
 
@@ -117,8 +134,8 @@ new_instruments <- function(root = ".") {
   links <- read_instrument_links(root)
   qmd   <- paste(readLines(file.path(root, "website", "import.qmd"), warn = FALSE),
                  collapse = "\n")
-  has   <- vapply(links$fn, function(fn) grepl(paste0('autodoc\\("', fn, '"'), qmd),
-                 logical(1))
+  has   <- vapply(links$fn, function(fn)
+                 grepl(paste0('autodoc("', fn, '"'), qmd, fixed = TRUE), logical(1))
   links[!has, , drop = FALSE]
 }
 

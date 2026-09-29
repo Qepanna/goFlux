@@ -6,7 +6,7 @@
 #' (\ifelse{html}{\out{N<sub>2</sub>O}}{\eqn{N[2]O}{ASCII}} and
 #' \ifelse{html}{\out{H<sub>2</sub>O}}{\eqn{H[2]O}{ASCII}})
 #'
-#' @instrumentlink Campbell Scientific CR1000X data logger|https://www.campbellsci.com/cr1000x
+#' @instrumentlink Campbell Scientific|CR1000X|CR1000X data logger|https://www.campbellsci.com/cr1000x
 #' @param inputfile character string; the name of a file with the extension
 #'                  .data or .txt
 #' @param timezone character string; a time zone in which to import the data to
