@@ -10,10 +10,16 @@
 ## of information:
 ##   * the x-axis is elapsed time, and both shaded bands mark time windows;
 ##   * fill encodes which window (diffusive vs. ebullitive);
-##   * colour encodes which model fit (LM, HM or bubble fit);
+##   * colour encodes which model fit (the diffusive model selected by
+##     best.flux, or the bubble fits);
 ##   * shape and opacity encode whether an observation was retained or
-##     discarded by the quality flag;
-##   * the numeric flux estimates live in the plot header, outside the panel.
+##     discarded by the quality flag, and, for a gas other than the bubble gas,
+##     light grey marks retained observations after a diffusive window cut
+##     short by ebullition;
+##   * the numeric flux estimates live in the plot header, outside the panel;
+##   * the quality checks are reported in the caption, as in flux.plot(): the
+##     best.flux check of the diffusive fit for every gas, and the ebullition
+##     check for the gas the bubbles were detected on.
 ##
 ## Across both fill and colour, blue tones always denote the diffusive
 ## component and vermillion the ebullitive one.
@@ -84,6 +90,71 @@
 }
 
 
+#' Read one diagnostic value, or NA when it is not available
+#'
+#' @param d One-row data.frame of diagnostics, or \code{NULL}.
+#' @param col Character; column name.
+#'
+#' @return The value of \code{col} in \code{d}, or \code{NA}.
+#'
+#' @noRd
+.diag_value <- function(d, col) {
+  if (is.null(d) || !col %in% names(d) || length(d[[col]]) == 0) return(NA)
+  d[[col]][1]
+}
+
+
+#' Build the quality-check lines of a diagnostic figure
+#'
+#' Two complementary checks are reported, each from its own source:
+#' \itemize{
+#'   \item the quality check of the diffusive fit, i.e. the columns
+#'     \code{model} and \code{quality.check} returned by
+#'     \code{\link[goFlux]{best.flux}}, reported for every gas as in
+#'     \code{\link[goFlux]{flux.plot}};
+#'   \item the ebullition check of \code{\link{goAquaFlux.diagnostics}}, only
+#'     available for the gas on which the bubbles were detected.
+#' }
+#'
+#' @param model,qc Character; \code{model} and \code{quality.check} of the
+#'   diffusive fit, or \code{NA}.
+#' @param d One-row data.frame with the ebullition check of this incubation
+#'   and gas, or \code{NULL}.
+#' @param unit Character; flux unit, as plain text.
+#' @param conv Numeric; conversion factor applied to displayed fluxes.
+#'
+#' @return Character vector of caption lines (possibly empty).
+#'
+#' @noRd
+.quality_lines <- function(model, qc, d, unit, conv) {
+  lines <- character(0)
+
+  ## Diffusive fit (best.flux).
+  if (!is.na(qc)) {
+    lines <- c(lines, paste0("quality check (diffusive",
+                             if (!is.na(model)) paste0(", ", model) else "", "): ",
+                             if (nzchar(qc)) qc else "passed"))
+  }
+
+  ## Ebullitive component (goAquaFlux.diagnostics), bubble gas only.
+  chk <- as.character(.diag_value(d, "ebullition.check"))
+  if (!is.na(chk)) {
+    cl <- .diag_value(d, "closure")
+    detail <- if (chk == "no bubble detected") {
+      dl <- .diag_value(d, "ebullition_detection_limit")
+      if (is.finite(dl)) paste0(" (detection limit ", signif(dl * conv, 2), " ", unit, ")") else ""
+    } else if (!is.finite(cl)) {
+      ""
+    } else if (startsWith(chk, "closure")) {
+      sprintf(" (%.2f)", cl)
+    } else sprintf(" (closure %.2f)", cl)
+    lines <- c(lines, paste0("quality check (ebullitive): ",
+                             if (nzchar(chk)) chk else "passed", detail))
+  }
+  lines
+}
+
+
 #' Evaluate the fitted step + re-equilibration model of one bubbling event
 #'
 #' Rebuilds the local model fitted by \code{find.bubbles},
@@ -148,8 +219,9 @@
 #' Produces one diagnostic figure per incubation from the output of
 #' \code{\link{goAquaFlux}}, showing the measured concentration series, the
 #' window over which the diffusive flux was fitted, the detected ebullition
-#' events, the linear (LM) and Hutchinson-Mosier (HM) fits, and the resulting
-#' total, diffusive and ebullitive flux estimates.
+#' events, the diffusive model selected by \code{\link[goFlux]{best.flux}}
+#' (linear, LM, or Hutchinson-Mosier, HM), and the resulting total, diffusive
+#' and ebullitive flux estimates.
 #'
 #' @details
 #' Each figure is composed of the following elements.
@@ -158,7 +230,12 @@
 #'   \item{Observations}{All records for the incubation are drawn. Points
 #'     retained by the quality flag (\code{flag == 1}) are filled and opaque;
 #'     discarded points are hollow and faded, so that they remain visible for
-#'     diagnosis without competing with the retained series.}
+#'     diagnosis without competing with the retained series. For a gas other
+#'     than the one the bubbles were detected on (e.g. CO2 with bubbles
+#'     detected on CH4), when ebullition cut the diffusive window short, only
+#'     the retained points of the diffusive window are black: those after it,
+#'     which do not enter any flux estimate for that gas, are light grey
+#'     (\emph{outside diffusive window}).}
 #'   \item{Diffusive window}{A full-height band from \eqn{t = 0} to the end of
 #'     the window used to fit the diffusive flux. The extent of the window is
 #'     taken from \code{n_obs.diffusion} in \code{flux_summary} and applied to
@@ -170,11 +247,15 @@
 #'     show whether the diffusive window was cut short by bubbling or by
 #'     another selection step. When they come from another gas, the legend
 #'     names it, e.g. \emph{ebullition event (CH4)}.}
-#'   \item{Model fits}{The LM (dark blue) and HM (sky blue) fits are drawn
-#'     only across the diffusive window, since neither is fitted to the
-#'     ebullitive part of the series. A fit that stops short of, or runs past,
-#'     the bubble-free portion of the record is then a direct indication that
-#'     the window was misidentified.}
+#'   \item{Diffusive fit}{Only the model selected by
+#'     \code{\link[goFlux]{best.flux}} (column \code{model} of
+#'     \code{diffusive}) is drawn, in dark blue, and the legend names it, e.g.
+#'     \emph{diffusive fit (HM)}. It is drawn only across the diffusive window,
+#'     since it is not fitted to the ebullitive part of the series. A fit that
+#'     stops short of, or runs past, the bubble-free portion of the record is
+#'     then a direct indication that the window was misidentified. For output
+#'     without a \code{model} column (earlier versions), both the LM (dark
+#'     blue) and HM (sky blue) fits are drawn.}
 #'   \item{Bubble fits}{For each event whose magnitude is significant
 #'     (\code{magnitude / SE >= bubble.snr}), the step + re-equilibration model
 #'     fitted by \code{find.bubbles}, in vermillion. It is drawn from the start
@@ -198,6 +279,17 @@
 #'   \item{Flux estimates}{Reported in the plot subtitle, with their unit in the
 #'     caption. They are placed outside the panel so that they cannot overlap
 #'     the data for any incubation.}
+#'   \item{Quality checks}{When \code{quality.check = TRUE}, the caption
+#'     reports the two complementary checks of \code{\link{goAquaFlux}}. The
+#'     quality check of the diffusive fit (\code{quality.check} and
+#'     \code{model} from \code{\link[goFlux]{best.flux}}) is shown for every
+#'     gas, as in \code{\link[goFlux]{flux.plot}}. The ebullition check
+#'     (\code{ebullition.check}, see \code{\link{goAquaFlux.diagnostics}}) is
+#'     shown only on the panel of the gas the bubbles were detected on, the only
+#'     gas for which it is computed: the figure of any other gas (e.g. CO2 with
+#'     bubbles detected on CH4) is assessed from that gas's own fit alone. The
+#'     closure is given in brackets and, when no bubble was detected, the
+#'     detection limit of ebullition.}
 #' }
 #'
 #' If the \pkg{ggtext} package is available, the subtitle is rendered with the
@@ -206,7 +298,7 @@
 #' identical in content.
 #'
 #' Layers are drawn back to front: bands, observations, bubble fits, then the
-#' LM and HM fits. The y-axis range covers every drawn element within the
+#' diffusive fit. The y-axis range covers every drawn element within the
 #' x-window, including discarded points and extrapolated bubble-fit levels, so
 #' that nothing is silently clipped.
 #'
@@ -214,8 +306,8 @@
 #' common forms of colour vision deficiency and in greyscale print.
 #'
 #' @param flux.results.ls The list returned by \code{\link{goAquaFlux}} (with
-#'   \code{return_df = TRUE}), containing \code{flux_summary}, \code{bubbles}
-#'   and \code{diffusive}. \code{bubbles} may be \code{NULL} when no
+#'   \code{return_df = TRUE}), containing \code{flux_summary}, \code{bubbles},
+#'   \code{diffusive} and \code{diagnostics}. \code{bubbles} may be \code{NULL} when no
 #'   ebullition detection was run. For backwards compatibility a plain
 #'   \code{best.flux}-style data.frame may also be supplied, in which case the
 #'   call is delegated to \code{\link[goFlux]{flux.plot}} and only the diffusive
@@ -232,7 +324,7 @@
 #' @param plot.display Character vector of overlays to draw, any of
 #'   \code{"diffusive.window"}, \code{"ebullition.events"} and
 #'   \code{"bubble.fits"}; other values are an error. Pass \code{NULL} to draw
-#'   the observations and the LM and HM fits only. All three overlays are shown
+#'   the observations and the diffusive fit only. All three overlays are shown
 #'   by default.
 #' @param bubble.snr Numeric or \code{NULL}; minimum signal-to-noise ratio
 #'   (\code{magnitude / SE}) for an event's fitted model to be drawn. The
@@ -251,8 +343,11 @@
 #'   caption. Plotmath syntax (for example \code{"nmol~m^-2*s^-1"}) is accepted
 #'   and converted to plain text. When \code{NULL}, a unit consistent with
 #'   \code{gastype} is chosen.
-#' @param quality.check Logical; reserved for forthcoming quality-check
-#'   annotations. Currently ignored, with a message. Default \code{FALSE}.
+#' @param quality.check Logical; if \code{TRUE} (default), the quality check
+#'   of the diffusive fit and, for the bubble gas, the ebullition check are
+#'   reported in the figures (see \strong{Details}). Results of an earlier
+#'   version without ebullition check show the quality check of the diffusive
+#'   fit only, with a message.
 #' @param conversion.factor Numeric greater than zero; multiplier applied to the
 #'   displayed flux estimates and their standard errors, for reporting in a unit
 #'   other than the one returned by \code{\link{goAquaFlux}}. Default \code{1}.
@@ -280,6 +375,11 @@
 #' plots_co2 <- flux.plot.aqua(res_co2, mydata, gastype = "CO2dry_ppm",
 #'                             bubble.gas = "CH4dry_ppb")
 #'
+#' # Only the incubations whose ebullition check failed
+#' chk <- res$flux_summary$ebullition.check
+#' plots[res$flux_summary$UniqueID[!is.na(chk) & nzchar(chk) &
+#'                                   chk != "no bubble detected"]]
+#'
 #' # Write all diagnostics to a multi-page PDF
 #' pdf("ch4_diagnostics.pdf", width = 8, height = 5)
 #' invisible(lapply(plots, print))
@@ -305,7 +405,7 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
                            bubble.snr = 2,
                            bubble.gas = NULL,
                            flux.unit = NULL,
-                           quality.check = FALSE,
+                           quality.check = TRUE,
                            conversion.factor = 1) {
 
   # ---- Argument validation --------------------------------------------------
@@ -373,10 +473,6 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
   if (!is.numeric(conversion.factor) || conversion.factor <= 0) {
     stop("'conversion.factor' must be positive")
   }
-  if (isTRUE(quality.check)) {
-    message("'quality.check = TRUE' is reserved for future use and is ignored.")
-  }
-
   allowed_display <- c("diffusive.window", "ebullition.events", "bubble.fits")
   if (!is.null(plot.display)) {
     if (!is.character(plot.display)) {
@@ -387,6 +483,24 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
       stop("unknown 'plot.display' value(s): ", paste(bad_display, collapse = ", "),
            ". Supported: ", paste(allowed_display, collapse = ", "))
     }
+  }
+
+  # ---- Quality checks ----------------------------------------------------------
+
+  # The quality check of the diffusive fit comes from the best.flux row of each
+  # incubation ($diffusive). The ebullition check exists only for the gas the
+  # bubbles were detected on: the full table ($diagnostics) is preferred, with
+  # the columns copied into flux_summary as a fallback.
+  diagnostics <- flux.results.ls$diagnostics
+  if (!is.data.frame(diagnostics) && "ebullition.check" %in% names(flux.results)) {
+    diagnostics <- flux.results
+  }
+  has_ebullition_check <- is.data.frame(diagnostics) &&
+    "ebullition.check" %in% names(diagnostics)
+  if (isTRUE(quality.check) && !has_ebullition_check &&
+      !"ebullition.check" %in% names(flux.results)) {
+    message("No ebullition check in 'flux.results.ls' (output of an earlier goAquaFlux ",
+            "version); only the quality check of the diffusive fit is shown.")
   }
 
   # ---- Bubble-fit options ---------------------------------------------------
@@ -427,13 +541,15 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
   # ---- Appearance constants -------------------------------------------------
 
   # Okabe-Ito palette. Blue tones are used throughout for the diffusive
-  # component (dark blue for the diffusive band and the LM fit, sky blue for
-  # the HM fit) and vermillion for the ebullitive one (event bands and bubble
+  # component (dark blue for the diffusive band and the diffusive fit; sky blue
+  # for the HM fit when both models are drawn for output without a 'model'
+  # column) and vermillion for the ebullitive one (event bands and bubble
   # fits), so that the two components stay identifiable without the legend.
   col_diffusive  <- "#0072B2"
   col_hm         <- "#56B4E9"
   col_ebullitive <- "#D55E00"
   col_points     <- "grey15"
+  col_outside    <- "grey75"
 
   use_markdown <- requireNamespace("ggtext", quietly = TRUE)
 
@@ -493,12 +609,19 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
     flux_ebull <- unique(df_all$flux_ebullition) * conversion.factor
     SE_ebull   <- unique(df_all$SE_ebullition)   * conversion.factor
 
-    ## Diffusion model coefficients, when this incubation was fitted.
+    ## Diffusion model coefficients, when this incubation was fitted, and the
+    ## model selected by best.flux. Only that model is drawn; output without a
+    ## 'model' column (earlier versions) gets both.
     plot_diffusion <- FALSE
+    best_model <- NA_character_
     if (!is.null(data_diffusion)) {
       ind_diff <- which(data_diffusion$UniqueID == incubation_id)
       if (length(ind_diff) >= 1) {
         plot_diffusion <- TRUE
+        if ("model" %in% names(data_diffusion)) {
+          best_model <- toupper(as.character(data_diffusion$model[ind_diff][1]))
+          if (!best_model %in% c("LM", "HM")) best_model <- NA_character_
+        }
         LM.slope <- unique(data_diffusion$LM.slope[ind_diff])
         LM.C0    <- unique(data_diffusion$LM.C0[ind_diff])
         HM.Ci    <- unique(data_diffusion$HM.Ci[ind_diff])
@@ -507,6 +630,8 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
         df_all$HM_mod <- .hm_model(HM.Ci, HM.C0, HM.k, df_all$Etime)
       }
     }
+    draw_lm <- plot_diffusion && (is.na(best_model) || best_model == "LM")
+    draw_hm <- plot_diffusion && (is.na(best_model) || best_model == "HM")
 
     ## Diffusive window.
     ## n_obs.diffusion counts observations of the retained series, so it is
@@ -574,6 +699,17 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
       }
     }
 
+    ## Ebullition check of this incubation, for the gas it was computed on.
+    diag_f <- NULL
+    if (isTRUE(quality.check) && has_ebullition_check) {
+      ind_q <- which(diagnostics$UniqueID == incubation_id)
+      if ("gastype" %in% names(diagnostics)) {
+        ind_q <- ind_q[diagnostics$gastype[ind_q] == gastype]
+      }
+      if (length(ind_q) >= 1) diag_f <- diagnostics[ind_q[1], , drop = FALSE]
+    }
+    ebull_check_f <- as.character(.diag_value(diag_f, "ebullition.check"))
+
     ## Axis ranges.
     ## The x-range is the retained series padded by 'shoulder'. The y-range spans
     ## everything actually drawn within that x-window, including discarded points
@@ -584,9 +720,8 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
     y_vals <- df_all[[gastype]][df_all$Etime >= xmin & df_all$Etime <= xmax]
     if (plot_diffusion && nrow(df_diff) > 0) {
       in_window <- df_all$Etime >= 0 & df_all$Etime <= max(df_diff$Etime, na.rm = TRUE)
-      y_vals <- c(y_vals,
-                  df_all$HM_mod[in_window],
-                  LM.C0 + LM.slope * range(df_diff$Etime, na.rm = TRUE))
+      if (draw_hm) y_vals <- c(y_vals, df_all$HM_mod[in_window])
+      if (draw_lm) y_vals <- c(y_vals, LM.C0 + LM.slope * range(df_diff$Etime, na.rm = TRUE))
     }
     ## The bubble fits are included, so that an extrapolated settled level or
     ## an overshoot above the observations is not clipped.
@@ -605,9 +740,28 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
     # readable without reference to the documentation. Unused levels are dropped
     # so that incubations with no discarded records do not advertise an empty
     # category.
+    df_all$flag_lab <- ifelse(df_all$flag == 1, "retained", "discarded")
+
+    ## For a gas other than the bubble gas, no ebullitive flux is estimated: when
+    ## ebullition cut the diffusive window short, the retained points after it
+    ## enter no flux estimate and are shown in light grey.
+    if (!fits_same_gas && nrow(df_diff) > 0 && nrow(df_good) > 0) {
+      t_diff_end <- max(df_diff$Etime, na.rm = TRUE)
+      if (t_diff_end < max(df_good$Etime, na.rm = TRUE)) {
+        df_all$flag_lab[df_all$flag == 1 & df_all$Etime > t_diff_end] <-
+          "outside diffusive window"
+      }
+    }
     df_all$flag_lab <- droplevels(
-      factor(ifelse(df_all$flag == 1, "retained", "discarded"),
-             levels = c("retained", "discarded")))
+      factor(df_all$flag_lab,
+             levels = c("retained", "outside diffusive window", "discarded")))
+
+    ## Point colour per category. The two colours are drawn as separate layers,
+    ## since the colour scale is used by the model fits; the legend keys are
+    ## coloured to match.
+    key_colours <- c("retained" = col_points,
+                     "outside diffusive window" = col_outside,
+                     "discarded" = col_points)[levels(df_all$flag_lab)]
 
     # ---- Layers -------------------------------------------------------------
 
@@ -642,11 +796,19 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
 
     ## Observations. The quality flag is carried by shape and opacity, which
     ## leaves the colour scale free for the model fits.
+    is_outside <- df_all$flag_lab == "outside diffusive window"
     plot <- plot +
-      geom_point(aes(y = .data[[gastype]], shape = flag_lab, alpha = flag_lab),
+      geom_point(data = df_all[!is_outside, ],
+                 aes(y = .data[[gastype]], shape = flag_lab, alpha = flag_lab),
                  colour = col_points, size = 0.5)
+    if (any(is_outside)) {
+      plot <- plot +
+        geom_point(data = df_all[is_outside, ],
+                   aes(y = .data[[gastype]], shape = flag_lab, alpha = flag_lab),
+                   colour = col_outside, size = 0.5)
+    }
 
-    ## Bubble fits, drawn below the LM and HM fits so that those stay visible
+    ## Bubble fits, drawn below the diffusive fit so that it stays visible
     ## where they meet. geom_path (not geom_line) keeps the row order, so the
     ## two points sharing t_s draw the jump as a vertical segment. The settled
     ## level is dashed and kept out of the legend: it belongs to the fit.
@@ -663,23 +825,31 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
                   linewidth = 0.8, inherit.aes = FALSE)
     }
 
-    ## Model fits, restricted to the interval over which they were estimated.
+    ## Diffusive fit, restricted to the interval over which it was estimated.
+    ## The legend names the model selected by best.flux.
     if (plot_diffusion && nrow(df_diff) > 0) {
       x_start <- min(df_diff$Etime, na.rm = TRUE)
       x_stop  <- max(df_diff$Etime, na.rm = TRUE)
 
-      lm_df <- data.frame(x    = x_start,
-                          xend = x_stop,
-                          y    = LM.C0 + LM.slope * x_start,
-                          yend = LM.C0 + LM.slope * x_stop)
-      hm_df <- df_all[df_all$Etime >= 0 & df_all$Etime <= x_stop, ]
+      lab_lm <- if (is.na(best_model)) "LM fit" else "diffusive fit (LM)"
+      lab_hm <- if (is.na(best_model)) "HM fit" else "diffusive fit (HM)"
 
-      plot <- plot +
-        geom_segment(data = lm_df,
-                     aes(x = x, xend = xend, y = y, yend = yend, colour = "LM fit"),
-                     linewidth = 0.9, inherit.aes = FALSE) +
-        geom_line(data = hm_df, aes(y = HM_mod, colour = "HM fit"),
-                  linewidth = 0.9)
+      if (draw_lm) {
+        lm_df <- data.frame(x    = x_start,
+                            xend = x_stop,
+                            y    = LM.C0 + LM.slope * x_start,
+                            yend = LM.C0 + LM.slope * x_stop)
+        plot <- plot +
+          geom_segment(data = lm_df,
+                       aes(x = x, xend = xend, y = y, yend = yend, colour = lab_lm),
+                       linewidth = 0.9, inherit.aes = FALSE)
+      }
+      if (draw_hm) {
+        hm_df <- df_all[df_all$Etime >= 0 & df_all$Etime <= x_stop, ]
+        plot <- plot +
+          geom_line(data = hm_df, aes(y = HM_mod, colour = lab_hm),
+                    linewidth = 0.9)
+      }
     }
 
     # ---- Header, scales and theme -------------------------------------------
@@ -705,12 +875,35 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
                                        margin = margin(b = 6))
     }
 
+    ## Quality checks, reported in the caption only; the subtitle carries the
+    ## flux estimates alone.
+    qc_model <- best_model
+    qc_text  <- NA_character_
+    if (isTRUE(quality.check) && plot_diffusion) {
+      if ("quality.check" %in% names(data_diffusion)) {
+        qc_text <- as.character(data_diffusion$quality.check[ind_diff][1])
+      }
+    }
+    q_lines <- if (isTRUE(quality.check)) {
+      .quality_lines(qc_model, qc_text,
+                     d = if (fits_same_gas) diag_f else NULL,
+                     unit = flux.unit.plain, conv = conversion.factor)
+    } else character(0)
+    caption_lab <- paste(c(q_lines, paste0("flux units: ", flux.unit.plain)),
+                         collapse = "\n")
+
     plot +
-      scale_shape_manual(NULL, values = c("retained" = 16, "discarded" = 1)) +
-      scale_alpha_manual(NULL, values = c("retained" = 0.9, "discarded" = 0.45)) +
-      scale_colour_manual(NULL, values = c("LM fit"     = col_diffusive,
-                                           "HM fit"     = col_hm,
-                                           "bubble fit" = col_ebullitive)) +
+      scale_shape_manual(NULL, values = c("retained" = 16,
+                                          "outside diffusive window" = 16,
+                                          "discarded" = 1)) +
+      scale_alpha_manual(NULL, values = c("retained" = 0.9,
+                                          "outside diffusive window" = 0.9,
+                                          "discarded" = 0.45)) +
+      scale_colour_manual(NULL, values = c("diffusive fit (LM)" = col_diffusive,
+                                           "diffusive fit (HM)" = col_diffusive,
+                                           "LM fit"             = col_diffusive,
+                                           "HM fit"             = col_hm,
+                                           "bubble fit"         = col_ebullitive)) +
       # The fill labels are set by function so that the ebullition key can name
       # the gas the events were detected on, without changing the fill values.
       scale_fill_manual(NULL, values = c("diffusive window"  = col_diffusive,
@@ -720,7 +913,9 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
       # The band keys are drawn at a higher opacity than the bands themselves,
       # which would otherwise be barely visible at legend-key size.
       guides(fill  = guide_legend(override.aes = list(alpha = 0.35)),
-             alpha = guide_legend(override.aes = list(size = 2))) +
+             shape = guide_legend(override.aes = list(colour = unname(key_colours))),
+             alpha = guide_legend(override.aes = list(size = 2,
+                                                      colour = unname(key_colours)))) +
       xlab("Time (s)") + ylab_plot +
       # Breaks are derived from the data range rather than set at a fixed
       # interval, which keeps the axis legible for incubations of any duration.
@@ -730,7 +925,7 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
                       ylim = c(ymin - ydiff * 0.05, ymax + ydiff * 0.05)) +
       labs(title    = incubation_id,
            subtitle = subtitle_lab,
-           caption  = paste0("flux units: ", flux.unit.plain)) +
+           caption  = caption_lab) +
       theme_bw(base_size = 11) +
       theme(plot.title       = element_text(size = 11, face = "bold"),
             plot.subtitle    = subtitle_element,

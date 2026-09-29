@@ -18,13 +18,14 @@ goAquaFlux(
   Pcham = NULL,
   Tcham = NULL,
   use_bubble_detection = TRUE,
-  bubble.window.size = 30,
+  bubble.window.size = 15,
   bubble_gas = "CH4dry_ppb",
   bubble.method = "diff",
   bubble.args = list(),
   ebullition.final_window_min = 30,
   ebullition.window_C0Cf = 10,
   diffusion.minimum_window = 30,
+  diagnostics.args = list(),
   return_df = TRUE
 )
 }
@@ -104,23 +105,37 @@ initial and final concentrations for the endpoint flux estimate.}
 \item{diffusion.minimum_window}{Minimum number of observations required
 to compute diffusive flux before the first bubble event.}
 
+\item{diagnostics.args}{Named list of arguments passed to
+\code{\link{goAquaFlux.diagnostics}} (\code{window_C0Cf},
+\code{tolerance}, \code{min_snr}, \code{dl_sigma}).}
+
 \item{return_df}{Logical. If \code{TRUE} (default) the function returns a
-tidy list of three data frames (see \strong{Value}). If \code{FALSE}, the
+tidy list of four data frames (see \strong{Value}). If \code{FALSE}, the
 raw per-incubation results list is returned instead, which is convenient
 for advanced users who want the untidied intermediate objects.}
 }
 \value{
-If \code{return_df = TRUE} (default), a named list of three data frames:
+If \code{return_df = TRUE} (default), a named list of four data frames:
 \describe{
   \item{\code{flux_summary}}{One row per incubation, with \code{UniqueID},
     \code{gastype}, \code{flux_total}, \code{SE_total}, \code{flux_diffusive},
     \code{SE_diffusive}, \code{n_obs.diffusion}, \code{flux_ebullition},
-    \code{SE_ebullition} and \code{first_bubble_time}.}
+    \code{SE_ebullition}, \code{first_bubble_time}, and the quality
+    checks: \code{model} and \code{quality.check} of the diffusive fit
+    (as returned by \code{\link[goFlux]{best.flux}}; \code{NA} when no
+    diffusive flux could be estimated), and, for the gas on which bubbles
+    are detected, \code{ebullition.check}, \code{closure} and
+    \code{ebullition_detection_limit} (see
+    \code{\link{goAquaFlux.diagnostics}}; \code{NA} for any other gas).}
   \item{\code{bubbles}}{All detected bubbling events across incubations
     (\code{NULL} if none), each tagged with its \code{UniqueID}.}
   \item{\code{diffusive}}{The selected diffusive-model row (from
     \code{\link[goFlux]{best.flux}}) per incubation, tagged with
     \code{UniqueID}.}
+  \item{\code{diagnostics}}{The full output of
+    \code{\link{goAquaFlux.diagnostics}} per incubation, tagged with
+    \code{UniqueID} and \code{gastype} (\code{NULL} when \code{gastype}
+    is not the gas on which bubbles are detected).}
 }
 
 If \code{return_df = FALSE}, the raw per-incubation results list is returned.
@@ -144,8 +159,10 @@ The workflow includes: (1) data validation and cleaning; (2) calculation of
 auxiliary variables (flux conversion term and MDF); (3) bubble detection
 (typically using CH4 concentration); (4) estimation of ebullition flux based
 on detected bubble magnitudes; (5) estimation of diffusive flux using model
-selection; and (6) combination of the diffusive and ebullitive components
-into a total flux.
+selection; (6) combination of the diffusive and ebullitive components
+into a total flux; and (7) quality checks: \code{\link[goFlux]{best.flux}}
+for the diffusive fit and, for the gas on which bubbles are detected,
+\code{\link{goAquaFlux.diagnostics}} for the ebullitive component.
 
 The function operates on datasets containing multiple chamber
 incubations, which are automatically split using the \code{UniqueID}
@@ -160,6 +177,27 @@ restrict the time window used for diffusive flux estimation.
 Diffusive fluxes are calculated using the \code{goFlux} framework,
 which evaluates multiple regression models and selects the best model
 according to user-defined criteria.
+
+Quality is reported in two complementary columns, following the
+conventions of \code{\link[goFlux]{best.flux}} (an empty string means that
+all checks were passed):
+\itemize{
+  \item \code{quality.check} concerns the diffusive fit. It is the column
+    returned by \code{best.flux} for the diffusive window, so that a
+    diffusive flux from \code{goAquaFlux()} is checked exactly as one from
+    \code{goFlux()}.
+  \item \code{ebullition.check} concerns the ebullitive component and is
+    computed only for the gas on which bubbles are detected
+    (\code{bubble_gas}), by \code{\link{goAquaFlux.diagnostics}}: whether
+    the diffusive and ebullitive components account for the gas that
+    accumulated in the chamber (mass-balance closure), and which ebullitive
+    flux could have gone undetected when no bubble was found. For any other
+    gas it is \code{NA}: its fluxes are then assessed from its own
+    observations only, through \code{quality.check}.
+}
+Incubations with a non-empty \code{quality.check} or
+\code{ebullition.check} should be inspected, e.g. with
+\code{\link{flux.plot.aqua}}.
 }
 \examples{
 \dontrun{

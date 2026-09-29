@@ -11,8 +11,10 @@
 #' auxiliary variables (flux conversion term and MDF); (3) bubble detection
 #' (typically using CH4 concentration); (4) estimation of ebullition flux based
 #' on detected bubble magnitudes; (5) estimation of diffusive flux using model
-#' selection; and (6) combination of the diffusive and ebullitive components
-#' into a total flux.
+#' selection; (6) combination of the diffusive and ebullitive components
+#' into a total flux; and (7) quality checks: \code{\link[goFlux]{best.flux}}
+#' for the diffusive fit and, for the gas on which bubbles are detected,
+#' \code{\link{goAquaFlux.diagnostics}} for the ebullitive component.
 #'
 #' The function operates on datasets containing multiple chamber
 #' incubations, which are automatically split using the \code{UniqueID}
@@ -93,22 +95,36 @@
 #'   to compute diffusive flux before the first bubble event.
 #'
 #' @param return_df Logical. If \code{TRUE} (default) the function returns a
-#'   tidy list of three data frames (see \strong{Value}). If \code{FALSE}, the
+#'   tidy list of four data frames (see \strong{Value}). If \code{FALSE}, the
 #'   raw per-incubation results list is returned instead, which is convenient
 #'   for advanced users who want the untidied intermediate objects.
 #'
+#' @param diagnostics.args Named list of arguments passed to
+#'   \code{\link{goAquaFlux.diagnostics}} (\code{window_C0Cf},
+#'   \code{tolerance}, \code{min_snr}, \code{dl_sigma}).
+#'
 #' @return
-#' If \code{return_df = TRUE} (default), a named list of three data frames:
+#' If \code{return_df = TRUE} (default), a named list of four data frames:
 #' \describe{
 #'   \item{\code{flux_summary}}{One row per incubation, with \code{UniqueID},
 #'     \code{gastype}, \code{flux_total}, \code{SE_total}, \code{flux_diffusive},
 #'     \code{SE_diffusive}, \code{n_obs.diffusion}, \code{flux_ebullition},
-#'     \code{SE_ebullition} and \code{first_bubble_time}.}
+#'     \code{SE_ebullition}, \code{first_bubble_time}, and the quality
+#'     checks: \code{model} and \code{quality.check} of the diffusive fit
+#'     (as returned by \code{\link[goFlux]{best.flux}}; \code{NA} when no
+#'     diffusive flux could be estimated), and, for the gas on which bubbles
+#'     are detected, \code{ebullition.check}, \code{closure} and
+#'     \code{ebullition_detection_limit} (see
+#'     \code{\link{goAquaFlux.diagnostics}}; \code{NA} for any other gas).}
 #'   \item{\code{bubbles}}{All detected bubbling events across incubations
 #'     (\code{NULL} if none), each tagged with its \code{UniqueID}.}
 #'   \item{\code{diffusive}}{The selected diffusive-model row (from
 #'     \code{\link[goFlux]{best.flux}}) per incubation, tagged with
 #'     \code{UniqueID}.}
+#'   \item{\code{diagnostics}}{The full output of
+#'     \code{\link{goAquaFlux.diagnostics}} per incubation, tagged with
+#'     \code{UniqueID} and \code{gastype} (\code{NULL} when \code{gastype}
+#'     is not the gas on which bubbles are detected).}
 #' }
 #'
 #' If \code{return_df = FALSE}, the raw per-incubation results list is returned.
@@ -128,6 +144,27 @@
 #' Diffusive fluxes are calculated using the \code{goFlux} framework,
 #' which evaluates multiple regression models and selects the best model
 #' according to user-defined criteria.
+#'
+#' Quality is reported in two complementary columns, following the
+#' conventions of \code{\link[goFlux]{best.flux}} (an empty string means that
+#' all checks were passed):
+#' \itemize{
+#'   \item \code{quality.check} concerns the diffusive fit. It is the column
+#'     returned by \code{best.flux} for the diffusive window, so that a
+#'     diffusive flux from \code{goAquaFlux()} is checked exactly as one from
+#'     \code{goFlux()}.
+#'   \item \code{ebullition.check} concerns the ebullitive component and is
+#'     computed only for the gas on which bubbles are detected
+#'     (\code{bubble_gas}), by \code{\link{goAquaFlux.diagnostics}}: whether
+#'     the diffusive and ebullitive components account for the gas that
+#'     accumulated in the chamber (mass-balance closure), and which ebullitive
+#'     flux could have gone undetected when no bubble was found. For any other
+#'     gas it is \code{NA}: its fluxes are then assessed from its own
+#'     observations only, through \code{quality.check}.
+#' }
+#' Incubations with a non-empty \code{quality.check} or
+#' \code{ebullition.check} should be inspected, e.g. with
+#' \code{\link{flux.plot.aqua}}.
 #'
 #' @references
 #' Rheault, K., Christiansen, J. R., & Larsen, K. S. (2024). goFlux: A
@@ -181,7 +218,7 @@ goAquaFlux <- function(dataframe,
 
                        # Bubble detection
                        use_bubble_detection = TRUE,
-                       bubble.window.size = 30,
+                       bubble.window.size = 15,
                        bubble_gas = "CH4dry_ppb",
                        bubble.method = "diff",   ## "variance" or "diff"; passed to find.bubbles().
                        bubble.args = list(),    ## named list of extra find.bubbles() args (e.g. list(k = 5, min_magnitude = 10)).
@@ -192,6 +229,7 @@ goAquaFlux <- function(dataframe,
 
                        # Diffusive flux
                        diffusion.minimum_window = 30,
+                       diagnostics.args = list(),  ## named list of goAquaFlux.diagnostics() args (e.g. list(tolerance = 0.3)).
 
                        # Do you want results as dataframe? Default is list.
                        return_df = TRUE) {
@@ -766,8 +804,8 @@ goAquaFlux <- function(dataframe,
       gastype = gastype,
       criteria = criteria,
       bubble_gas = bubble_gas,   ## Needed so the diffusive window is
-                                 ## truncated correctly for the bubble gas and,
-                                 ## for other gases, only on an abrupt change.
+      ## truncated correctly for the bubble gas and,
+      ## for other gases, only on an abrupt change.
       bubbles = bubbles,
       minimum_window = diffusion.minimum_window
     )
@@ -791,12 +829,29 @@ goAquaFlux <- function(dataframe,
         flux = diffusive_flux$flux,
         SE = diffusive_flux$SE,
         ratio = NA,
-        flag_suspicious = FALSE,
         message = NA
       )
 
     }
 
+
+    # ----------------------------
+    # 5. Quality checks
+    # ----------------------------
+    # The diffusive fit is checked by best.flux (inside goAquaFlux.diffusive).
+    # The ebullitive component is checked only for the gas it was estimated on:
+    # the check of any other gas must not depend on the bubbles of the bubble gas.
+    bf_diff <- diffusive_flux$best.flux.output
+    has_bf  <- !is.null(bf_diff) && nrow(bf_diff) > 0
+
+    diagnostics <- NULL
+    if (bubble_gas == gastype) {
+      diagnostics <- do.call(goAquaFlux.diagnostics, c(list(
+        df = df, gastype = gastype, bubbles = bubbles,
+        diffusive_flux = diffusive_flux,
+        flux.term = flux.term_f), diagnostics.args))
+      diagnostics <- cbind(UniqueID = df$UniqueID[1], gastype = gastype, diagnostics)
+    }
 
     # ---- combine outputs ----
 
@@ -814,13 +869,24 @@ goAquaFlux <- function(dataframe,
       flux_ebullition = ebullition_flux$flux,
       SE_ebullition = ebullition_flux$SE,
 
-      first_bubble_time = diffusive_flux$first_bubble_time
+      first_bubble_time = diffusive_flux$first_bubble_time,
+
+      model = if (has_bf) bf_diff$model[1] else NA_character_,
+      quality.check = if (has_bf) bf_diff$quality.check[1] else NA_character_,
+
+      ebullition.check = if (!is.null(diagnostics)) diagnostics$ebullition.check else NA_character_,
+      closure = if (!is.null(diagnostics)) diagnostics$closure else NA_real_,
+      ebullition_detection_limit = if (!is.null(diagnostics))
+        diagnostics$ebullition_detection_limit else NA_real_,
+
+      stringsAsFactors = FALSE
     )
 
     flux.res.ls[[f]] <- list(
       flux_summary = flux_summary,
       bubbles = bubbles,
-      best.diffusive.flux = diffusive_flux$best.flux.output
+      best.diffusive.flux = diffusive_flux$best.flux.output,
+      diagnostics = diagnostics
     )
 
   }
@@ -838,20 +904,24 @@ goAquaFlux <- function(dataframe,
 
   df_diffusive <- .bind_with_id(flux.res.ls, "best.diffusive.flux")
 
+  df_diagnostics <- .bind_with_id(flux.res.ls, "diagnostics")
+
   # order by UniqueID
   df_flux_summary <- df_flux_summary[order(df_flux_summary$UniqueID), ]
   if(!is.null(df_bubbles)){
     df_bubbles <- df_bubbles[order(df_bubbles$UniqueID), ]
-    }
+  }
 
   if(!is.null(df_diffusive)){
     df_diffusive <- df_diffusive[order(df_diffusive$UniqueID), ]
-    }
+  }
 
   return(list(
     flux_summary = df_flux_summary,
     bubbles = df_bubbles,
-    diffusive = df_diffusive
+    diffusive = df_diffusive,
+    diagnostics = if (!is.null(df_diagnostics))
+      df_diagnostics[order(df_diagnostics$UniqueID), ] else NULL
   ))
 }
 

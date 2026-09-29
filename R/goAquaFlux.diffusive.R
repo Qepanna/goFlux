@@ -100,12 +100,9 @@ goAquaFlux.diffusive <- function(df,
                 message = "Insufficient diffusive observations"))
   }
 
-  ## FIX (water vapour double-correction): the incoming `H2O_mol` column is
-  ## already a mole fraction (ppm / 1e6). goFlux() divides its H2O_col by 1e6
-  ## AGAIN, so passing H2O_col = "H2O_mol" divides twice and effectively
-  ## disables the correction. We pass the original ppm column instead (carried
+  ## We pass the original ppm column  (carried
   ## through by goAquaFlux as `H2O_ppm`) and let goFlux do its single
-  ## conversion. If no water column is available, disable the correction
+  ## conversion. If no water column is available, we disable the correction
   ## explicitly (quietly, to avoid one warning per incubation).
   h2o_arg <- if ("H2O_ppm" %in% names(df_diff)) "H2O_ppm" else NULL
 

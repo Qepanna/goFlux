@@ -39,6 +39,7 @@ Collate:
     'k.max.R'
     'goFlux.R'
     'goAquaFlux.R'
+    'goAquaFlux.diagnostics.R'
     'imp.G2508-data.R'
     'imp.LI6400-data.R'
     'imp.LI7820-data.R'
