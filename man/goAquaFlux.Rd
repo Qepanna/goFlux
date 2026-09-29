@@ -18,7 +18,7 @@ goAquaFlux(
   Pcham = NULL,
   Tcham = NULL,
   use_bubble_detection = TRUE,
-  bubble.window.size = 30,
+  bubble.window.size = 15,
   bubble_gas = "CH4dry_ppb",
   bubble.method = "diff",
   bubble.args = list(),
