@@ -304,7 +304,6 @@ window.Quarto = {
   <li><a href="#arguments" id="toc-arguments" class="nav-link" data-scroll-target="#arguments">Arguments</a></li>
   <li><a href="#details" id="toc-details" class="nav-link" data-scroll-target="#details">Details</a></li>
   <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
   </ul></li>
   <li><a href="#find.bubbles" id="toc-find.bubbles" class="nav-link" data-scroll-target="#find.bubbles"><code>find.bubbles</code> for detecting ebullition events</a>
   <ul class="collapse">
@@ -330,6 +329,9 @@ window.Quarto = {
   <li><a href="#usage-4" id="toc-usage-4" class="nav-link" data-scroll-target="#usage-4">Usage</a></li>
   <li><a href="#arguments-4" id="toc-arguments-4" class="nav-link" data-scroll-target="#arguments-4">Arguments</a></li>
   <li><a href="#details-4" id="toc-details-4" class="nav-link" data-scroll-target="#details-4">Details</a></li>
+  </ul></li>
+  <li><a href="#goAquaFlux.diagnostics" id="toc-goAquaFlux.diagnostics" class="nav-link" data-scroll-target="#goAquaFlux.diagnostics"><code>goAquaFlux.diagnostics</code> for checking the ebullitive component</a>
+  <ul class="collapse">
   <li><a href="#usage-5" id="toc-usage-5" class="nav-link" data-scroll-target="#usage-5">Usage</a></li>
   <li><a href="#arguments-5" id="toc-arguments-5" class="nav-link" data-scroll-target="#arguments-5">Arguments</a></li>
   <li><a href="#details-5" id="toc-details-5" class="nav-link" data-scroll-target="#details-5">Details</a></li>
@@ -511,7 +513,7 @@ Note
 </tr>
 <tr class="even">
 <td><code>Vtot</code></td>
-<td>Numeric scalar specifying total chamber volume (L). If <code>NULL</code>, it is calculated as: Vtot = Vcham + (Area * offset) / 1000</td>
+<td>Numeric scalar specifying total chamber volume (L). If <code>NULL</code>, it is calculated as: <span class="math inline">\(Vtot = Vcham + (Area * offset) / 1000\)</span></td>
 </tr>
 <tr class="odd">
 <td><code>Vcham</code></td>
@@ -590,10 +592,6 @@ Note
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">gastype =</span> <span class="st">"CH4dry_ppb"</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="references" class="level4">
-<h4 class="anchored" data-anchor-id="references">References</h4>
-<p><span class="citation" data-cites="rheault2024">(<a href="#ref-rheault2024" role="doc-biblioref">Rheault et al., 2024</a>)</span></p>
-</section>
 </section>
 <section id="find.bubbles" class="level3">
 <h3 class="anchored" data-anchor-id="find.bubbles"><code>find.bubbles</code> for detecting ebullition events</h3>
@@ -663,7 +661,7 @@ Note
 </tr>
 <tr class="odd">
 <td><code>k</code></td>
-<td>Numeric; multiplier on the MAD of the rolling dispersion in the robust threshold (median + k MAD). Larger values are more conservative. Default <code>4</code>.</td>
+<td>Numeric; multiplier on the MAD of the rolling dispersion in the robust threshold (<span class="math inline">\(median + k \times MAD\)</span>). Larger values are more conservative. Default <code>4</code>.</td>
 </tr>
 <tr class="even">
 <td><code>min_ratio</code></td>
@@ -703,7 +701,7 @@ Note
 </tr>
 <tr class="odd">
 <td><code>tau.range</code></td>
-<td>Numeric vector of length 2; lower and upper bounds (seconds) of the re-equilibration time constant explored when <code>magnitude.model = "step_reequil"</code>. An <code>NA</code> upper bound (default) means the length of the post-peak data available for the regression. Default <code>c(2, NA)</code>.</td>
+<td>Numeric vector of length 2; lower and upper bounds (seconds) of the re-equilibration time constant <span class="math inline">\(\tau\)</span> explored when <code>magnitude.model = "step_reequil"</code>. An <code>NA</code> upper bound (default) means the length of the post-peak data available for the regression. Default <code>c(2, NA)</code>.</td>
 </tr>
 <tr class="even">
 <td><code>exclude.ramp</code></td>
@@ -711,19 +709,19 @@ Note
 </tr>
 <tr class="odd">
 <td><code>allow.slow.approach</code></td>
-<td>Logical; if <code>FALSE</code> (default), the re-equilibration term must describe a positive overshoot that decays towards the settled level (_3 &gt; 0). If <code>TRUE</code>, a gradual approach from below (_3 &lt; 0) is also allowed. This can recover steps that mix slowly into the headspace, but it can also turn a change in diffusive slope into a spurious step.</td>
+<td>Logical; if <code>FALSE</code> (default), the re-equilibration term must describe a positive overshoot that decays towards the settled level (<span class="math inline">\(\beta_3 &gt; 0\)</span>). If <code>TRUE</code>, a gradual approach from below (<span class="math inline">\(\beta_3 &lt; 0\)</span>) is also allowed. This can recover steps that mix slowly into the headspace, but it can also turn a change in diffusive slope into a spurious step.</td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="details-1" class="level4">
 <h4 class="anchored" data-anchor-id="details-1">Details</h4>
-<p><strong>Detection.</strong> The signal is first robustly standardised (median / MAD) and interpolated onto a regular <code>dt</code>-second grid. Rolling dispersion is then computed and compared to an adaptive threshold defined as the maximum of an empirical quantile (<code>var.quantile</code>) and a robust bound (median + k MAD). Contiguous supra-threshold runs are merged (<code>min_gap</code>) and filtered by duration (<code>min_length</code>).</p>
+<p><strong>Detection.</strong> The signal is first robustly standardised (median / MAD) and interpolated onto a regular <code>dt</code>-second grid. Rolling dispersion is then computed and compared to an adaptive threshold defined as the maximum of an empirical quantile (<code>var.quantile</code>) and a robust bound (<span class="math inline">\(median + k \times MAD\)</span>). Contiguous supra-threshold runs are merged (<code>min_gap</code>) and filtered by duration (<code>min_length</code>).</p>
 <p>The two methods differ in what the variance is taken over. <code>"variance"</code> uses the concentration itself, which responds strongly to a step but is also inflated by a steep diffusive rise, so its detection power falls as the trend grows relative to the step. <code>"diff"</code> uses the increments: an ebullition step produces one large increment and a sharp spike, whereas a linear diffusive trend produces roughly constant increments and therefore low differenced dispersion. <code>"diff"</code> is consequently the more robust default across emission regimes, while <code>"variance"</code> retains an advantage for small steps on quiet traces, where differencing amplifies measurement noise.</p>
 <p>A rolling median absolute deviation was evaluated as a third metric and removed: being robust by construction, it suppresses the very outlier that marks a bubble. On test incubations it produced only weak contrast, fragmented single events into several, and inflated summed event magnitude accordingly.</p>
-<p><strong>Magnitude, plain step model.</strong> With <code>magnitude.model = "step"</code>, event magnitude is estimated with the local model C_t = _0 + _1 (t - t_b) + _2 I(t t_s) where t_b is the time of the largest positive increment within the event, I(t t_s) is a step dummy and _2 is the magnitude. The pre- and post-bubble lines share the slope _1, so _2 is their vertical offset. The dummy switches at t_s = t_b, or at the transient peak t_p when <code>exclude.ramp = TRUE</code> (with the rise removed, both choices separate the same two groups of observations). The regression uses the observations between the neighbouring events, limited to <code>max_reg_window</code> seconds on each side of t_b.</p>
-<p><strong>Magnitude, step + re-equilibration model.</strong> Chamber records of bubbling events usually show a jump, a transient peak and a re-equilibration, rather than a clean step: the bubble gas reaches the analyser before it is mixed through the headspace. In the plain step model the whole transient falls on the post-bubble side, which raises the fitted post-bubble level and biases the magnitude upward, in proportion to the size and duration of the overshoot. With <code>magnitude.model = "step_reequil"</code> (default) the model becomes C_t = _0 + _1 (t - t_b) + I(t t_s) [_2 + _3 e^{-(t - t_p)/}] where _2 is the settled step (the gas added to the headspace), _3 the amplitude of the transient at the peak and the re-equilibration time constant. For a given the model is linear; is profiled on a logarithmic grid within <code>tau.range</code> and refined with a one-dimensional search that minimises the residual sum of squares. The re-equilibration term is retained only if it lowers the AIC of the plain step model, with an additional penalty of 2 for the profiled ; otherwise the plain step estimate is returned. The pre-bubble window of the next event starts after t_p + 3 of the previous event (when this leaves at least 3 pre-bubble observations), so that the tail of one event does not bias the baseline of the next.</p>
-<p>Only events with a positive magnitude are retained, since ebullition adds gas to the headspace. Note that _1 next to a large event may still reflect post-bubble dynamics rather than a diffusive rate, because a single slope is shared by the pre- and post-bubble segments.</p>
+<p><strong>Magnitude, plain step model.</strong> With <code>magnitude.model = "step"</code>, event magnitude is estimated with the local model <span class="math inline">\(C_t = \beta_0 + \beta_1 (t - t_b) + \beta_2 I(t \ge t_s)\)</span> where <span class="math inline">\(t_b\)</span> is the time of the largest positive increment within the event, <span class="math inline">\(I(t \ge t_s)\)</span> is a step dummy and <span class="math inline">\(\beta_2\)</span> is the magnitude. The pre- and post-bubble lines share the slope <span class="math inline">\(\beta_1\)</span>, so <span class="math inline">\(\beta_2\)</span> is their vertical offset. The dummy switches at <span class="math inline">\(t_s = t_b\)</span>, or at the transient peak <span class="math inline">\(t_p\)</span> when <code>exclude.ramp = TRUE</code> (with the rise removed, both choices separate the same two groups of observations). The regression uses the observations between the neighbouring events, limited to <code>max_reg_window</code> seconds on each side of <span class="math inline">\(t_b\)</span>.</p>
+<p><strong>Magnitude, step + re-equilibration model.</strong> Chamber records of bubbling events usually show a jump, a transient peak and a re-equilibration, rather than a clean step: the bubble gas reaches the analyser before it is mixed through the headspace. In the plain step model the whole transient falls on the post-bubble side, which raises the fitted post-bubble level and biases the magnitude upward, in proportion to the size and duration of the overshoot. With <code>magnitude.model = "step_reequil"</code> (default) the model becomes <span class="math inline">\(C_t = \beta_0 + \beta_1 (t - t_b) + I(t \ge t_s) [\beta_2 + \beta_3 e^{-(t - t_p)/\tau}]\)</span> where <span class="math inline">\(\beta_2\)</span> is the settled step (the gas added to the headspace), <span class="math inline">\(\beta_3\)</span> the amplitude of the transient at the peak and <span class="math inline">\(\tau\)</span> the re-equilibration time constant. For a given <span class="math inline">\(\tau\)</span> the model is linear; <span class="math inline">\(\tau\)</span> is profiled on a logarithmic grid within <code>tau.range</code> and refined with a one-dimensional search that minimises the residual sum of squares. The re-equilibration term is retained only if it lowers the AIC of the plain step model, with an additional penalty of 2 for the profiled <span class="math inline">\(\tau\)</span>; otherwise the plain step estimate is returned. The pre-bubble window of the next event starts after <span class="math inline">\(t_p + 3 \tau\)</span> of the previous event (when this leaves at least 3 pre-bubble observations), so that the tail of one event does not bias the baseline of the next.</p>
+<p>Only events with a positive magnitude are retained, since ebullition adds gas to the headspace. Note that <span class="math inline">\(\beta_1\)</span> next to a large event may still reflect post-bubble dynamics rather than a diffusive rate, because a single slope is shared by the pre- and post-bubble segments.</p>
 </section>
 <section id="examples-1" class="level4">
 <h4 class="anchored" data-anchor-id="examples-1">Examples</h4>
@@ -879,7 +877,7 @@ Note
 </section>
 <section id="details-3" class="level4">
 <h4 class="anchored" data-anchor-id="details-3">Details</h4>
-<p>Ebullitive flux: F_E = K with K the flux conversion term and t_{inc} the effective incubation time. Standard errors are propagated assuming independent bubble magnitude estimates: SE(F_E) = </p>
+<p>Ebullitive flux: <span class="math inline">\(F_E = \frac{\sum \Delta C_{bubble}}{t_{inc}} \times K\)</span> with <span class="math inline">\(K\)</span> the flux conversion term and <span class="math inline">\(t_{inc}\)</span> the effective incubation time. Standard errors are propagated assuming independent bubble magnitude estimates: <span class="math inline">\(SE(F_E) = \frac{K}{t_{inc}} \sqrt{\sum SE_{bubble}^2}\)</span></p>
 </section>
 </section>
 <section id="goAquaFlux.total" class="level3">
@@ -917,10 +915,13 @@ Note
 </section>
 <section id="details-4" class="level4">
 <h4 class="anchored" data-anchor-id="details-4">Details</h4>
-<p>Total flux: F_T = F_E + F_D Error propagation (independent errors): SE_T = ### <code>goAquaFlux.diagnostics</code> for checking the ebullitive component {#goAquaFlux.diagnostics}</p>
+<p>Total flux: <span class="math inline">\(F_T = F_E + F_D\)</span> Error propagation (independent errors): <span class="math inline">\(SE_T = \sqrt{SE_E^2 + SE_D^2}\)</span></p>
+</section>
+</section>
+<section id="goAquaFlux.diagnostics" class="level3">
+<h3 class="anchored" data-anchor-id="goAquaFlux.diagnostics"><code>goAquaFlux.diagnostics</code> for checking the ebullitive component</h3>
 <p>Checks the part of a <code>goAquaFlux</code> estimate that <code>best.flux</code> does not cover: the separation into diffusive and ebullitive components, via mass-balance closure.</p>
 <p><a href="https://github.com/Qepanna/goFlux/blob/master/R/goAquaFlux.diagnostics.R" target="_blank">View the <code>goAquaFlux.diagnostics</code> source code on GitHub</a></p>
-</section>
 <section id="usage-5" class="level4">
 <h4 class="anchored" data-anchor-id="usage-5">Usage</h4>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">goAquaFlux.diagnostics</span>(</span>
@@ -971,7 +972,7 @@ Note
 </tr>
 <tr class="even">
 <td><code>window_C0Cf</code></td>
-<td>Numeric; seconds averaged at the start and end of the incubation for C_{obs}. Default 10.</td>
+<td>Numeric; seconds averaged at the start and end of the incubation for <span class="math inline">\(\Delta C_{obs}\)</span>. Default 10.</td>
 </tr>
 <tr class="odd">
 <td><code>tolerance</code></td>
@@ -979,25 +980,25 @@ Note
 </tr>
 <tr class="even">
 <td><code>min_snr</code></td>
-<td>Numeric; minimum</td>
+<td>Numeric; minimum <span class="math inline">\(\vert \Delta C_{obs}\vert /\sigma\)</span> to evaluate the closure. Default 10.</td>
 </tr>
 <tr class="odd">
 <td><code>dl_sigma</code></td>
-<td>Numeric; bubble detection limit in multiples of . Default 20.</td>
+<td>Numeric; bubble detection limit in multiples of <span class="math inline">\(\sigma\)</span>. Default 20.</td>
 </tr>
 </tbody>
 </table>
 </section>
 <section id="details-5" class="level4">
 <h4 class="anchored" data-anchor-id="details-5">Details</h4>
-<p><strong>Mass-balance closure.</strong> When bubbles were detected, the separation is checked against the gas that actually accumulated in the chamber, in concentration units and with mean rates only: closure = ({s}_D , T + <em>i M_i) / C</em>{obs} {s}<em>D is the mean diffusive accumulation rate over the diffusive window (slope of the linear model fitted by goFlux on that window, whatever model <code>best.flux</code> selected), T the incubation length, M_i the settled bubble steps and C</em>{obs} the difference between the mean concentrations of the last and first <code>window_C0Cf</code> seconds.</p>
+<p><strong>Mass-balance closure.</strong> When bubbles were detected, the separation is checked against the gas that actually accumulated in the chamber, in concentration units and with mean rates only: <span class="math inline">\(closure = (\bar{s}_D \, T + \sum_i M_i) / \Delta C_{obs}\)</span> <span class="math inline">\(\bar{s}_D\)</span> is the mean diffusive accumulation rate over the diffusive window (slope of the linear model fitted by goFlux on that window, whatever model <code>best.flux</code> selected), <span class="math inline">\(T\)</span> the incubation length, <span class="math inline">\(M_i\)</span> the settled bubble steps and <span class="math inline">\(\Delta C_{obs}\)</span> the difference between the mean concentrations of the last and first <code>window_C0Cf</code> seconds.</p>
 <ul>
-<li>closure &lt; 1 : part of the accumulated gas is not explained (undetected bubbles, or diffusion faster after the first bubble than before it);</li>
-<li>closure &gt; 1 : more gas is attributed than accumulated (over-estimated bubbles, or diffusion slowing down after the first bubble, e.g.&nbsp;a curved accumulation measured on a short window).</li>
+<li><span class="math inline">\(closure &lt; 1\)</span> : part of the accumulated gas is not explained (undetected bubbles, or diffusion faster after the first bubble than before it);</li>
+<li><span class="math inline">\(closure &gt; 1\)</span> : more gas is attributed than accumulated (over-estimated bubbles, or diffusion slowing down after the first bubble, e.g.&nbsp;a curved accumulation measured on a short window).</li>
 </ul>
 <p>Mean rates are used because the reported diffusive flux is an initial slope when <code>best.flux</code> selects the Hutchinson-Mosier model, whereas the ebullitive flux and the observed change are mean rates. Comparing the total flux with a two-point estimate would therefore flag curvature, which is already assessed by the g-factor of <code>best.flux</code>.</p>
-<p>The closure is evaluated only when the observed change is large compared with the noise, estimated robustly from first differences as = MAD(C_t)/: |C_{obs}| &gt; <code>min_snr</code> .</p>
-<p><strong>Detection limit.</strong> An incubation without detected bubbles does not prove the absence of ebullition. <code>bubble_detection_limit</code> is the smallest bubble detected reliably (<code>dl_sigma</code> ; isolated bubbles of 20 were detected in 96-100% of synthetic incubations) and <code>ebullition_detection_limit</code> the ebullitive flux of one such bubble over the incubation.</p>
+<p>The closure is evaluated only when the observed change is large compared with the noise, estimated robustly from first differences as <span class="math inline">\(\sigma = MAD(\Delta C_t)/\sqrt{2}\)</span>: <span class="math inline">\(|\Delta C_{obs}| &gt;\)</span> <code>min_snr</code> <span class="math inline">\(\times \sigma\)</span>.</p>
+<p><strong>Detection limit.</strong> An incubation without detected bubbles does not prove the absence of ebullition. <code>bubble_detection_limit</code> is the smallest bubble detected reliably (<code>dl_sigma</code> <span class="math inline">\(\times \sigma\)</span>; isolated bubbles of 20 <span class="math inline">\(\sigma\)</span> were detected in 96-100% of synthetic incubations) and <code>ebullition_detection_limit</code> the ebullitive flux of one such bubble over the incubation.</p>
 <p><strong>Calibration.</strong> On synthetic incubations with known fluxes and detected bubbles, with the defaults (<code>tolerance = 0.2</code>, <code>min_snr = 10</code>), 98% of the incubations whose closure failed had a total-flux error &gt; 20%, while those that passed had median absolute errors of 2% (total flux) and 1.5% (ebullitive flux).</p>
 </section>
 </section>
@@ -1080,6 +1081,15 @@ Note
 <section id="details-6" class="level4">
 <h4 class="anchored" data-anchor-id="details-6">Details</h4>
 <p>Each figure is composed of the following elements.</p>
+<ul>
+<li><strong>Observations</strong>: All records for the incubation are drawn. Points retained by the quality flag (<code>flag == 1</code>) are filled and opaque; discarded points are hollow and faded, so that they remain visible for diagnosis without competing with the retained series. For a gas other than the one the bubbles were detected on (e.g.&nbsp;CO2 with bubbles detected on CH4), when ebullition cut the diffusive window short, only the retained points of the diffusive window are black: those after it, which do not enter any flux estimate for that gas, are light grey (<em>outside diffusive window</em>).</li>
+<li><strong>Diffusive window</strong>: A full-height band from <span class="math inline">\(t = 0\)</span> to the end of the window used to fit the diffusive flux. The extent of the window is taken from <code>n_obs.diffusion</code> in <code>flux_summary</code> and applied to the time-ordered retained series.</li>
+<li><strong>Ebullition events</strong>: Full-height bands spanning the start and end times of each detected bubbling event. Events are detected on a single gas (<code>bubble.gas</code>) and shared by all gases of an incubation. They are drawn for every gas, including one without ebullition, because they show whether the diffusive window was cut short by bubbling or by another selection step. When they come from another gas, the legend names it, e.g.&nbsp;<em>ebullition event (CH4)</em>.</li>
+<li><strong>Diffusive fit</strong>: Only the model selected by <code>best.flux</code> (column <code>model</code> of <code>diffusive</code>) is drawn, in dark blue, and the legend names it, e.g.&nbsp;<em>diffusive fit (HM)</em>. It is drawn only across the diffusive window, since it is not fitted to the ebullitive part of the series. A fit that stops short of, or runs past, the bubble-free portion of the record is then a direct indication that the window was misidentified. For output without a <code>model</code> column (earlier versions), both the LM (dark blue) and HM (sky blue) fits are drawn.</li>
+<li><strong>Bubble fits</strong>: For each event whose magnitude is significant (<code>magnitude / SE &gt;= bubble.snr</code>), the step + re-equilibration model fitted by <code>find.bubbles</code>, in vermillion. It is drawn from the start of the event band to the end of that event’s fit window: pre-bubble lead-in, jump to the transient peak and exponential re-equilibration. When a re-equilibration term was retained, the settled post-bubble level is added as a dashed line; the estimated magnitude is the vertical offset between it and the pre-bubble trend. A curve that has not converged on the dashed line by the end of the fit window indicates an extrapolated settled level (<code>reequil.complete = FALSE</code>). The models are in the units of the gas the events were detected on, so they are drawn only on that gas’s panel (see <code>bubble.gas</code>), and only when it has an ebullitive component: a finite, non-zero <code>flux_ebullition</code> and a total flux that differs from the diffusive flux. Redrawing a model requires the columns <code>intercept</code>, <code>t.bubble</code>, <code>t.step</code>, <code>t.peak</code>, <code>fit.start</code> and <code>fit.end</code> returned by <code>find.bubbles</code>; if <code>bubbles</code> lacks them (output of an earlier version), the fits are skipped with a warning and the rest of the figure is unaffected.</li>
+<li><strong>Flux estimates</strong>: Reported in the plot subtitle, with their unit in the caption. They are placed outside the panel so that they cannot overlap the data for any incubation.</li>
+<li><strong>Quality checks</strong>: When <code>quality.check = TRUE</code>, the caption reports the two complementary checks of <code>goAquaFlux</code>. The quality check of the diffusive fit (<code>quality.check</code> and <code>model</code> from <code>best.flux</code>) is shown for every gas, as in <code>flux.plot</code>. The ebullition check (<code>ebullition.check</code>, see <code>goAquaFlux.diagnostics</code>) is shown only on the panel of the gas the bubbles were detected on, the only gas for which it is computed: the figure of any other gas (e.g.&nbsp;CO2 with bubbles detected on CH4) is assessed from that gas’s own fit alone. The closure is given in brackets and, when no bubble was detected, the detection limit of ebullition.</li>
+</ul>
 <p>If the <strong>ggtext</strong> package is available, the subtitle is rendered with the diffusive and ebullitive estimates coloured to match their respective bands and fits; otherwise a plain-text subtitle is used. The two variants are identical in content.</p>
 <p>Layers are drawn back to front: bands, observations, bubble fits, then the diffusive fit. The y-axis range covers every drawn element within the x-window, including discarded points and extrapolated bubble-fit levels, so that nothing is silently clipped.</p>
 <p>Colours follow the Okabe-Ito palette, which remains distinguishable under the common forms of colour vision deficiency and in greyscale print.</p>
