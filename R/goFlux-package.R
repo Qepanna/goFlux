@@ -115,3 +115,11 @@
 #' @importFrom utils type.convert
 NULL
 #> NULL
+
+# Column names used in non-standard evaluation (dplyr verbs, ggplot2 aes()).
+# Declared so R CMD check does not report them as undefined globals.
+# No runtime effect.
+utils::globalVariables(c(
+  "Etime", "Etime.original", "H2O_ppm", "flag",
+  "time_min", "time_max", "xend", "yend"
+))

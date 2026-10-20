@@ -529,7 +529,7 @@ find.bubbles <- function(df,
       }
       rss <- function(tau) {
         m <- fit_tau(tau)
-        if (is.null(m)) Inf else sum(residuals(m)^2)
+        if (is.null(m)) .Machine$double.xmax else sum(residuals(m)^2)
       }
 
       if (tau_hi > tau.range[1]) {

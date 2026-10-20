@@ -913,9 +913,9 @@ flux.plot.aqua <- function(flux.results.ls, dataframe, gastype, shoulder = 30,
       # The band keys are drawn at a higher opacity than the bands themselves,
       # which would otherwise be barely visible at legend-key size.
       guides(fill  = guide_legend(override.aes = list(alpha = 0.35)),
-             shape = guide_legend(override.aes = list(colour = unname(key_colours))),
-             alpha = guide_legend(override.aes = list(size = 2,
-                                                      colour = unname(key_colours)))) +
+             shape = guide_legend(override.aes = list(size   = 2,
+                                                      colour = unname(key_colours))),
+             alpha = guide_legend()) +
       xlab("Time (s)") + ylab_plot +
       # Breaks are derived from the data range rather than set at a fixed
       # interval, which keeps the axis legible for incubations of any duration.
